@@ -124,17 +124,17 @@ namespace jasl {
             if(next != EOF) {
                 // see if ^str
                 if(std::isalnum(next)) {
-                    stream.get();
                     auto dat = getAlphaNumsUntilSpace(stream);
                     tokens.emplace_back(Lexeme::HAT, std::move(dat));
                     return true;
                 } 
                 // see if ^^str
                 else if(next == '^') {
-                    stream.get();
-                    auto dat = getAlphaNumsUntilSpace(stream);
-                    tokens.emplace_back(Lexeme::HAT_HAT, std::move(dat));
-                    return true;
+                    if(std::isalnum(next)) {
+                        auto dat = getAlphaNumsUntilSpace(stream);
+                        tokens.emplace_back(Lexeme::HAT_HAT, std::move(dat));
+                        return true;
+                    }
                 }
             }
         } else if(c == '?') {
@@ -149,10 +149,11 @@ namespace jasl {
                 } 
                 // see if ??str
                 else if(next == '?') {
-                    stream.get();
-                    auto dat = getAlphaNumsUntilSpace(stream);
-                    tokens.emplace_back(Lexeme::QUESTION_QUESTION, std::move(dat));
-                    return true;
+                    if(std::isalnum(next)) {
+                        auto dat = getAlphaNumsUntilSpace(stream);
+                        tokens.emplace_back(Lexeme::QUESTION_QUESTION, std::move(dat));
+                        return true;
+                    }
                 }
             }
         } else if(c == ';') {
