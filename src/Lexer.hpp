@@ -8,7 +8,7 @@ namespace jasl {
     class Lexer {
 
       public:
-        std::vector<Token> tokenize(std::istream & stream) const;
+        static std::vector<Token> tokenize(std::istream & stream);
 
     };
 }

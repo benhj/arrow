@@ -21,7 +21,7 @@ namespace jasl {
         // Keywords
         FOR, EACH, REPEAT, TIMES, IF, START, FN, BOOL,
         INTEGER, REAL, STRING, IN, LIST, TRUE, FALSE,
-        SAY, PR, PRN, INPUT, WHILE
+        SAY, PR, PRN, INPUT, WHILE, PUT, ELSE
 
         // Built-ins
     };

@@ -93,7 +93,8 @@ namespace jasl {
             {Lexeme::WHILE, "while"}, {Lexeme::TIMES, "times"},
             {Lexeme::START, "start"}, {Lexeme::FN, "fn"}, 
             {Lexeme::BOOL, "bool"}, {Lexeme::INTEGER, "int"},
-            {Lexeme::REAL, "real"}, {Lexeme::STRING, "string"}, 
+            {Lexeme::REAL, "real"}, {Lexeme::STRING, "string"},
+            {Lexeme::PUT, "put"}, {Lexeme::ELSE, "else"}, 
             {Lexeme::IN, "in"}, {Lexeme::LIST, "list"}, 
             {Lexeme::SAY, "say"}, {Lexeme::PR, "pr"},
             {Lexeme::PRN, "prn"}, {Lexeme::TRUE, "true"}, 
@@ -101,7 +102,7 @@ namespace jasl {
         };
         auto found = std::find_if(std::begin(poss), std::end(poss),
             [&word](Token const & token){ return token.raw == word; });
-        if(found != std::end(tokens)) {
+        if(found != std::end(poss)) {
             tokens.push_back(*found);
             return true;
         }
@@ -205,7 +206,7 @@ namespace jasl {
         return false;
     }
 
-    std::vector<Token> Lexer::tokenize(std::istream & stream) const {
+    std::vector<Token> Lexer::tokenize(std::istream & stream) {
         std::vector<Token> tokens;
         char c;
         while(stream.get(c)) {
