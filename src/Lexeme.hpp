@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 namespace jasl {
     enum class Lexeme {
         // Single char lexemes
@@ -24,3 +26,5 @@ namespace jasl {
         // Built-ins
     };
 }
+
+std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value);
