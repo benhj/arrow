@@ -207,6 +207,28 @@ namespace jasl {
         return false;
     }
 
+    bool checkIfLiteralStringToken(char const c, std::istream & stream, std::vector<Token> & tokens) {
+        if(c == '"') {
+            auto next = stream.peek();
+            std::string dat;
+            while (next != EOF && next != '"') {
+                if(next == '\n') {
+                    break;
+                }
+                dat.push_back(next);
+                stream.get();
+                next = stream.peek();
+            }
+            if(c != '"') {
+                return false;
+            }
+            stream.get();
+            tokens.emplace_back(Lexeme::LITERAL_STRING, std::move(dat));
+        }
+        return false;
+
+    }
+
     std::vector<Token> Lexer::tokenize(std::istream & stream) {
         std::vector<Token> tokens;
         char c;
@@ -217,6 +239,7 @@ namespace jasl {
             if(checkIfSingleCharToken(c, tokens)) { continue; }
             if(checkIfMultiAlphaToken(c, stream, tokens)) { continue; }
             if(checkIfNumberToken(c, stream, tokens)) { continue; }
+            if(checkIfLiteralStringToken(c, stream, tokens)) { continue; }
         }
         return tokens;
     }
