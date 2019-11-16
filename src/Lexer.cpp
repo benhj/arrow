@@ -226,7 +226,6 @@ namespace jasl {
             tokens.emplace_back(Lexeme::LITERAL_STRING, std::move(dat));
         }
         return false;
-
     }
 
     std::vector<Token> Lexer::tokenize(std::istream & stream) {
