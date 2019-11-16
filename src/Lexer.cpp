@@ -59,16 +59,16 @@ namespace jasl {
 
     bool checkIfSingleCharToken(char const c, std::vector<Token> & tokens) {
         switch (c) {
-            case '+': tokens.emplace_back(Lexeme::ARROW, "+"); break;
+            case '+': tokens.emplace_back(Lexeme::PLUS, "+"); break;
             case '*': tokens.emplace_back(Lexeme::STAR, "*"); break;
             case '=': tokens.emplace_back(Lexeme::EQUAL, "="); break;
             case '{': tokens.emplace_back(Lexeme::OPEN_CURLY, "{"); break;
             case '}': tokens.emplace_back(Lexeme::CLOSE_CURLY, "}"); break;
-            case '[': tokens.emplace_back(Lexeme::OPEN_SQUARE, "}"); break;
-            case ']': tokens.emplace_back(Lexeme::CLOSE_SQUARE, "}"); break;
-            case '(': tokens.emplace_back(Lexeme::OPEN_PAREN, "}"); break;
-            case ')': tokens.emplace_back(Lexeme::CLOSE_PAREN, "}"); break;
-            case ':': tokens.emplace_back(Lexeme::COLON, "}"); break;
+            case '[': tokens.emplace_back(Lexeme::OPEN_SQUARE, "["); break;
+            case ']': tokens.emplace_back(Lexeme::CLOSE_SQUARE, "]"); break;
+            case '(': tokens.emplace_back(Lexeme::OPEN_PAREN, "("); break;
+            case ')': tokens.emplace_back(Lexeme::CLOSE_PAREN, ")"); break;
+            case ':': tokens.emplace_back(Lexeme::COLON, ":"); break;
             default : return false;
         };
         return true;
@@ -77,7 +77,7 @@ namespace jasl {
     std::string getAlphaNumsUntilSpace(std::istream & stream) {
         std::string dat;
         auto next = stream.peek();
-        while (next != EOF && std::isalnum(next)) {
+        while (next != EOF && (std::isalnum(next) || next == '_')) {
             stream.get(); // iterate
             dat.push_back(next);
             next = stream.peek();
@@ -110,7 +110,7 @@ namespace jasl {
 
     bool checkIfMultiAlphaToken(char const c, std::istream & stream, std::vector<Token> & tokens) {
         // check if beginning of 'generic string'
-        if(std::isalpha(c)) {
+        if(std::isalpha(c) || c == '_' /* also permit */) {
             std::string dat;
             dat.push_back(c);
             auto rest = getAlphaNumsUntilSpace(stream);
