@@ -178,6 +178,33 @@ namespace jasl {
         return false;
     }
 
+    bool checkIfNumberToken(char const c, std::istream & stream, std::vector<Token> & tokens) {
+        if(std::isdigit(c)) {
+            std::string dat;
+            dat.push_back(c);
+            auto next = stream.peek();
+            auto stillNeedDot = true;
+            while(next != EOF && (std::isdigit(next) || (next == '.'))) {
+                if(next == '.' && stillNeedDot) {
+                    stillNeedDot = false;
+                } else if(next == '.') {
+                    break;
+                }
+                stream.get();
+                dat.push_back(next);
+                next = stream.peek();
+            }
+            // Found real number
+            if(!stillNeedDot) {
+                tokens.emplace_back(Lexeme::REAL_NUM, std::move(dat));
+            } else {
+                tokens.emplace_back(Lexeme::INTEGER_NUM, std::move(dat));
+            }
+            return true;
+        }
+        return false;
+    }
+
     std::vector<Token> Lexer::tokenize(std::istream & stream) const {
         std::vector<Token> tokens;
         char c;
@@ -187,6 +214,7 @@ namespace jasl {
             if(checkIfDoubleCharToken(c, stream, tokens)) { continue; }
             if(checkIfSingleCharToken(c, tokens)) { continue; }
             if(checkIfMultiAlphaToken(c, stream, tokens)) { continue; }
+            if(checkIfNumberToken(c, stream, tokens)) { continue; }
         }
         return tokens;
     }
