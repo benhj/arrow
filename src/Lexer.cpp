@@ -98,7 +98,8 @@ namespace jasl {
             {Lexeme::IN, "in"}, {Lexeme::LIST, "list"}, 
             {Lexeme::SAY, "say"}, {Lexeme::PR, "pr"},
             {Lexeme::PRN, "prn"}, {Lexeme::TRUE, "true"}, 
-            {Lexeme::FALSE, "false"}, {Lexeme::INPUT, "input"}
+            {Lexeme::FALSE, "false"}, {Lexeme::INPUT, "input"},
+            {Lexeme::CALL, "call"}
         };
         auto found = std::find_if(std::begin(poss), std::end(poss),
             [&word](Token const & token){ return token.raw == word; });

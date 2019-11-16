@@ -64,6 +64,7 @@ std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value){
         INSERT_ELEMENT(jasl::Lexeme::WHILE);
         INSERT_ELEMENT(jasl::Lexeme::PUT);
         INSERT_ELEMENT(jasl::Lexeme::ELSE);
+        INSERT_ELEMENT(jasl::Lexeme::CALL);
 #undef INSERT_ELEMENT
     }   
 
