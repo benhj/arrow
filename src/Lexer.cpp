@@ -187,7 +187,8 @@ namespace jasl {
             if(checkIfDoubleCharToken(c, stream, tokens)) { continue; }
             if(checkIfSingleCharToken(c, tokens)) { continue; }
             if(checkIfMultiAlphaToken(c, stream, tokens)) { continue; }
-        } 
+        }
+        return tokens;
     }
 
 }
