@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ArrowStatement.hpp"
+#include "IdentifierExpression.hpp"
 #include "LiteralIntExpression.hpp"
+#include "LiteralRealExpression.hpp"
 #include "OperatorExpression.hpp"
 #include "Lexeme.hpp"
 #include "Token.hpp"
@@ -52,10 +54,24 @@ namespace jasl {
             ++m_index;
         }
 
+        std::shared_ptr<Expression> parseIdentifierExpression(int const index)
+        {
+            auto exp = std::make_shared<IdentifierExpression>();
+            exp->withIntToken(m_tokens[index]);
+            return exp;
+        }
+
         std::shared_ptr<Expression> parseLiteralIntExpression(int const index)
         {
             auto exp = std::make_shared<LiteralIntExpression>();
             exp->withIntToken(m_tokens[index]);
+            return exp;
+        }
+
+        std::shared_ptr<Expression> parseLiteralRealExpression(int const index)
+        {
+            auto exp = std::make_shared<LiteralRealExpression>();
+            exp->withRealToken(m_tokens[index]);
             return exp;
         }
         std::shared_ptr<Expression> parseOperatorExpression(int const index)
@@ -63,7 +79,9 @@ namespace jasl {
             auto exp = std::make_shared<OperatorExpression>();
             exp->withOperator(m_tokens[index]);
 
-            // Parse expression on left of operator
+            // Parse expression on left of operator.
+            // Note the false is to make sure we don't
+            // check the subsequent value for an operatos
             auto leftExpression = parseExpression(index - 1, false);
             if(leftExpression) {
 
@@ -87,6 +105,12 @@ namespace jasl {
             } else if(m_tokens[index].lexeme == Lexeme::INTEGER_NUM) {
                 advanceTokenIterator();
                 return parseLiteralIntExpression(index);
+            } else if(m_tokens[index].lexeme == Lexeme::REAL_NUM) {
+                advanceTokenIterator();
+                return parseLiteralRealExpression(index);
+            }  else if(m_tokens[index].lexeme == Lexeme::GENERIC_STRING) {
+                advanceTokenIterator();
+                return parseIdentifierExpression(index);
             }
             return nullptr;
         }
@@ -96,12 +120,10 @@ namespace jasl {
             auto intStatement = std::make_shared<ArrowStatement>();
             intStatement->withToken(m_tokens[m_index]);
             auto expression = parseExpression(m_index + 1);
-
             if(expression) {
                 intStatement->withExpression(std::move(expression));
                 advanceTokenIterator();
                 if(notAtEnd()) {
-                    std::cout<<m_tokens[m_index].raw<<std::endl;
                     if(m_tokens[m_index].lexeme != Lexeme::ARROW) {
                         return nullptr;
                     }
