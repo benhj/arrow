@@ -4,6 +4,7 @@
 #include "IdentifierExpression.hpp"
 #include "LiteralIntExpression.hpp"
 #include "LiteralRealExpression.hpp"
+#include "GroupedExpression.hpp"
 #include "OperatorExpression.hpp"
 #include "Lexeme.hpp"
 #include "Token.hpp"
@@ -96,12 +97,48 @@ namespace jasl {
             return nullptr;
         }
 
+        std::shared_ptr<Expression> parseGroupedExpression(int const index)
+        {
+            auto exp = std::make_shared<GroupedExpression>();
+            auto expression = parseExpression(index);
+            if(expression) {
+                exp->withExpression(std::move(expression));
+                return exp;
+            }
+            return nullptr;
+        }
+
         std::shared_ptr<Expression> parseExpression(int const index,
                                                     bool checkOperator = true)
         {
-            if(checkOperator && isOperator(m_tokens[index + 1].lexeme)) {
+            if (checkOperator && isOperator(m_tokens[index + 1].lexeme)) {
                 advanceTokenIterator();
                 return parseOperatorExpression(index + 1);
+            } else if(m_tokens[index].lexeme == Lexeme::OPEN_PAREN) {
+                advanceTokenIterator();
+                auto expression = parseGroupedExpression(index + 1);
+                advanceTokenIterator();
+                if(m_tokens[m_index].lexeme != Lexeme::CLOSE_PAREN) {
+                    // unbalanced
+                    return nullptr;
+                }
+                // Check for additional expression parts
+                if(isOperator(m_tokens[m_index + 1].lexeme)) {
+                    advanceTokenIterator();
+                    auto exp = std::make_shared<OperatorExpression>();
+                    exp->withOperator(m_tokens[m_index]);
+                    if(!expression) {
+                        return nullptr;
+                    }
+                    exp->withLeft(expression);
+                    auto right = parseExpression(m_index + 1);
+                    if(!right) {
+                        return nullptr;
+                    }
+                    exp->withRight(right);
+                    return exp;
+                }
+                return expression;
             } else if(m_tokens[index].lexeme == Lexeme::INTEGER_NUM) {
                 advanceTokenIterator();
                 return parseLiteralIntExpression(index);
