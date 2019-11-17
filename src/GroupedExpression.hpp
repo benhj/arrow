@@ -27,8 +27,9 @@ namespace jasl {
         }
         std::string toString() const override 
         {
-            std::string str("\nGrouped expression: ");
+            std::string str("\nBegin grouped expression");
             str.append(m_expression->toString());
+            str.append("\nEnd grouped expression");
             return str;
         }
 

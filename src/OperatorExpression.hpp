@@ -46,12 +46,14 @@ namespace jasl {
         }
         std::string toString() const override 
         {
-            std::string str("\nLeft: ");
+            std::string str("\nBegin expression: ");
+            str.append("\nLeft: ");
             str.append(m_expressionLeft->toString());
             str.append("\nOperator: ");
             str.append(m_op.raw);
             str.append("\nRight: ");
             str.append(m_expressionRight->toString());
+            str.append("\nEnd expression");
             return str;
         }
 
