@@ -4,6 +4,7 @@
 #include "IdentifierExpression.hpp"
 #include "LiteralIntExpression.hpp"
 #include "LiteralRealExpression.hpp"
+#include "LiteralStringExpression.hpp"
 #include "GroupedExpression.hpp"
 #include "OperatorExpression.hpp"
 #include "Lexeme.hpp"
@@ -75,6 +76,14 @@ namespace jasl {
             exp->withRealToken(m_tokens[index]);
             return exp;
         }
+
+        std::shared_ptr<Expression> parseLiteralStringExpression(int const index)
+        {
+            auto exp = std::make_shared<LiteralStringExpression>();
+            exp->withStringToken(m_tokens[index]);
+            return exp;
+        }
+
         std::shared_ptr<Expression> parseOperatorExpression(int const index)
         {
             auto exp = std::make_shared<OperatorExpression>();
@@ -145,9 +154,12 @@ namespace jasl {
             } else if(m_tokens[index].lexeme == Lexeme::REAL_NUM) {
                 advanceTokenIterator();
                 return parseLiteralRealExpression(index);
-            }  else if(m_tokens[index].lexeme == Lexeme::GENERIC_STRING) {
+            } else if(m_tokens[index].lexeme == Lexeme::GENERIC_STRING) {
                 advanceTokenIterator();
                 return parseIdentifierExpression(index);
+            } else if(m_tokens[index].lexeme == Lexeme::LITERAL_STRING) {
+                advanceTokenIterator();
+                return parseLiteralStringExpression(index);
             }
             return nullptr;
         }
@@ -165,7 +177,6 @@ namespace jasl {
                         return nullptr;
                     }
                     advanceTokenIterator();
-
                     if(notAtEnd()) {
                         if(m_tokens[m_index].lexeme == Lexeme::GENERIC_STRING) {
                             intStatement->withIdentifier(m_tokens[m_index]);
