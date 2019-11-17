@@ -1,5 +1,6 @@
 #include "Lexer.hpp"
 #include "Lexeme.hpp"
+#include "Parser.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -12,6 +13,13 @@ int main(int argc, char ** argv) {
 	for(auto const & token : tokens) {
 		std::cout<<token.lexeme<<"\t"<<token.raw<<std::endl;
 	}
+
+	jasl::Parser p(tokens);
+    p.parse();
+    auto statements = p.getStatements();
+    for(auto const & s : statements) {
+    	std::cout<<s->toString()<<std::endl;
+    }
 
 	return 0;
 }

@@ -69,6 +69,7 @@ namespace jasl {
             case '(': tokens.emplace_back(Lexeme::OPEN_PAREN, "("); break;
             case ')': tokens.emplace_back(Lexeme::CLOSE_PAREN, ")"); break;
             case ':': tokens.emplace_back(Lexeme::COLON, ":"); break;
+            case ',': tokens.emplace_back(Lexeme::COMMA, ","); break;
             default : return false;
         };
         return true;
@@ -117,9 +118,9 @@ namespace jasl {
             dat.push_back(c);
             auto rest = getAlphaNumsUntilSpace(stream);
             dat.append(rest);
-            if(!checkIfKeyword(dat, tokens)) {
-                tokens.emplace_back(Lexeme::GENERIC_STRING, std::move(dat));
-            }
+            //if(!checkIfKeyword(dat, tokens)) {
+            tokens.emplace_back(Lexeme::GENERIC_STRING, std::move(dat));
+            //}
             return true;
         } else if(c == '^') {
             auto next = stream.peek();

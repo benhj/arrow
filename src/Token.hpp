@@ -6,6 +6,9 @@
 
 namespace jasl {
 	struct Token {
+
+		Token(){}
+
 		Token(Lexeme lex, std::string str) 
 		: lexeme(std::move(lex))
 		, raw(std::move(str))

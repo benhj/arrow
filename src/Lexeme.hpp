@@ -8,7 +8,7 @@ namespace jasl {
         PLUS, MINUS, STAR, EQUAL, DIVIDE,
         COLON, SEMICOLON, OPEN_PAREN, CLOSE_PAREN,
         OPEN_SQUARE, CLOSE_SQUARE, OPEN_CURLY, CLOSE_CURLY,
-        GREATER, LESS, HAT, QUESTION,
+        GREATER, LESS, HAT, QUESTION, COMMA,
 
         // Double or tipple char lexemes
         NOT_EQUAL, GREATER_EQUAL, LESS_EQUAL, ARROW, COMMENT,
@@ -25,6 +25,8 @@ namespace jasl {
 
         // Built-ins
     };
+
+    bool isOperator(Lexeme const lexeme);
 }
 
 std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value);
