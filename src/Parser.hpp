@@ -6,6 +6,7 @@
 #include "LiteralRealExpression.hpp"
 #include "LiteralStringExpression.hpp"
 #include "GroupedExpression.hpp"
+#include "ListExpression.hpp"
 #include "OperatorExpression.hpp"
 #include "Lexeme.hpp"
 #include "Token.hpp"
@@ -117,6 +118,28 @@ namespace jasl {
             return nullptr;
         }
 
+        std::shared_ptr<ListExpression> parseListExpression(int index)
+        {
+            auto listExp = std::make_shared<ListExpression>();
+            while(m_tokens[index].lexeme != Lexeme::CLOSE_SQUARE) {
+                std::shared_ptr<Expression> exp;
+                if(m_tokens[index].lexeme == Lexeme::OPEN_SQUARE) {
+                    advanceTokenIterator();
+                    auto embeddedExp = parseListExpression(index + 1);
+                    index += embeddedExp->getPartsCount();
+                    exp = embeddedExp;
+                } else {
+                    exp = parseExpression(index);
+                }
+                if(exp) {
+                    listExp->addPart(std::move(exp));
+                }
+                ++index;
+            }
+            advanceTokenIterator();
+            return listExp;
+        }
+
         std::shared_ptr<Expression> parseExpression(int const index,
                                                     bool checkOperator = true)
         {
@@ -148,7 +171,10 @@ namespace jasl {
                     return exp;
                 }
                 return expression;
-            } else if(m_tokens[index].lexeme == Lexeme::INTEGER_NUM) {
+            } else if(m_tokens[index].lexeme == Lexeme::OPEN_SQUARE) {
+                advanceTokenIterator();
+                return parseListExpression(index + 1);
+            }  else if(m_tokens[index].lexeme == Lexeme::INTEGER_NUM) {
                 advanceTokenIterator();
                 return parseLiteralIntExpression(index);
             } else if(m_tokens[index].lexeme == Lexeme::REAL_NUM) {
@@ -166,24 +192,25 @@ namespace jasl {
 
         std::shared_ptr<Statement> parseArrowStatement()
         {
-            auto intStatement = std::make_shared<ArrowStatement>();
-            intStatement->withToken(m_tokens[m_index]);
+            auto arrowStatement = std::make_shared<ArrowStatement>();
+            arrowStatement->withToken(m_tokens[m_index]);
             auto expression = parseExpression(m_index + 1);
             if(expression) {
-                intStatement->withExpression(std::move(expression));
+                arrowStatement->withExpression(std::move(expression));
                 advanceTokenIterator();
                 if(notAtEnd()) {
+                    std::cout<<m_tokens[m_index].lexeme<<std::endl;
                     if(m_tokens[m_index].lexeme != Lexeme::ARROW) {
                         return nullptr;
                     }
                     advanceTokenIterator();
                     if(notAtEnd()) {
                         if(m_tokens[m_index].lexeme == Lexeme::GENERIC_STRING) {
-                            intStatement->withIdentifier(m_tokens[m_index]);
+                            arrowStatement->withIdentifier(m_tokens[m_index]);
                             advanceTokenIterator();
                             if(notAtEnd()) {
                                 if(m_tokens[m_index].lexeme == Lexeme::SEMICOLON) {
-                                    return intStatement;
+                                    return arrowStatement;
                                 }
                             }
                         }
