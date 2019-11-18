@@ -118,7 +118,6 @@ namespace jasl {
 
         std::shared_ptr<Expression> parseGroupedExpression()
         {
-
             // Skip over paren
             advanceTokenIterator();
 
@@ -156,44 +155,31 @@ namespace jasl {
             return nullptr;
         }
 
-/*
-        std::shared_ptr<ListExpression> parseListExpression(int index)
+
+        std::shared_ptr<Expression> parseListExpression()
         {
-            auto listExp = std::make_shared<ListExpression>();
-            while(m_tokens[index].lexeme != Lexeme::CLOSE_SQUARE) {
-                std::shared_ptr<Expression> exp;
-                if(m_tokens[index].lexeme == Lexeme::OPEN_SQUARE) {
-                    advanceTokenIterator();
-                    auto embeddedExp = parseListExpression(index + 1);
-                    index += embeddedExp->getPartsCount();
-                    exp = embeddedExp;
-                } else {
-                    exp = parseExpression(index);
-                }
-                if(exp) {
-                    listExp->addPart(std::move(exp));
-                }
-                ++index;
-            }
+
+            // Skip over open square bracket
             advanceTokenIterator();
+            auto listExp = std::make_shared<ListExpression>();
+            while(currentToken().lexeme != Lexeme::CLOSE_SQUARE) {
+                auto exp = parseExpression();
+                if(!exp) { return nullptr; }
+                listExp->addPart(std::move(exp));
+                advanceTokenIterator();
+            }
             return listExp;
         }
-*/
+
         std::shared_ptr<Expression> parseExpression(bool checkOperator = true)
         {
             if (checkOperator && isOperator(nextToken().lexeme)) {
                 return parseOperatorExpression();
-            }
-            else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
+            } else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
                 return parseGroupedExpression();
-            }
-
-            /*
-            else if(m_tokens[index].lexeme == Lexeme::OPEN_SQUARE) {
-                advanceTokenIterator();
-                return parseListExpression(index + 1);
-            }*/
-            else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {
+            } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
+                return parseListExpression();
+            } else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {
                 return parseLiteralIntExpression();
             } else if(currentToken().lexeme == Lexeme::REAL_NUM) {
                 return parseLiteralRealExpression();
