@@ -4,6 +4,7 @@
 /// Statements
 #include "ArrowStatement.hpp"
 #include "ArrowlessStatement.hpp"
+#include "ForStatement.hpp"
 #include "RepeatStatement.hpp"
 
 /// Expressions
@@ -72,6 +73,15 @@ namespace jasl {
             {
                 auto store = m_current;
                 auto statement = parseRepeatStatement();
+                if(statement) { 
+                    return statement;
+                }
+                // Revert token iterator state in case of failure
+                m_current = store;
+            }
+            {
+                auto store = m_current;
+                auto statement = parseForStatement();
                 if(statement) { 
                     return statement;
                 }
@@ -333,4 +343,30 @@ namespace jasl {
         }
         return repeatStatement;
     }
+
+    std::shared_ptr<Statement> Parser::parseForStatement()
+    {
+        auto forStatement = std::make_shared<ForStatement>();
+        if(currentToken().raw != "for") { return nullptr; }
+        forStatement->withToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        forStatement->withIdentifierA(currentToken());
+        advanceTokenIterator();
+        if(currentToken().raw != "in") { return nullptr; }
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        forStatement->withIdentifierB(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+        advanceTokenIterator();
+        while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+            auto statement = buildStatement();
+            if(statement) {
+                forStatement->addBodyStatement(std::move(statement));
+            }
+            advanceTokenIterator();
+        }
+        return forStatement;
+     }
 }

@@ -33,7 +33,7 @@ namespace jasl {
             return str;
         }
 
-        Token m_keywordToken; // the int keywork
+        Token m_keywordToken; // the keyword (e.g. prn)
         std::shared_ptr<Expression> m_expression;
     };
 
