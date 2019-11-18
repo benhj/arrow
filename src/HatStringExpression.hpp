@@ -28,7 +28,7 @@ namespace jasl {
 
         std::string toString() const override 
         {
-            std::string str("^ string expression: ");
+            std::string str("\n^ string expression: ");
             return str.append(m_hatStringToken.raw);
         }
 

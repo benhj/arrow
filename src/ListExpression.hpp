@@ -28,7 +28,7 @@ namespace jasl {
         
         std::string toString() const override 
         {
-            std::string str("Begin list expression");
+            std::string str("\nBegin list expression");
             for(auto const & part : m_parts) {
                 str.append("\n");
                 str.append(part->toString());

@@ -34,7 +34,7 @@ namespace jasl {
 
         std::string toString() const override
         {
-            std::string str("Keyword: ");
+            std::string str("\nKeyword: ");
             str.append(m_keywordToken.raw);
             str.append("\nIdentifier A: ");
             str.append(m_identifierA.raw);

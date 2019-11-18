@@ -39,6 +39,7 @@ namespace jasl {
         std::shared_ptr<Expression> parseOperatorExpression();
         std::shared_ptr<Expression> parseGroupedExpression();
         std::shared_ptr<Expression> parseListExpression();
+        std::shared_ptr<Expression> parseExpressionCollectionExpression();
 
         std::shared_ptr<Expression> parseExpression(bool checkOperator = true);
 
@@ -70,5 +71,9 @@ namespace jasl {
         /// if (expression) { statement * } elseif (...) {} else {}
         /// Note the elseif and final else parts are optional
         std::shared_ptr<Statement> parseIfStatement();
+
+        /// Parses a call statement of the form
+        /// call identifier(expression1,..,expressionN) -> identifier;
+        std::shared_ptr<Statement> parseCallStatement();
     };
 }

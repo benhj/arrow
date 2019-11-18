@@ -26,7 +26,7 @@ namespace jasl {
 
         std::string toString() const override
         {
-            std::string str("Keyword: ");
+            std::string str("\nKeyword: ");
             str.append(m_keywordToken.raw);
             str.append("\nBegin body statements:\n");
             for(auto const & statement : m_bodyStatements) {

@@ -4,6 +4,7 @@
 /// Statements
 #include "ArrowStatement.hpp"
 #include "ArrowlessStatement.hpp"
+#include "CallStatement.hpp"
 #include "ForStatement.hpp"
 #include "IfStatement.hpp"
 #include "ElseStatement.hpp"
@@ -94,6 +95,15 @@ namespace jasl {
             {
                 auto store = m_current;
                 auto statement = parseIfStatement();
+                if(statement) { 
+                    return statement;
+                }
+                // Revert token iterator state in case of failure
+                m_current = store;
+            }
+            {
+                auto store = m_current;
+                auto statement = parseCallStatement();
                 if(statement) { 
                     return statement;
                 }
@@ -254,6 +264,29 @@ namespace jasl {
         return listExp;
     }
 
+    std::shared_ptr<Expression> Parser::parseExpressionCollectionExpression()
+    {
+        if(currentToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
+        auto expression = std::make_shared<ExpressionCollectionExpression>();
+        advanceTokenIterator();
+        while(nextToken().lexeme == Lexeme::COMMA) {
+            auto exp = parseExpression();
+            if(!exp) { return nullptr; }
+            expression->addExpression(std::move(exp));
+            advanceTokenIterator();
+        }
+        advanceTokenIterator();
+        auto exp = parseExpression();
+        if(!exp) { return nullptr; }
+
+        expression->addExpression(std::move(exp));
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::CLOSE_PAREN) {
+            return nullptr;
+        }
+        return expression;
+    }
+
     std::shared_ptr<Expression> Parser::parseExpression(bool checkOperator)
     {
         if (checkOperator && isOperator(nextToken().lexeme)) {
@@ -333,8 +366,8 @@ namespace jasl {
 
     std::shared_ptr<Statement> Parser::parseRepeatStatement()
     {
-        auto repeatStatement = std::make_shared<RepeatStatement>();
         if(currentToken().raw != "repeat") { return nullptr; }
+        auto repeatStatement = std::make_shared<RepeatStatement>();
         repeatStatement->withToken(currentToken());
         advanceTokenIterator();
         auto expression = parseExpression();
@@ -358,8 +391,8 @@ namespace jasl {
 
     std::shared_ptr<Statement> Parser::parseForStatement()
     {
-        auto forStatement = std::make_shared<ForStatement>();
         if(currentToken().raw != "for") { return nullptr; }
+        auto forStatement = std::make_shared<ForStatement>();
         forStatement->withToken(currentToken());
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
@@ -384,8 +417,8 @@ namespace jasl {
 
     std::shared_ptr<Statement> Parser::parseIfStatement()
     {
-        auto ifStatement = std::make_shared<IfStatement>();
         if(currentToken().raw != "if") { return nullptr; }
+        auto ifStatement = std::make_shared<IfStatement>();
         ifStatement->withToken(currentToken());
         if(nextToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
         advanceTokenIterator();
@@ -444,5 +477,25 @@ namespace jasl {
             ifStatement->withElsePart(std::move(elseStatement));
         }
         return ifStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parseCallStatement()
+    {
+        if(currentToken().raw != "call") { return nullptr; }
+        auto callStatement = std::make_shared<CallStatement>();
+        callStatement->withToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        callStatement->withFunctionNameToken(currentToken());
+        advanceTokenIterator();
+        auto collection = parseExpressionCollectionExpression();
+        if(!collection) { return nullptr; }
+        callStatement->withExpressionCollection(std::move(collection));
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::ARROW) { return nullptr; }
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        callStatement->withIdentifier(currentToken());
+        return callStatement;
     }
 }
