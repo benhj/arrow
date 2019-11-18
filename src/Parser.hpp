@@ -20,7 +20,7 @@ namespace jasl {
       public:
         Parser(std::vector<Token> tokens)
           : m_tokens(std::move(tokens))
-          , m_index(0)
+          , m_current(std::begin(m_tokens))
         {
         }
 
@@ -44,17 +44,27 @@ namespace jasl {
 
      private:
         std::vector<Token> m_tokens;
-        int m_index;
+        std::vector<Token>::iterator m_current;
         std::vector<std::shared_ptr<Statement>> m_statements;
 
         bool notAtEnd() const
         {
-            return m_index < m_tokens.size();
+            return m_current != std::end(m_tokens);
         }
 
         void advanceTokenIterator()
         {
-            ++m_index;
+            ++m_current;
+        }
+
+        Token currentToken() const
+        {
+            return *m_current;
+        }
+
+        Token nextToken() const
+        {
+            return *(m_current + 1);
         }
 
         std::shared_ptr<Expression> parseIdentifierExpression()
@@ -179,32 +189,6 @@ namespace jasl {
             }
 
             /*
-            else if(m_tokens[index].lexeme == Lexeme::OPEN_PAREN) {
-                advanceTokenIterator();
-                auto expression = parseGroupedExpression(index + 1);
-                advanceTokenIterator();
-                if(m_tokens[m_index].lexeme != Lexeme::CLOSE_PAREN) {
-                    // unbalanced
-                    return nullptr;
-                }
-                // Check for additional expression parts
-                if(isOperator(m_tokens[m_index + 1].lexeme)) {
-                    advanceTokenIterator();
-                    auto exp = std::make_shared<OperatorExpression>();
-                    exp->withOperator(m_tokens[m_index]);
-                    if(!expression) {
-                        return nullptr;
-                    }
-                    exp->withLeft(expression);
-                    auto right = parseExpression(m_index + 1);
-                    if(!right) {
-                        return nullptr;
-                    }
-                    exp->withRight(right);
-                    return exp;
-                }
-                return expression;
-            } 
             else if(m_tokens[index].lexeme == Lexeme::OPEN_SQUARE) {
                 advanceTokenIterator();
                 return parseListExpression(index + 1);
@@ -250,16 +234,6 @@ namespace jasl {
                 }
             }
             return nullptr;
-        }
-
-        Token currentToken() const
-        {
-            return m_tokens[m_index];
-        }
-
-        Token nextToken() const
-        {
-            return m_tokens[m_index + 1];
         }
     };
 }
