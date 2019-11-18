@@ -10,6 +10,7 @@
 #include "ElseStatement.hpp"
 #include "ElseIfStatement.hpp"
 #include "RepeatStatement.hpp"
+#include "WhileStatement.hpp"
 
 /// Expressions
 #include "GroupedExpression.hpp"
@@ -77,6 +78,15 @@ namespace jasl {
             {
                 auto store = m_current;
                 auto statement = parseRepeatStatement();
+                if(statement) { 
+                    return statement;
+                }
+                // Revert token iterator state in case of failure
+                m_current = store;
+            }
+            {
+                auto store = m_current;
+                auto statement = parseWhileStatement();
                 if(statement) { 
                     return statement;
                 }
@@ -269,13 +279,14 @@ namespace jasl {
         if(currentToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
         auto expression = std::make_shared<ExpressionCollectionExpression>();
         advanceTokenIterator();
+
         while(nextToken().lexeme == Lexeme::COMMA) {
             auto exp = parseExpression();
             if(!exp) { return nullptr; }
             expression->addExpression(std::move(exp));
             advanceTokenIterator();
+            advanceTokenIterator();
         }
-        advanceTokenIterator();
         auto exp = parseExpression();
         if(!exp) { return nullptr; }
 
@@ -387,6 +398,30 @@ namespace jasl {
             }
         }
         return repeatStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parseWhileStatement()
+    {
+        if(currentToken().raw != "while") { return nullptr; }
+        auto whileStatement = std::make_shared<WhileStatement>();
+        whileStatement->withToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
+        auto expression = parseGroupedExpression();
+        if(expression) {
+            whileStatement->withExpression(std::move(expression));
+            advanceTokenIterator();
+            if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+            advanceTokenIterator();
+            while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+                auto statement = buildStatement();
+                if(statement) {
+                    whileStatement->addBodyStatement(std::move(statement));
+                }
+                advanceTokenIterator();
+            }
+        }
+        return whileStatement;
     }
 
     std::shared_ptr<Statement> Parser::parseForStatement()

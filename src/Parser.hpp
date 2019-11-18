@@ -61,6 +61,10 @@ namespace jasl {
         /// repeat 5 times { prn "hello"; }
         std::shared_ptr<Statement> parseRepeatStatement();
 
+        /// Parses a while statement of the form
+        /// while (expression) { statement* }
+        std::shared_ptr<Statement> parseWhileStatement();
+
         /// Parses a for statement of the form
         /// for identifier in identifier { statement* }
         /// For example
