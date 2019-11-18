@@ -5,6 +5,9 @@
 #include "ArrowStatement.hpp"
 #include "ArrowlessStatement.hpp"
 #include "ForStatement.hpp"
+#include "IfStatement.hpp"
+#include "ElseStatement.hpp"
+#include "ElseIfStatement.hpp"
 #include "RepeatStatement.hpp"
 
 /// Expressions
@@ -82,6 +85,15 @@ namespace jasl {
             {
                 auto store = m_current;
                 auto statement = parseForStatement();
+                if(statement) { 
+                    return statement;
+                }
+                // Revert token iterator state in case of failure
+                m_current = store;
+            }
+            {
+                auto store = m_current;
+                auto statement = parseIfStatement();
                 if(statement) { 
                     return statement;
                 }
@@ -369,4 +381,68 @@ namespace jasl {
         }
         return forStatement;
      }
+
+    std::shared_ptr<Statement> Parser::parseIfStatement()
+    {
+        auto ifStatement = std::make_shared<IfStatement>();
+        if(currentToken().raw != "if") { return nullptr; }
+        ifStatement->withToken(currentToken());
+        if(nextToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
+        advanceTokenIterator();
+        {
+            auto expression = parseGroupedExpression();
+            if(!expression) { return nullptr; }
+            ifStatement->withExpression(expression);
+        }
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+        advanceTokenIterator();
+        while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+            auto statement = buildStatement();
+            if(statement) {
+                ifStatement->addBodyStatement(std::move(statement));
+            }
+            advanceTokenIterator();
+        }
+        while(nextToken().raw == "elseif") {
+            advanceTokenIterator();
+            auto elseIfStatement = std::make_shared<ElseIfStatement>();
+            elseIfStatement->withToken(currentToken());
+            if(nextToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
+            advanceTokenIterator();
+            {
+                auto expression = parseGroupedExpression();
+                if(!expression) { return nullptr; }
+                elseIfStatement->withExpression(expression);
+            }
+            advanceTokenIterator();
+            if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+            advanceTokenIterator();
+            while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+                auto statement = buildStatement();
+                if(statement) {
+                    elseIfStatement->addBodyStatement(std::move(statement));
+                }
+                advanceTokenIterator();
+            }
+            ifStatement->addElseIfPart(std::move(elseIfStatement));
+        }
+        if(nextToken().raw == "else") {
+            advanceTokenIterator();
+            auto elseStatement = std::make_shared<ElseStatement>();
+            elseStatement->withToken(currentToken());
+            advanceTokenIterator();
+            if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+            advanceTokenIterator();
+            while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+                auto statement = buildStatement();
+                if(statement) {
+                    elseStatement->addBodyStatement(std::move(statement));
+                }
+                advanceTokenIterator();
+            }
+            ifStatement->withElsePart(std::move(elseStatement));
+        }
+        return ifStatement;
+    }
 }
