@@ -10,6 +10,7 @@
 #include "ElseStatement.hpp"
 #include "ElseIfStatement.hpp"
 #include "RepeatStatement.hpp"
+#include "StartStatement.hpp"
 #include "WhileStatement.hpp"
 
 /// Expressions
@@ -114,6 +115,15 @@ namespace jasl {
             {
                 auto store = m_current;
                 auto statement = parseCallStatement();
+                if(statement) { 
+                    return statement;
+                }
+                // Revert token iterator state in case of failure
+                m_current = store;
+            }
+            {
+                auto store = m_current;
+                auto statement = parseStartStatement();
                 if(statement) { 
                     return statement;
                 }
@@ -541,5 +551,23 @@ namespace jasl {
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::SEMICOLON) { return nullptr; }
         return callStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parseStartStatement()
+    {
+        if(currentToken().raw != "start") { return nullptr; }
+        auto startStatement = std::make_shared<StartStatement>();
+        startStatement->withToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+        advanceTokenIterator();
+        while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+            auto statement = buildStatement();
+            if(statement) {
+                startStatement->addBodyStatement(std::move(statement));
+            }
+            advanceTokenIterator();
+        }
+        return startStatement;
     }
 }

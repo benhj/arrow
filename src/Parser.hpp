@@ -81,5 +81,9 @@ namespace jasl {
         /// OR of the 'arrow-less' (non-returning) form:
         /// call identifier(expression1,..,expressionN);
         std::shared_ptr<Statement> parseCallStatement();
+
+        /// Parses a start statement (the program entry point):
+        /// start { statement * }
+        std::shared_ptr<Statement> parseStartStatement();
     };
 }
