@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ArrowStatement.hpp"
+#include "ArrowlessStatement.hpp"
 #include "GroupedExpression.hpp"
 #include "HatHatStringExpression.hpp"
 #include "HatStringExpression.hpp"
@@ -32,12 +33,29 @@ namespace jasl {
         {
             while(notAtEnd()) {
                 if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
-                    auto statement = parseArrowStatement();
-                    if(statement) { 
-                        m_statements.emplace_back(std::move(statement));
+                    {
+                        auto store = m_current;
+                        auto statement = parseArrowStatement();
+                        if(statement) { 
+                            m_statements.emplace_back(std::move(statement));
+                            advanceTokenIterator();
+                            continue;
+                        }
+                        // Revert token iterator state in case of failure
+                        m_current = store;
+                    }
+                    {
+                        auto store = m_current;
+                        auto statement = parseArrowlessStatement();
+                        if(statement) { 
+                            m_statements.emplace_back(std::move(statement));
+                            advanceTokenIterator();
+                            continue;
+                        }
+                        // Revert token iterator state in case of failure
+                        m_current = store;
                     }
                 }
-                advanceTokenIterator();
             }
         }
 
@@ -229,6 +247,10 @@ namespace jasl {
             return nullptr;
         }
 
+        /// Parses statements of the form
+        /// keyword expression -> identifier;
+        /// For example
+        /// int 5 -> a;
         std::shared_ptr<Statement> parseArrowStatement()
         {
             auto arrowStatement = std::make_shared<ArrowStatement>();
@@ -254,6 +276,28 @@ namespace jasl {
                                 }
                             }
                         }
+                    }
+                }
+            }
+            return nullptr;
+        }
+
+        /// Parses statements of the form
+        /// keyword expression;
+        /// For example
+        /// prn "hello";
+        std::shared_ptr<Statement> parseArrowlessStatement()
+        {
+            auto arrowlessStatement = std::make_shared<ArrowlessStatement>();
+            arrowlessStatement->withToken(currentToken());
+            advanceTokenIterator();
+            auto expression = parseExpression();
+            if(expression) {
+                arrowlessStatement->withExpression(std::move(expression));
+                advanceTokenIterator();
+                if(notAtEnd()) {
+                    if(currentToken().lexeme == Lexeme::SEMICOLON) {
+                        return arrowlessStatement;
                     }
                 }
             }
