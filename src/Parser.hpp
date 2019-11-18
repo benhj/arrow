@@ -22,7 +22,7 @@ namespace jasl {
         std::vector<Token>::iterator m_current;
         std::vector<std::shared_ptr<Statement>> m_statements;
 
-        void buildStatement();
+        std::shared_ptr<Statement> buildStatement();
         bool notAtEnd() const;
         void advanceTokenIterator();
         Token currentToken() const;
@@ -53,5 +53,11 @@ namespace jasl {
         /// For example
         /// prn "hello";
         std::shared_ptr<Statement> parseArrowlessStatement();
+
+        /// Parses a repeat statement of the form
+        /// repeat expression times { statement* }
+        /// For example
+        /// repeat 5 times { prn "hello"; }
+        std::shared_ptr<Statement> parseRepeatStatement();
     };
 }

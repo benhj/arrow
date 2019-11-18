@@ -1,12 +1,16 @@
+/// This
 #include "Parser.hpp"
 
+/// Statements
 #include "ArrowStatement.hpp"
 #include "ArrowlessStatement.hpp"
+#include "RepeatStatement.hpp"
+
+/// Expressions
 #include "GroupedExpression.hpp"
 #include "HatHatStringExpression.hpp"
 #include "HatStringExpression.hpp"
 #include "IdentifierExpression.hpp"
-#include "Lexeme.hpp"
 #include "ListExpression.hpp"
 #include "LiteralIntExpression.hpp"
 #include "LiteralRealExpression.hpp"
@@ -15,6 +19,8 @@
 #include "QQStringExpression.hpp"
 #include "QStringExpression.hpp"
 
+/// Other
+#include "Lexeme.hpp"
 #include <utility>
 
 namespace jasl {
@@ -28,7 +34,11 @@ namespace jasl {
     void Parser::parse()
     {
         while(notAtEnd()) {
-            buildStatement();
+            auto statement = buildStatement();
+            if(!statement) {
+                break; // error
+            }
+            m_statements.emplace_back(std::move(statement));
             advanceTokenIterator();
         }
     }
@@ -38,15 +48,14 @@ namespace jasl {
         return m_statements;
     }
 
-    void Parser::buildStatement()
+    std::shared_ptr<Statement> Parser::buildStatement()
     {
         if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
             {
                 auto store = m_current;
                 auto statement = parseArrowStatement();
                 if(statement) { 
-                    m_statements.emplace_back(std::move(statement));
-                    return;
+                    return statement;
                 }
                 // Revert token iterator state in case of failure
                 m_current = store;
@@ -55,13 +64,22 @@ namespace jasl {
                 auto store = m_current;
                 auto statement = parseArrowlessStatement();
                 if(statement) { 
-                    m_statements.emplace_back(std::move(statement));
-                    return;
+                    return statement;
+                }
+                // Revert token iterator state in case of failure
+                m_current = store;
+            }
+            {
+                auto store = m_current;
+                auto statement = parseRepeatStatement();
+                if(statement) { 
+                    return statement;
                 }
                 // Revert token iterator state in case of failure
                 m_current = store;
             }
         }
+        return nullptr;
     }
 
     bool Parser::notAtEnd() const
@@ -289,5 +307,30 @@ namespace jasl {
             }
         }
         return nullptr;
+    }
+
+    std::shared_ptr<Statement> Parser::parseRepeatStatement()
+    {
+        auto repeatStatement = std::make_shared<RepeatStatement>();
+        if(currentToken().raw != "repeat") { return nullptr; }
+        repeatStatement->withToken(currentToken());
+        advanceTokenIterator();
+        auto expression = parseExpression();
+        if(expression) {
+            repeatStatement->withExpression(std::move(expression));
+            advanceTokenIterator();
+            if(currentToken().raw != "times") { return nullptr; }
+            advanceTokenIterator();
+            if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+            advanceTokenIterator();
+            while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+                auto statement = buildStatement();
+                if(statement) {
+                    repeatStatement->addBodyStatement(std::move(statement));
+                }
+                advanceTokenIterator();
+            }
+        }
+        return repeatStatement;
     }
 }
