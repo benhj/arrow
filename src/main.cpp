@@ -17,6 +17,7 @@ int main(int argc, char ** argv) {
 	jasl::Parser p(tokens);
     p.parse();
     auto statements = p.getStatements();
+
     for(auto const & s : statements) {
     	std::cout<<s->toString()<<std::endl;
     }

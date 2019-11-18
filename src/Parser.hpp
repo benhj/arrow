@@ -27,7 +27,7 @@ namespace jasl {
         void parse()
         {
             while(notAtEnd()) {
-                if(m_tokens[m_index].lexeme == Lexeme::GENERIC_STRING) {
+                if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
                     auto statement = parseArrowStatement();
                     if(statement) { 
                         m_statements.emplace_back(std::move(statement));
@@ -108,16 +108,43 @@ namespace jasl {
 
         std::shared_ptr<Expression> parseGroupedExpression()
         {
-            auto exp = std::make_shared<GroupedExpression>();
+
+            // Skip over paren
+            advanceTokenIterator();
+
+            // Parse expression
             auto expression = parseExpression();
+            auto exp = std::make_shared<GroupedExpression>();
             if(expression) {
-                std::cout<<"HELLO"<<std::endl;
+
                 exp->withExpression(std::move(expression));
+
+                // Skip to get to next paren
+                advanceTokenIterator();
+
+                if(currentToken().lexeme != Lexeme::CLOSE_PAREN) {
+                    return nullptr;
+                }
+
+                // Check for additional parts
+                if(isOperator(nextToken().lexeme)) {
+                    auto extra = std::make_shared<OperatorExpression>();
+                    extra->withLeft(std::move(exp));
+                    advanceTokenIterator();
+                    extra->withOperator(currentToken());
+                    advanceTokenIterator();
+                    auto right = parseExpression();
+                    if(!right) {
+                        return nullptr;
+                    }
+                    extra->withRight(std::move(right));
+                    return extra;
+                }
+                
                 return exp;
             }
             return nullptr;
         }
-
 
 /*
         std::shared_ptr<ListExpression> parseListExpression(int index)
@@ -148,15 +175,7 @@ namespace jasl {
                 return parseOperatorExpression();
             }
             else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
-                advanceTokenIterator();
-                std::cout<<currentToken().raw<<std::endl;
-                parseGroupedExpression();
-                advanceTokenIterator();
-                if(currentToken().lexeme != Lexeme::CLOSE_PAREN) {
-                    // unbalanced
-                    return nullptr;
-                }
-                std::cout<<"YES"<<std::endl;
+                return parseGroupedExpression();
             }
 
             /*
@@ -213,7 +232,6 @@ namespace jasl {
                 arrowStatement->withExpression(std::move(expression));
                 advanceTokenIterator();
                 if(notAtEnd()) {
-                    std::cout<<currentToken().lexeme<<std::endl;
                     if(currentToken().lexeme != Lexeme::ARROW) {
                         return nullptr;
                     }
