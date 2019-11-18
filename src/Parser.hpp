@@ -1,14 +1,18 @@
 #pragma once
 
 #include "ArrowStatement.hpp"
+#include "GroupedExpression.hpp"
+#include "HatHatStringExpression.hpp"
+#include "HatStringExpression.hpp"
 #include "IdentifierExpression.hpp"
+#include "Lexeme.hpp"
+#include "ListExpression.hpp"
 #include "LiteralIntExpression.hpp"
 #include "LiteralRealExpression.hpp"
 #include "LiteralStringExpression.hpp"
-#include "GroupedExpression.hpp"
-#include "ListExpression.hpp"
 #include "OperatorExpression.hpp"
-#include "Lexeme.hpp"
+#include "QQStringExpression.hpp"
+#include "QStringExpression.hpp"
 #include "Token.hpp"
 #include <vector>
 #include <memory>
@@ -95,6 +99,34 @@ namespace jasl {
             return exp;
         }
 
+        std::shared_ptr<Expression> parseHatStringExpression()
+        {
+            auto exp = std::make_shared<HatStringExpression>();
+            exp->withHatStringToken(currentToken());
+            return exp;
+        }
+
+        std::shared_ptr<Expression> parseHatHatStringExpression()
+        {
+            auto exp = std::make_shared<HatHatStringExpression>();
+            exp->withHatHatStringToken(currentToken());
+            return exp;
+        }
+
+        std::shared_ptr<Expression> parseQStringExpression()
+        {
+            auto exp = std::make_shared<QStringExpression>();
+            exp->withQStringToken(currentToken());
+            return exp;
+        }
+
+        std::shared_ptr<Expression> parseQQStringExpression()
+        {
+            auto exp = std::make_shared<QQStringExpression>();
+            exp->withQQStringToken(currentToken());
+            return exp;
+        }
+
         std::shared_ptr<Expression> parseOperatorExpression()
         {
             auto exp = std::make_shared<OperatorExpression>();
@@ -149,12 +181,10 @@ namespace jasl {
                     extra->withRight(std::move(right));
                     return extra;
                 }
-                
                 return exp;
             }
             return nullptr;
         }
-
 
         std::shared_ptr<Expression> parseListExpression()
         {
@@ -187,6 +217,14 @@ namespace jasl {
                 return parseIdentifierExpression();
             } else if(currentToken().lexeme == Lexeme::LITERAL_STRING) {
                 return parseLiteralStringExpression();
+            } else if(currentToken().lexeme == Lexeme::HAT_HAT_STRING) {
+                return parseHatHatStringExpression();
+            } else if(currentToken().lexeme == Lexeme::HAT_STRING) {
+                return parseHatStringExpression();
+            } else if(currentToken().lexeme == Lexeme::Q_Q_STRING) {
+                return parseQQStringExpression();
+            } else if(currentToken().lexeme == Lexeme::Q_STRING) {
+                return parseQStringExpression();
             }
             return nullptr;
         }

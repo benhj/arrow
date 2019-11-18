@@ -29,7 +29,8 @@ namespace jasl {
 
         std::string toString() const override 
         {
-            return m_stringToken.raw;
+            std::string str("Literal string expression: ");
+            return str.append(m_stringToken.raw);
         }
 
       private:

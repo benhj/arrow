@@ -128,14 +128,16 @@ namespace jasl {
                 // see if ^str
                 if(std::isalnum(next)) {
                     auto dat = getAlphaNumsUntilSpace(stream);
-                    tokens.emplace_back(Lexeme::HAT, std::move(dat));
+                    tokens.emplace_back(Lexeme::HAT_STRING, std::move(dat));
                     return true;
                 } 
                 // see if ^^str
                 else if(next == '^') {
+                    stream.get();
+                    next = stream.peek();
                     if(std::isalnum(next)) {
                         auto dat = getAlphaNumsUntilSpace(stream);
-                        tokens.emplace_back(Lexeme::HAT_HAT, std::move(dat));
+                        tokens.emplace_back(Lexeme::HAT_HAT_STRING, std::move(dat));
                         return true;
                     }
                 }
@@ -145,16 +147,17 @@ namespace jasl {
             if(next != EOF) {
                 // see if ?str
                 if(std::isalnum(next)) {
-                    stream.get();
                     auto dat = getAlphaNumsUntilSpace(stream);
-                    tokens.emplace_back(Lexeme::QUESTION, std::move(dat));
+                    tokens.emplace_back(Lexeme::Q_STRING, std::move(dat));
                     return true;
                 } 
                 // see if ??str
                 else if(next == '?') {
+                    stream.get();
+                    next = stream.peek();
                     if(std::isalnum(next)) {
                         auto dat = getAlphaNumsUntilSpace(stream);
-                        tokens.emplace_back(Lexeme::QUESTION_QUESTION, std::move(dat));
+                        tokens.emplace_back(Lexeme::Q_Q_STRING, std::move(dat));
                         return true;
                     }
                 }

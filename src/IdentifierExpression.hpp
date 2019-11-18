@@ -29,7 +29,8 @@ namespace jasl {
 
         std::string toString() const override 
         {
-            return m_identifier.raw;
+            std::string str("Identifier expression: ");
+            return str.append(m_identifier.raw);
         }
 
       private:

@@ -47,8 +47,6 @@ std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value){
         INSERT_ELEMENT(jasl::Lexeme::CLOSE_CURLY);
         INSERT_ELEMENT(jasl::Lexeme::GREATER);
         INSERT_ELEMENT(jasl::Lexeme::LESS);
-        INSERT_ELEMENT(jasl::Lexeme::HAT);
-        INSERT_ELEMENT(jasl::Lexeme::QUESTION);
         INSERT_ELEMENT(jasl::Lexeme::COMMA);
 
         INSERT_ELEMENT(jasl::Lexeme::NOT_EQUAL);
@@ -57,8 +55,6 @@ std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value){
         INSERT_ELEMENT(jasl::Lexeme::ARROW);
         INSERT_ELEMENT(jasl::Lexeme::COMMENT);
         INSERT_ELEMENT(jasl::Lexeme::EQUAL_EQUAL);
-        INSERT_ELEMENT(jasl::Lexeme::QUESTION_QUESTION);
-        INSERT_ELEMENT(jasl::Lexeme::HAT_HAT);
 
         INSERT_ELEMENT(jasl::Lexeme::GENERIC_STRING);
         INSERT_ELEMENT(jasl::Lexeme::LITERAL_STRING);
