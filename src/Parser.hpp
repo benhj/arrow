@@ -72,8 +72,10 @@ namespace jasl {
         /// Note the elseif and final else parts are optional
         std::shared_ptr<Statement> parseIfStatement();
 
-        /// Parses a call statement of the form
+        /// Parses a call statement of the 'returning form':
         /// call identifier(expression1,..,expressionN) -> identifier;
+        /// OR of the 'arrow-less' (non-returning) form:
+        /// call identifier(expression1,..,expressionN);
         std::shared_ptr<Statement> parseCallStatement();
     };
 }

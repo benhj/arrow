@@ -492,10 +492,19 @@ namespace jasl {
         if(!collection) { return nullptr; }
         callStatement->withExpressionCollection(std::move(collection));
         advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::ARROW) { return nullptr; }
+
+        // Handle 'arrow-less' condition (not returning call).
+        if(currentToken().lexeme != Lexeme::ARROW) {
+            if(currentToken().lexeme == Lexeme::SEMICOLON) {
+                return callStatement;
+            }
+            return nullptr;
+        }
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
         callStatement->withIdentifier(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::SEMICOLON) { return nullptr; }
         return callStatement;
     }
 }
