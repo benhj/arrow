@@ -15,6 +15,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_BOOL;
+        }
+
         BooleanExpression & withLeft(std::shared_ptr<Expression> expressionLeft)
         {
             m_operatorExp->withLeft(std::move(expressionLeft));

@@ -15,6 +15,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_STRING;
+        }
+
         HatHatStringExpression & withHatHatStringToken(Token hatHatStringToken)
         {
             m_hatHatStringToken = std::move(hatHatStringToken);

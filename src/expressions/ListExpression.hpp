@@ -16,6 +16,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_LIST;
+        }
+
         void addPart(std::shared_ptr<Expression> expression)
         {
             m_parts.emplace_back(std::move(expression));

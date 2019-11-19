@@ -16,6 +16,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_STRING;
+        }
+
         IdentifierExpression & withIntToken(Token identifier)
         {
             m_identifier = std::move(identifier);

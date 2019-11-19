@@ -1,11 +1,9 @@
 #pragma once
 
-#include <string>
-
 namespace jasl {
-	
 	class Node
 	{
-
+      public:
+        Node(){}
 	};
 }

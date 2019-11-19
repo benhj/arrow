@@ -16,6 +16,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_REAL;
+        }
+
         LiteralRealExpression & withRealToken(Token realToken)
         {
             m_realToken = std::move(realToken);

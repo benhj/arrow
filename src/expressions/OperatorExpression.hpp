@@ -17,6 +17,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_NONE;
+        }
+
         OperatorExpression & withLeft(std::shared_ptr<Expression> expressionLeft)
         {
             m_expressionLeft = std::move(expressionLeft);

@@ -16,6 +16,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_INT;
+        }
+
         LiteralIntExpression & withIntToken(Token intToken)
         {
             m_intToken = std::move(intToken);

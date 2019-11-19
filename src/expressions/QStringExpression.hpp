@@ -15,6 +15,11 @@ namespace jasl {
         {
         }
 
+        DecayType decayType() const override
+        {
+            return DecayType::DECAYS_TO_STRING;
+        }
+
         QStringExpression & withQStringToken(Token qStringToken)
         {
             m_qStringToken = std::move(qStringToken);
