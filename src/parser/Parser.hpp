@@ -41,7 +41,8 @@ namespace jasl {
         std::shared_ptr<Expression> parseMathExpression();
         std::shared_ptr<Expression> parseGroupedExpression();
         std::shared_ptr<Expression> parseListExpression();
-        std::shared_ptr<Expression> parseExpressionCollectionExpression();
+        std::shared_ptr<Expression> 
+        parseExpressionCollectionExpression(bool const identifierOnly = false);
 
         std::shared_ptr<Expression> parseExpression(bool checkOperator = true);
 

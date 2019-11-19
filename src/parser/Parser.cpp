@@ -328,13 +328,17 @@ namespace jasl {
         return listExp;
     }
 
-    std::shared_ptr<Expression> Parser::parseExpressionCollectionExpression()
+    std::shared_ptr<Expression> 
+    Parser::parseExpressionCollectionExpression(bool const identifierOnly)
     {
         if(currentToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
         auto expression = std::make_shared<ExpressionCollectionExpression>();
         advanceTokenIterator();
 
         while(nextToken().lexeme == Lexeme::COMMA) {
+            if(identifierOnly && currentToken().lexeme != Lexeme::GENERIC_STRING) {
+                return nullptr; // error
+            }
             auto exp = parseExpression();
             if(!exp) { return nullptr; }
             expression->addExpression(std::move(exp));
