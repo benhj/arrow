@@ -38,7 +38,7 @@ namespace jasl {
                     return left * right;
                 } else if(m_op == "/") {
                     return left / right;
-                } 
+                }
                 if constexpr(!std::is_same_v<Left, long double> &&
                              std::is_same_v<Left, Right>) {
                     if(m_op == "%") {
@@ -46,7 +46,7 @@ namespace jasl {
                     } else if(m_op == "^") {
                         return left ^ right;
                     }
-                } 
+                }
                 throw std::runtime_error("Bad operator for type.");
             }
             throw std::runtime_error("Incompatible types.");

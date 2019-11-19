@@ -5,7 +5,6 @@
 #include <string>
 
 namespace jasl {
-    
     class Expression : public Node
     {
       public:
@@ -21,6 +20,4 @@ namespace jasl {
         /// For debugging purposes
         virtual std::string toString() const = 0;
     };
-
-
 }
