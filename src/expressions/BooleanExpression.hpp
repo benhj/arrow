@@ -15,6 +15,11 @@ namespace jasl {
         {
         }
 
+        Type evaluate() const override
+        {
+            return {TypeDescriptor::Bool, {true}};
+        }
+
         DecayType decayType() const override
         {
             return DecayType::DECAYS_TO_BOOL;

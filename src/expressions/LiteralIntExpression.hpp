@@ -16,6 +16,11 @@ namespace jasl {
         {
         }
 
+        Type evaluate() const override
+        {
+            return {TypeDescriptor::Int, {false}};
+        }
+
         DecayType decayType() const override
         {
             return DecayType::DECAYS_TO_INT;

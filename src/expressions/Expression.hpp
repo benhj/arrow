@@ -1,6 +1,7 @@
 #pragma once
 #include "DecayType.hpp"
 #include "parser/Node.hpp"
+#include "types/Type.hpp"
 #include <string>
 
 namespace jasl {
@@ -9,6 +10,9 @@ namespace jasl {
     {
       public:
         Expression() : Node() {}
+
+        /// Returns the evaluated type of the expression
+        virtual Type evaluate() const = 0;
 
         /// During expression evaluation, we need
         /// to know the overaching type that it decays to
