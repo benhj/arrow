@@ -18,7 +18,7 @@ namespace jasl {
 
         Type evaluate() const override
         {
-            return {TypeDescriptor::Int, {false}};
+            return {TypeDescriptor::Int, {std::stoll(m_intToken.raw)}};
         }
 
         DecayType decayType() const override

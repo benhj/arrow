@@ -3,6 +3,7 @@
 #include "Expression.hpp"
 #include "lexer/Token.hpp"
 #include <memory>
+#include <string>
 #include <utility>
 
 namespace jasl {
@@ -18,7 +19,7 @@ namespace jasl {
 
         Type evaluate() const override
         {
-            return {TypeDescriptor::Real, {false}};
+            return {TypeDescriptor::Real, {std::stold(m_realToken.raw)}};
         }
 
         DecayType decayType() const override

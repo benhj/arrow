@@ -8,6 +8,7 @@ file(GLOB lexer src/lexer/*.cpp src/lexer/*.hpp)
 file(GLOB parser src/parser/*.cpp src/parser/*.hpp)
 file(GLOB expressions src/expressions/*.cpp src/expressions/*.hpp)
 file(GLOB statements src/statements/*.cpp src/statements/*.hpp)
+file(GLOB types src/types/*.cpp src/types/*.hpp)
 
 # ensure headers in the src folder are compiler-found
 include_directories(src)

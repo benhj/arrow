@@ -18,7 +18,7 @@ namespace jasl {
 
         Type evaluate() const override
         {
-            return {TypeDescriptor::String, {false}};
+            return {TypeDescriptor::String, m_stringToken.raw};
         }
 
         DecayType decayType() const override
