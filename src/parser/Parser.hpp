@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Expression.hpp"
-#include "Statement.hpp"
-#include "Token.hpp"
+#include "expressions/Expression.hpp"
+#include "statements/Statement.hpp"
+#include "lexer/Token.hpp"
 #include <vector>
 #include <memory>
 

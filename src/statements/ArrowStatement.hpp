@@ -1,26 +1,30 @@
 #pragma once
 
-#include "Node.hpp"
 #include "Statement.hpp"
-#include "Token.hpp"
-#include "Expression.hpp"
+#include "lexer/Token.hpp"
+#include "expressions/Expression.hpp"
 #include <memory>
 #include <utility>
 
 namespace jasl {
     
-    class ArrowlessStatement : public Statement
+    class ArrowStatement : public Statement
     {
       public:
-        ArrowlessStatement() : Statement() {}
-        ArrowlessStatement & withToken(Token token)
+        ArrowStatement() : Statement() {}
+        ArrowStatement & withToken(Token token)
         {
             m_keywordToken = std::move(token);
             return *this;
         }
-        ArrowlessStatement & withExpression(std::shared_ptr<Expression> expression)
+        ArrowStatement & withExpression(std::shared_ptr<Expression> expression)
         {
             m_expression = std::move(expression);
+            return *this;
+        }
+        ArrowStatement & withIdentifier(Token identifier)
+        {
+            m_identifier = std::move(identifier);
             return *this;
         }
 
@@ -30,11 +34,14 @@ namespace jasl {
             str.append(m_keywordToken.raw);
             str.append("\nExpression: ");
             str.append(m_expression->toString());
+            str.append("\nIdentifier: ");
+            str.append(m_identifier.raw);
             return str;
         }
 
-        Token m_keywordToken; // the keyword (e.g. prn)
+        Token m_keywordToken; // the keyword (e.g. int)
         std::shared_ptr<Expression> m_expression;
+        Token m_identifier;
     };
 
 }

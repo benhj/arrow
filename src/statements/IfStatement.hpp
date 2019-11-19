@@ -3,8 +3,8 @@
 #include "ElseIfStatement.hpp"
 #include "ElseStatement.hpp"
 #include "Statement.hpp"
-#include "Token.hpp"
-#include "Expression.hpp"
+#include "lexer/Token.hpp"
+#include "expressions/Expression.hpp"
 #include <memory>
 #include <utility>
 

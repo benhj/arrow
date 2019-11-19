@@ -1,23 +1,23 @@
 #pragma once
 
 #include "Statement.hpp"
-#include "Token.hpp"
-#include "Expression.hpp"
+#include "lexer/Token.hpp"
+#include "expressions/Expression.hpp"
 #include <memory>
 #include <utility>
 
 namespace jasl {
     
-    class RepeatStatement : public Statement
+    class WhileStatement : public Statement
     {
       public:
-        RepeatStatement() : Statement() {}
-        RepeatStatement & withToken(Token token)
+        WhileStatement() : Statement() {}
+        WhileStatement & withToken(Token token)
         {
             m_keywordToken = std::move(token);
             return *this;
         }
-        RepeatStatement & withExpression(std::shared_ptr<Expression> expression)
+        WhileStatement & withExpression(std::shared_ptr<Expression> expression)
         {
             m_expression = std::move(expression);
             return *this;
@@ -41,7 +41,7 @@ namespace jasl {
             return str;
         }
 
-        Token m_keywordToken; // the repeat keyword
+        Token m_keywordToken; // the while keyword
         std::shared_ptr<Expression> m_expression;
         std::vector<std::shared_ptr<Statement>> m_bodyStatements;
     };

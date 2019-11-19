@@ -1,6 +1,6 @@
-#include "Lexer.hpp"
-#include "Lexeme.hpp"
-#include "Parser.hpp"
+#include "lexer/Lexer.hpp"
+#include "lexer/Lexeme.hpp"
+#include "parser/Parser.hpp"
 #include <fstream>
 #include <iostream>
 

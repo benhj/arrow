@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Expression.hpp"
-#include "ExpressionCollectionExpression.hpp"
 #include "Statement.hpp"
-#include "Token.hpp"
+#include "expressions/Expression.hpp"
+#include "expressions/ExpressionCollectionExpression.hpp"
+#include "lexer/Token.hpp"
 #include <memory>
 #include <utility>
 

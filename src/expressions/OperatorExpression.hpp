@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Expression.hpp"
-#include "Token.hpp"
+#include "lexer/Token.hpp"
 #include <memory>
 
 namespace jasl {
