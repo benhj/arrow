@@ -9,6 +9,7 @@
 #include "statements/IfStatement.hpp"
 #include "statements/ElseStatement.hpp"
 #include "statements/ElseIfStatement.hpp"
+#include "statements/FunctionStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/StartStatement.hpp"
 #include "statements/WhileStatement.hpp"
@@ -126,6 +127,15 @@ namespace jasl {
             {
                 auto store = m_current;
                 auto statement = parseStartStatement();
+                if(statement) { 
+                    return statement;
+                }
+                // Revert token iterator state in case of failure
+                m_current = store;
+            }
+            {
+                auto store = m_current;
+                auto statement = parseFunctionStatement();
                 if(statement) { 
                     return statement;
                 }
@@ -619,5 +629,40 @@ namespace jasl {
             advanceTokenIterator();
         }
         return startStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parseFunctionStatement()
+    {
+        if(currentToken().raw != "fn") { return nullptr; }
+        auto functionStatement = std::make_shared<FunctionStatement>();
+        functionStatement->withToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::COLON) { return nullptr; }
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        functionStatement->withTypeToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        functionStatement->withNameToken(currentToken());
+        advanceTokenIterator();
+        auto collection = parseExpressionCollectionExpression(true /* ident only */);
+        if(!collection) { return nullptr; }
+        functionStatement->withExpressionCollection(std::move(collection));
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::ARROW) { return nullptr; }
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        functionStatement->withReturnIdentifierToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+        advanceTokenIterator();
+        while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+            auto statement = buildStatement();
+            if(statement) {
+                functionStatement->addBodyStatement(std::move(statement));
+            }
+            advanceTokenIterator();
+        }
+        return functionStatement;
     }
 }

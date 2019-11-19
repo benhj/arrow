@@ -26,7 +26,12 @@ namespace jasl {
             m_nameToken = std::move(token);
             return *this;
         }
-        CallStatement & 
+        FunctionStatement & withReturnIdentifierToken(Token token)
+        {
+            m_returnIdentifier = std::move(token);
+            return *this;
+        }
+        FunctionStatement & 
         withExpressionCollection(std::shared_ptr<Expression> expression)
         {
             m_expressionCollection = std::move(expression);

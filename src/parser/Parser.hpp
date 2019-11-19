@@ -88,5 +88,11 @@ namespace jasl {
         /// Parses a start statement (the program entry point):
         /// start { statement * }
         std::shared_ptr<Statement> parseStartStatement();
+
+        /// Parses a function statement of the form
+        /// fn:identifier identifier(expression1,..,expressionN) -> identifier
+        /// {
+        /// }
+        std::shared_ptr<Statement> parseFunctionStatement();
     };
 }
