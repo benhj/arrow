@@ -27,6 +27,8 @@ namespace jasl {
     };
 
     bool isOperator(Lexeme const lexeme);
+    bool isBooleanOperator(Lexeme const lexeme);
+    bool isMathOperator(Lexeme const lexeme);
 }
 
 std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value);

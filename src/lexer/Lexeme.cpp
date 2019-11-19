@@ -26,6 +26,42 @@ namespace jasl {
                             return lex == lexeme;
                         }) != std::end(strings);
     }
+
+    bool isMathOperator(Lexeme const lexeme)
+    {
+        static std::vector<Lexeme> strings;
+        if (strings.size() == 0) {
+    #define INSERT_ELEMENT(p) strings.push_back(p);
+            INSERT_ELEMENT(Lexeme::PLUS);  
+            INSERT_ELEMENT(Lexeme::MINUS);
+            INSERT_ELEMENT(Lexeme::STAR);
+            INSERT_ELEMENT(Lexeme::DIVIDE);
+    #undef INSERT_ELEMENT
+        }
+        return std::find_if(std::begin(strings), std::end(strings),
+                        [&lexeme](Lexeme lex) {
+                            return lex == lexeme;
+                        }) != std::end(strings);
+    }
+
+    bool isBooleanOperator(Lexeme const lexeme)
+    {
+        static std::vector<Lexeme> strings;
+        if (strings.size() == 0) {
+    #define INSERT_ELEMENT(p) strings.push_back(p);
+            INSERT_ELEMENT(Lexeme::EQUAL);
+            INSERT_ELEMENT(Lexeme::GREATER);
+            INSERT_ELEMENT(Lexeme::LESS);
+            INSERT_ELEMENT(Lexeme::NOT_EQUAL);
+            INSERT_ELEMENT(Lexeme::GREATER_EQUAL);
+            INSERT_ELEMENT(Lexeme::LESS_EQUAL);
+    #undef INSERT_ELEMENT
+        }
+        return std::find_if(std::begin(strings), std::end(strings),
+                        [&lexeme](Lexeme lex) {
+                            return lex == lexeme;
+                        }) != std::end(strings);
+    }
 }
 
 std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value){

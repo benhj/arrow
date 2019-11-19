@@ -14,6 +14,7 @@
 #include "statements/WhileStatement.hpp"
 
 /// Expressions
+#include "expressions/BooleanExpression.hpp"
 #include "expressions/GroupedExpression.hpp"
 #include "expressions/HatHatStringExpression.hpp"
 #include "expressions/HatStringExpression.hpp"
@@ -22,6 +23,7 @@
 #include "expressions/LiteralIntExpression.hpp"
 #include "expressions/LiteralRealExpression.hpp"
 #include "expressions/LiteralStringExpression.hpp"
+#include "expressions/MathExpression.hpp"
 #include "expressions/OperatorExpression.hpp"
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
@@ -231,6 +233,48 @@ namespace jasl {
         return exp;
     }
 
+    std::shared_ptr<Expression> Parser::parseBooleanExpression()
+    {
+        auto exp = std::make_shared<BooleanExpression>();
+        auto leftExpression = parseExpression(false);
+        if(!leftExpression) {
+           return nullptr;
+        }
+        exp->withLeft(std::move(leftExpression));
+        advanceTokenIterator();
+
+        exp->withOperator(currentToken());
+        advanceTokenIterator();
+
+        auto rightExpression = parseExpression();
+        if(!rightExpression) {
+            return nullptr;
+        }
+        exp->withRight(std::move(rightExpression));
+        return exp;
+    }
+
+    std::shared_ptr<Expression> Parser::parseMathExpression()
+    {
+        auto exp = std::make_shared<MathExpression>();
+        auto leftExpression = parseExpression(false);
+        if(!leftExpression) {
+           return nullptr;
+        }
+        exp->withLeft(std::move(leftExpression));
+        advanceTokenIterator();
+
+        exp->withOperator(currentToken());
+        advanceTokenIterator();
+
+        auto rightExpression = parseExpression();
+        if(!rightExpression) {
+            return nullptr;
+        }
+        exp->withRight(std::move(rightExpression));
+        return exp;
+    }
+
     std::shared_ptr<Expression> Parser::parseGroupedExpression()
     {
         // Skip over paren
@@ -310,9 +354,11 @@ namespace jasl {
 
     std::shared_ptr<Expression> Parser::parseExpression(bool checkOperator)
     {
-        if (checkOperator && isOperator(nextToken().lexeme)) {
-            return parseOperatorExpression();
-        } else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
+        if (checkOperator && isBooleanOperator(nextToken().lexeme)) {
+            return parseBooleanExpression();
+        } else if(checkOperator && isMathOperator(nextToken().lexeme))  {
+            return parseMathExpression();
+        }  else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
             return parseGroupedExpression();
         } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
             return parseListExpression();
