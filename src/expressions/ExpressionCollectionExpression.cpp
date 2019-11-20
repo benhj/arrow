@@ -8,6 +8,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> ExpressionCollectionExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type ExpressionCollectionExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};

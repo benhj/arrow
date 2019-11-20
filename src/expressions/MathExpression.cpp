@@ -57,6 +57,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> MathExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type MathExpression::evaluate() const
     {
         auto leftEval = getExpressionLeft()->evaluate();

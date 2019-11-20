@@ -9,6 +9,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> LiteralStringExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type LiteralStringExpression::evaluate() const
     {
         return {TypeDescriptor::String, m_stringToken.raw};

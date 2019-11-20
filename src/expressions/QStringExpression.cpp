@@ -9,6 +9,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> QStringExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type QStringExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};

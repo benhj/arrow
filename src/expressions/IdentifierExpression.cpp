@@ -9,6 +9,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> IdentifierExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type IdentifierExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};

@@ -10,6 +10,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> OperatorExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type OperatorExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};

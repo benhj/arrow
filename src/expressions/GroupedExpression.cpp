@@ -8,6 +8,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> GroupedExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type GroupedExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};

@@ -9,6 +9,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> LiteralRealExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type LiteralRealExpression::evaluate() const
     {
         return {TypeDescriptor::Real, {std::stold(m_realToken.raw)}};

@@ -9,6 +9,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> HatHatStringExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type HatHatStringExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};

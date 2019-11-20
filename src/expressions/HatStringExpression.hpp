@@ -11,6 +11,8 @@ namespace jasl {
       public:
         HatStringExpression();
 
+        std::shared_ptr<Evaluator> getEvaluator() const override;
+
         Type evaluate() const override;
 
         DecayType decayType() const override;

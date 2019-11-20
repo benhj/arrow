@@ -9,6 +9,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> LiteralIntExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type LiteralIntExpression::evaluate() const
     {
         return {TypeDescriptor::Int, {std::stoll(m_intToken.raw)}};

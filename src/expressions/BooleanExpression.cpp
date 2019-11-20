@@ -85,6 +85,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> BooleanExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type BooleanExpression::evaluate() const
     {
         auto leftEval = getExpressionLeft()->evaluate();

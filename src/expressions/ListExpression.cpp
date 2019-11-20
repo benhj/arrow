@@ -8,6 +8,11 @@ namespace jasl {
     {
     }
 
+    std::shared_ptr<Evaluator> ListExpression::getEvaluator() const
+    {
+        return nullptr;
+    }
+
     Type ListExpression::evaluate() const
     {
         return {TypeDescriptor::List, {false}};
