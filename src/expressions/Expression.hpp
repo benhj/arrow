@@ -11,7 +11,7 @@ namespace jasl {
     class Expression : public Node
     {
       public:
-        Expression() : Node() {}
+        Expression();
 
         /// Returns an Evaluator that can be used to evaluate this
         virtual std::shared_ptr<Evaluator> getEvaluator() const = 0;

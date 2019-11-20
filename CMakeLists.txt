@@ -21,17 +21,20 @@ link_directories(/usr/local/lib)
 add_library(parser_lib ${parser})
 add_library(lexer_lib ${lexer})
 add_library(expressions_lib ${expressions})
+add_library(evaluator_lib ${evaluator})
 
 # build the interpretor
 add_executable(output src/main.cpp)
 target_link_libraries(output
                       parser_lib
                       lexer_lib
-                      expressions_lib)
+                      expressions_lib
+                      evaluator_lib)
 
 # compile options. Lots of redundancy here. Can prob clean up.
 set(COMP_FLAGS -std=c++17 -O3 -ffast-math -funroll-loops -Wno-ctor-dtor-privacy -fno-pic)
 target_compile_options(parser_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(lexer_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(expressions_lib PUBLIC ${COMP_FLAGS})
+target_compile_options(evaluator_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(output PUBLIC ${COMP_FLAGS})
