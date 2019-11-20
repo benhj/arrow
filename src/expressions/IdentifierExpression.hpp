@@ -3,45 +3,23 @@
 #include "Expression.hpp"
 #include "lexer/Token.hpp"
 #include <memory>
-#include <utility>
 
 namespace jasl {
     
     class IdentifierExpression : public Expression
     {
       public:
-        IdentifierExpression()
-         : Expression()
-         , m_identifier()
-        {
-        }
+        IdentifierExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::None, {false}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_STRING;
-        }
+        DecayType decayType() const override;
 
-        IdentifierExpression & withIntToken(Token identifier)
-        {
-            m_identifier = std::move(identifier);
-            return *this;
-        }
+        IdentifierExpression & withIntToken(Token identifier);
 
-        Token getIntToken() const
-        {
-            return  m_identifier;
-        }
+        Token getIntToken() const;
 
-        std::string toString() const override 
-        {
-            std::string str("\nIdentifier expression: ");
-            return str.append(m_identifier.raw);
-        }
+        std::string toString() const override;
 
       private:
         Token m_identifier;

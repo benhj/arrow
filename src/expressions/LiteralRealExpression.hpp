@@ -4,45 +4,23 @@
 #include "lexer/Token.hpp"
 #include <memory>
 #include <string>
-#include <utility>
 
 namespace jasl {
     
     class LiteralRealExpression : public Expression
     {
       public:
-        LiteralRealExpression()
-         : Expression()
-         , m_realToken()
-        {
-        }
+        LiteralRealExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::Real, {std::stold(m_realToken.raw)}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_REAL;
-        }
+        DecayType decayType() const override;
 
-        LiteralRealExpression & withRealToken(Token realToken)
-        {
-            m_realToken = std::move(realToken);
-            return *this;
-        }
+        LiteralRealExpression & withRealToken(Token realToken);
 
-        Token getRealToken() const
-        {
-            return m_realToken;
-        }
+        Token getRealToken() const;
 
-        std::string toString() const override 
-        {
-            std::string str("\nLiteral real expression: ");
-            return str.append(m_realToken.raw);
-        }
+        std::string toString() const override;
 
       private:
         Token m_realToken;

@@ -3,44 +3,23 @@
 #include "Expression.hpp"
 #include "lexer/Token.hpp"
 #include <memory>
-#include <utility>
+
 
 namespace jasl {
     class HatStringExpression : public Expression
     {
       public:
-        HatStringExpression()
-         : Expression()
-         , m_hatStringToken()
-        {
-        }
+        HatStringExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::None, {false}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_STRING;
-        }
+        DecayType decayType() const override;
 
-        HatStringExpression & withHatStringToken(Token hatStringToken)
-        {
-            m_hatStringToken = std::move(hatStringToken);
-            return *this;
-        }
+        HatStringExpression & withHatStringToken(Token hatStringToken);
 
-        Token getHatStringToken() const
-        {
-            return m_hatStringToken;
-        }
+        Token getHatStringToken() const;
 
-        std::string toString() const override 
-        {
-            std::string str("\n^ string expression: ");
-            return str.append(m_hatStringToken.raw);
-        }
+        std::string toString() const override;
 
       private:
         Token m_hatStringToken;

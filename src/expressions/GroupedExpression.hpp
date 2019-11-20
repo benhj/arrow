@@ -9,39 +9,16 @@ namespace jasl {
     class GroupedExpression : public Expression
     {
       public:
-        GroupedExpression() 
-        : Expression()
-        , m_expression{nullptr}
-        {
-        }
+        GroupedExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::None, {false}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_NONE;
-        }
+        DecayType decayType() const override;
 
-        GroupedExpression & withExpression(std::shared_ptr<Expression> expression)
-        {
-            m_expression = std::move(expression);
-            return *this;
-        }
+        GroupedExpression & withExpression(std::shared_ptr<Expression> expression);
         
-        std::shared_ptr<Expression> getExpression() const
-        {
-            return m_expression;
-        }
-        std::string toString() const override 
-        {
-            std::string str("\nBegin grouped expression");
-            str.append(m_expression->toString());
-            str.append("\nEnd grouped expression");
-            return str;
-        }
+        std::shared_ptr<Expression> getExpression() const;
+        std::string toString() const override;
 
       private:
         std::shared_ptr<Expression> m_expression;

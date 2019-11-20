@@ -10,42 +10,17 @@ namespace jasl {
     class ListExpression : public Expression
     {
       public:
-        ListExpression() 
-        : Expression()
-        , m_parts{}
-        {
-        }
+        ListExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::List, {false}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_LIST;
-        }
+        DecayType decayType() const override;
 
-        void addPart(std::shared_ptr<Expression> expression)
-        {
-            m_parts.emplace_back(std::move(expression));
-        }
+        void addPart(std::shared_ptr<Expression> expression);
 
-        int getPartsCount() const
-        {
-            return m_parts.size();
-        }
+        int getPartsCount() const;
         
-        std::string toString() const override 
-        {
-            std::string str("\nBegin list expression");
-            for(auto const & part : m_parts) {
-                str.append("\n");
-                str.append(part->toString());
-            }
-            str.append("\nEnd list expression");
-            return str;
-        }
+        std::string toString() const override;
 
       private:
         std::vector<std::shared_ptr<Expression>> m_parts;

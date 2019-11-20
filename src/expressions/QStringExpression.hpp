@@ -3,44 +3,22 @@
 #include "Expression.hpp"
 #include "lexer/Token.hpp"
 #include <memory>
-#include <utility>
 
 namespace jasl {
     class QStringExpression : public Expression
     {
       public:
-        QStringExpression()
-         : Expression()
-         , m_qStringToken()
-        {
-        }
+        QStringExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::None, {false}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_STRING;
-        }
+        DecayType decayType() const override;
 
-        QStringExpression & withQStringToken(Token qStringToken)
-        {
-            m_qStringToken = std::move(qStringToken);
-            return *this;
-        }
+        QStringExpression & withQStringToken(Token qStringToken);
 
-        Token getQStringToken() const
-        {
-            return m_qStringToken;
-        }
+        Token getQStringToken() const;
 
-        std::string toString() const override 
-        {
-            std::string str("\n? string expression: ");
-            return str.append(m_qStringToken.raw);
-        }
+        std::string toString() const override;
 
       private:
         Token m_qStringToken;

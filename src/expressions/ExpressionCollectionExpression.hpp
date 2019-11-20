@@ -2,7 +2,6 @@
 
 #include "Expression.hpp"
 #include <memory>
-#include <utility>
 #include <vector>
 
 namespace jasl {
@@ -12,38 +11,15 @@ namespace jasl {
     class ExpressionCollectionExpression : public Expression
     {
       public:
-        ExpressionCollectionExpression()
-         : Expression()
-        {
-        }
+        ExpressionCollectionExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::None, {false}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_NONE;
-        }
+        DecayType decayType() const override;
 
-        void addExpression(std::shared_ptr<Expression> expression)
-        {
-            m_expressions.emplace_back(std::move(expression));
-        }
+        void addExpression(std::shared_ptr<Expression> expression);
 
-        std::string toString() const override 
-        {
-            if(!m_expressions.empty()) {
-                std::string str("\nBegin expression collection: ");
-                for(auto const & exp : m_expressions) {
-                    str.append(exp->toString());
-                }
-                str.append("\nEnd expression collection.");
-                return str;
-            }
-            return "";
-        }
+        std::string toString() const override;
 
       private:
         std::vector<std::shared_ptr<Expression>> m_expressions;

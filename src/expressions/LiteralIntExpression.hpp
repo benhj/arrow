@@ -3,45 +3,23 @@
 #include "Expression.hpp"
 #include "lexer/Token.hpp"
 #include <memory>
-#include <utility>
 
 namespace jasl {
     
     class LiteralIntExpression : public Expression
     {
       public:
-        LiteralIntExpression()
-         : Expression()
-         , m_intToken()
-        {
-        }
+        LiteralIntExpression();
 
-        Type evaluate() const override
-        {
-            return {TypeDescriptor::Int, {std::stoll(m_intToken.raw)}};
-        }
+        Type evaluate() const override;
 
-        DecayType decayType() const override
-        {
-            return DecayType::DECAYS_TO_INT;
-        }
+        DecayType decayType() const override;
 
-        LiteralIntExpression & withIntToken(Token intToken)
-        {
-            m_intToken = std::move(intToken);
-            return *this;
-        }
+        LiteralIntExpression & withIntToken(Token intToken);
 
-        Token getIntToken() const
-        {
-            return m_intToken;
-        }
+        Token getIntToken() const;
 
-        std::string toString() const override 
-        {
-            std::string str("\nLiteral int expression: ");
-            return str.append(m_intToken.raw);
-        }
+        std::string toString() const override;
 
       private:
         Token m_intToken;
