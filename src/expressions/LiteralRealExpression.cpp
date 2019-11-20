@@ -1,4 +1,5 @@
 #include "LiteralRealExpression.hpp"
+#include "evaluator/Evaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -11,14 +12,21 @@ namespace jasl {
 
     std::shared_ptr<Evaluator> LiteralRealExpression::getEvaluator() const
     {
-        return nullptr;
+        struct RealEvaluator : public Evaluator {
+            RealEvaluator(Token tok) : m_tok(std::move(tok))
+            {
+            }
+
+            Type evaluate() const override
+            {
+                return {TypeDescriptor::Real, {std::stold(m_tok.raw)}};
+            }
+          private:
+            Token m_tok;
+        };
+        return std::make_shared<RealEvaluator>(m_realToken);
     }
-/*
-    Type LiteralRealExpression::evaluate() const
-    {
-        return {TypeDescriptor::Real, {std::stold(m_realToken.raw)}};
-    }
-*/
+
     DecayType LiteralRealExpression::decayType() const
     {
         return DecayType::DECAYS_TO_REAL;

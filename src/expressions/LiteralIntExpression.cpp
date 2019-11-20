@@ -1,4 +1,5 @@
 #include "LiteralIntExpression.hpp"
+#include "evaluator/Evaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -11,14 +12,21 @@ namespace jasl {
 
     std::shared_ptr<Evaluator> LiteralIntExpression::getEvaluator() const
     {
-        return nullptr;
+        struct IntEvaluator : public Evaluator {
+            IntEvaluator(Token tok) : m_tok(std::move(tok))
+            {
+            }
+
+            Type evaluate() const override
+            {
+                return {TypeDescriptor::Int, {std::stoll(m_tok.raw)}};
+            }
+          private:
+            Token m_tok;
+        };
+        return std::make_shared<IntEvaluator>(m_intToken);
     }
-/*
-    Type LiteralIntExpression::evaluate() const
-    {
-        return {TypeDescriptor::Int, {std::stoll(m_intToken.raw)}};
-    }
-*/
+
     DecayType LiteralIntExpression::decayType() const
     {
         return DecayType::DECAYS_TO_INT;
