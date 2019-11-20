@@ -1,83 +1,7 @@
 #include "BooleanExpression.hpp"
+#include "evaluator/BooleanExpressionEvaluator.hpp"
 
 namespace jasl {
-
-    struct BooleanEvaluator {
-        BooleanEvaluator(std::string op)
-        : m_op(std::move(op))
-        {
-        }
-
-        bool operator()(std::string left,
-                        std::string right) const
-        {
-            auto res{false};
-            if(m_op == "=") {
-                return left == right;
-            } else if(m_op == "<") {
-                return left < right;
-            } else if(m_op == "<=") {
-                return left <= right;
-            } else if(m_op == ">") {
-                return left > right;
-            } else if(m_op == ">=") {
-                return left >= right;
-            } else if(m_op == "/=") {
-                return left != right;
-            } else {
-                throw std::runtime_error("Bad operator for type List.");
-            }
-        }
-        bool operator()(std::vector<std::string> left,
-                        std::vector<std::string> right) const
-        {
-            auto res{false};
-            if(m_op == "=") {
-                return left == right;
-            } else if(m_op == "<") {
-                return left < right;
-            } else if(m_op == "<=") {
-                return left <= right;
-            } else if(m_op == ">") {
-                return left > right;
-            } else if(m_op == ">=") {
-                return left >= right;
-            } else if(m_op == "/=") {
-                return left != right;
-            } else {
-                throw std::runtime_error("Bad operator for type List.");
-            }
-        }
-
-        template <class Left, class Right>
-        bool operator()(Left left, Right right) const
-        {
-            if constexpr(std::is_same_v<Left, Right>) {
-                if(m_op == "=") {
-                    return left == right;
-                } else if(m_op == "<") {
-                    return left < right;
-                } else if(m_op == "<=") {
-                    return left <= right;
-                } else if(m_op == ">") {
-                    return left > right;
-                } else if(m_op == ">=") {
-                    return left >= right;
-                } else if(m_op == "&&") {
-                    return left && right;
-                } else if(m_op == "||") {
-                    return left || right;
-                } else if(m_op == "/=") {
-                    return left != right;
-                } else {
-                    throw std::runtime_error("Bad operator for type.");
-                }
-            }
-            throw std::runtime_error("Incompatible types.");
-        }
-      private:
-        std::string m_op;
-    };
 
     BooleanExpression::BooleanExpression() 
     : Expression()
@@ -87,19 +11,7 @@ namespace jasl {
 
     std::shared_ptr<Evaluator> BooleanExpression::getEvaluator() const
     {
-        return nullptr;
-    }
-
-    Type BooleanExpression::evaluate() const
-    {
-        auto leftEval = getExpressionLeft()->evaluate();
-        auto rightEval = getExpressionRight()->evaluate();
-        auto op = getOperator();
-        BooleanEvaluator evaluator{op.raw};
-        auto res = std::visit(evaluator, 
-                              leftEval.m_variantType,
-                              rightEval.m_variantType);
-        return {TypeDescriptor::Bool, res};
+        return std::make_shared<BooleanExpressionEvaluator>(*this);
     }
 
     DecayType BooleanExpression::decayType() const

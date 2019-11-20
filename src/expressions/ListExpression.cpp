@@ -12,12 +12,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type ListExpression::evaluate() const
     {
         return {TypeDescriptor::List, {false}};
     }
-
+*/
     DecayType ListExpression::decayType() const
     {
         return DecayType::DECAYS_TO_LIST;

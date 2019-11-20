@@ -13,12 +13,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type IdentifierExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};
     }
-
+*/
     DecayType IdentifierExpression::decayType() const
     {
         return DecayType::DECAYS_TO_STRING;

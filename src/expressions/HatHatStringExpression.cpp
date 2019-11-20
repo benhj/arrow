@@ -13,12 +13,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type HatHatStringExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};
     }
-
+*/
     DecayType HatHatStringExpression::decayType() const
     {
         return DecayType::DECAYS_TO_STRING;

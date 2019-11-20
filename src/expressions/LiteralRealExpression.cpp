@@ -13,12 +13,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type LiteralRealExpression::evaluate() const
     {
         return {TypeDescriptor::Real, {std::stold(m_realToken.raw)}};
     }
-
+*/
     DecayType LiteralRealExpression::decayType() const
     {
         return DecayType::DECAYS_TO_REAL;

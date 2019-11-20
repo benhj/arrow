@@ -13,11 +13,13 @@
 #include "expressions/OperatorExpression.hpp"
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
+#include "types/Type.hpp"
 #include <memory>
 
 namespace jasl {
     class Evaluator
     {
       public:
+        virtual Type evaluate() const = 0;
     };
 }

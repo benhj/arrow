@@ -13,12 +13,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type LiteralStringExpression::evaluate() const
     {
         return {TypeDescriptor::String, m_stringToken.raw};
     }
-
+*/
     DecayType LiteralStringExpression::decayType() const
     {
         return DecayType::DECAYS_TO_STRING;

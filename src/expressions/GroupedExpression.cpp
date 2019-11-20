@@ -12,12 +12,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type GroupedExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};
     }
-
+*/
     DecayType GroupedExpression::decayType() const
     {
         return DecayType::DECAYS_TO_NONE;

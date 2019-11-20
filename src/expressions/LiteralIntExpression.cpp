@@ -13,12 +13,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type LiteralIntExpression::evaluate() const
     {
         return {TypeDescriptor::Int, {std::stoll(m_intToken.raw)}};
     }
-
+*/
     DecayType LiteralIntExpression::decayType() const
     {
         return DecayType::DECAYS_TO_INT;

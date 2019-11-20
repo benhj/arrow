@@ -13,8 +13,6 @@ namespace jasl {
 
         std::shared_ptr<Evaluator> getEvaluator() const override;
 
-        Type evaluate() const override;
-
         DecayType decayType() const override;
 
         MathExpression & withLeft(std::shared_ptr<Expression> expressionLeft);

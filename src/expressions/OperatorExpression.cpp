@@ -14,12 +14,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type OperatorExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};
     }
-
+*/
     DecayType OperatorExpression::decayType() const
     {
         return DecayType::DECAYS_TO_NONE;

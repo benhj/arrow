@@ -61,7 +61,7 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type MathExpression::evaluate() const
     {
         auto leftEval = getExpressionLeft()->evaluate();
@@ -73,7 +73,7 @@ namespace jasl {
                               rightEval.m_variantType);
         return {TypeDescriptor::Real, res};
     }
-
+*/
     DecayType MathExpression::decayType() const
     {
         return DecayType::DECAYS_TO_REAL;

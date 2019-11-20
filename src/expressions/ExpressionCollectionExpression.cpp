@@ -12,12 +12,12 @@ namespace jasl {
     {
         return nullptr;
     }
-
+/*
     Type ExpressionCollectionExpression::evaluate() const
     {
         return {TypeDescriptor::None, {false}};
     }
-
+*/
     DecayType ExpressionCollectionExpression::decayType() const
     {
         return DecayType::DECAYS_TO_NONE;

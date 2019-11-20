@@ -14,10 +14,7 @@ namespace jasl {
         Expression() : Node() {}
 
         /// Returns an Evaluator that can be used to evaluate this
-        virtual std::shared_ptr<Evaluator> getEvaluator() const;
-
-        /// Returns the evaluated type of the expression
-        virtual Type evaluate() const = 0;
+        virtual std::shared_ptr<Evaluator> getEvaluator() const = 0;
 
         /// During expression evaluation, we need
         /// to know the overaching type that it decays to
