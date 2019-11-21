@@ -13,7 +13,7 @@
 #include "expressions/OperatorExpression.hpp"
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
-#include "types/Type.hpp"
+#include "representation/Type.hpp"
 #include <memory>
 
 namespace jasl {

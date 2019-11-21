@@ -1,6 +1,6 @@
 #include "BooleanExpressionEvaluator.hpp"
 #include "expressions/BooleanExpression.hpp"
-#include "types/TypeDescriptor.hpp"
+#include "representation/TypeDescriptor.hpp"
 #include <utility>
 
 namespace jasl {

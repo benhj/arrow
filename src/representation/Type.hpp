@@ -13,6 +13,6 @@ namespace jasl {
         {
         }
         TypeDescriptor const m_descriptor;
-        VariantType m_variantType;
+        VariantType mutable m_variantType;
     };
 }

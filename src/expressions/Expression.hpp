@@ -1,7 +1,7 @@
 #pragma once
 #include "DecayType.hpp"
 #include "parser/Node.hpp"
-#include "types/Type.hpp"
+#include "representation/Type.hpp"
 #include <string>
 
 namespace jasl {

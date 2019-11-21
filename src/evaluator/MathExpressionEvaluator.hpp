@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Evaluator.hpp"
-#include "types/Type.hpp"
+#include "representation/Type.hpp"
 
 namespace jasl {
 

@@ -1,6 +1,6 @@
 #include "MathExpressionEvaluator.hpp"
 #include "expressions/MathExpression.hpp"
-#include "types/TypeDescriptor.hpp"
+#include "representation/TypeDescriptor.hpp"
 #include <utility>
 
 namespace jasl {
