@@ -1,16 +1,17 @@
 #pragma once
 
-#include "Evaluator.hpp"
+#include "ExpressionEvaluator.hpp"
+#include "expressions/MathExpression.hpp"
 #include "representation/Type.hpp"
 
 namespace jasl {
 
     class MathExpression;
-    class MathExpressionEvaluator : public Evaluator
+    class MathExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         MathExpressionEvaluator(MathExpression expression);
-        Type evaluate() const override;
+        Type evaluate(Cache & cache) const override;
       private:
         MathExpression m_expression;
     };

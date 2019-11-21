@@ -6,7 +6,7 @@
 
 namespace jasl {
 
-    class Evaluator;
+    class ExpressionEvaluator;
 
     class Expression : public Node
     {
@@ -14,7 +14,7 @@ namespace jasl {
         Expression();
 
         /// Returns an Evaluator that can be used to evaluate this
-        virtual std::shared_ptr<Evaluator> getEvaluator() const = 0;
+        virtual std::shared_ptr<ExpressionEvaluator> getEvaluator() const = 0;
 
         /// During expression evaluation, we need
         /// to know the overaching type that it decays to

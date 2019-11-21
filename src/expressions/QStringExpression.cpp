@@ -9,7 +9,7 @@ namespace jasl {
     {
     }
 
-    std::shared_ptr<Evaluator> QStringExpression::getEvaluator() const
+    std::shared_ptr<ExpressionEvaluator> QStringExpression::getEvaluator() const
     {
         return nullptr;
     }

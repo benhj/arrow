@@ -15,13 +15,12 @@ namespace jasl {
         Cache();
         Type get(std::string identifier) const;
         void add(std::string identifier, Type const type);
-        bool has(std::string identifier, TypeDescriptor const & descriptor) const;
+        bool has(std::string identifier) const;
         void remove(std::string identifier) const;
         void addCacheLayer();
       private:
 
         CacheMap::iterator findAndRetrieveCached(std::string identifier) const;
-
         std::deque<CacheMap> mutable m_cacheStack;
     };
 }

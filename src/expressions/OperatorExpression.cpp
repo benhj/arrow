@@ -10,7 +10,7 @@ namespace jasl {
     {
     }
 
-    std::shared_ptr<Evaluator> OperatorExpression::getEvaluator() const
+    std::shared_ptr<ExpressionEvaluator> OperatorExpression::getEvaluator() const
     {
         return nullptr;
     }

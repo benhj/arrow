@@ -9,7 +9,7 @@ namespace jasl {
     {
     }
 
-    std::shared_ptr<Evaluator> BooleanExpression::getEvaluator() const
+    std::shared_ptr<ExpressionEvaluator> BooleanExpression::getEvaluator() const
     {
         return std::make_shared<BooleanExpressionEvaluator>(*this);
     }

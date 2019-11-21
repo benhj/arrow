@@ -8,7 +8,7 @@ namespace jasl {
     {
     }
 
-    std::shared_ptr<Evaluator> GroupedExpression::getEvaluator() const
+    std::shared_ptr<ExpressionEvaluator> GroupedExpression::getEvaluator() const
     {
         return nullptr;
     }

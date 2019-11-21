@@ -1,4 +1,5 @@
 #include "IdentifierExpression.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -9,28 +10,39 @@ namespace jasl {
     {
     }
 
-    std::shared_ptr<Evaluator> IdentifierExpression::getEvaluator() const
+    std::shared_ptr<ExpressionEvaluator> 
+    IdentifierExpression::getEvaluator() const
     {
-        return nullptr;
+        struct IdentifierEvaluator : public ExpressionEvaluator {
+            IdentifierEvaluator(Token tok) : m_tok(std::move(tok))
+            {
+            }
+
+            Type evaluate(Cache & cache) const override
+            {
+                if(!cache.has(m_tok.raw)) {
+                    throw std::runtime_error("Value for identifier not found.");
+                }
+                return cache.get(m_tok.raw);
+            }
+          private:
+            Token m_tok;
+        };
+        return std::make_shared<IdentifierEvaluator>(m_identifier);
     }
-/*
-    Type IdentifierExpression::evaluate() const
-    {
-        return {TypeDescriptor::None, {false}};
-    }
-*/
+
     DecayType IdentifierExpression::decayType() const
     {
         return DecayType::DECAYS_TO_STRING;
     }
 
-    IdentifierExpression & IdentifierExpression::withIntToken(Token identifier)
+    IdentifierExpression & IdentifierExpression::withIdentifierToken(Token identifier)
     {
         m_identifier = std::move(identifier);
         return *this;
     }
 
-    Token IdentifierExpression::getIntToken() const
+    Token IdentifierExpression::getIdentifierToken() const
     {
         return  m_identifier;
     }

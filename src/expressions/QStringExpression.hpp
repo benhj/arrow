@@ -10,7 +10,7 @@ namespace jasl {
       public:
         QStringExpression();
 
-        std::shared_ptr<Evaluator> getEvaluator() const override;
+        std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 
         DecayType decayType() const override;
 

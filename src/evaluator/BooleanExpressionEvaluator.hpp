@@ -1,16 +1,17 @@
 #pragma once
 
-#include "Evaluator.hpp"
+#include "ExpressionEvaluator.hpp"
+#include "expressions/BooleanExpression.hpp"
 #include "representation/Type.hpp"
 
 namespace jasl {
 
     class BooleanExpression;
-    class BooleanExpressionEvaluator : public Evaluator
+    class BooleanExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         BooleanExpressionEvaluator(BooleanExpression expression);
-        Type evaluate() const override;
+        Type evaluate(Cache&) const override;
       private:
         BooleanExpression m_expression;
     };

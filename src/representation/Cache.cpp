@@ -42,13 +42,10 @@ namespace jasl {
         // Add brand new instance
         m_cacheStack[0].emplace(identifier, type);
     }
-    bool Cache::has(std::string identifier, TypeDescriptor const & descriptor) const
+    bool Cache::has(std::string identifier) const
     {
         auto found = findAndRetrieveCached(std::move(identifier));
-        if(found != CacheMap::iterator()) { 
-            return found->second.m_descriptor == descriptor; 
-        }
-        return false;
+        return found != CacheMap::iterator();
     }
     void Cache::remove(std::string identifier) const
     {

@@ -59,13 +59,13 @@ namespace jasl {
     {
     }
 
-    Type MathExpressionEvaluator::evaluate() const
+    Type MathExpressionEvaluator::evaluate(Cache & cache) const
     {
         auto leftEval = m_expression.getExpressionLeft()->getEvaluator();
         auto rightEval = m_expression.getExpressionRight()->getEvaluator();
         auto op = m_expression.getOperator();
-        auto deducedLeft = leftEval->evaluate();
-        auto deducedRight = rightEval->evaluate();
+        auto deducedLeft = leftEval->evaluate(cache);
+        auto deducedRight = rightEval->evaluate(cache);
 
         MathEvaluator evaluator{op.raw};
         auto res = std::visit(evaluator, 

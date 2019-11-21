@@ -11,13 +11,13 @@ namespace jasl {
       public:
         IdentifierExpression();
 
-        std::shared_ptr<Evaluator> getEvaluator() const override;
+        std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 
         DecayType decayType() const override;
 
-        IdentifierExpression & withIntToken(Token identifier);
+        IdentifierExpression & withIdentifierToken(Token identifier);
 
-        Token getIntToken() const;
+        Token getIdentifierToken() const;
 
         std::string toString() const override;
 

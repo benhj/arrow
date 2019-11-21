@@ -1,5 +1,5 @@
 #include "LiteralStringExpression.hpp"
-#include "evaluator/Evaluator.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -10,14 +10,14 @@ namespace jasl {
     {
     }
 
-    std::shared_ptr<Evaluator> LiteralStringExpression::getEvaluator() const
+    std::shared_ptr<ExpressionEvaluator> LiteralStringExpression::getEvaluator() const
     {
-        struct StringEvaluator : public Evaluator {
+        struct StringEvaluator : public ExpressionEvaluator {
             StringEvaluator(Token tok) : m_tok(std::move(tok))
             {
             }
 
-            Type evaluate() const override
+            Type evaluate(Cache &) const override
             {
                 return {TypeDescriptor::String, m_tok.raw};
             }

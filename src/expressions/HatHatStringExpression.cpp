@@ -9,7 +9,7 @@ namespace jasl {
     {
     }
 
-    std::shared_ptr<Evaluator> HatHatStringExpression::getEvaluator() const
+    std::shared_ptr<ExpressionEvaluator> HatHatStringExpression::getEvaluator() const
     {
         return nullptr;
     }

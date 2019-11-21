@@ -169,7 +169,7 @@ namespace jasl {
     std::shared_ptr<Expression> Parser::parseIdentifierExpression()
     {
         auto exp = std::make_shared<IdentifierExpression>();
-        exp->withIntToken(currentToken());
+        exp->withIdentifierToken(currentToken());
         return exp;
     }
 
