@@ -12,41 +12,15 @@ namespace jasl {
     class CallStatement : public Statement
     {
       public:
-        CallStatement() : Statement() {}
-        CallStatement & withToken(Token token)
-        {
-            m_keywordToken = std::move(token);
-            return *this;
-        }
-        CallStatement & withFunctionNameToken(Token token)
-        {
-            m_functionNameToken = std::move(token);
-            return *this;
-        }
+        CallStatement();
+        CallStatement & withToken(Token token);
+        CallStatement & withFunctionNameToken(Token token);
         CallStatement & 
-        withExpressionCollection(std::shared_ptr<Expression> expression)
-        {
-            m_expressionCollection = std::move(expression);
-            return *this;
-        }
-        CallStatement & withIdentifier(Token identifier)
-        {
-            m_identifier = std::move(identifier);
-            return *this;
-        }
+        withExpressionCollection(std::shared_ptr<Expression> expression);
+        CallStatement & withIdentifier(Token identifier);
 
-        std::string toString() const override
-        {
-            std::string str("\nKeyword: ");
-            str.append(m_keywordToken.raw);
-            str.append("\nFunction name: ");
-            str.append(m_functionNameToken.raw);
-            str.append(m_expressionCollection->toString());
-            str.append("\nIdentifier: ");
-            str.append(m_identifier.raw);
-            return str;
-        }
-
+        std::string toString() const override;
+      private:
         Token m_keywordToken; // the call keyword
         Token m_functionNameToken; // the call keyword
         std::shared_ptr<Expression> m_expressionCollection;

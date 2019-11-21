@@ -21,6 +21,7 @@ link_directories(/usr/local/lib)
 add_library(parser_lib ${parser})
 add_library(lexer_lib ${lexer})
 add_library(expressions_lib ${expressions})
+add_library(statements_lib ${statements})
 add_library(evaluator_lib ${evaluator})
 add_library(representation_lib ${representation})
 
@@ -30,6 +31,7 @@ target_link_libraries(output
                       parser_lib
                       lexer_lib
                       expressions_lib
+                      statements_lib
                       evaluator_lib
                       representation_lib)
 
@@ -38,6 +40,7 @@ set(COMP_FLAGS -std=c++17 -O3 -ffast-math -funroll-loops -Wno-ctor-dtor-privacy 
 target_compile_options(parser_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(lexer_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(expressions_lib PUBLIC ${COMP_FLAGS})
+target_compile_options(statements_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(evaluator_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(representation_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(output PUBLIC ${COMP_FLAGS})
