@@ -7,6 +7,7 @@
 #include "statements/CallStatement.hpp"
 #include "statements/ForStatement.hpp"
 #include "statements/IfStatement.hpp"
+#include "statements/EchoStatement.hpp"
 #include "statements/ElseStatement.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include "statements/FunctionStatement.hpp"
@@ -438,6 +439,10 @@ namespace jasl {
             advanceTokenIterator();
             if(notAtEnd()) {
                 if(currentToken().lexeme == Lexeme::SEMICOLON) {
+                    auto const keyword = arrowlessStatement->getToken().raw;
+                    if(keyword == "prn" || keyword == "pr" || keyword == "say") {
+                        return std::make_shared<EchoStatement>(std::move(arrowlessStatement));
+                    }
                     return arrowlessStatement;
                 }
             }

@@ -22,6 +22,10 @@ namespace jasl {
             m_expression = std::move(expression);
             return *this;
         }
+        Token getToken() const
+        {
+            return m_keywordToken;
+        }
 
         std::string toString() const override
         {
