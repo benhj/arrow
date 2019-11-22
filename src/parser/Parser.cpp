@@ -11,6 +11,7 @@
 #include "statements/ElseStatement.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include "statements/FunctionStatement.hpp"
+#include "statements/PrimitiveStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/StartStatement.hpp"
 #include "statements/WhileStatement.hpp"
@@ -413,6 +414,7 @@ namespace jasl {
     {
         auto arrowStatement = std::make_shared<ArrowStatement>();
         arrowStatement->withToken(currentToken());
+        auto const keyword = currentToken().raw;
         advanceTokenIterator();
         
         auto expression = parseExpression();
@@ -430,6 +432,13 @@ namespace jasl {
                         advanceTokenIterator();
                         if(notAtEnd()) {
                             if(currentToken().lexeme == Lexeme::SEMICOLON) {
+                                if(keyword == "int" || keyword == "real" || 
+                                   keyword == "bool" || keyword == "ints" ||
+                                   keyword == "reals" || keyword == "bools" ||
+                                   keyword == "list" || keyword == "string" ||
+                                   keyword == "strings") {
+                                       return std::make_shared<PrimitiveStatement>(*arrowStatement);
+                                   }
                                 return arrowStatement;
                             }
                         }
