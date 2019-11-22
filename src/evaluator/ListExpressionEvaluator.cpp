@@ -14,7 +14,14 @@ namespace jasl {
         auto const parts = m_listExpression.getParts();
         for(auto const & part : parts) {
             auto const evaluated = part->getEvaluator()->evaluate(cache);
-            elements.push_back(evaluated);
+            if(evaluated.m_descriptor == TypeDescriptor::BracketlessList) {
+                auto innerParts = std::get<std::vector<Type>>(evaluated.m_variantType);
+                for(auto const & inner : innerParts) {
+                    elements.push_back(inner);
+                }
+            } else {
+                elements.push_back(evaluated);
+            }
         }
         return {TypeDescriptor::List, std::move(elements)};
     }
