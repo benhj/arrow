@@ -38,7 +38,7 @@ namespace jasl {
           , m_variantType(std::move(variantType))
         {
         }
-        TypeDescriptor const m_descriptor;
+        TypeDescriptor mutable m_descriptor;
         VariantType mutable m_variantType;
 
         std::string toString() const

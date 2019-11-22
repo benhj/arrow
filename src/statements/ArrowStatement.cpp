@@ -21,6 +21,21 @@ namespace jasl {
         return *this;
     }
 
+    Token ArrowStatement::getToken() const
+    {
+        return m_keywordToken;
+    }
+
+    std::shared_ptr<Expression> ArrowStatement::getExpression() const
+    {
+        return m_expression;
+    }
+
+    Token ArrowStatement::getIdentifier() const
+    {
+        return m_identifier;
+    }
+
     std::string ArrowStatement::toString() const
     {
         std::string str("\nKeyword: ");
