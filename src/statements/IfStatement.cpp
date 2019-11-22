@@ -2,6 +2,7 @@
 #include "ElseStatement.hpp"
 #include "IfStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "evaluator/IfStatementEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -79,6 +80,6 @@ namespace jasl {
 
     std::shared_ptr<StatementEvaluator> IfStatement::getEvaluator() const
     {
-        return nullptr;
+        return std::make_shared<IfStatementEvaluator>(*this);
     }
 }
