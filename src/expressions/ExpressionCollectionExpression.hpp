@@ -18,6 +18,7 @@ namespace arrow {
         DecayType decayType() const override;
 
         void addExpression(std::shared_ptr<Expression> expression);
+        std::vector<std::shared_ptr<Expression>> getExpressionCollection() const;
 
         std::string toString() const override;
 

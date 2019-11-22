@@ -10,7 +10,8 @@ namespace arrow {
     /// Describes a given type
     enum class TypeDescriptor {
         Int, Bool, Real, Byte, String, List, BracketlessList,
-        Ints, Bools, Reals, Bytes, Strings, None
+        Ints, Bools, Reals, Bytes, Strings, None,
+        ExpressionCollection
     };
 
 }

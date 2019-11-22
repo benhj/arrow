@@ -1,4 +1,5 @@
 #include "ExpressionCollectionExpression.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>
 
 namespace arrow {
@@ -10,14 +11,29 @@ namespace arrow {
 
     std::shared_ptr<ExpressionEvaluator> ExpressionCollectionExpression::getEvaluator() const
     {
-        return nullptr;
+        struct ExpressionCollectionExpressionEvaluator : 
+               public ExpressionEvaluator
+        {
+            ExpressionCollectionExpressionEvaluator(ExpressionCollectionExpression ece)
+              : m_ece(std::move(ece))
+            {
+            }
+            Type evaluate(Cache & cache) const override
+            {
+                auto expressions = m_ece.getExpressionCollection();
+                std::vector<Type> bigEval;
+                for(auto const & expression : expressions) {
+                    bigEval.emplace_back(expression->getEvaluator()->evaluate(cache));
+                }
+                return {TypeDescriptor::ExpressionCollection, bigEval};
+            }
+          private:
+            ExpressionCollectionExpression m_ece;
+        };
+
+        return std::make_shared<ExpressionCollectionExpressionEvaluator>(*this);
     }
-/*
-    Type ExpressionCollectionExpression::evaluate() const
-    {
-        return {TypeDescriptor::None, {false}};
-    }
-*/
+
     DecayType ExpressionCollectionExpression::decayType() const
     {
         return DecayType::DECAYS_TO_NONE;
@@ -26,6 +42,12 @@ namespace arrow {
     void ExpressionCollectionExpression::addExpression(std::shared_ptr<Expression> expression)
     {
         m_expressions.emplace_back(std::move(expression));
+    }
+
+    std::vector<std::shared_ptr<Expression>> 
+    ExpressionCollectionExpression::getExpressionCollection() const
+    {
+        return m_expressions;
     }
 
     std::string ExpressionCollectionExpression::toString() const
