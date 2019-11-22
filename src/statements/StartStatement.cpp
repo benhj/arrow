@@ -2,7 +2,7 @@
 #include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
     StartStatement::StartStatement() : Statement() {}
     StartStatement & StartStatement::withToken(Token token)
     {

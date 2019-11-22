@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
     
     /// For storing a set of expressions, e.g.
     /// (a, b, c)

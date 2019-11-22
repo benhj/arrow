@@ -5,7 +5,7 @@
 #include "expressions/Expression.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     
     class ArrowStatement : public Statement
     {

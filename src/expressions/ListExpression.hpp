@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
     
     class ListExpression : public Expression
     {

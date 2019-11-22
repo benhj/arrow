@@ -3,7 +3,7 @@
 #include "representation/Cache.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     class StatementEvaluator
     {
       public:

@@ -3,7 +3,7 @@
 #include "representation/TypeDescriptor.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     struct MathEvaluator {
         MathEvaluator(std::string op)

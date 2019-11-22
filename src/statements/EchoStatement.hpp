@@ -3,7 +3,7 @@
 #include "ArrowlessStatement.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     
     class EchoStatement : public Statement
     {

@@ -5,7 +5,7 @@
 #include "representation/Cache.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     class WhileStatementEvaluator : public StatementEvaluator
     {
       public:

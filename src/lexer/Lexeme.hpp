@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace jasl {
+namespace arrow {
     enum class Lexeme {
         // Single char lexemes
         PLUS, MINUS, STAR, EQUAL, DIVIDE,
@@ -31,4 +31,4 @@ namespace jasl {
     bool isMathOperator(Lexeme const lexeme);
 }
 
-std::ostream& operator<<(std::ostream& out, jasl::Lexeme const value);
+std::ostream& operator<<(std::ostream& out, arrow::Lexeme const value);

@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     
     class Parser
     {

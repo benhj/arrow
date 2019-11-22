@@ -1,6 +1,6 @@
 #include "GroupedExpression.hpp"
 
-namespace jasl {
+namespace arrow {
 
     GroupedExpression::GroupedExpression() 
     : Expression()

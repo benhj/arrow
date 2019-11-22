@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-namespace jasl {
+namespace arrow {
 
     class Cache
     {

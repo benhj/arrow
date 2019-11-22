@@ -1,5 +1,5 @@
 #include "Expression.hpp"
 
-namespace jasl {
+namespace arrow {
     Expression::Expression() : Node(){}
 }

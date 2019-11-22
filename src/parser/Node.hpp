@@ -1,6 +1,6 @@
 #pragma once
 
-namespace jasl {
+namespace arrow {
 	class Node
 	{
       public:

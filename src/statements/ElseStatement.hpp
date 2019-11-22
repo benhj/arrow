@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
     
     /// Note, an ElseStatement can only be part
     /// of an IfStatement or ElseIfStatement

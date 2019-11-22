@@ -3,7 +3,7 @@
 #include "evaluator/WhileStatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     WhileStatement::WhileStatement() : Statement() {}
     WhileStatement & WhileStatement::withToken(Token token)

@@ -4,7 +4,7 @@
 #include "representation/Cache.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     class ExpressionEvaluator
     {
       public:

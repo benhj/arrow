@@ -6,7 +6,7 @@
 #include <memory>
 #include <utility>
 
-namespace jasl {
+namespace arrow {
     class StartStatement : public Statement
     {
       public:

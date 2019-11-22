@@ -10,16 +10,16 @@ int main(int argc, char ** argv) {
 
     std::ifstream in(argv[1]);
 
-    jasl::Cache cache;
+    arrow::Cache cache;
 
-    auto tokens = jasl::Lexer::tokenize(in);
+    auto tokens = arrow::Lexer::tokenize(in);
 
 /*
     for(auto const & token : tokens) {
         std::cout<<token.lexeme<<"\t"<<token.raw<<std::endl;
     }
 */
-    jasl::Parser p(tokens);
+    arrow::Parser p(tokens);
     p.parse();
     auto statements = p.getStatements();
 

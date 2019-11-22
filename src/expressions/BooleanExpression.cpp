@@ -1,7 +1,7 @@
 #include "BooleanExpression.hpp"
 #include "evaluator/BooleanExpressionEvaluator.hpp"
 
-namespace jasl {
+namespace arrow {
 
     BooleanExpression::BooleanExpression() 
     : Expression()

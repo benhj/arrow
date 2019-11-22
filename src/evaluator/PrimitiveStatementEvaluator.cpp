@@ -2,7 +2,7 @@
 #include "ExpressionEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     namespace {
         bool decaysToInt(TypeDescriptor const descriptor)

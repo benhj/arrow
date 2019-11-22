@@ -2,7 +2,7 @@
 #include "evaluator/PutStatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
     
     PutStatement::PutStatement(ArrowStatement arrowStatement) 
       : Statement()

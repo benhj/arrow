@@ -2,7 +2,7 @@
 #include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     ElseStatement::ElseStatement() : Statement() {}
     ElseStatement & ElseStatement::withToken(Token token)

@@ -1,7 +1,7 @@
 #include "IdentifierEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     IdentifierEvaluator::IdentifierEvaluator(Token tok) 
       : m_tok(std::move(tok))

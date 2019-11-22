@@ -4,7 +4,7 @@
 #include "representation/Type.hpp"
 #include <string>
 
-namespace jasl {
+namespace arrow {
 
     class ExpressionEvaluator;
 

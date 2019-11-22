@@ -4,7 +4,7 @@
 #include "expressions/BooleanExpression.hpp"
 #include "representation/Type.hpp"
 
-namespace jasl {
+namespace arrow {
 
     class BooleanExpressionEvaluator : public ExpressionEvaluator
     {

@@ -4,7 +4,7 @@
 #include "expressions/MathExpression.hpp"
 #include "representation/Type.hpp"
 
-namespace jasl {
+namespace arrow {
 
     class MathExpressionEvaluator : public ExpressionEvaluator
     {

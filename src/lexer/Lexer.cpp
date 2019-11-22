@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <string>
 
-namespace jasl {
+namespace arrow {
 
     bool checkIfDoubleCharToken(char const c, std::istream & stream, std::vector<Token> & tokens) {
         switch(c) {

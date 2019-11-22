@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-namespace jasl {
+namespace arrow {
     
     class LiteralRealExpression : public Expression
     {

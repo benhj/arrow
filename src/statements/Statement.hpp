@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-namespace jasl {
+namespace arrow {
 	
     class StatementEvaluator;
 	class Statement : public Node

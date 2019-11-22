@@ -3,7 +3,7 @@
 #include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     EchoStatement::EchoStatement(std::shared_ptr<ArrowlessStatement> statement)
     : Statement()

@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
 
     /// Describes a given type
     enum class TypeDescriptor {

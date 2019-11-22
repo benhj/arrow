@@ -1,6 +1,6 @@
 #pragma once
 
-namespace jasl {
+namespace arrow {
     enum class DecayType {
         DECAYS_TO_INT,
         DECAYS_TO_REAL,

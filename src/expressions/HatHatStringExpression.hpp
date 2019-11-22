@@ -5,7 +5,7 @@
 #include <memory>
 
 
-namespace jasl {
+namespace arrow {
     class HatHatStringExpression : public Expression
     {
       public:

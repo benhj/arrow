@@ -1,7 +1,7 @@
 #include "ExpressionCollectionExpression.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     ExpressionCollectionExpression::ExpressionCollectionExpression()
      : Expression()

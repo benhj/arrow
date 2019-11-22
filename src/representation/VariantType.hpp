@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
 
     /// Represents the set of built-in types
     class Type;

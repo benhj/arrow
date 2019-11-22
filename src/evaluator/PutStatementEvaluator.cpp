@@ -3,7 +3,7 @@
 #include "PrimitiveStatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
     PutStatementEvaluator::PutStatementEvaluator(PutStatement statement)
       : m_statement(std::move(statement))
     {

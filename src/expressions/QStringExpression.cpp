@@ -1,7 +1,7 @@
 #include "QStringExpression.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     QStringExpression::QStringExpression()
      : Expression()

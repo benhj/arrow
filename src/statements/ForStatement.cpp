@@ -2,7 +2,7 @@
 #include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     ForStatement::ForStatement() : Statement() {}
     ForStatement & ForStatement::withToken(Token token)

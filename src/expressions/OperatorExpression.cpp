@@ -1,6 +1,6 @@
 #include "OperatorExpression.hpp"
 
-namespace jasl {
+namespace arrow {
 
     OperatorExpression::OperatorExpression() 
     : Expression()

@@ -5,7 +5,7 @@
 #include "evaluator/IfStatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     IfStatement::IfStatement() : Statement() {}
     IfStatement & IfStatement::withToken(Token token)

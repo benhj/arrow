@@ -3,7 +3,7 @@
 #include <utility>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
     ListExpressionEvaluator::ListExpressionEvaluator(ListExpression listExpression)
       : m_listExpression(std::move(listExpression))
     {

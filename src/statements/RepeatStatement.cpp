@@ -3,7 +3,7 @@
 #include "evaluator/RepeatStatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     RepeatStatement::RepeatStatement() : Statement() {}
     RepeatStatement & RepeatStatement::withToken(Token token)

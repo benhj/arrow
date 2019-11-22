@@ -3,7 +3,7 @@
 #include "evaluator/IdentifierEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     HatStringExpression::HatStringExpression()
      : Expression()

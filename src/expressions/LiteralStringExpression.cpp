@@ -2,7 +2,7 @@
 #include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     LiteralStringExpression::LiteralStringExpression()
      : Expression()

@@ -1,7 +1,7 @@
 # (c) 2019 Ben Jones
 
 cmake_minimum_required (VERSION 2.6)
-project (parser-dev)
+project (arrow)
 
 # put all source code in one place for convenience
 file(GLOB lexer src/lexer/*.cpp src/lexer/*.hpp)

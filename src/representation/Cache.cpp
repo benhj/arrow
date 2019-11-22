@@ -1,6 +1,6 @@
 #include "Cache.hpp"
 
-namespace jasl {
+namespace arrow {
 
     Cache::Cache()
       : m_cacheStack{}

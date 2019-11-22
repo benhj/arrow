@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-namespace jasl {
+namespace arrow {
     struct Token {
 
         Token(){}

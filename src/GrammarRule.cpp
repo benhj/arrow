@@ -3,7 +3,7 @@
 #include "Lexeme.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
 
     class GrammarRule
     {

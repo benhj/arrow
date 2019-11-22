@@ -7,7 +7,7 @@
 #include <memory>
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     class CallStatement : public Statement
     {

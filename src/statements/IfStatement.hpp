@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
     
     /// Note, an IfStatement can contain optional
     /// ElseIfStatement parts an an optional

@@ -4,7 +4,7 @@
 #include "lexer/Token.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     
     class LiteralIntExpression : public Expression
     {

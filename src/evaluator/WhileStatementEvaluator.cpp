@@ -3,7 +3,7 @@
 #include "statements/ElseIfStatement.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     namespace {
         void evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,

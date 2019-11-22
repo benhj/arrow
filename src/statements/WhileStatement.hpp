@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
     
     class WhileStatement : public Statement
     {

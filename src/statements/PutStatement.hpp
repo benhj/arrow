@@ -5,7 +5,7 @@
 #include "expressions/Expression.hpp"
 #include <memory>
 
-namespace jasl {
+namespace arrow {
     /// represents a statement of the form
     /// put 1 -> a;
     /// etc.

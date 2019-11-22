@@ -1,7 +1,7 @@
 #include "MathExpression.hpp"
 #include "evaluator/MathExpressionEvaluator.hpp"
 
-namespace jasl {
+namespace arrow {
 
     MathExpression::MathExpression() 
     : Expression()

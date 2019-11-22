@@ -4,7 +4,7 @@
 #include "lexer/Token.hpp"
 #include "representation/Cache.hpp"
 
-namespace jasl {
+namespace arrow {
 
     struct IdentifierEvaluator : public ExpressionEvaluator {
         IdentifierEvaluator(Token tok);

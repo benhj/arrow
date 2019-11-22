@@ -37,7 +37,7 @@
 #include "lexer/Lexeme.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
     
     Parser::Parser(std::vector<Token> tokens)
       : m_tokens(std::move(tokens))

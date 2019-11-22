@@ -2,7 +2,7 @@
 #include "evaluator/PrimitiveStatementEvaluator.hpp"
 #include <utility>
 
-namespace jasl {
+namespace arrow {
     
     PrimitiveStatement::PrimitiveStatement(ArrowStatement arrowStatement) 
       : Statement()

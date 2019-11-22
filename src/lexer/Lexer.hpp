@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-namespace jasl {
+namespace arrow {
     class Lexer {
 
       public:

@@ -5,7 +5,7 @@
 #include <string>
 #include <utility>
 
-namespace jasl {
+namespace arrow {
 
     namespace detail {
         struct TypeVisitor
