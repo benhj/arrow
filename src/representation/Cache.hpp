@@ -17,7 +17,8 @@ namespace arrow {
         void add(std::string identifier, Type const type);
         bool has(std::string identifier) const;
         void remove(std::string identifier) const;
-        void addCacheLayer();
+        void pushCacheLayer();
+        void popCacheLayer();
       private:
 
         CacheMap::iterator findAndRetrieveCached(std::string identifier) const;

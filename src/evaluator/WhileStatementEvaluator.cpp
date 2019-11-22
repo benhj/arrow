@@ -30,7 +30,9 @@ namespace arrow {
         auto booleanVal = std::get<bool>(resolved.m_variantType);
         auto bodyStatements = m_statement.getBodyStatements();
         while(booleanVal) {
+            cache.pushCacheLayer();
             evaluateBody(bodyStatements, cache);
+            cache.popCacheLayer();
             resolved = expressionEvaluator->evaluate(cache);
             booleanVal = std::get<bool>(resolved.m_variantType);
         }

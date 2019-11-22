@@ -29,8 +29,10 @@ namespace arrow {
         }
         auto theBool = std::get<bool>(ifEvaluated.m_variantType);
         if(theBool) {
+            cache.pushCacheLayer();
             auto bodyStatements = m_statement.getBodyStatements();
             evaluateBody(std::move(bodyStatements), cache);
+            cache.popCacheLayer();
             return;
         } else {
             auto elseIfParts = m_statement.getElseIfParts();
@@ -42,15 +44,19 @@ namespace arrow {
                 }
                 auto partBool = std::get<bool>(partExpressionEvaluated.m_variantType);
                 if(partBool) {
+                    cache.pushCacheLayer();
                     auto bodyStatements = part->getBodyStatements();
                     evaluateBody(std::move(bodyStatements), cache);
+                    cache.popCacheLayer();
                     return;
                 }
             }
             auto elsePart = m_statement.getElsePart();
             if(elsePart) {
+                cache.pushCacheLayer();
                 auto bodyStatements = elsePart->getBodyStatements();
                 evaluateBody(std::move(bodyStatements), cache);
+                cache.popCacheLayer();
             }
         }
     }

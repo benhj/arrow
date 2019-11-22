@@ -39,9 +39,11 @@ namespace arrow {
         } else {
             val = std::get<int64_t>(resolved.m_variantType);
         }
+        cache.pushCacheLayer();
         auto bodyStatements = m_statement.getBodyStatements();
         for(int64_t it = 0; it < val; ++it) {
             evaluateBody(bodyStatements, cache);
         }
+        cache.popCacheLayer();
     }
 }

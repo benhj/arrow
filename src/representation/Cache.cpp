@@ -5,7 +5,7 @@ namespace arrow {
     Cache::Cache()
       : m_cacheStack{}
     {
-        addCacheLayer();
+        pushCacheLayer();
     }
 
     Cache::CacheMap::iterator Cache::findAndRetrieveCached(std::string identifier) const
@@ -57,7 +57,11 @@ namespace arrow {
             }
         }
     }
-    void Cache::addCacheLayer()
+    void Cache::pushCacheLayer()
+    {
+        m_cacheStack.emplace_front(CacheMap());
+    }
+    void Cache::popCacheLayer()
     {
         m_cacheStack.emplace_front(CacheMap());
     }
