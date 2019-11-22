@@ -30,7 +30,6 @@ namespace arrow {
           private:
             ExpressionCollectionExpression m_ece;
         };
-
         return std::make_shared<ExpressionCollectionExpressionEvaluator>(*this);
     }
 
