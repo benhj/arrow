@@ -41,6 +41,12 @@ namespace jasl {
         std::shared_ptr<Expression> parseMathExpression();
         std::shared_ptr<Expression> parseGroupedExpression();
         std::shared_ptr<Expression> parseListExpression();
+        std::shared_ptr<Expression> parseListWordExpression();
+
+        /// Parse a part of ListExpression. Note, we need to distinguish
+        /// between 'plain' words and identifiers, both of which
+        /// are generic strings.
+        std::shared_ptr<Expression> parseListExpressionType();
         std::shared_ptr<Expression> 
         parseExpressionCollectionExpression(bool const identifierOnly = false);
 

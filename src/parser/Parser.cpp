@@ -23,6 +23,7 @@
 #include "expressions/HatStringExpression.hpp"
 #include "expressions/IdentifierExpression.hpp"
 #include "expressions/ListExpression.hpp"
+#include "expressions/ListWordExpression.hpp"
 #include "expressions/LiteralIntExpression.hpp"
 #include "expressions/LiteralRealExpression.hpp"
 #include "expressions/LiteralStringExpression.hpp"
@@ -172,6 +173,13 @@ namespace jasl {
     {
         auto exp = std::make_shared<IdentifierExpression>();
         exp->withIdentifierToken(currentToken());
+        return exp;
+    }
+
+    std::shared_ptr<Expression> Parser::parseListWordExpression()
+    {
+        auto exp = std::make_shared<ListWordExpression>();
+        exp->withWordToken(currentToken());
         return exp;
     }
 
@@ -344,7 +352,11 @@ namespace jasl {
         advanceTokenIterator();
         auto listExp = std::make_shared<ListExpression>();
         while(currentToken().lexeme != Lexeme::CLOSE_SQUARE) {
-            auto exp = parseExpression();
+            // Note, use partListExpressionType here rather
+            // than parseExpression to make it easier to
+            // distinguish between plain words and identifiers
+            // both of which are generic string lexeme types.
+            auto exp = parseListExpressionType();
             if(!exp) { return nullptr; }
             listExp->addPart(std::move(exp));
             advanceTokenIterator();
@@ -378,6 +390,22 @@ namespace jasl {
             return nullptr;
         }
         return expression;
+    }
+
+    std::shared_ptr<Expression> Parser::parseListExpressionType()
+    {
+        if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
+            return parseListWordExpression();
+        } else if(currentToken().lexeme == Lexeme::HAT_HAT_STRING) {
+            return parseHatHatStringExpression();
+        } else if(currentToken().lexeme == Lexeme::HAT_STRING) {
+            return parseHatStringExpression();
+        } else if(currentToken().lexeme == Lexeme::Q_Q_STRING) {
+            return parseQQStringExpression();
+        } else if(currentToken().lexeme == Lexeme::Q_STRING) {
+            return parseQStringExpression();
+        }
+        return nullptr;
     }
 
     std::shared_ptr<Expression> Parser::parseExpression(bool checkOperator)
