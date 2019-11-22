@@ -9,7 +9,7 @@ namespace jasl {
 
     /// Describes a given type
     enum class TypeDescriptor {
-        Int, Bool, Real, Byte, String, List, None
+        Int, Bool, Real, Byte, String, List, BracketlessList, None
     };
 
 }

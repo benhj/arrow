@@ -1,4 +1,6 @@
 #include "HatHatStringExpression.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
+#include "evaluator/IdentifierEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -11,14 +13,29 @@ namespace jasl {
 
     std::shared_ptr<ExpressionEvaluator> HatHatStringExpression::getEvaluator() const
     {
-        return nullptr;
+        struct HatHatStringEvaluator : public ExpressionEvaluator
+        {
+            explicit HatHatStringEvaluator(Token tok)
+              : m_tok(std::move(tok))
+            {
+            }
+            Type evaluate(Cache & cache) const override
+            {
+                auto t = IdentifierEvaluator(std::move(m_tok)).evaluate(cache);
+                if(t.m_descriptor == TypeDescriptor::String) {
+                    return t;
+                } else {
+                    // Must be an embedded list
+                    t.m_descriptor = TypeDescriptor::BracketlessList;
+                    return t;
+                }
+            }
+          private:
+            Token m_tok;
+        };
+        return std::make_shared<HatHatStringEvaluator>(m_hatHatStringToken);
     }
-/*
-    Type HatHatStringExpression::evaluate() const
-    {
-        return {TypeDescriptor::None, {false}};
-    }
-*/
+
     DecayType HatHatStringExpression::decayType() const
     {
         return DecayType::DECAYS_TO_STRING;
