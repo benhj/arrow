@@ -19,11 +19,14 @@ namespace jasl {
                     return var ? "true" : "false";
                 } else if constexpr(std::is_same_v<Var, std::vector<Type>>) {
                     std::string str("[");
-                    /*
-                    for (auto const & v : var) {
-                        str.append(v).append(" ");
-                    }*/
-                    str.append("]");
+                    auto it = std::begin(var);
+                    for (; it != std::end(var) - 1; ++it) {
+                        str.append(it->toString()).append(" ");
+                    }
+                    if(it != std::end(var)) {
+                        str.append(it->toString());
+                        str.append("]");
+                    }
                     return str;
                 } else {
                     return std::to_string(var);

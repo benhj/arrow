@@ -42,6 +42,8 @@ namespace jasl {
             cache.add(identifier, evaluated);
         } else if(keyword == "string" && typeDescriptor == TypeDescriptor::String) {
             cache.add(identifier, evaluated);
+        } else if(keyword == "list" && typeDescriptor == TypeDescriptor::List) {
+            cache.add(identifier, evaluated);
         } else {
             throw std::runtime_error(std::string("Couldn't evaluate ").append(identifier));
         }

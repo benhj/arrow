@@ -404,7 +404,9 @@ namespace jasl {
             return parseQQStringExpression();
         } else if(currentToken().lexeme == Lexeme::Q_STRING) {
             return parseQStringExpression();
-        }
+        } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
+            return parseListExpression();
+        } 
         return nullptr;
     }
 
