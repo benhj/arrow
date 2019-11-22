@@ -20,7 +20,6 @@ namespace jasl {
         auto evaluated = expression->getEvaluator()->evaluate(cache);
         auto const identifier = m_statement.getIdentifier().raw;
         auto const typeDescriptor = evaluated.m_descriptor;
-
         if(keyword == "int" && decaysToInt(typeDescriptor)) {
             if(typeDescriptor == TypeDescriptor::Real) {
                 auto const val = std::get<long double>(evaluated.m_variantType);
