@@ -20,6 +20,8 @@ namespace jasl {
         CallStatement & withIdentifier(Token identifier);
 
         std::string toString() const override;
+        std::shared_ptr<StatementEvaluator> getEvaluator() const override;
+
       private:
         Token m_keywordToken; // the call keyword
         Token m_functionNameToken; // the call keyword

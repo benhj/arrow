@@ -1,4 +1,5 @@
 #include "CallStatement.hpp"
+#include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -36,5 +37,10 @@ namespace jasl {
         str.append("\nIdentifier: ");
         str.append(m_identifier.raw);
         return str;
+    }
+
+    std::shared_ptr<StatementEvaluator> CallStatement::getEvaluator() const
+    {
+        return nullptr;
     }
 }

@@ -16,6 +16,7 @@ namespace jasl {
         ArrowStatement & withIdentifier(Token identifier);
 
         std::string toString() const override;
+        std::shared_ptr<StatementEvaluator> getEvaluator() const override;
 
       private:
         Token m_keywordToken; // the keyword (e.g. int)

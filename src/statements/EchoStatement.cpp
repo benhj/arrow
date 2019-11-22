@@ -1,4 +1,5 @@
 #include "EchoStatement.hpp"
+#include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -12,5 +13,10 @@ namespace jasl {
     std::string EchoStatement::toString() const
     {
         return m_statement->toString();
+    }
+
+    std::shared_ptr<StatementEvaluator> EchoStatement::getEvaluator() const
+    {
+        return nullptr;
     }
 }

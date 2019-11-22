@@ -1,4 +1,5 @@
 #include "StartStatement.hpp"
+#include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -23,5 +24,10 @@ namespace jasl {
         }
         str.append("\nEnd body statements.");
         return str;
+    }
+
+    std::shared_ptr<StatementEvaluator> StartStatement::getEvaluator() const
+    {
+        return nullptr;
     }
 }

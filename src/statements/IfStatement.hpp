@@ -23,6 +23,7 @@ namespace jasl {
         void addElseIfPart(std::shared_ptr<ElseIfStatement> elseIfPart);
         IfStatement & withElsePart(std::shared_ptr<ElseStatement> elsePart);
         std::string toString() const override;
+        std::shared_ptr<StatementEvaluator> getEvaluator() const override;
       private:
         Token m_keywordToken; // the if keyword
         std::shared_ptr<Expression> m_expression;

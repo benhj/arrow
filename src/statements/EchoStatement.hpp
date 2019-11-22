@@ -10,6 +10,7 @@ namespace jasl {
       public:
         EchoStatement(std::shared_ptr<ArrowlessStatement> statement);
         std::string toString() const override;
+        std::shared_ptr<StatementEvaluator> getEvaluator() const override;
       private:
         std::shared_ptr<ArrowlessStatement> m_statement;
     };

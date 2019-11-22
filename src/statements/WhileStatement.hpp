@@ -16,6 +16,7 @@ namespace jasl {
         WhileStatement & withExpression(std::shared_ptr<Expression> expression);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;
+        std::shared_ptr<StatementEvaluator> getEvaluator() const override;
       private:
         Token m_keywordToken; // the while keyword
         std::shared_ptr<Expression> m_expression;
