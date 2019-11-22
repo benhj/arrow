@@ -14,6 +14,12 @@ namespace jasl {
         m_bodyStatements.emplace_back(std::move(bodyStatement));
     }
 
+    std::vector<std::shared_ptr<Statement>>
+    StartStatement::getBodyStatements() const
+    {
+        return m_bodyStatements;
+    }
+
     std::string StartStatement::toString() const
     {
         std::string str("\nKeyword: ");
@@ -28,6 +34,25 @@ namespace jasl {
 
     std::shared_ptr<StatementEvaluator> StartStatement::getEvaluator() const
     {
-        return nullptr;
+
+        struct StartStatementEvaluator : public StatementEvaluator
+        {
+            explicit StartStatementEvaluator(StartStatement statement)
+              : m_statement(std::move(statement))
+            {
+            }
+
+            void evaluate(Cache & cache) const override
+            {
+                auto const bodyStatements = m_statement.getBodyStatements();
+                for(auto const & inner : bodyStatements) {
+                    inner->getEvaluator()->evaluate(cache);
+                }
+            }
+          private:
+            StartStatement m_statement;
+        };
+
+        return std::make_shared<StartStatementEvaluator>(*this);
     }
 }

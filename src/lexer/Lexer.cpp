@@ -218,10 +218,21 @@ namespace jasl {
             while (next != EOF && next != '"') {
                 if(next == '\n') {
                     break;
+                } 
+                // new line character handling
+                else if(next == '\\') {
+                    stream.get();
+                    next = stream.peek();
+                    if(next == 'n') {
+                        dat.push_back('\n');
+                        stream.get();
+                        next = stream.peek();
+                    }
+                } else {
+                    dat.push_back(next);
+                    stream.get();
+                    next = stream.peek();
                 }
-                dat.push_back(next);
-                stream.get();
-                next = stream.peek();
             }
             if(c != '"') {
                 return false;
