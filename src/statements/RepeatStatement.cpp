@@ -1,5 +1,6 @@
 #include "RepeatStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "evaluator/RepeatStatementEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -33,9 +34,18 @@ namespace jasl {
         str.append("\nEnd body statements.");
         return str;
     }
+    std::shared_ptr<Expression> RepeatStatement::getExpression() const
+    {
+        return m_expression;
+    }
+    std::vector<std::shared_ptr<Statement>>
+    RepeatStatement::getBodyStatements() const
+    {
+        return m_bodyStatements;
+    }
 
     std::shared_ptr<StatementEvaluator> RepeatStatement::getEvaluator() const
     {
-        return nullptr;
+        return std::make_shared<RepeatStatementEvaluator>(*this);
     }
 }

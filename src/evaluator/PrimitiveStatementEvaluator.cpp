@@ -3,10 +3,13 @@
 #include <utility>
 
 namespace jasl {
-    bool decaysToInt(TypeDescriptor const descriptor)
-    {
-        return descriptor == TypeDescriptor::Int ||
-               descriptor == TypeDescriptor::Real;
+
+    namespace {
+        bool decaysToInt(TypeDescriptor const descriptor)
+        {
+            return descriptor == TypeDescriptor::Int ||
+                   descriptor == TypeDescriptor::Real;
+        }
     }
 
     PrimitiveStatementEvaluator::PrimitiveStatementEvaluator(PrimitiveStatement statement)
