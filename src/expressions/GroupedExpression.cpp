@@ -10,14 +10,9 @@ namespace jasl {
 
     std::shared_ptr<ExpressionEvaluator> GroupedExpression::getEvaluator() const
     {
-        return nullptr;
+        return m_expression->getEvaluator();
     }
-/*
-    Type GroupedExpression::evaluate() const
-    {
-        return {TypeDescriptor::None, {false}};
-    }
-*/
+
     DecayType GroupedExpression::decayType() const
     {
         return DecayType::DECAYS_TO_NONE;

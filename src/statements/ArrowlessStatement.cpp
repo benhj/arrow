@@ -20,6 +20,10 @@ namespace jasl {
     {
         return m_keywordToken;
     }
+    std::shared_ptr<Expression> ArrowlessStatement::getExpression() const
+    {
+        return m_expression;
+    }
 
     std::string ArrowlessStatement::toString() const
     {

@@ -306,8 +306,20 @@ namespace jasl {
             }
 
             // Check for additional parts
-            if(isOperator(nextToken().lexeme)) {
-                auto extra = std::make_shared<OperatorExpression>();
+            if(isMathOperator(nextToken().lexeme)) {
+                auto extra = std::make_shared<MathExpression>();
+                extra->withLeft(std::move(exp));
+                advanceTokenIterator();
+                extra->withOperator(currentToken());
+                advanceTokenIterator();
+                auto right = parseExpression();
+                if(!right) {
+                    return nullptr;
+                }
+                extra->withRight(std::move(right));
+                return extra;
+            } else if(isBooleanOperator(nextToken().lexeme)) {
+                auto extra = std::make_shared<BooleanExpression>();
                 extra->withLeft(std::move(exp));
                 advanceTokenIterator();
                 extra->withOperator(currentToken());

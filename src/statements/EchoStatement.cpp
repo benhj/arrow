@@ -1,4 +1,5 @@
 #include "EchoStatement.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
@@ -10,6 +11,14 @@ namespace jasl {
     {
 
     }
+    Token EchoStatement::getToken() const
+    {
+        return m_statement->getToken();
+    }
+    std::shared_ptr<Expression> EchoStatement::getExpression() const
+    {
+        return m_statement->getExpression();
+    }
     std::string EchoStatement::toString() const
     {
         return m_statement->toString();
@@ -17,6 +26,28 @@ namespace jasl {
 
     std::shared_ptr<StatementEvaluator> EchoStatement::getEvaluator() const
     {
-        return nullptr;
+
+        struct EchoStatementEvaluator : public StatementEvaluator
+        {
+            EchoStatementEvaluator(EchoStatement statement)
+              : m_statement(std::move(statement))
+            {
+            }
+            void evaluate(Cache & cache) const override
+            {
+                auto const expression = m_statement.getExpression();
+                auto const type = expression->getEvaluator()->evaluate(cache);
+                auto const token = m_statement.getToken();
+                if(token.raw == "pr" || token.raw == "say") {
+                    std::cout<<type.toString();
+                } else {
+                    std::cout<<type.toString()<<std::endl;
+                }
+            }
+          private:
+            EchoStatement m_statement;
+        };
+
+        return std::make_shared<EchoStatementEvaluator>(*this);
     }
 }
