@@ -17,6 +17,10 @@ namespace jasl {
         m_expression = std::move(expression);
         return *this;
     }
+    std::shared_ptr<Expression> IfStatement::getExpression() const
+    {
+        return m_expression;
+    }
     void IfStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
     {
         m_bodyStatements.emplace_back(std::move(bodyStatement));
@@ -29,6 +33,22 @@ namespace jasl {
     {
         m_elsePart = std::move(elsePart);
         return *this;
+    }
+    std::vector<std::shared_ptr<Statement>> 
+    IfStatement::getBodyStatements() const
+    {
+        return m_bodyStatements;
+    }
+
+    std::vector<std::shared_ptr<ElseIfStatement>> 
+    IfStatement::getElseIfParts() const
+    {
+        return m_elseIfParts;
+    }
+
+    std::shared_ptr<ElseStatement> IfStatement::getElsePart() const
+    {
+        return m_elsePart;
     }
 
     std::string IfStatement::toString() const

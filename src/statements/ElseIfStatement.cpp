@@ -15,9 +15,17 @@ namespace jasl {
         m_expression = std::move(expression);
         return *this;
     }
+    std::shared_ptr<Expression> ElseIfStatement::getExpression() const
+    {
+        return m_expression;
+    }
     void ElseIfStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
     {
         m_bodyStatements.emplace_back(std::move(bodyStatement));
+    }
+    std::vector<std::shared_ptr<Statement>> ElseIfStatement::getBodyStatements() const
+    {
+        return m_bodyStatements;
     }
 
     std::string ElseIfStatement::toString() const

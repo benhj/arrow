@@ -14,7 +14,11 @@ namespace jasl {
     {
         m_bodyStatements.emplace_back(std::move(bodyStatement));
     }
-
+    std::vector<std::shared_ptr<Statement>> 
+    ElseStatement::getBodyStatements() const
+    {
+        return m_bodyStatements;
+    }
     std::string ElseStatement::toString() const
     {
         std::string str("\nKeyword: ");

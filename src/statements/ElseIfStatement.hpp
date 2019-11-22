@@ -16,7 +16,9 @@ namespace jasl {
         ElseIfStatement();
         ElseIfStatement & withToken(Token token);
         ElseIfStatement & withExpression(std::shared_ptr<Expression> expression);
+        std::shared_ptr<Expression> getExpression() const;
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
+        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
 
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
