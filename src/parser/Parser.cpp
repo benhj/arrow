@@ -12,6 +12,7 @@
 #include "statements/ElseIfStatement.hpp"
 #include "statements/FunctionStatement.hpp"
 #include "statements/PrimitiveStatement.hpp"
+#include "statements/PutStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/StartStatement.hpp"
 #include "statements/WhileStatement.hpp"
@@ -467,8 +468,10 @@ namespace jasl {
                                    keyword == "reals" || keyword == "bools" ||
                                    keyword == "list" || keyword == "string" ||
                                    keyword == "strings") {
-                                       return std::make_shared<PrimitiveStatement>(*arrowStatement);
-                                   }
+                                    return std::make_shared<PrimitiveStatement>(*arrowStatement);
+                                } else if(keyword == "put") {
+                                    return std::make_shared<PutStatement>(*arrowStatement);
+                                }
                                 return arrowStatement;
                             }
                         }

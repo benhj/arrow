@@ -20,6 +20,12 @@ namespace jasl {
         return std::make_shared<PrimitiveStatementEvaluator>(*this);
     }
 
+    PrimitiveStatement const & PrimitiveStatement::withToken(Token token) const
+    {
+        m_arrowStatement.withToken(std::move(token));
+        return *this;
+    }
+
     Token PrimitiveStatement::getToken() const
     {
         return m_arrowStatement.getToken();
