@@ -1,5 +1,6 @@
 #include "WhileStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "evaluator/WhileStatementEvaluator.hpp"
 #include <utility>
 
 namespace jasl {
@@ -19,6 +20,11 @@ namespace jasl {
     {
         m_bodyStatements.emplace_back(std::move(bodyStatement));
     }
+    std::vector<std::shared_ptr<Statement>> 
+    WhileStatement::getBodyStatements() const
+    {
+        return m_bodyStatements;
+    }
 
     std::string WhileStatement::toString() const
     {
@@ -33,9 +39,12 @@ namespace jasl {
         str.append("\nEnd body statements.");
         return str;
     }
-
+    std::shared_ptr<Expression> WhileStatement::getExpression() const
+    {
+        return m_expression;
+    }
     std::shared_ptr<StatementEvaluator> WhileStatement::getEvaluator() const
     {
-        return nullptr;
+        return std::make_shared<WhileStatementEvaluator>(*this);
     }
 }

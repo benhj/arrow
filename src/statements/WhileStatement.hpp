@@ -17,6 +17,8 @@ namespace jasl {
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
+        std::shared_ptr<Expression> getExpression() const;
+        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
       private:
         Token m_keywordToken; // the while keyword
         std::shared_ptr<Expression> m_expression;

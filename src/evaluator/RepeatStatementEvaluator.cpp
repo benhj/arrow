@@ -30,7 +30,7 @@ namespace jasl {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
         auto resolved = expressionEvaluator->evaluate(cache);
         if(!decaysToInt(resolved.m_descriptor)) {
-            throw std::runtime_error("Bad type descriptor for if statement.");
+            throw std::runtime_error("Bad type descriptor for repeat statement expression.");
         }
         int64_t val;
         if(resolved.m_descriptor == TypeDescriptor::Real) {
