@@ -16,8 +16,8 @@ namespace jasl {
         {
             throw std::runtime_error("Bad types for Math operation.");
         }
-        long double operator()(std::vector<std::string> left,
-                               std::vector<std::string> right) const
+        long double operator()(std::vector<Type> left,
+                               std::vector<Type> right) const
         {
             throw std::runtime_error("Bad types for Math operation.");
         }
@@ -27,8 +27,8 @@ namespace jasl {
         {
             if constexpr(!std::is_same_v<Left, std::string> &&
                          !std::is_same_v<Right, std::string> &&
-                         !std::is_same_v<Left, std::vector<std::string>> &&
-                         !std::is_same_v<Right, std::vector<std::string>>) {
+                         !std::is_same_v<Left, std::vector<Type>> &&
+                         !std::is_same_v<Right, std::vector<Type>>) {
                 if(m_op == "+") {
                     return left + right;
                 } else if(m_op == "-") {

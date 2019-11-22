@@ -1,4 +1,5 @@
 #include "ListExpression.hpp"
+#include "evaluator/ListExpressionEvaluator.hpp"
 
 namespace jasl {
 
@@ -10,14 +11,9 @@ namespace jasl {
 
     std::shared_ptr<ExpressionEvaluator> ListExpression::getEvaluator() const
     {
-        return nullptr;
+        return std::make_shared<ListExpressionEvaluator>(*this);
     }
-/*
-    Type ListExpression::evaluate() const
-    {
-        return {TypeDescriptor::List, {false}};
-    }
-*/
+
     DecayType ListExpression::decayType() const
     {
         return DecayType::DECAYS_TO_LIST;
@@ -32,7 +28,12 @@ namespace jasl {
     {
         return m_parts.size();
     }
-    
+
+    std::vector<std::shared_ptr<Expression>> ListExpression::getParts() const
+    {
+        return m_parts;
+    }
+
     std::string ListExpression::toString() const
     {
         std::string str("\nBegin list expression");

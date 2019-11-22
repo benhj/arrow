@@ -6,7 +6,6 @@
 
 namespace jasl {
 
-    class BooleanExpression;
     class BooleanExpressionEvaluator : public ExpressionEvaluator
     {
       public:

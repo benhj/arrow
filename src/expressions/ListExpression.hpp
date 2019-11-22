@@ -17,9 +17,10 @@ namespace jasl {
         DecayType decayType() const override;
 
         void addPart(std::shared_ptr<Expression> expression);
-
         int getPartsCount() const;
-        
+
+        std::vector<std::shared_ptr<Expression>> getParts() const;
+
         std::string toString() const override;
 
       private:

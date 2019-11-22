@@ -17,11 +17,12 @@ namespace jasl {
                     return var;
                 } else if constexpr(std::is_same_v<Var, bool>) {
                     return var ? "true" : "false";
-                } else if constexpr(std::is_same_v<Var, std::vector<std::string>>) {
+                } else if constexpr(std::is_same_v<Var, std::vector<Type>>) {
                     std::string str("[");
+                    /*
                     for (auto const & v : var) {
                         str.append(v).append(" ");
-                    }
+                    }*/
                     str.append("]");
                     return str;
                 } else {

@@ -31,25 +31,28 @@ namespace jasl {
                 throw std::runtime_error("Bad operator for type List.");
             }
         }
-        bool operator()(std::vector<std::string> left,
-                        std::vector<std::string> right) const
+        bool operator()(std::vector<Type> left,
+                        std::vector<Type> right) const
         {
-            auto res{false};
-            if(m_op == "=") {
-                return left == right;
-            } else if(m_op == "<") {
-                return left < right;
-            } else if(m_op == "<=") {
-                return left <= right;
-            } else if(m_op == ">") {
-                return left > right;
-            } else if(m_op == ">=") {
-                return left >= right;
-            } else if(m_op == "/=") {
-                return left != right;
-            } else {
+            // auto res{false};
+            // if(m_op == "=") {
+            //     return left == right;
+            // } 
+            // else if(m_op == "<") {
+            //     return left < right;
+            // } else if(m_op == "<=") {
+            //     return left <= right;
+            // } else if(m_op == ">") {
+            //     return left > right;
+            // } else if(m_op == ">=") {
+            //     return left >= right;
+            // } 
+            // else if(m_op == "/=") {
+            //     return left != right;
+            // } 
+            // else {
                 throw std::runtime_error("Bad operator for type List.");
-            }
+            // }
         }
 
         template <class Left, class Right>
