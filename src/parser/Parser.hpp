@@ -1,10 +1,11 @@
 #pragma once
 
 #include "expressions/Expression.hpp"
-#include "statements/Statement.hpp"
 #include "lexer/Token.hpp"
-#include <vector>
+#include "statements/Statement.hpp"
+#include <map>
 #include <memory>
+#include <vector>
 
 namespace arrow {
     
@@ -15,14 +16,16 @@ namespace arrow {
 
         void parse();
 
-        std::vector<std::shared_ptr<Statement>> getStatements() const;
+        static std::vector<std::shared_ptr<Statement>> getStatements();
+        static std::shared_ptr<Statement> getFunction(std::string identifier);
 
       private:
         std::vector<Token> m_tokens;
         std::vector<Token>::iterator m_current;
-        std::vector<std::shared_ptr<Statement>> m_statements;
-
+        static std::vector<std::shared_ptr<Statement>> m_statements;
+        static std::map<std::string, std::shared_ptr<Statement>> m_functions;
         std::shared_ptr<Statement> buildStatement();
+
         bool notAtEnd() const;
         void advanceTokenIterator();
         Token currentToken() const;

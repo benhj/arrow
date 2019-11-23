@@ -36,10 +36,14 @@
 
 /// Other
 #include "lexer/Lexeme.hpp"
+#include <algorithm>
 #include <utility>
 
 namespace arrow {
-    
+
+    std::vector<std::shared_ptr<Statement>> Parser::m_statements{};
+    std::map<std::string, std::shared_ptr<Statement>> Parser::m_functions{};
+
     Parser::Parser(std::vector<Token> tokens)
       : m_tokens(std::move(tokens))
       , m_current(std::begin(m_tokens))
@@ -58,9 +62,24 @@ namespace arrow {
         }
     }
 
-    std::vector<std::shared_ptr<Statement>> Parser::getStatements() const
+    std::vector<std::shared_ptr<Statement>> Parser::getStatements()
     {
         return m_statements;
+    }
+
+    std::shared_ptr<Statement> Parser::getFunction(std::string identifier)
+    {
+        auto found = std::find_if(std::begin(m_functions),
+                                  std::end(m_functions),
+                                  [identifier{std::move(identifier)}]
+                                  (auto const & p) {
+            return p.first == identifier;
+        });
+
+        if(found != std::end(m_functions)) {
+            return found->second;
+        }
+        return nullptr;
     }
 
     std::shared_ptr<Statement> Parser::buildStatement()
@@ -750,7 +769,8 @@ namespace arrow {
         functionStatement->withToken(currentToken());
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        functionStatement->withNameToken(currentToken());
+        auto const theName = currentToken();
+        functionStatement->withNameToken(theName);
         advanceTokenIterator();
         auto collection = parseExpressionCollectionExpression(true /* ident only */);
         if(!collection) { return nullptr; }
@@ -770,6 +790,7 @@ namespace arrow {
             }
             advanceTokenIterator();
         }
+        m_functions.emplace(theName.raw, functionStatement);
         return functionStatement;
     }
 }
