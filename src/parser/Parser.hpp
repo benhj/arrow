@@ -59,6 +59,12 @@ namespace arrow {
         std::shared_ptr<Statement> parseArrowStatement();
 
         /// Parses statements of the form
+        /// expression -> identifier;
+        /// For example
+        /// 5 -> a;
+        std::shared_ptr<Statement> parseSimpleArrowStatement();
+
+        /// Parses statements of the form
         /// keyword expression;
         /// For example
         /// prn "hello";

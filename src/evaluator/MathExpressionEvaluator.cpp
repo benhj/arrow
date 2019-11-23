@@ -67,10 +67,22 @@ namespace arrow {
         auto deducedLeft = leftEval->evaluate(cache);
         auto deducedRight = rightEval->evaluate(cache);
 
+        auto intType{true};
+        if(deducedLeft.m_descriptor == TypeDescriptor::Real ||
+           deducedRight.m_descriptor == TypeDescriptor::Real) {
+            intType = false;
+        }
+
         MathEvaluator evaluator{op.raw};
         auto res = std::visit(evaluator, 
                   deducedLeft.m_variantType,
                   deducedRight.m_variantType);
-        return {TypeDescriptor::Real, res};
+
+        if(!intType) {
+            return {TypeDescriptor::Real, res};
+        } else {
+            return {TypeDescriptor::Int, static_cast<int64_t>(res)};
+        }
+
     }
 }

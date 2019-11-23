@@ -14,6 +14,7 @@
 #include "statements/PrimitiveStatement.hpp"
 #include "statements/PutStatement.hpp"
 #include "statements/RepeatStatement.hpp"
+#include "statements/SimpleArrowStatement.hpp"
 #include "statements/StartStatement.hpp"
 #include "statements/WhileStatement.hpp"
 
@@ -64,7 +65,16 @@ namespace arrow {
 
     std::shared_ptr<Statement> Parser::buildStatement()
     {
-        if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
+
+        auto store = m_current;
+        auto statement = parseSimpleArrowStatement();
+        if(statement) { 
+            return statement;
+        }
+        // Revert token iterator state in case of failure
+        m_current = store;
+
+        if(!statement && currentToken().lexeme == Lexeme::GENERIC_STRING) {
             {
                 auto store = m_current;
                 auto statement = parseArrowStatement();
@@ -472,6 +482,34 @@ namespace arrow {
                                 } else if(keyword == "put") {
                                     return std::make_shared<PutStatement>(*arrowStatement);
                                 }
+                                return arrowStatement;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<Statement> Parser::parseSimpleArrowStatement()
+    {
+        auto arrowStatement = std::make_shared<SimpleArrowStatement>();
+        auto expression = parseExpression();
+        if(expression) {
+            arrowStatement->withExpression(std::move(expression));
+            advanceTokenIterator();
+            if(notAtEnd()) {
+                if(currentToken().lexeme != Lexeme::ARROW) {
+                    return nullptr;
+                }
+                advanceTokenIterator();
+                if(notAtEnd()) {
+                    if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
+                        arrowStatement->withIdentifier(currentToken());
+                        advanceTokenIterator();
+                        if(notAtEnd()) {
+                            if(currentToken().lexeme == Lexeme::SEMICOLON) {
                                 return arrowStatement;
                             }
                         }
