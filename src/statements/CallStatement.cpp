@@ -1,5 +1,6 @@
 #include "CallStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "evaluator/CallStatementEvaluator.hpp"
 #include <utility>
 
 namespace arrow {
@@ -27,6 +28,19 @@ namespace arrow {
         return *this;
     }
 
+    Token CallStatement::getName() const
+    {
+        return m_functionNameToken;
+    }
+    std::shared_ptr<Expression> CallStatement::getExpressionCollection() const
+    {
+        return m_expressionCollection;
+    }
+    Token CallStatement::getReturnIdentifier() const
+    {
+        return m_identifier;
+    }
+
     std::string CallStatement::toString() const
     {
         std::string str("\nKeyword: ");
@@ -41,6 +55,6 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> CallStatement::getEvaluator() const
     {
-        return nullptr;
+        return std::make_shared<CallStatementEvaluator>(*this);
     }
 }

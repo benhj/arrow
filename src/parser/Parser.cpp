@@ -42,7 +42,7 @@
 namespace arrow {
 
     std::vector<std::shared_ptr<Statement>> Parser::m_statements{};
-    std::map<std::string, std::shared_ptr<Statement>> Parser::m_functions{};
+    std::map<std::string, std::shared_ptr<FunctionStatement>> Parser::m_functions{};
 
     Parser::Parser(std::vector<Token> tokens)
       : m_tokens(std::move(tokens))
@@ -67,7 +67,7 @@ namespace arrow {
         return m_statements;
     }
 
-    std::shared_ptr<Statement> Parser::getFunction(std::string identifier)
+    std::shared_ptr<FunctionStatement> Parser::getFunction(std::string identifier)
     {
         auto found = std::find_if(std::begin(m_functions),
                                   std::end(m_functions),
@@ -409,10 +409,15 @@ namespace arrow {
         advanceTokenIterator();
         while(nextToken().lexeme == Lexeme::COMMA ||
               currentToken().lexeme == Lexeme::OPEN_SQUARE) {
-            if(identifierOnly && currentToken().lexeme != Lexeme::GENERIC_STRING) {
-                return nullptr; // error
+            std::shared_ptr<Expression> exp;
+            if(identifierOnly) {
+                if(currentToken().lexeme != Lexeme::GENERIC_STRING) {
+                    return nullptr; // error
+                }
+                exp = parseListWordExpression();
+            } else {
+                exp = parseExpression();
             }
-            auto exp = parseExpression();
             if(!exp) { return nullptr; }
             expression->addExpression(std::move(exp));
             advanceTokenIterator();

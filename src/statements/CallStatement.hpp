@@ -22,6 +22,10 @@ namespace arrow {
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
 
+        Token getName() const;
+        std::shared_ptr<Expression> getExpressionCollection() const;
+        Token getReturnIdentifier() const;
+
       private:
         Token m_keywordToken; // the call keyword
         Token m_functionNameToken; // the call keyword

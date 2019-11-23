@@ -9,6 +9,7 @@
 
 namespace arrow {
     
+    class FunctionStatement;
     class Parser
     {
       public:
@@ -17,13 +18,13 @@ namespace arrow {
         void parse();
 
         static std::vector<std::shared_ptr<Statement>> getStatements();
-        static std::shared_ptr<Statement> getFunction(std::string identifier);
+        static std::shared_ptr<FunctionStatement> getFunction(std::string identifier);
 
       private:
         std::vector<Token> m_tokens;
         std::vector<Token>::iterator m_current;
         static std::vector<std::shared_ptr<Statement>> m_statements;
-        static std::map<std::string, std::shared_ptr<Statement>> m_functions;
+        static std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
         std::shared_ptr<Statement> buildStatement();
 
         bool notAtEnd() const;
