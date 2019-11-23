@@ -66,6 +66,11 @@ namespace arrow {
     std::shared_ptr<Statement> Parser::buildStatement()
     {
 
+        // First try and parse a statement
+        // of the form
+        // 1 -> a;
+        // a + 1 -> b;
+        // etc.
         auto store = m_current;
         auto statement = parseSimpleArrowStatement();
         if(statement) { 
@@ -74,6 +79,8 @@ namespace arrow {
         // Revert token iterator state in case of failure
         m_current = store;
 
+        // If that fails, try parsing a statement beginning
+        // with a keyword
         if(!statement && currentToken().lexeme == Lexeme::GENERIC_STRING) {
             {
                 auto store = m_current;
@@ -598,12 +605,12 @@ namespace arrow {
         forStatement->withToken(currentToken());
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        forStatement->withIdentifierA(currentToken());
+        forStatement->withIndexer(currentToken());
         advanceTokenIterator();
         if(currentToken().raw != "in") { return nullptr; }
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        forStatement->withIdentifierB(currentToken());
+        forStatement->withIdentifier(currentToken());
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
         advanceTokenIterator();

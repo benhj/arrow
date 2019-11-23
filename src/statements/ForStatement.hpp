@@ -13,15 +13,18 @@ namespace arrow {
       public:
         ForStatement();
         ForStatement & withToken(Token token);
-        ForStatement & withIdentifierA(Token identifier);
-        ForStatement & withIdentifierB(Token identifier);
+        ForStatement & withIndexer(Token token);
+        ForStatement & withIdentifier(Token token);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
+        Token getIndexer() const;
+        Token getIdentifier() const;
+        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
       private:
-        Token m_keywordToken; // the for keyword
-        Token m_identifierA;
-        Token m_identifierB;
+        Token m_keywordToken; // the while keyword
+        Token m_indexer;
+        Token m_identifier;
         std::vector<std::shared_ptr<Statement>> m_bodyStatements;
     };
 
