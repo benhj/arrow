@@ -21,7 +21,8 @@ namespace arrow {
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
         Token getName() const;
         std::shared_ptr<Expression> getExpressionCollection() const;
-        Token getIdentifier() const;
+        Token getReturnIdentifier() const;
+        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
       private:
         Token m_keywordToken; // fn keyword
         Token m_typeToken; // return type

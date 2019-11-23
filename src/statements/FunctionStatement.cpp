@@ -39,9 +39,13 @@ namespace arrow {
     {
         return m_expressionCollection;
     }
-    Token FunctionStatement::getIdentifier() const
+    Token FunctionStatement::getReturnIdentifier() const
     {
         return m_returnIdentifier;
+    }
+    std::vector<std::shared_ptr<Statement>> FunctionStatement::getBodyStatements() const
+    {
+        return m_bodyStatements;
     }
 
     std::string FunctionStatement::toString() const
