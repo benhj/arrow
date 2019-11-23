@@ -12,7 +12,6 @@ namespace arrow {
       public:
         FunctionStatement();
         FunctionStatement & withToken(Token token);
-        FunctionStatement & withTypeToken(Token token);
         FunctionStatement & withNameToken(Token token);
         FunctionStatement & withReturnIdentifierToken(Token token);
         FunctionStatement & 
@@ -20,6 +19,9 @@ namespace arrow {
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
+        Token getName() const;
+        std::shared_ptr<Expression> getExpressionCollection() const;
+        Token getIdentifier() const;
       private:
         Token m_keywordToken; // fn keyword
         Token m_typeToken; // return type

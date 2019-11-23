@@ -749,11 +749,6 @@ namespace arrow {
         auto functionStatement = std::make_shared<FunctionStatement>();
         functionStatement->withToken(currentToken());
         advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::COLON) { return nullptr; }
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        functionStatement->withTypeToken(currentToken());
-        advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
         functionStatement->withNameToken(currentToken());
         advanceTokenIterator();

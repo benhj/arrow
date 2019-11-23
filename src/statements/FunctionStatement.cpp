@@ -10,11 +10,6 @@ namespace arrow {
         m_keywordToken = std::move(token);
         return *this;
     }
-    FunctionStatement & FunctionStatement::withTypeToken(Token token)
-    {
-        m_typeToken = std::move(token);
-        return *this;
-    }
     FunctionStatement & FunctionStatement::withNameToken(Token token)
     {
         m_nameToken = std::move(token);
@@ -34,6 +29,19 @@ namespace arrow {
     void FunctionStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
     {
         m_bodyStatements.emplace_back(std::move(bodyStatement));
+    }
+
+    Token FunctionStatement::getName() const
+    {
+        return m_nameToken;
+    }
+    std::shared_ptr<Expression> FunctionStatement::getExpressionCollection() const
+    {
+        return m_expressionCollection;
+    }
+    Token FunctionStatement::getIdentifier() const
+    {
+        return m_returnIdentifier;
     }
 
     std::string FunctionStatement::toString() const
