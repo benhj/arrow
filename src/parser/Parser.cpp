@@ -388,7 +388,6 @@ namespace arrow {
         if(currentToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
         auto expression = std::make_shared<ExpressionCollectionExpression>();
         advanceTokenIterator();
-
         while(nextToken().lexeme == Lexeme::COMMA) {
             if(identifierOnly && currentToken().lexeme != Lexeme::GENERIC_STRING) {
                 return nullptr; // error
@@ -435,7 +434,15 @@ namespace arrow {
         } else if(checkOperator && isMathOperator(nextToken().lexeme))  {
             return parseMathExpression();
         }  else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
-            return parseGroupedExpression();
+
+            auto store = m_current;
+            auto exp = parseGroupedExpression();
+            if(!exp) {
+                m_current = store;
+                // try (a, b, c) collection
+                return parseExpressionCollectionExpression();
+            }
+            return exp;
         } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
             return parseListExpression();
         } else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {

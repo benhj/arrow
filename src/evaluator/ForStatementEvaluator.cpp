@@ -28,7 +28,8 @@ namespace arrow {
         IdentifierExpression exp;
         exp.withIdentifierToken(identifier);
         auto evaled = exp.getEvaluator()->evaluate(cache);
-        if(evaled.m_descriptor != TypeDescriptor::List) {
+        if(evaled.m_descriptor != TypeDescriptor::List &&
+           evaled.m_descriptor != TypeDescriptor::ExpressionCollection) {
             throw std::runtime_error("Bad type descriptor in for statement expression.");
         }
         auto value = std::get<std::vector<Type>>(evaled.m_variantType);

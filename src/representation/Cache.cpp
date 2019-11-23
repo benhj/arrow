@@ -63,6 +63,6 @@ namespace arrow {
     }
     void Cache::popCacheLayer()
     {
-        m_cacheStack.emplace_front(CacheMap());
+        m_cacheStack.pop_front();
     }
 }

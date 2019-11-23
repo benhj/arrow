@@ -1,6 +1,7 @@
 #include "ExpressionCollectionExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>
+#include <iostream>
 
 namespace arrow {
 
