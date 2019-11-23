@@ -2,6 +2,8 @@
 
 namespace arrow {
 
+    std::deque<Type> Cache::m_returnStack;
+
     Cache::Cache()
       : m_cacheStack{}
     {
@@ -64,5 +66,16 @@ namespace arrow {
     void Cache::popCacheLayer()
     {
         m_cacheStack.pop_front();
+    }
+
+    void Cache::pushReturnValue(Type t)
+    {
+        m_returnStack.push_front(std::move(t));
+    }
+    Type Cache::getAndPopReturnValue()
+    {
+        auto t = m_returnStack[0];
+        m_returnStack.pop_front();
+        return t;
     }
 }

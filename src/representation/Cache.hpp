@@ -19,9 +19,15 @@ namespace arrow {
         void remove(std::string identifier) const;
         void pushCacheLayer();
         void popCacheLayer();
+
+        static void pushReturnValue(Type t);
+        static Type getAndPopReturnValue();
+
       private:
 
         CacheMap::iterator findAndRetrieveCached(std::string identifier) const;
         std::deque<CacheMap> mutable m_cacheStack;
+        static std::deque<Type> m_returnStack;
+
     };
 }
