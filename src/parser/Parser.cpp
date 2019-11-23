@@ -388,7 +388,8 @@ namespace arrow {
         if(currentToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
         auto expression = std::make_shared<ExpressionCollectionExpression>();
         advanceTokenIterator();
-        while(nextToken().lexeme == Lexeme::COMMA) {
+        while(nextToken().lexeme == Lexeme::COMMA ||
+              currentToken().lexeme == Lexeme::OPEN_SQUARE) {
             if(identifierOnly && currentToken().lexeme != Lexeme::GENERIC_STRING) {
                 return nullptr; // error
             }
