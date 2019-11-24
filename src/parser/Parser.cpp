@@ -19,6 +19,7 @@
 #include "statements/StringToIntStatement.hpp"
 #include "statements/WhileStatement.hpp"
 #include "statements/ExitStatement.hpp"
+#include "statements/AnsiStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -569,6 +570,8 @@ namespace arrow {
                         return std::make_shared<EchoStatement>(std::move(arrowlessStatement));
                     } else if(keyword == "exit") {
                         return std::make_shared<ExitStatement>(std::move(arrowlessStatement));
+                    } else if(keyword == "ansi_up") {
+                        return std::make_shared<AnsiStatement>(std::move(arrowlessStatement));
                     }
                     return arrowlessStatement;
                 }

@@ -29,7 +29,6 @@ fn printQueens(N, x) {
         }
         say "\n";
     }
-    say "\n";
  }
 
  fn placeNQueens(r, n, x) {
@@ -42,6 +41,7 @@ fn printQueens(N, x) {
             if (r = n - 1) {
             	exit 1;
             } else {
+                ansi_up n;
             	r + 1 -> s;
             	call placeNQueens(s, n, x);
             }
@@ -51,7 +51,7 @@ fn printQueens(N, x) {
 }
 
 start {
-    14 -> N;
+    8 -> N;
     [] -> x;
     0 -> i;
     repeat N times {
