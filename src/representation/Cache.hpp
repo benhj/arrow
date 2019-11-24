@@ -19,6 +19,7 @@ namespace arrow {
         void remove(std::string identifier) const;
         void pushCacheLayer();
         void popCacheLayer();
+        void pushProgramArgument(Type arg);
 
         void setElementInContainer(std::string identifier,
                                    int const index,
@@ -31,6 +32,7 @@ namespace arrow {
 
         CacheMap::iterator findAndRetrieveCached(std::string identifier) const;
         std::deque<CacheMap> mutable m_cacheStack;
+        std::vector<Type> mutable m_programArguments;
         static std::deque<Type> m_returnStack;
 
     };

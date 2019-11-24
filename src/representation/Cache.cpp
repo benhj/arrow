@@ -90,4 +90,8 @@ namespace arrow {
         m_returnStack.pop_front();
         return t;
     }
+    void Cache::pushProgramArgument(Type arg)
+    {
+        m_programArguments.push_back(std::move(arg));
+    }
 }

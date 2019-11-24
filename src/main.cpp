@@ -5,13 +5,30 @@
 #include "evaluator/StatementEvaluator.hpp"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 int main(int argc, char ** argv) {
 
-    std::ifstream in(argv[1]);
-    arrow::Cache cache;
-    auto tokens = arrow::Lexer::tokenize(in);
     try {
+        std::ifstream in(argv[1]);
+        arrow::Cache cache;
+
+        // First parse program args
+        if(argc > 2) {
+            std::stringstream in;
+            for(int i = 2; i < argc; ++i) {
+                in << argv[i];
+            }
+            auto argTokens = arrow::Lexer::tokenize(in);
+            arrow::Parser p(argTokens);
+            auto progArgs = p.parseProgramArguments();
+            for(auto const & a : progArgs) {
+                cache.pushProgramArgument(a);
+            }
+        }
+
+        // Now parse actual program
+        auto tokens = arrow::Lexer::tokenize(in);
         arrow::Parser p(tokens);
         p.parse();
         auto start = p.getStartStatement();

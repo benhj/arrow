@@ -21,6 +21,10 @@ namespace arrow {
         std::vector<std::shared_ptr<Statement>> getStatements() const;
         static std::shared_ptr<FunctionStatement> getFunction(std::string identifier);
 
+        /// Parses the program arguments that were tokenized
+        /// by the lexer.
+        std::vector<Type> parseProgramArguments();
+
       private:
         std::vector<Token> m_tokens;
         std::vector<Token>::iterator m_current;

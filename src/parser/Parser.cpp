@@ -39,6 +39,7 @@
 #include "expressions/QStringExpression.hpp"
 
 /// Other
+#include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
 #include "lexer/Lexeme.hpp"
 #include <algorithm>
@@ -65,6 +66,18 @@ namespace arrow {
             m_statements.emplace_back(std::move(statement));
             advanceTokenIterator();
         }
+    }
+
+    std::vector<Type> Parser::parseProgramArguments()
+    {
+        std::vector<Type> types;
+        Cache notUsed;
+        while(notAtEnd()) {
+            auto expression = parseExpression();
+            auto const evaluated = expression->getEvaluator()->evaluate(notUsed);
+            types.push_back(evaluated);
+        }
+        return types;
     }
 
     std::shared_ptr<Statement> Parser::getStartStatement() const
