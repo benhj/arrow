@@ -7,7 +7,8 @@ namespace arrow {
     
     SimpleArrowStatement::SimpleArrowStatement() : Statement() {}
 
-    SimpleArrowStatement & SimpleArrowStatement::withExpression(std::shared_ptr<Expression> expression)
+    SimpleArrowStatement &
+    SimpleArrowStatement::withExpression(std::shared_ptr<Expression> expression)
     {
         m_expression = std::move(expression);
         return *this;
@@ -17,10 +18,20 @@ namespace arrow {
         m_identifier = std::move(identifier);
         return *this;
     }
+    SimpleArrowStatement &
+    SimpleArrowStatement::withIndexExpression(std::shared_ptr<Expression> expression)
+    {
+        m_indexExpression = std::move(expression);
+        return *this;
+    }
 
     std::shared_ptr<Expression> SimpleArrowStatement::getExpression() const
     {
         return m_expression;
+    }
+    std::shared_ptr<Expression> SimpleArrowStatement::getIndexExpression() const
+    {
+        return m_indexExpression;
     }
 
     Token SimpleArrowStatement::getIdentifier() const

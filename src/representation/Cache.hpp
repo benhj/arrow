@@ -20,6 +20,10 @@ namespace arrow {
         void pushCacheLayer();
         void popCacheLayer();
 
+        void setElementInContainer(std::string identifier,
+                                   int const index,
+                                   Type const type);
+
         static void pushReturnValue(Type t);
         static Type getAndPopReturnValue();
 

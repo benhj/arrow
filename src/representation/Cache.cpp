@@ -59,6 +59,18 @@ namespace arrow {
             }
         }
     }
+    void Cache::setElementInContainer(std::string identifier,
+                                      int const index,
+                                      Type const type)
+    {
+        auto found = findAndRetrieveCached(std::move(identifier));
+        auto casted = std::get<std::vector<Type>>(found->second.m_variantType);
+        if(index >= casted.size()) {
+            throw std::runtime_error("index too big");
+        }
+        casted[index].m_variantType.swap(type.m_variantType);
+        found->second.m_variantType = casted;
+    }
     void Cache::pushCacheLayer()
     {
         m_cacheStack.emplace_front(CacheMap());

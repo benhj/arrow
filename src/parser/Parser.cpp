@@ -531,6 +531,10 @@ namespace arrow {
                 if(notAtEnd()) {
                     if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
                         arrowStatement->withIdentifier(currentToken());
+                        if(nextToken().lexeme == Lexeme::OPEN_SQUARE) {
+                            auto indexExp = parseIndexExpression();
+                            arrowStatement->withIndexExpression(std::move(indexExp));
+                        } 
                         advanceTokenIterator();
                         if(notAtEnd()) {
                             if(currentToken().lexeme == Lexeme::SEMICOLON) {
