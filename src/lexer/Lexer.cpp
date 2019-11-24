@@ -121,7 +121,7 @@ namespace arrow {
     bool checkIfMultiAlphaToken(char const c, 
                                 std::istream & stream, 
                                 std::vector<Token> & tokens,
-                                long const lineNumber) {
+                                long & lineNumber) {
         // check if beginning of 'generic string'
         if(std::isalpha(c) || c == '_' /* also permit */) {
             std::string dat;
@@ -184,6 +184,9 @@ namespace arrow {
                     while(stream.get(com) && com != '\n') {
                         comment.push_back(com);
                     }
+                    if(com == '\n') {
+                        ++lineNumber;
+                    }
                     tokens.emplace_back(Lexeme::COMMENT, std::move(comment), lineNumber);
                     return true;
                 }
@@ -227,12 +230,13 @@ namespace arrow {
     bool checkIfLiteralStringToken(char const c,
                                    std::istream & stream,
                                    std::vector<Token> & tokens,
-                                   long const lineNumber) {
+                                   long & lineNumber) {
         if(c == '"') {
             auto next = stream.peek();
             std::string dat;
             while (next != EOF && next != '"') {
                 if(next == '\n') {
+                    ++lineNumber;
                     break;
                 } 
                 // new line character handling

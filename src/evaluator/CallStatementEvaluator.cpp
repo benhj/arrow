@@ -24,7 +24,9 @@ namespace arrow {
         // Get the function to evaluate
         auto functionStatement = Parser::getFunction(name);
         if(!functionStatement) {
-            throw std::runtime_error("Error, can't find function.");
+            std::string error("Can't find function on line ");
+            error.append(std::to_string(m_statement.getName().lineNumber));
+            throw std::runtime_error(error);
         }
 
         // Get the parameters of the function signature
@@ -34,7 +36,12 @@ namespace arrow {
 
         // Throw if signature mismatch
         if(paramCollEval.size() != expressionCollEval.size()) {
-            throw std::runtime_error("Parameter indexing mismatch.");
+            auto lineCall = m_statement.getName().lineNumber;
+            auto lineFunc = functionStatement->getName().lineNumber;
+            std::string error("Parameter indexing mismatch on lines ");
+            error.append(std::to_string(lineCall)).append(" and ");
+            error.append(std::to_string(lineFunc));
+            throw std::runtime_error(error);
         }
 
         // The function has its own completely

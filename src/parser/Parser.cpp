@@ -95,11 +95,13 @@ namespace arrow {
             advanceTokenIterator();
         }
 
-        // First try and parse a statement
-        // of the form
+        // First try and parse a statement of the form
         // 1 -> a;
         // a + 1 -> b;
         // etc.
+        // In contrast to most statement, this doesn't
+        // begin with an identifier so we need to try
+        // and parse these first.
         auto store = m_current;
         auto statement = parseSimpleArrowStatement();
         if(statement) { 
@@ -133,7 +135,9 @@ namespace arrow {
                 m_current = store;
             }
         }
-        return nullptr;
+        std::string error("Unable to parse statement on line ");
+        error.append(std::to_string(currentToken().lineNumber));
+        throw std::runtime_error(error);
     }
 
     bool Parser::notAtEnd() const

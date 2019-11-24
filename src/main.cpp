@@ -19,11 +19,16 @@ int main(int argc, char ** argv) {
         std::cout<<token.lexeme<<"\t"<<token.raw<<std::endl;
     }
 */
-    arrow::Parser p(tokens);
-    p.parse();
-    auto start = p.getStartStatement();
-    if(start) {
-        start->getEvaluator()->evaluate(cache);
+    try {
+        arrow::Parser p(tokens);
+        p.parse();
+        auto start = p.getStartStatement();
+        if(start) {
+            start->getEvaluator()->evaluate(cache);
+        }
+    } catch (std::exception const & e) {
+        std::cout<<"Error: ";
+        std::cout<<e.what()<<std::endl;
     }
 
     return 0;
