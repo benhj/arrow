@@ -1,5 +1,6 @@
 #include "ArgStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>
 
 namespace arrow {
@@ -17,6 +18,25 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> ArgStatement::getEvaluator() const
     {
+        struct ArgStatementEvaluator : StatementEvaluator
+        {
+            explicit ArgStatementEvaluator(ArgStatement statement)
+              : m_statement(std::move(statement))
+            {
+            }
+
+            void evaluate(Cache & cache) const override
+            {
+                auto evaluator = m_statement.getExpression()->getEvaluator();
+                auto evaluated = evaluator->evaluate(cache);
+                if(evaluated.m_descriptor != TypeDescriptor::Int) {
+                    throw std::runtime_error("whoops");
+                }
+            }
+
+          private:
+            ArgStatement m_statement;
+        };
         return nullptr;
     }
 
