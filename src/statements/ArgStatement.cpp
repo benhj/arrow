@@ -32,6 +32,8 @@ namespace arrow {
                 if(evaluated.m_descriptor != TypeDescriptor::Int) {
                     throw std::runtime_error("whoops");
                 }
+                auto identifier = m_statement.getIdentifier().raw;
+                cache.add(identifier, evaluated);
             }
 
           private:
