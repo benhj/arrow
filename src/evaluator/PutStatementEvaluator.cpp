@@ -10,6 +10,7 @@ namespace arrow {
     }
     void PutStatementEvaluator::evaluate(Cache & cache) const
     {
+        auto const lineNumber = m_statement.getIdentifier().lineNumber;
         auto const identifier = m_statement.getIdentifier().raw;
         if(cache.has(identifier)) {
             auto t = cache.get(identifier);
@@ -27,7 +28,7 @@ namespace arrow {
                 throw std::runtime_error(std::string("Couldn't evaluate ").append(identifier));
             }
             auto arrowStatement = m_statement.getArrowStatement();
-            arrowStatement.withToken(Token(Lexeme::GENERIC_STRING, newType));
+            arrowStatement.withToken(Token(Lexeme::GENERIC_STRING, newType, lineNumber));
             PrimitiveStatementEvaluator(std::move(arrowStatement)).evaluate(cache);
         } else {
             throw std::runtime_error(std::string("Couldn't evaluate ").append(identifier));

@@ -9,13 +9,15 @@ namespace arrow {
 
         Token(){}
 
-        Token(Lexeme lex, std::string str) 
+        Token(Lexeme lex, std::string str, long const ln) 
         : lexeme(std::move(lex))
         , raw(std::move(str))
+        , lineNumber(ln)
         {
         }
 
         Lexeme lexeme;
         std::string raw;
+        long lineNumber;
     };
 }
