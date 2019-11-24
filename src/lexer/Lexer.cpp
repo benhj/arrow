@@ -55,6 +55,26 @@ namespace arrow {
                 tokens.emplace_back(Lexeme::LESS, "<", lineNumber);
                 return false;
             }
+            case '|':
+            {
+                auto next = stream.peek();
+                if(next != EOF && char(next) == '|') {
+                    stream.get(); // iterate
+                    tokens.emplace_back(Lexeme::OR, "||", lineNumber);
+                    return true;
+                }
+                return false;
+            }
+            case '&':
+            {
+                auto next = stream.peek();
+                if(next != EOF && char(next) == '&') {
+                    stream.get(); // iterate
+                    tokens.emplace_back(Lexeme::AND, "&&", lineNumber);
+                    return true;
+                }
+                return false;
+            }
             default: return false;
         }
         return false;

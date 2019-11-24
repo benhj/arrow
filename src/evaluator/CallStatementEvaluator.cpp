@@ -60,8 +60,18 @@ namespace arrow {
 
         functionStatement->getEvaluator()->evaluate(newCache);
         auto const funcReturnIdentifier = functionStatement->getReturnIdentifier();
-        auto const result = newCache.get(funcReturnIdentifier.raw);
-        auto const callReturnIdentifier = m_statement.getReturnIdentifier();
-        cache.add(callReturnIdentifier.raw, result);
+        if(funcReturnIdentifier.lexeme != Lexeme::NIL) {
+            auto const result = newCache.get(funcReturnIdentifier.raw);
+            auto const callReturnIdentifier = m_statement.getReturnIdentifier();
+            if(callReturnIdentifier.lexeme == Lexeme::NIL) {
+                auto lineCall = m_statement.getName().lineNumber;
+                auto lineFunc = functionStatement->getName().lineNumber;
+                std::string error("Return mismatch on line numbers ");
+                error.append(std::to_string(lineCall)).append(" and ");
+                error.append(std::to_string(lineFunc));
+                throw std::runtime_error(error);
+            }
+            cache.add(callReturnIdentifier.raw, result);
+        }
     }
 }

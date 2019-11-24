@@ -1,0 +1,62 @@
+fn canPlaceQueen(r, c, x) -> yes {
+	1 -> yes;
+	0 -> i;
+    while(i < r) {
+        x[i] -> tok;
+        if (((tok = c) || ((i - r) = (tok -c))) || ((i - r) = (c - tok))) {
+            0 -> yes;
+            ;;; so that we can break early
+            r -> i; 
+        }
+        i + 1 -> i;
+    }
+}
+
+fn printQueens(N, x) {
+
+    0 -> i;
+    0 -> j;
+
+    for tok in x {
+        0 -> j;
+        while(j < N) {
+            if (tok = j) {
+                pr "Q ";
+            } else {
+                pr "* "; 
+            }
+            j + 1 -> j;
+        }
+        say "\n";
+    }
+    say "\n";
+ }
+
+ fn placeNQueens(r, n, x) {
+    0 -> c;
+    while(c < n) {
+        call canPlaceQueen(r, c, x) -> yes;
+        if (yes = 1) {
+            c -> x[r];
+            call printQueens(n,x); 
+            if (r = n - 1) {
+            	exit 1;
+            } else {
+            	r + 1 -> s;
+            	call placeNQueens(s, n, x);
+            }
+        }
+        c + 1 -> c;
+    }
+}
+
+start {
+    14 -> N;
+    [] -> x;
+    0 -> i;
+    repeat N times {
+        [^i ^^x] -> x;
+        i + 1 -> i;    
+    }
+    call placeNQueens(0, N, x); 
+}

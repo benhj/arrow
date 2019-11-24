@@ -79,7 +79,8 @@ namespace arrow {
                     throw std::runtime_error("Bad operator for type.");
                 }
             }
-            throw std::runtime_error("Incompatible types.");
+            std::string error("Incompatible types on line ");
+            throw std::runtime_error(error);
         }
       private:
         std::string m_op;
@@ -97,7 +98,6 @@ namespace arrow {
         auto op = m_expression.getOperator();
         auto deducedLeft = leftEval->evaluate(cache);
         auto deducedRight = rightEval->evaluate(cache);
-
         BooleanEvaluator evaluator{op.raw};
         auto res = std::visit(evaluator, 
                   deducedLeft.m_variantType,

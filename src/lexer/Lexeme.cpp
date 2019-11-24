@@ -19,6 +19,8 @@ namespace arrow {
             INSERT_ELEMENT(Lexeme::NOT_EQUAL);
             INSERT_ELEMENT(Lexeme::GREATER_EQUAL);
             INSERT_ELEMENT(Lexeme::LESS_EQUAL);
+            INSERT_ELEMENT(Lexeme::AND);
+            INSERT_ELEMENT(Lexeme::OR);
     #undef INSERT_ELEMENT
         }
         return std::find_if(std::begin(strings), std::end(strings),
@@ -55,6 +57,8 @@ namespace arrow {
             INSERT_ELEMENT(Lexeme::NOT_EQUAL);
             INSERT_ELEMENT(Lexeme::GREATER_EQUAL);
             INSERT_ELEMENT(Lexeme::LESS_EQUAL);
+            INSERT_ELEMENT(Lexeme::AND);
+            INSERT_ELEMENT(Lexeme::OR);
     #undef INSERT_ELEMENT
         }
         return std::find_if(std::begin(strings), std::end(strings),
@@ -91,6 +95,8 @@ std::ostream& operator<<(std::ostream& out, arrow::Lexeme const value){
         INSERT_ELEMENT(arrow::Lexeme::ARROW);
         INSERT_ELEMENT(arrow::Lexeme::COMMENT);
         INSERT_ELEMENT(arrow::Lexeme::EQUAL_EQUAL);
+        INSERT_ELEMENT(arrow::Lexeme::AND);
+        INSERT_ELEMENT(arrow::Lexeme::OR);
 
         INSERT_ELEMENT(arrow::Lexeme::GENERIC_STRING);
         INSERT_ELEMENT(arrow::Lexeme::LITERAL_STRING);

@@ -9,16 +9,8 @@
 int main(int argc, char ** argv) {
 
     std::ifstream in(argv[1]);
-
     arrow::Cache cache;
-
     auto tokens = arrow::Lexer::tokenize(in);
-
-/*
-    for(auto const & token : tokens) {
-        std::cout<<token.lexeme<<"\t"<<token.raw<<std::endl;
-    }
-*/
     try {
         arrow::Parser p(tokens);
         p.parse();
@@ -30,6 +22,5 @@ int main(int argc, char ** argv) {
         std::cout<<"\u001b[31;1mError: \u001b[0m";
         std::cout<<e.what()<<std::endl;
     }
-
     return 0;
 }

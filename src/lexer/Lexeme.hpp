@@ -12,7 +12,7 @@ namespace arrow {
 
         // Double or tipple char lexemes
         NOT_EQUAL, GREATER_EQUAL, LESS_EQUAL, ARROW, COMMENT,
-        EQUAL_EQUAL,
+        EQUAL_EQUAL, AND, OR, NIL,
 
         // Literals
         GENERIC_STRING, LITERAL_STRING, INTEGER_NUM, REAL_NUM,

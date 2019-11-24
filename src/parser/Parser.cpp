@@ -16,7 +16,9 @@
 #include "statements/RepeatStatement.hpp"
 #include "statements/SimpleArrowStatement.hpp"
 #include "statements/StartStatement.hpp"
+#include "statements/StringToIntStatement.hpp"
 #include "statements/WhileStatement.hpp"
+#include "statements/ExitStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -36,6 +38,7 @@
 #include "expressions/QStringExpression.hpp"
 
 /// Other
+#include "evaluator/StatementEvaluator.hpp"
 #include "lexer/Lexeme.hpp"
 #include <algorithm>
 #include <functional>
@@ -503,6 +506,8 @@ namespace arrow {
                                    keyword == "list" || keyword == "string" ||
                                    keyword == "strings") {
                                     return std::make_shared<PrimitiveStatement>(*arrowStatement);
+                                } else if(keyword == "stoi") {
+                                    return std::make_shared<StringToIntStatement>(*arrowStatement);
                                 } else if(keyword == "put") {
                                     return std::make_shared<PutStatement>(*arrowStatement);
                                 }
@@ -562,6 +567,8 @@ namespace arrow {
                     auto const keyword = arrowlessStatement->getToken().raw;
                     if(keyword == "prn" || keyword == "pr" || keyword == "say") {
                         return std::make_shared<EchoStatement>(std::move(arrowlessStatement));
+                    } else if(keyword == "exit") {
+                        return std::make_shared<ExitStatement>(std::move(arrowlessStatement));
                     }
                     return arrowlessStatement;
                 }
@@ -726,6 +733,7 @@ namespace arrow {
         // Handle 'arrow-less' condition (not returning call).
         if(currentToken().lexeme != Lexeme::ARROW) {
             if(currentToken().lexeme == Lexeme::SEMICOLON) {
+                callStatement->withIdentifier(Token{Lexeme::NIL, "nil", currentToken().lineNumber});
                 return callStatement;
             }
             return nullptr;
@@ -771,11 +779,15 @@ namespace arrow {
         if(!collection) { return nullptr; }
         functionStatement->withExpressionCollection(std::move(collection));
         advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::ARROW) { return nullptr; }
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        functionStatement->withReturnIdentifierToken(currentToken());
-        advanceTokenIterator();
+        // Handle 'arrow-less' condition (not returning call).
+        if(currentToken().lexeme != Lexeme::ARROW) {
+            functionStatement->withReturnIdentifierToken(Token{Lexeme::NIL, "nil", currentToken().lineNumber});
+        } else {
+            advanceTokenIterator();
+            if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+            functionStatement->withReturnIdentifierToken(currentToken());
+            advanceTokenIterator();
+        }
         if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
         advanceTokenIterator();
         while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
