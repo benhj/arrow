@@ -1,10 +1,10 @@
 fn canPlaceQueen(r, c, x) -> yes {
-	1 -> yes;
+	true -> yes;
 	0 -> i;
     while(i < r) {
         x[i] -> tok;
         if ((tok = c) || ((i - r) = (tok - c)) || (i - r) = (c - tok)) {
-            0 -> yes;
+            false -> yes;
             ;;; so that we can break early
             r -> i; 
         }
@@ -34,7 +34,7 @@ fn printQueens(N, x) {
     0 -> c;
     while(c < n) {
         call canPlaceQueen(r, c, x) -> yes;
-        if (yes = 1) {
+        if (yes) {
             c -> x[r];
             call printQueens(n,x); 
             if (r = n - 1) {
@@ -50,7 +50,7 @@ fn printQueens(N, x) {
 }
 
 start {
-    8 -> N;
+    12 -> N;
     [] -> x;
     0 -> i;
     repeat N times {

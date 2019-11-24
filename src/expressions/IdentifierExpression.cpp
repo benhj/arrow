@@ -20,7 +20,11 @@ namespace arrow {
 
             Type evaluate(Cache & cache) const override
             {
-                if(!cache.has(m_tok.raw)) {
+                if(m_tok.raw == "true") {
+                    return {TypeDescriptor::Bool, true};
+                } else if(m_tok.raw == "false") {
+                    return {TypeDescriptor::Bool, false};
+                } else if(!cache.has(m_tok.raw)) {
                     std::string error("Value for identifier not found on line ");
                     error.append(std::to_string(m_tok.lineNumber));
                     throw std::runtime_error(error);
