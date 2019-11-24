@@ -27,7 +27,7 @@ int main(int argc, char ** argv) {
             start->getEvaluator()->evaluate(cache);
         }
     } catch (std::exception const & e) {
-        std::cout<<"Error: ";
+        std::cout<<"\u001b[31;1mError: \u001b[0m";
         std::cout<<e.what()<<std::endl;
     }
 
