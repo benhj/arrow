@@ -48,6 +48,7 @@ namespace arrow {
         std::shared_ptr<Expression> parseLiteralStringExpression();
         std::shared_ptr<Expression> parseHatStringExpression();
         std::shared_ptr<Expression> parseHatHatStringExpression();
+        std::shared_ptr<Expression> parseIndexExpression();
         std::shared_ptr<Expression> parseQStringExpression();
         std::shared_ptr<Expression> parseQQStringExpression();
         std::shared_ptr<Expression> parseOperatorExpression();

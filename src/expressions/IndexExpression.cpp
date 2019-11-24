@@ -28,11 +28,11 @@ namespace arrow {
                 }
 
                 auto type = cache.get(m_tok.raw);
-                if(type.m_descriptor != TypeDescriptor::List ||
-                    type.m_descriptor != TypeDescriptor::ExpressionCollection ||
-                    type.m_descriptor != TypeDescriptor::Ints ||
-                    type.m_descriptor != TypeDescriptor::Reals ||
-                    type.m_descriptor != TypeDescriptor::Bools ||
+                if(type.m_descriptor != TypeDescriptor::List &&
+                    type.m_descriptor != TypeDescriptor::ExpressionCollection &&
+                    type.m_descriptor != TypeDescriptor::Ints &&
+                    type.m_descriptor != TypeDescriptor::Reals &&
+                    type.m_descriptor != TypeDescriptor::Bools &&
                     type.m_descriptor != TypeDescriptor::Strings) {
                     std::string error("Incompatiable type for index on line ");
                     error.append(std::to_string(m_tok.lineNumber));

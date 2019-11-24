@@ -24,6 +24,7 @@
 #include "expressions/HatHatStringExpression.hpp"
 #include "expressions/HatStringExpression.hpp"
 #include "expressions/IdentifierExpression.hpp"
+#include "expressions/IndexExpression.hpp"
 #include "expressions/ListExpression.hpp"
 #include "expressions/ListWordExpression.hpp"
 #include "expressions/LiteralIntExpression.hpp"
@@ -164,6 +165,25 @@ namespace arrow {
     {
         auto exp = std::make_shared<IdentifierExpression>();
         exp->withIdentifierToken(currentToken());
+        return exp;
+    }
+
+    std::shared_ptr<Expression> Parser::parseIndexExpression()
+    {
+        if(nextToken().lexeme != Lexeme::OPEN_SQUARE) {
+            return nullptr;
+        }
+        auto exp = std::make_shared<IndexExpression>();
+
+        exp->withIdentifierToken(currentToken());
+        advanceTokenIterator();
+        advanceTokenIterator();
+        auto innerExpression = parseExpression();
+        exp->withIndexExpression(std::move(innerExpression));
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::CLOSE_SQUARE) {
+            return nullptr;
+        }
         return exp;
     }
 
@@ -434,7 +454,13 @@ namespace arrow {
         } else if(currentToken().lexeme == Lexeme::REAL_NUM) {
             return parseLiteralRealExpression();
         } else if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
-            return parseIdentifierExpression();
+            auto exp = parseIndexExpression();
+            auto store = m_current;
+            if(!exp) {
+                return parseIdentifierExpression();
+            }
+            m_current = store;
+            return exp;
         } else if(currentToken().lexeme == Lexeme::LITERAL_STRING) {
             return parseLiteralStringExpression();
         } else if(currentToken().lexeme == Lexeme::HAT_HAT_STRING) {
