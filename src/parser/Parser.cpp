@@ -37,6 +37,7 @@
 /// Other
 #include "lexer/Lexeme.hpp"
 #include <algorithm>
+#include <functional>
 #include <utility>
 
 namespace arrow {
@@ -110,91 +111,25 @@ namespace arrow {
         // If that fails, try parsing a statement beginning
         // with a keyword
         if(!statement && currentToken().lexeme == Lexeme::GENERIC_STRING) {
-            {
-                auto store = m_current;
-                auto statement = parseArrowStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
-                m_current = store;
+
+            static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
+            if(pvec.empty()) {
+                pvec.emplace_back([this]{return parseArrowStatement();});
+                pvec.emplace_back([this]{return parseArrowlessStatement();});
+                pvec.emplace_back([this]{return parseRepeatStatement();});
+                pvec.emplace_back([this]{return parseWhileStatement();});
+                pvec.emplace_back([this]{return parseForStatement();});
+                pvec.emplace_back([this]{return parseIfStatement();});
+                pvec.emplace_back([this]{return parseCallStatement();});
+                pvec.emplace_back([this]{return parseStartStatement();});
+                pvec.emplace_back([this]{return parseFunctionStatement();});
             }
-            {
+            for(auto const & p : pvec) {
                 auto store = m_current;
-                auto statement = parseArrowlessStatement();
-                if(statement) { 
+                auto statement = p();
+                if(statement) {
                     return statement;
                 }
-                // Revert token iterator state in case of failure
-                m_current = store;
-            }
-            {
-                auto store = m_current;
-                auto statement = parseRepeatStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
-                m_current = store;
-            }
-            {
-                auto store = m_current;
-                auto statement = parseWhileStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
-                m_current = store;
-            }
-            {
-                auto store = m_current;
-                auto statement = parseForStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
-                m_current = store;
-            }
-            {
-                auto store = m_current;
-                auto statement = parseIfStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
-                m_current = store;
-            }
-            {
-                auto store = m_current;
-                auto statement = parseCallStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
-                m_current = store;
-            }
-            {
-                // Note the start statement is stored separately
-                // from the other statements, so nothing
-                // to return here.
-                auto store = m_current;
-                auto statement = parseStartStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
-                m_current = store;
-            }
-            {
-                // Note function statements aren't actually
-                // stored in the collection of statements but
-                // rather in the function map
-                auto store = m_current;
-                auto statement = parseFunctionStatement();
-                if(statement) { 
-                    return statement;
-                }
-                // Revert token iterator state in case of failure
                 m_current = store;
             }
         }
