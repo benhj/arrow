@@ -1,5 +1,6 @@
 #include "FunctionStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "evaluator/FunctionStatementEvaluator.hpp"
 #include <utility>
 
 namespace arrow {
@@ -69,6 +70,6 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> FunctionStatement::getEvaluator() const
     {
-        return nullptr;
+        return std::make_shared<FunctionStatementEvaluator>(*this);
     }
 }

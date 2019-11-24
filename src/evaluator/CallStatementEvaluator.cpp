@@ -1,5 +1,7 @@
 #include "CallStatementEvaluator.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
+#include "evaluator/IdentifierEvaluator.hpp"
+#include "expressions/IdentifierExpression.hpp"
 #include "parser/Parser.hpp"
 #include "statements/FunctionStatement.hpp"
 #include <utility>
@@ -19,11 +21,11 @@ namespace arrow {
         auto const t = expressionColl->getEvaluator()->evaluate(cache);
         auto const expressionCollEval = std::get<std::vector<Type>>(t.m_variantType);
 
-        // Pull out the return identifier
-        auto const returnIdentifier = m_statement.getReturnIdentifier();
-
         // Get the function to evaluate
         auto functionStatement = Parser::getFunction(name);
+        if(!functionStatement) {
+            throw std::runtime_error("Error, can't find function.");
+        }
 
         // Get the parameters of the function signature
         auto const paramColl = functionStatement->getExpressionCollection();
@@ -35,6 +37,9 @@ namespace arrow {
             throw std::runtime_error("Parameter indexing mismatch.");
         }
 
+        // The function has its own completely
+        // isolated, local cache, so need to create
+        // a new one here.
         Cache newCache;
 
         // Push in parameters into new cache. The function
@@ -45,8 +50,11 @@ namespace arrow {
             newCache.add(raw, expr);
             ++param;
         }
+
         functionStatement->getEvaluator()->evaluate(newCache);
-        auto poppedReturn = newCache.getAndPopReturnValue();
-        cache.add(returnIdentifier.raw, poppedReturn);
+        auto const funcReturnIdentifier = functionStatement->getReturnIdentifier();
+        auto const result = newCache.get(funcReturnIdentifier.raw);
+        auto const callReturnIdentifier = m_statement.getReturnIdentifier();
+        cache.add(callReturnIdentifier.raw, result);
     }
 }

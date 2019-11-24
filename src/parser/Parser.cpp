@@ -41,7 +41,6 @@
 
 namespace arrow {
 
-    std::vector<std::shared_ptr<Statement>> Parser::m_statements{};
     std::map<std::string, std::shared_ptr<FunctionStatement>> Parser::m_functions{};
 
     Parser::Parser(std::vector<Token> tokens)
@@ -62,7 +61,12 @@ namespace arrow {
         }
     }
 
-    std::vector<std::shared_ptr<Statement>> Parser::getStatements()
+    std::shared_ptr<Statement> Parser::getStartStatement() const
+    {
+        return m_startStatement;
+    }
+
+    std::vector<std::shared_ptr<Statement>> Parser::getStatements() const
     {
         return m_statements;
     }
@@ -84,6 +88,11 @@ namespace arrow {
 
     std::shared_ptr<Statement> Parser::buildStatement()
     {
+
+        // Skip any comments
+        while(currentToken().lexeme == Lexeme::COMMENT) {
+            advanceTokenIterator();
+        }
 
         // First try and parse a statement
         // of the form
@@ -165,6 +174,9 @@ namespace arrow {
                 m_current = store;
             }
             {
+                // Note the start statement is stored separately
+                // from the other statements, so nothing
+                // to return here.
                 auto store = m_current;
                 auto statement = parseStartStatement();
                 if(statement) { 
@@ -174,6 +186,9 @@ namespace arrow {
                 m_current = store;
             }
             {
+                // Note function statements aren't actually
+                // stored in the collection of statements but
+                // rather in the function map
                 auto store = m_current;
                 auto statement = parseFunctionStatement();
                 if(statement) { 
@@ -423,7 +438,12 @@ namespace arrow {
             advanceTokenIterator();
             advanceTokenIterator();
         }
-        auto exp = parseExpression();
+        std::shared_ptr<Expression> exp;
+        if(identifierOnly) {
+            exp = parseListWordExpression();
+        } else {
+            exp = parseExpression();
+        }
         if(!exp) { return nullptr; }
 
         expression->addExpression(std::move(exp));
@@ -764,6 +784,7 @@ namespace arrow {
             }
             advanceTokenIterator();
         }
+        m_startStatement = startStatement;
         return startStatement;
     }
 
@@ -795,6 +816,7 @@ namespace arrow {
             }
             advanceTokenIterator();
         }
+
         m_functions.emplace(theName.raw, functionStatement);
         return functionStatement;
     }

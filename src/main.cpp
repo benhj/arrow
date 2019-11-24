@@ -21,10 +21,9 @@ int main(int argc, char ** argv) {
 */
     arrow::Parser p(tokens);
     p.parse();
-    auto statements = p.getStatements();
-
-    for(auto const & s : statements) {
-        s->getEvaluator()->evaluate(cache);
+    auto start = p.getStartStatement();
+    if(start) {
+        start->getEvaluator()->evaluate(cache);
     }
 
     return 0;

@@ -17,13 +17,23 @@ namespace arrow {
 
         void parse();
 
-        static std::vector<std::shared_ptr<Statement>> getStatements();
+        std::shared_ptr<Statement> getStartStatement() const;
+        std::vector<std::shared_ptr<Statement>> getStatements() const;
         static std::shared_ptr<FunctionStatement> getFunction(std::string identifier);
 
       private:
         std::vector<Token> m_tokens;
         std::vector<Token>::iterator m_current;
-        static std::vector<std::shared_ptr<Statement>> m_statements;
+
+        // The start statement represents a program's entry point.
+        // (Similar to a main function in c in c++)
+        std::shared_ptr<Statement> m_startStatement;
+
+        // Store non-function statements
+        std::vector<std::shared_ptr<Statement>> m_statements;
+
+        // Collection of all function statements providing a lookup
+        // during function call
         static std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
         std::shared_ptr<Statement> buildStatement();
 
