@@ -41,8 +41,7 @@ fn printQueens(N, x) {
                 exit 1;
             } else {
                 ansi_up n;
-                r + 1 -> s;
-                call placeNQueens(s, n, x);
+                call placeNQueens(r + 1, n, x);
             }
         }
         c + 1 -> c;
