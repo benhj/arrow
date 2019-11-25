@@ -8,7 +8,7 @@ namespace arrow {
         PLUS, MINUS, STAR, EQUAL, DIVIDE,
         COLON, SEMICOLON, OPEN_PAREN, CLOSE_PAREN,
         OPEN_SQUARE, CLOSE_SQUARE, OPEN_CURLY, CLOSE_CURLY,
-        GREATER, LESS, COMMA,
+        GREATER, LESS, COMMA, PERCENT,
 
         // Double or tipple char lexemes
         NOT_EQUAL, GREATER_EQUAL, LESS_EQUAL, ARROW, COMMENT,

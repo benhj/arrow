@@ -405,33 +405,30 @@ namespace arrow {
         if(currentToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
         auto expression = std::make_shared<ExpressionCollectionExpression>();
         advanceTokenIterator();
-        while(nextToken().lexeme != Lexeme::CLOSE_PAREN) {
+        while(currentToken().lexeme != Lexeme::CLOSE_PAREN) {
             std::shared_ptr<Expression> exp;
             if(identifierOnly) {
                 if(currentToken().lexeme != Lexeme::GENERIC_STRING) {
-                    return nullptr; // error
+                    exp = nullptr; // error
+                } else {
+                    exp = parseListWordExpression();
                 }
-                exp = parseListWordExpression();
             } else {
                 exp = parseExpression();
             }
-            if(!exp) { return nullptr; }
+
+            if(!exp) { 
+                // When there are no parameters
+                if(currentToken().lexeme == Lexeme::CLOSE_PAREN) {
+                    break;
+                }
+                return nullptr; 
+            }
             expression->addExpression(std::move(exp));
             advanceTokenIterator();
-            advanceTokenIterator();
-        }
-        std::shared_ptr<Expression> exp;
-        if(identifierOnly) {
-            exp = parseListWordExpression();
-        } else {
-            exp = parseExpression();
-        }
-        if(!exp) { return nullptr; }
-
-        expression->addExpression(std::move(exp));
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::CLOSE_PAREN) {
-            return nullptr;
+            if(currentToken().lexeme == Lexeme::COMMA) {
+                advanceTokenIterator();
+            }
         }
         return expression;
     }

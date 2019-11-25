@@ -6,8 +6,9 @@
 namespace arrow {
 
     struct MathEvaluator {
-        MathEvaluator(std::string op)
+        MathEvaluator(std::string op, long const lineNumber)
         : m_op(std::move(op))
+        , m_lineNumber(lineNumber)
         {
         }
 
@@ -46,12 +47,14 @@ namespace arrow {
                         return left ^ right;
                     }
                 }
-                throw std::runtime_error("Bad operator for type.");
             }
-            throw std::runtime_error("Incompatible types.");
+            std::string error("Incompatible types on line ");
+            error.append(std::to_string(m_lineNumber));
+            throw std::runtime_error(error);
         }
       private:
         std::string m_op;
+        long m_lineNumber;
     };
 
     MathExpressionEvaluator::MathExpressionEvaluator(MathExpression expression)
@@ -73,7 +76,7 @@ namespace arrow {
             intType = false;
         }
 
-        MathEvaluator evaluator{op.raw};
+        MathEvaluator evaluator{op.raw, op.lineNumber};
         auto res = std::visit(evaluator, 
                   deducedLeft.m_variantType,
                   deducedRight.m_variantType);

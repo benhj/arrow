@@ -87,6 +87,7 @@ namespace arrow {
             case '+': tokens.emplace_back(Lexeme::PLUS, "+", lineNumber); break;
             case '*': tokens.emplace_back(Lexeme::STAR, "*", lineNumber); break;
             case '=': tokens.emplace_back(Lexeme::EQUAL, "=", lineNumber); break;
+            case '%': tokens.emplace_back(Lexeme::PERCENT, "%", lineNumber); break;
             case '{': tokens.emplace_back(Lexeme::OPEN_CURLY, "{", lineNumber); break;
             case '}': tokens.emplace_back(Lexeme::CLOSE_CURLY, "}", lineNumber); break;
             case '[': tokens.emplace_back(Lexeme::OPEN_SQUARE, "[", lineNumber); break;

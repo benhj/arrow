@@ -21,6 +21,7 @@ namespace arrow {
             INSERT_ELEMENT(Lexeme::LESS_EQUAL);
             INSERT_ELEMENT(Lexeme::AND);
             INSERT_ELEMENT(Lexeme::OR);
+            INSERT_ELEMENT(Lexeme::PERCENT);
     #undef INSERT_ELEMENT
         }
         return std::find_if(std::begin(strings), std::end(strings),
@@ -38,6 +39,7 @@ namespace arrow {
             INSERT_ELEMENT(Lexeme::MINUS);
             INSERT_ELEMENT(Lexeme::STAR);
             INSERT_ELEMENT(Lexeme::DIVIDE);
+            INSERT_ELEMENT(Lexeme::PERCENT);
     #undef INSERT_ELEMENT
         }
         return std::find_if(std::begin(strings), std::end(strings),
@@ -88,6 +90,7 @@ std::ostream& operator<<(std::ostream& out, arrow::Lexeme const value){
         INSERT_ELEMENT(arrow::Lexeme::GREATER);
         INSERT_ELEMENT(arrow::Lexeme::LESS);
         INSERT_ELEMENT(arrow::Lexeme::COMMA);
+        INSERT_ELEMENT(arrow::Lexeme::PERCENT);
 
         INSERT_ELEMENT(arrow::Lexeme::NOT_EQUAL);
         INSERT_ELEMENT(arrow::Lexeme::GREATER_EQUAL);
