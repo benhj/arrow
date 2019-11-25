@@ -17,7 +17,7 @@ int main(int argc, char ** argv) {
         if(argc > 2) {
             std::stringstream in;
             for(int i = 2; i < argc; ++i) {
-                in << argv[i];
+                in << argv[i] << " ";
             }
             auto argTokens = arrow::Lexer::tokenize(in);
             arrow::Parser p(argTokens);

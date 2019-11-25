@@ -20,6 +20,7 @@
 #include "statements/WhileStatement.hpp"
 #include "statements/ExitStatement.hpp"
 #include "statements/AnsiStatement.hpp"
+#include "statements/ArgStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -76,6 +77,7 @@ namespace arrow {
             auto expression = parseExpression();
             auto const evaluated = expression->getEvaluator()->evaluate(notUsed);
             types.push_back(evaluated);
+            advanceTokenIterator();
         }
         return types;
     }
@@ -524,6 +526,8 @@ namespace arrow {
                                     return std::make_shared<StringToIntStatement>(*arrowStatement);
                                 } else if(keyword == "put") {
                                     return std::make_shared<PutStatement>(*arrowStatement);
+                                } else if(keyword == "arg") {
+                                    return std::make_shared<ArgStatement>(*arrowStatement);
                                 }
                                 return arrowStatement;
                             }
