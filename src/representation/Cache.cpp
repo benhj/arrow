@@ -94,4 +94,9 @@ namespace arrow {
     {
         m_programArguments.push_back(std::move(arg));
     }
+
+    Type Cache::getProgramArgument(int64_t const index) const
+    {
+        return m_programArguments[index];
+    }
 }

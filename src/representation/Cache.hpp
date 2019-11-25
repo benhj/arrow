@@ -20,6 +20,7 @@ namespace arrow {
         void pushCacheLayer();
         void popCacheLayer();
         void pushProgramArgument(Type arg);
+        Type getProgramArgument(int64_t const index) const;
 
         void setElementInContainer(std::string identifier,
                                    int const index,

@@ -73,8 +73,13 @@ namespace arrow {
     {
         std::vector<Type> types;
         Cache notUsed;
+
         while(notAtEnd()) {
-            auto expression = parseExpression();
+            auto expression = parseLiteralIntExpression();
+            if(!expression) {
+                std::cout<<currentToken().lexeme<<std::endl;
+                break;
+            }
             auto const evaluated = expression->getEvaluator()->evaluate(notUsed);
             types.push_back(evaluated);
             advanceTokenIterator();
@@ -452,44 +457,46 @@ namespace arrow {
 
     std::shared_ptr<Expression> Parser::parseExpression(bool checkOperator)
     {
-        if (checkOperator && isBooleanOperator(nextToken().lexeme)) {
-            return parseBooleanExpression();
-        } else if(checkOperator && isMathOperator(nextToken().lexeme))  {
-            return parseMathExpression();
-        }  else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
+        if(m_current + 1 != std::end(m_tokens)) {
+            if (checkOperator && isBooleanOperator(nextToken().lexeme)) {
+                return parseBooleanExpression();
+            } else if(checkOperator && isMathOperator(nextToken().lexeme))  {
+                return parseMathExpression();
+            }  else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
 
-            auto store = m_current;
-            auto exp = parseGroupedExpression();
-            if(!exp) {
+                auto store = m_current;
+                auto exp = parseGroupedExpression();
+                if(!exp) {
+                    m_current = store;
+                    // try (a, b, c) collection
+                    return parseExpressionCollectionExpression();
+                }
+                return exp;
+            } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
+                return parseListExpression();
+            } else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {
+                return parseLiteralIntExpression();
+            } else if(currentToken().lexeme == Lexeme::REAL_NUM) {
+                return parseLiteralRealExpression();
+            } else if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
+                auto exp = parseIndexExpression();
+                auto store = m_current;
+                if(!exp) {
+                    return parseIdentifierExpression();
+                }
                 m_current = store;
-                // try (a, b, c) collection
-                return parseExpressionCollectionExpression();
+                return exp;
+            } else if(currentToken().lexeme == Lexeme::LITERAL_STRING) {
+                return parseLiteralStringExpression();
+            } else if(currentToken().lexeme == Lexeme::HAT_HAT_STRING) {
+                return parseHatHatStringExpression();
+            } else if(currentToken().lexeme == Lexeme::HAT_STRING) {
+                return parseHatStringExpression();
+            } else if(currentToken().lexeme == Lexeme::Q_Q_STRING) {
+                return parseQQStringExpression();
+            } else if(currentToken().lexeme == Lexeme::Q_STRING) {
+                return parseQStringExpression();
             }
-            return exp;
-        } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
-            return parseListExpression();
-        } else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {
-            return parseLiteralIntExpression();
-        } else if(currentToken().lexeme == Lexeme::REAL_NUM) {
-            return parseLiteralRealExpression();
-        } else if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
-            auto exp = parseIndexExpression();
-            auto store = m_current;
-            if(!exp) {
-                return parseIdentifierExpression();
-            }
-            m_current = store;
-            return exp;
-        } else if(currentToken().lexeme == Lexeme::LITERAL_STRING) {
-            return parseLiteralStringExpression();
-        } else if(currentToken().lexeme == Lexeme::HAT_HAT_STRING) {
-            return parseHatHatStringExpression();
-        } else if(currentToken().lexeme == Lexeme::HAT_STRING) {
-            return parseHatStringExpression();
-        } else if(currentToken().lexeme == Lexeme::Q_Q_STRING) {
-            return parseQQStringExpression();
-        } else if(currentToken().lexeme == Lexeme::Q_STRING) {
-            return parseQStringExpression();
         }
         return nullptr;
     }

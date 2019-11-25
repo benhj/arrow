@@ -32,14 +32,16 @@ namespace arrow {
                 if(evaluated.m_descriptor != TypeDescriptor::Int) {
                     throw std::runtime_error("whoops");
                 }
+                auto const index = std::get<int64_t>(evaluated.m_variantType);
+                auto progArg = cache.getProgramArgument(index);
                 auto identifier = m_statement.getIdentifier().raw;
-                cache.add(identifier, evaluated);
+                cache.add(identifier, progArg);
             }
 
           private:
             ArgStatement m_statement;
         };
-        return nullptr;
+        return std::make_shared<ArgStatementEvaluator>(*this);
     }
 
     ArgStatement const & ArgStatement::withToken(Token token) const

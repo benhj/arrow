@@ -50,7 +50,7 @@ fn printQueens(N, x) {
 }
 
 start {
-    12 -> N;
+    arg 0 -> N;
     [] -> x;
     0 -> i;
     repeat N times {

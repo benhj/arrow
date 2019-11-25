@@ -16,14 +16,17 @@ int main(int argc, char ** argv) {
         // First parse program args
         if(argc > 2) {
             std::stringstream in;
-            for(int i = 2; i < argc; ++i) {
+            int i = 2;
+            for(; i < argc - 1; ++i) {
                 in << argv[i] << " ";
             }
+            in << argv[i];
             auto argTokens = arrow::Lexer::tokenize(in);
             arrow::Parser p(argTokens);
             auto progArgs = p.parseProgramArguments();
             for(auto const & a : progArgs) {
                 cache.pushProgramArgument(a);
+
             }
         }
 
