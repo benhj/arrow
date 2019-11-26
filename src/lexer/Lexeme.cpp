@@ -110,6 +110,8 @@ std::ostream& operator<<(std::ostream& out, arrow::Lexeme const value){
         INSERT_ELEMENT(arrow::Lexeme::Q_STRING);
         INSERT_ELEMENT(arrow::Lexeme::Q_Q_STRING);
 
+        INSERT_ELEMENT(arrow::Lexeme::DOLLAR_STRING);
+
         INSERT_ELEMENT(arrow::Lexeme::FOR);
         INSERT_ELEMENT(arrow::Lexeme::EACH);
         INSERT_ELEMENT(arrow::Lexeme::REPEAT);  

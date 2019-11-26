@@ -18,6 +18,9 @@ namespace arrow {
         GENERIC_STRING, LITERAL_STRING, INTEGER_NUM, REAL_NUM,
         HAT_STRING, HAT_HAT_STRING, Q_STRING, Q_Q_STRING,
 
+        // Array represetation
+        DOLLAR_STRING,
+
         // Keywords
         FOR, EACH, REPEAT, TIMES, IF, START, FN, BOOL,
         INTEGER, REAL, STRING, IN, LIST, TRUE, FALSE,
