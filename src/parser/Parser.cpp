@@ -19,6 +19,7 @@
 #include "statements/ExitStatement.hpp"
 #include "statements/AnsiStatement.hpp"
 #include "statements/ArgStatement.hpp"
+#include "statements/LengthStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -521,6 +522,8 @@ namespace arrow {
                                     return std::make_shared<StringToIntStatement>(*arrowStatement);
                                 } else if(keyword == "arg") {
                                     return std::make_shared<ArgStatement>(*arrowStatement);
+                                } else if(keyword == "length") {
+                                    return std::make_shared<LengthStatement>(*arrowStatement);
                                 }
                                 return arrowStatement;
                             }

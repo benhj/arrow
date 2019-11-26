@@ -4,9 +4,38 @@
 
 namespace arrow {
 
+    namespace {
+        template <typename T>
+        Type getElement(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
+        {
+            auto container = std::get<std::vector<T>>(statementType.m_variantType);
+            auto index = exp->getEvaluator()->evaluate(cache);
+            auto deduced = std::get<int64_t>(index.m_variantType);
+            if(deduced >= static_cast<int64_t>(container.size())) {
+                std::string error("Index too large on line ");
+                //error.append(std::to_string(m_tok.lineNumber));
+                throw std::runtime_error(error);
+            }
+            if constexpr(std::is_same_v<T, Type>) {
+                return container[deduced];
+            } else if constexpr(std::is_same_v<T, int64_t>) {
+                return {TypeDescriptor::Int, container[deduced]};
+            } else if constexpr(std::is_same_v<T, long double>) {
+                return {TypeDescriptor::Real, container[deduced]};
+            } else if constexpr(std::is_same_v<T, bool>) {
+                return {TypeDescriptor::Bool, container[deduced]};
+            } else if constexpr(std::is_same_v<T, std::string>) {
+                return {TypeDescriptor::String, container[deduced]};
+            } else if constexpr(std::is_same_v<T, char>) {
+                return {TypeDescriptor::Byte, container[deduced]};
+            }
+        }
+    }
+
     IndexExpression::IndexExpression()
      : Expression()
     {
+
     }
 
     std::shared_ptr<ExpressionEvaluator> 
@@ -33,20 +62,27 @@ namespace arrow {
                     type.m_descriptor != TypeDescriptor::Ints &&
                     type.m_descriptor != TypeDescriptor::Reals &&
                     type.m_descriptor != TypeDescriptor::Bools &&
-                    type.m_descriptor != TypeDescriptor::Strings) {
+                    type.m_descriptor != TypeDescriptor::Strings &&
+                    type.m_descriptor != TypeDescriptor::Bytes) {
                     std::string error("Incompatiable type for index on line ");
                     error.append(std::to_string(m_tok.lineNumber));
                     throw std::runtime_error(error);
                 }
-                auto container = std::get<std::vector<Type>>(type.m_variantType);
-                auto index = m_expression->getEvaluator()->evaluate(cache);
-                auto deduced = std::get<int64_t>(index.m_variantType);
-                if(deduced >= container.size()) {
-                    std::string error("Index too large on line ");
-                    error.append(std::to_string(m_tok.lineNumber));
-                    throw std::runtime_error(error);
+
+                switch (type.m_descriptor) {
+                    case TypeDescriptor::Ints:
+                        return getElement<int64_t>(std::move(type), std::move(m_expression), cache);
+                    case TypeDescriptor::Reals:
+                        return getElement<long double>(std::move(type), std::move(m_expression), cache);
+                    case TypeDescriptor::Bools:
+                        return getElement<bool>(std::move(type), std::move(m_expression), cache);
+                    case TypeDescriptor::Strings:
+                        return getElement<std::string>(std::move(type), std::move(m_expression), cache);
+                    case TypeDescriptor::Bytes:
+                        return getElement<char>(std::move(type), std::move(m_expression), cache);
+                    default: break;
                 }
-                return container[deduced];
+                return getElement<Type>(std::move(type), std::move(m_expression), cache);
             }
           private:
             Token m_tok;
