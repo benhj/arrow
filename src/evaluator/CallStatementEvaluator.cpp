@@ -15,6 +15,7 @@ namespace arrow {
     {
         // Pull out the name of the function
         auto const name = m_statement.getName().raw;
+        auto const callLineNumber = m_statement.getName().lineNumber;
 
         // Pull out the arguments being passed into the function
         auto const expressionColl = m_statement.getExpressionCollection();
@@ -23,9 +24,10 @@ namespace arrow {
 
         // Get the function to evaluate
         auto functionStatement = Parser::getFunction(name);
+        auto const functionLineNumber = functionStatement->getName().lineNumber;
         if(!functionStatement) {
             std::string error("Can't find function on line ");
-            error.append(std::to_string(m_statement.getName().lineNumber));
+            error.append(std::to_string(callLineNumber));
             throw std::runtime_error(error);
         }
 
@@ -37,10 +39,9 @@ namespace arrow {
         // Throw if signature mismatch
         if(paramCollEval.size() != expressionCollEval.size()) {
             auto lineCall = m_statement.getName().lineNumber;
-            auto lineFunc = functionStatement->getName().lineNumber;
             std::string error("Parameter indexing mismatch on lines ");
             error.append(std::to_string(lineCall)).append(" and ");
-            error.append(std::to_string(lineFunc));
+            error.append(std::to_string(functionLineNumber));
             throw std::runtime_error(error);
         }
 
@@ -54,24 +55,22 @@ namespace arrow {
         auto param = std::begin(paramCollEval);
         for (auto const & expr : expressionCollEval) {
             auto const raw = std::get<std::string>(param->m_variantType);
-            newCache.add(raw, expr);
+            newCache.add({Lexeme::GENERIC_STRING, raw, functionLineNumber}, expr);
             ++param;
         }
 
         functionStatement->getEvaluator()->evaluate(newCache);
         auto const funcReturnIdentifier = functionStatement->getReturnIdentifier();
         if(funcReturnIdentifier.lexeme != Lexeme::NIL) {
-            auto const result = newCache.get(funcReturnIdentifier.raw);
+            auto const result = newCache.get(funcReturnIdentifier);
             auto const callReturnIdentifier = m_statement.getReturnIdentifier();
             if(callReturnIdentifier.lexeme == Lexeme::NIL) {
-                auto lineCall = m_statement.getName().lineNumber;
-                auto lineFunc = functionStatement->getName().lineNumber;
                 std::string error("Return mismatch on line numbers ");
-                error.append(std::to_string(lineCall)).append(" and ");
-                error.append(std::to_string(lineFunc));
+                error.append(std::to_string(callLineNumber)).append(" and ");
+                error.append(std::to_string(functionLineNumber));
                 throw std::runtime_error(error);
             }
-            cache.add(callReturnIdentifier.raw, result);
+            cache.add(callReturnIdentifier, result);
         }
     }
 }

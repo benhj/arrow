@@ -24,12 +24,12 @@ namespace arrow {
                     return {TypeDescriptor::Bool, true};
                 } else if(m_tok.raw == "false") {
                     return {TypeDescriptor::Bool, false};
-                } else if(!cache.has(m_tok.raw)) {
+                } else if(!cache.has(m_tok)) {
                     std::string error("Value for identifier not found on line ");
                     error.append(std::to_string(m_tok.lineNumber));
                     throw std::runtime_error(error);
                 }
-                return cache.get(m_tok.raw);
+                return cache.get(m_tok);
             }
           private:
             Token m_tok;

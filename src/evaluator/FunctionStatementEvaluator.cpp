@@ -13,7 +13,7 @@ namespace arrow {
         for(auto const & statement : statements) {
             statement->getEvaluator()->evaluate(cache);
         }
-        auto const returnIdentifier = m_statement.getReturnIdentifier().raw;
+        auto const returnIdentifier = m_statement.getReturnIdentifier();
         if(m_statement.getReturnIdentifier().lexeme !=
            Lexeme::NIL && !cache.has(returnIdentifier)) {
             throw std::runtime_error("Can't find return value in function statement");

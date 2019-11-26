@@ -21,13 +21,13 @@ namespace arrow {
 
             Type evaluate(Cache & cache) const override
             {
-                if(!cache.has(m_tok.raw)) {
+                if(!cache.has(m_tok)) {
                     std::string error("Value for identifier not found on line ");
                     error.append(std::to_string(m_tok.lineNumber));
                     throw std::runtime_error(error);
                 }
 
-                auto type = cache.get(m_tok.raw);
+                auto type = cache.get(m_tok);
                 if(type.m_descriptor != TypeDescriptor::List &&
                     type.m_descriptor != TypeDescriptor::ExpressionCollection &&
                     type.m_descriptor != TypeDescriptor::Ints &&

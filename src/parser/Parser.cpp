@@ -545,7 +545,8 @@ namespace arrow {
                 }
                 advanceTokenIterator();
                 if(notAtEnd()) {
-                    if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
+                    if(currentToken().lexeme == Lexeme::GENERIC_STRING ||
+                       currentToken().lexeme == Lexeme::DOLLAR_STRING) {
                         arrowStatement->withIdentifier(currentToken());
                         if(nextToken().lexeme == Lexeme::OPEN_SQUARE) {
                             auto indexExp = parseIndexExpression();

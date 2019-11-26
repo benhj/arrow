@@ -70,9 +70,21 @@ namespace arrow {
                 } else if(m_op == ">=") {
                     return left >= right;
                 } else if(m_op == "&&") {
-                    return left && right;
+                    if constexpr(!std::is_same_v<Left, std::vector<bool>> &&
+                                 !std::is_same_v<Left, std::vector<int64_t>>  &&
+                                 !std::is_same_v<Left, std::vector<long double>> &&
+                                 !std::is_same_v<Left, std::vector<char>> &&
+                                 !std::is_same_v<Left, std::vector<std::string>>) {
+                        return left && right;
+                    }
                 } else if(m_op == "||") {
-                    return left || right;
+                    if constexpr(!std::is_same_v<Left, std::vector<bool>> &&
+                                 !std::is_same_v<Left, std::vector<int64_t>>  &&
+                                 !std::is_same_v<Left, std::vector<long double>> &&
+                                 !std::is_same_v<Left, std::vector<char>> &&
+                                 !std::is_same_v<Left, std::vector<std::string>>) {
+                        return left || right;
+                    }
                 } else if(m_op == "/=") {
                     return left != right;
                 } else {

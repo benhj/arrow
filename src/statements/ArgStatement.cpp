@@ -34,7 +34,7 @@ namespace arrow {
                 }
                 auto const index = std::get<int64_t>(evaluated.m_variantType);
                 auto progArg = cache.getProgramArgument(index);
-                auto identifier = m_statement.getIdentifier().raw;
+                auto identifier = m_statement.getIdentifier();
                 cache.add(identifier, progArg);
             }
 
