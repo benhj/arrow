@@ -11,8 +11,6 @@
 #include "statements/ElseStatement.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include "statements/FunctionStatement.hpp"
-#include "statements/PrimitiveStatement.hpp"
-#include "statements/PutStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/SimpleArrowStatement.hpp"
 #include "statements/StartStatement.hpp"
@@ -519,16 +517,8 @@ namespace arrow {
                         advanceTokenIterator();
                         if(notAtEnd()) {
                             if(currentToken().lexeme == Lexeme::SEMICOLON) {
-                                if(keyword == "int" || keyword == "real" || 
-                                   keyword == "bool" || keyword == "ints" ||
-                                   keyword == "reals" || keyword == "bools" ||
-                                   keyword == "list" || keyword == "string" ||
-                                   keyword == "strings") {
-                                    return std::make_shared<PrimitiveStatement>(*arrowStatement);
-                                } else if(keyword == "stoi") {
+                                if(keyword == "stoi") {
                                     return std::make_shared<StringToIntStatement>(*arrowStatement);
-                                } else if(keyword == "put") {
-                                    return std::make_shared<PutStatement>(*arrowStatement);
                                 } else if(keyword == "arg") {
                                     return std::make_shared<ArgStatement>(*arrowStatement);
                                 }
