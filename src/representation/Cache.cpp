@@ -33,50 +33,6 @@ namespace arrow {
         auto found = findAndRetrieveCached(identifier.raw);
         auto error{false};
         if(found != CacheMap::iterator()) {
-
-            // Push back if array
-            if(found->second.m_descriptor == TypeDescriptor::Ints) {
-                if(type.m_descriptor != TypeDescriptor::Int) {
-                    error = true;
-                }
-                auto vec = std::get<std::vector<int64_t>>(found->second.m_variantType);
-                auto deduced = std::get<int64_t>(type.m_variantType);
-                vec.push_back(deduced);
-                VariantType newv{vec};
-                found->second.m_variantType.swap(newv);
-                return;
-            } else if (found->second.m_descriptor == TypeDescriptor::Reals) {
-                if(type.m_descriptor != TypeDescriptor::Real) {
-                    error = true;
-                }
-                auto vec = std::get<std::vector<long double>>(found->second.m_variantType);
-                auto deduced = std::get<long double>(type.m_variantType);
-                vec.push_back(deduced);
-                VariantType newv{vec};
-                found->second.m_variantType.swap(newv);
-                return;
-            } else if (found->second.m_descriptor == TypeDescriptor::Bools) {
-                if(type.m_descriptor != TypeDescriptor::Bool) {
-                    error = true;
-                }
-                auto vec = std::get<std::vector<bool>>(found->second.m_variantType);
-                auto deduced = std::get<bool>(type.m_variantType);
-                vec.push_back(deduced);
-                VariantType newv{vec};
-                found->second.m_variantType.swap(newv);
-                return;
-            } else if (found->second.m_descriptor == TypeDescriptor::Strings) {
-                if(type.m_descriptor != TypeDescriptor::String) {
-                    error = true;
-                }
-                auto vec = std::get<std::vector<std::string>>(found->second.m_variantType);
-                auto deduced = std::get<std::string>(type.m_variantType);
-                vec.push_back(deduced);
-                VariantType newv{vec};
-                found->second.m_variantType.swap(newv);
-                return;
-            }
-
             // Remove original instance of value
             if(found->second.m_descriptor == type.m_descriptor) {
                 found->second.m_variantType.swap(type.m_variantType);
@@ -91,37 +47,7 @@ namespace arrow {
             throw std::runtime_error(error);
         }
         // Add brand new instance
-        if(identifier.lexeme != Lexeme::DOLLAR_STRING) {
-            // Non-array handling
-            m_cacheStack[0].emplace(identifier.raw, type);
-        } 
-
-        // Array handling
-        else if(type.m_descriptor == TypeDescriptor::Int) {
-            auto deduced = std::get<int64_t>(type.m_variantType);
-            std::vector<int64_t> vec;
-            vec.push_back(deduced);
-            VariantType newv{vec};
-            m_cacheStack[0].emplace(identifier.raw, Type{TypeDescriptor::Ints, newv});
-        } else if (type.m_descriptor == TypeDescriptor::Real) {
-            auto deduced = std::get<long double>(type.m_variantType);
-            std::vector<long double> vec;
-            vec.push_back(deduced);
-            VariantType newv{vec};
-            m_cacheStack[0].emplace(identifier.raw, Type{TypeDescriptor::Reals, newv});
-        } else if (type.m_descriptor == TypeDescriptor::Bool) {
-            auto deduced = std::get<bool>(type.m_variantType);
-            std::vector<bool> vec;
-            vec.push_back(deduced);
-            VariantType newv{vec};
-            m_cacheStack[0].emplace(identifier.raw, Type{TypeDescriptor::Bools, newv});
-        } else if (type.m_descriptor == TypeDescriptor::String) {
-            auto deduced = std::get<std::string>(type.m_variantType);
-            std::vector<std::string> vec;
-            vec.push_back(deduced);
-            VariantType newv{vec};
-            m_cacheStack[0].emplace(identifier.raw, Type{TypeDescriptor::Strings, newv});
-        }
+        m_cacheStack[0].emplace(identifier.raw, type);
     }
     bool Cache::has(Token identifier) const
     {
