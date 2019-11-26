@@ -35,7 +35,6 @@ namespace arrow {
     IndexExpression::IndexExpression()
      : Expression()
     {
-
     }
 
     std::shared_ptr<ExpressionEvaluator> 
