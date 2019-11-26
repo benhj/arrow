@@ -45,7 +45,6 @@ These lexemes are then parsed using a depth first parser to arrive at a collecti
 in a depth-first manner. A program begins with a root statement, which in Arrow (like in JASL), is the start statement:
 
 ```
-;;; program entry-point
 start {
 
 }
