@@ -32,7 +32,8 @@ true -> truth;
 (1, 1.5, [one two three], "hello") -> compound;
 
 ;;; a function; d can be anything depending
-;;; on the function body
+;;; on the function body, as indeed can the
+;;; parameters depending on the arguments.
 fn foo(a, b, c) -> d {
 
 }
