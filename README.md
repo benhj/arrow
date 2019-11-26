@@ -20,10 +20,27 @@ fn:int foo(a, b, c) -> d {
 ```
 In Arrow, you can instead simply do:
 ```
+;;; a literal string
 "hello" -> str;
+
+;;; a list (homage to pop-11!)
 [one two three] -> L;
+
+;;; a literal integer
 1 -> a;
+
+;;; a deduced real (evaluated as 3.5)
 (2.5 + 1) -> b;
+
+;;; a boolean
+true -> truth;
+
+;;; a compound object containing four different
+;;; types, an int, a real, a list and a string
+(1, 1.5, [one two three], "hello") -> compound;
+
+;;; a function; d can be anything depending
+;;; on the function body
 fn foo(a, b, c) -> d {
 
 }
