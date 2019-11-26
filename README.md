@@ -9,26 +9,36 @@ This forms the beginnings of a hopefully litte less crap (re-)implementation of 
 * more flexible
 * never be used in production because that would just be stupid!!
 
-In contrast to JASL, the Arrow programming language is weakly-typed. So no more do you have to do
+In contrast to JASL, the Arrow programming language is weakly-typed. For example:
+
 ```
-string "hello" -> str;
-list [one two three] -> L;
-int 1 -> a;
-real (2.5 + 1) -> b;
-fn:int foo(a, b, c) -> d {
-}
-```
-In Arrow, you can instead simply do:
-```
+;;; a literal string
 "hello" -> str;
+
+;;; a list (homage to pop-11!)
 [one two three] -> L;
+
+;;; a literal integer
 1 -> a;
+
+;;; a deduced real (evaluated as 3.5)
 (2.5 + 1) -> b;
+
+;;; a boolean
+true -> truth;
+
+;;; a compound object containing four different
+;;; types, an int, a real, a list and a string
+(1, 1.5, [one two three], "hello") -> compound;
+
+;;; a function; d can be anything depending
+;;; on the function body, as indeed can the
+;;; parameters depending on the arguments.
 fn foo(a, b, c) -> d {
 
 }
 ```
-etc.
+If you've ever used POP-11 you should notice the similarity, especially with regards to the `->` (arrow) operator. One core difference -- besides being no way near as powerful -- is that Arrow instead uses braces to define scoping. Much of the syntax is also different.
 
 ## How does it work ('in a nutshell')?
 
@@ -45,7 +55,6 @@ These lexemes are then parsed using a depth first parser to arrive at a collecti
 in a depth-first manner. A program begins with a root statement, which in Arrow (like in JASL), is the start statement:
 
 ```
-;;; program entry-point
 start {
 
 }
