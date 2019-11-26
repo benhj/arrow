@@ -1,33 +1,38 @@
 # Arrow
 
-This forms the beginnings of a re-implementation of my other interpreted language, JASL. The implementation here is designed from the ground up to
+This forms the beginnings of a hopefully litte less crap (re-)implementation of my other interpreted language, JASL. The implementation here is designed from the ground up to
+* be a little less crap <--- the main thing!
+* be a fun way to understand parsers
 * have a minimal number of dependencies (besides C++17)
 * faster
 * more powerful
 * more flexible
+* never be used in production because that would just be stupid!!
 
-The interpretor is now weakly-type. Whereas is JASL, you would have to do
+In contrast to JASL, the Arrow programming language is weakly-typed. So no more do you have to do
 ```
 string "hello" -> str;
 list [one two three] -> L;
 int 1 -> a;
 real (2.5 + 1) -> b;
-fn:int foo(a, b, c) -> a {
+fn:int foo(a, b, c) -> d {
 }
 ```
-in Arrow, now you can simply do:
+In Arrow, you can instead simply do:
 ```
 "hello" -> str;
 [one two three] -> L;
 1 -> a;
 (2.5 + 1) -> b;
-fn foo(a, b, c) -> a {
+fn foo(a, b, c) -> d {
 
 }
 ```
 etc.
 
-In terms of the implementation itself, I have thrown out the heavy boost spirit and ICU dependencies which were required for parsing and escape code handling.
+## How does it work ('in a nutshell')?
+
+In terms of the implementation itself, I have thrown out the heavy boost spirit and ICU dependencies which were required by JASL for parsing and escape code handling.
 Now the Arrow interpretor is architectured from the ground up into three descrete components
 
 1. lexer
