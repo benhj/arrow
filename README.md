@@ -37,7 +37,7 @@ fn foo(a, b, c) -> d {
 
 }
 ```
-If you've ever used POP-11 you should notice the similarity. One core difference -- besides being no way near as powerful -- is that Arrow instead uses braces to define scoping. Much of the syntax is also different.
+If you've ever used POP-11 you should notice the similarity, especially with regards to the `->` (arrow) operator. One core difference -- besides being no way near as powerful -- is that Arrow instead uses braces to define scoping. Much of the syntax is also different.
 
 ## How does it work ('in a nutshell')?
 
