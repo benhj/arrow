@@ -9,16 +9,8 @@ This forms the beginnings of a hopefully litte less crap (re-)implementation of 
 * more flexible
 * never be used in production because that would just be stupid!!
 
-In contrast to JASL, the Arrow programming language is weakly-typed. So no more do you have to do
-```
-string "hello" -> str;
-list [one two three] -> L;
-int 1 -> a;
-real (2.5 + 1) -> b;
-fn:int foo(a, b, c) -> d {
-}
-```
-In Arrow, you can instead simply do:
+In contrast to JASL, the Arrow programming language is weakly-typed. For example:
+
 ```
 ;;; a literal string
 "hello" -> str;
