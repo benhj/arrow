@@ -33,27 +33,27 @@ namespace arrow {
                                     std::is_same_v<Var, std::vector<bool>> ||
                                     std::is_same_v<Var, std::vector<char>> ||
                                     std::is_same_v<Var, std::vector<std::string>>) {
-                    std::string str("[");
+                    std::string str("{");
                     auto it = std::begin(var);
                     for (; it != std::end(var) - 1; ++it) {
                         if constexpr(std::is_same_v<Var, std::vector<std::string>>) {
-                            str.append(*it).append(" ");
+                            str.append("\"").append(*it).append("\", ");
                         } else if constexpr(std::is_same_v<Var, std::vector<char>>) {
                             str.push_back(*it);
-                            str.append(" ");
+                            str.append(", ");
                         } else {
-                            str.append(std::to_string(*it)).append(" ");
+                            str.append(std::to_string(*it)).append(", ");
                         }
                     }
                     if(it != std::end(var)) {
                         if constexpr(std::is_same_v<Var, std::vector<std::string>>) {
-                            str.append(*it);
+                            str.append("\"").append(*it).append("\"");
                         } else if constexpr(std::is_same_v<Var, std::vector<char>>) {
                             str.push_back(*it);
                         }  else {
                             str.append(std::to_string(*it));
                         }
-                        str.append("]");
+                        str.append("}");
                     }
                     return str;
                 } 

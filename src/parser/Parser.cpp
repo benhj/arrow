@@ -23,6 +23,7 @@
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
+#include "expressions/BracedExpressionCollectionExpression.hpp"
 #include "expressions/GroupedExpression.hpp"
 #include "expressions/HatHatStringExpression.hpp"
 #include "expressions/HatStringExpression.hpp"
@@ -432,6 +433,27 @@ namespace arrow {
         return expression;
     }
 
+    std::shared_ptr<Expression> 
+    Parser::parseBracedExpressionCollectionExpression()
+    {
+        if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+        auto expression = std::make_shared<BracedExpressionCollectionExpression>();
+        advanceTokenIterator();
+        while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+            std::shared_ptr<Expression> exp = parseExpression();
+            
+            if(!exp) { 
+                return nullptr; 
+            }
+            expression->addExpression(std::move(exp));
+            advanceTokenIterator();
+            if(currentToken().lexeme == Lexeme::COMMA) {
+                advanceTokenIterator();
+            }
+        }
+        return expression;
+    }
+
     std::shared_ptr<Expression> Parser::parseListExpressionType()
     {
         if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
@@ -457,7 +479,7 @@ namespace arrow {
                 return parseBooleanExpression();
             } else if(checkOperator && isMathOperator(nextToken().lexeme))  {
                 return parseMathExpression();
-            }  else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
+            } else if(currentToken().lexeme == Lexeme::OPEN_PAREN) {
 
                 auto store = m_current;
                 auto exp = parseGroupedExpression();
@@ -467,6 +489,8 @@ namespace arrow {
                     return parseExpressionCollectionExpression();
                 }
                 return exp;
+            } else if(currentToken().lexeme == Lexeme::OPEN_CURLY) {
+                return parseBracedExpressionCollectionExpression();
             } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
                 return parseListExpression();
             } else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {

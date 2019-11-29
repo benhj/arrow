@@ -69,6 +69,9 @@ namespace arrow {
         std::shared_ptr<Expression> 
         parseExpressionCollectionExpression(bool const identifierOnly = false);
 
+        /// Expresions of the type {a, b, c}
+        std::shared_ptr<Expression> parseBracedExpressionCollectionExpression();
+
         std::shared_ptr<Expression> parseExpression(bool checkOperator = true);
 
         /// Parses statements of the form
