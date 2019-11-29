@@ -11,7 +11,7 @@ namespace arrow {
     enum class TypeDescriptor {
         Int, Bool, Real, Byte, String, List, BracketlessList,
         Ints, Bools, Reals, Bytes, Strings, None,
-        ExpressionCollection, Nil
+        ExpressionCollection, BracedExpressionCollection, Nil
     };
 
 }

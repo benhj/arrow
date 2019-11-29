@@ -5,6 +5,35 @@
 
 namespace arrow {
 
+    namespace {
+
+        template <typename T>
+        Type add(Cache & cache,
+                 std::vector<std::shared_ptr<Expression>> expressions,
+                 TypeDescriptor const arrayType) {
+
+            std::vector<T> vecDeduced(expressions.size());
+            auto remType = TypeDescriptor::Nil;
+            for(auto const & expression : expressions) {
+
+                auto evaluated = expression->getEvaluator()->evaluate(cache);
+                if(remType == TypeDescriptor::Nil) {
+                    remType = evaluated.m_descriptor;
+                } 
+                // Incompatible types. All types in a {a, b, c} expression
+                // should be the same
+                else if(evaluated.m_descriptor != remType) {
+                    std::string error("Type mismatch on line... (TODO)");
+                    throw std::runtime_error(error);
+                }
+                auto val = std::get<T>(evaluated.m_variantType);
+                vecDeduced.emplace_back(val);
+            }
+
+            return {arrayType, vecDeduced};
+        }
+    }
+
     BracedExpressionCollectionExpression::BracedExpressionCollectionExpression()
      : Expression()
     {
@@ -23,23 +52,22 @@ namespace arrow {
             {
                 auto expressions = m_ece.getExpressionCollection();
                 std::vector<Type> bigEval;
-                auto remType = TypeDescriptor::Nil;
-                for(auto const & expression : expressions) {
 
-                    auto evaluated = expression->getEvaluator()->evaluate(cache);
-                    if(remType == TypeDescriptor::Nil) {
-                        remType = evaluated.m_descriptor;
-                    } 
-                    // Incompatible types. All types in a {a, b, c} expression
-                    // should be the same
-                    else if(evaluated.m_descriptor != remType) {
-                        std::string error("Type mismatch on line... (TODO)");
-                        throw std::runtime_error(error);
-                    }
+                auto expression = std::begin(expressions);
+                auto remType = (*expression)->getEvaluator()->evaluate(cache);
 
-                    bigEval.emplace_back(evaluated);
+                if(remType.m_descriptor == TypeDescriptor::Int) {
+                    return add<int64_t>(cache, std::move(expressions), TypeDescriptor::Ints);
+                } else if(remType.m_descriptor == TypeDescriptor::Real) {
+                    return add<long double>(cache, std::move(expressions), TypeDescriptor::Reals);
+                } else if(remType.m_descriptor == TypeDescriptor::Bool) {
+                    return add<bool>(cache, std::move(expressions), TypeDescriptor::Bools);
+                } else if(remType.m_descriptor == TypeDescriptor::String) {
+                    return add<std::string>(cache, std::move(expressions), TypeDescriptor::Strings);
+                } else if(remType.m_descriptor == TypeDescriptor::Byte) {
+                    return add<char>(cache, std::move(expressions), TypeDescriptor::Bytes);
                 }
-                return {TypeDescriptor::ExpressionCollection, bigEval};
+
             }
           private:
             BracedExpressionCollectionExpression m_ece;
