@@ -9,7 +9,7 @@ namespace arrow {
     class LengthStatement : public Statement
     {
       public:
-        LengthStatement(ArrowStatement arrowStatement);
+        LengthStatement(long const lineNumber, ArrowStatement arrowStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
         LengthStatement const & withToken(Token token) const;

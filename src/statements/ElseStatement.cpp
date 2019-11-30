@@ -4,7 +4,10 @@
 
 namespace arrow {
 
-    ElseStatement::ElseStatement() : Statement() {}
+    ElseStatement::ElseStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     ElseStatement & ElseStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

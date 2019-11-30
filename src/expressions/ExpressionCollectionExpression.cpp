@@ -5,8 +5,8 @@
 
 namespace arrow {
 
-    ExpressionCollectionExpression::ExpressionCollectionExpression()
-     : Expression()
+    ExpressionCollectionExpression::ExpressionCollectionExpression(long const lineNumber) 
+      : Expression(lineNumber)
     {
     }
 

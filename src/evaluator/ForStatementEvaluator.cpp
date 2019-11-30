@@ -49,7 +49,7 @@ namespace arrow {
     {
         auto indexer = m_statement.getIndexer();
         auto identifier = m_statement.getIdentifier();
-        IdentifierExpression exp;
+        IdentifierExpression exp(m_statement.getLineNumer());
         exp.withIdentifierToken(identifier);
         auto evaled = exp.getEvaluator()->evaluate(cache);
         if(evaled.m_descriptor != TypeDescriptor::List &&

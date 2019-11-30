@@ -4,9 +4,9 @@
 
 namespace arrow {
 
-    LiteralStringExpression::LiteralStringExpression()
-     : Expression()
-     , m_stringToken()
+    LiteralStringExpression::LiteralStringExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_stringToken()
     {
     }
 

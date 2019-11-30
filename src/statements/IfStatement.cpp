@@ -7,7 +7,10 @@
 
 namespace arrow {
 
-    IfStatement::IfStatement() : Statement() {}
+    IfStatement::IfStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     IfStatement & IfStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

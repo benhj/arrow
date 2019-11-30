@@ -5,8 +5,8 @@
 
 namespace arrow {
     
-    ArgStatement::ArgStatement(ArrowStatement arrowStatement) 
-      : Statement()
+    ArgStatement::ArgStatement(long const lineNumber, ArrowStatement arrowStatement) 
+      : Statement(lineNumber)
       , m_arrowStatement(std::move(arrowStatement))
     {
     }

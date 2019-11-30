@@ -5,7 +5,10 @@
 
 namespace arrow {
 
-    ForStatement::ForStatement() : Statement() {}
+    ForStatement::ForStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     ForStatement & ForStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

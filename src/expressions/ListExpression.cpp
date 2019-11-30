@@ -3,9 +3,9 @@
 
 namespace arrow {
 
-    ListExpression::ListExpression() 
-    : Expression()
-    , m_parts{}
+    ListExpression::ListExpression(long const lineNumber) 
+      : Expression(lineNumber)
+     , m_parts{}
     {
     }
 

@@ -9,7 +9,7 @@ namespace arrow {
     class ListWordExpression : public Expression
     {
       public:
-        ListWordExpression();
+        ListWordExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

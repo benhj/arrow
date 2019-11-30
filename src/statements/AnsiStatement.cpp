@@ -5,8 +5,9 @@
 
 namespace arrow {
 
-    AnsiStatement::AnsiStatement(std::shared_ptr<ArrowlessStatement> statement)
-    : Statement()
+    AnsiStatement::AnsiStatement(long const lineNumber,
+                                 std::shared_ptr<ArrowlessStatement> statement)
+    : Statement(lineNumber)
     , m_statement(std::move(statement))
     {
 

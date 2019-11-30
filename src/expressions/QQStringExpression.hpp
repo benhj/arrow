@@ -8,7 +8,7 @@ namespace arrow {
     class QQStringExpression : public Expression
     {
       public:
-        QQStringExpression();
+        QQStringExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

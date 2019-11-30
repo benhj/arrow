@@ -32,8 +32,8 @@ namespace arrow {
         }
     }
 
-    IndexExpression::IndexExpression()
-     : Expression()
+    IndexExpression::IndexExpression(long const lineNumber) 
+      : Expression(lineNumber)
     {
     }
 

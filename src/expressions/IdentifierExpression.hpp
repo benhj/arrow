@@ -9,7 +9,7 @@ namespace arrow {
     class IdentifierExpression : public Expression
     {
       public:
-        IdentifierExpression();
+        IdentifierExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

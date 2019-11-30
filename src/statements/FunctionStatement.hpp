@@ -10,7 +10,7 @@ namespace arrow {
     class FunctionStatement : public Statement
     {
       public:
-        FunctionStatement();
+        FunctionStatement(long const lineNumber);
         FunctionStatement & withToken(Token token);
         FunctionStatement & withNameToken(Token token);
         FunctionStatement & withReturnIdentifierToken(Token token);

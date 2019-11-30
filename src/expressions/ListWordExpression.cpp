@@ -4,9 +4,9 @@
 
 namespace arrow {
 
-    ListWordExpression::ListWordExpression()
-     : Expression()
-     , m_word()
+    ListWordExpression::ListWordExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_word()
     {
     }
 

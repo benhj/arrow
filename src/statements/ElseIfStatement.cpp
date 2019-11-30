@@ -4,7 +4,10 @@
 
 namespace arrow {
 
-    ElseIfStatement::ElseIfStatement() : Statement() {}
+    ElseIfStatement::ElseIfStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     ElseIfStatement & ElseIfStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

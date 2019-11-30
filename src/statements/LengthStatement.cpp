@@ -13,8 +13,8 @@ namespace arrow {
         }
     }
 
-    LengthStatement::LengthStatement(ArrowStatement arrowStatement) 
-      : Statement()
+    LengthStatement::LengthStatement(long const lineNumber, ArrowStatement arrowStatement) 
+      : Statement(lineNumber)
       , m_arrowStatement(std::move(arrowStatement))
     {
     }

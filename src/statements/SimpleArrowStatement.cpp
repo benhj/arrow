@@ -5,7 +5,10 @@
 
 namespace arrow {
     
-    SimpleArrowStatement::SimpleArrowStatement() : Statement() {}
+    SimpleArrowStatement::SimpleArrowStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
 
     SimpleArrowStatement &
     SimpleArrowStatement::withExpression(std::shared_ptr<Expression> expression)

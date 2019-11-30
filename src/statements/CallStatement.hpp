@@ -12,7 +12,7 @@ namespace arrow {
     class CallStatement : public Statement
     {
       public:
-        CallStatement();
+        CallStatement(long const lineNumber);
         CallStatement & withToken(Token token);
         CallStatement & withFunctionNameToken(Token token);
         CallStatement & 

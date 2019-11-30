@@ -5,8 +5,8 @@
 
 namespace arrow {
 
-    EchoStatement::EchoStatement(std::shared_ptr<ArrowlessStatement> statement)
-    : Statement()
+    EchoStatement::EchoStatement(long const lineNumber, std::shared_ptr<ArrowlessStatement> statement)
+    : Statement(lineNumber)
     , m_statement(std::move(statement))
     {
 

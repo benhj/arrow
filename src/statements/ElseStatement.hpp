@@ -13,7 +13,7 @@ namespace arrow {
     class ElseStatement : public Statement
     {
       public:
-        ElseStatement();
+        ElseStatement(long const lineNumber);
         ElseStatement & withToken(Token token);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;

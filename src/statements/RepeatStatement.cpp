@@ -5,7 +5,10 @@
 
 namespace arrow {
 
-    RepeatStatement::RepeatStatement() : Statement() {}
+    RepeatStatement::RepeatStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     RepeatStatement & RepeatStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

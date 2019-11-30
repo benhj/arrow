@@ -16,7 +16,7 @@ namespace arrow {
     class IfStatement : public Statement
     {
       public:
-        IfStatement();
+        IfStatement(long const lineNumber);
         IfStatement & withToken(Token token);
         IfStatement & withExpression(std::shared_ptr<Expression> expression);
         std::shared_ptr<Expression> getExpression() const;

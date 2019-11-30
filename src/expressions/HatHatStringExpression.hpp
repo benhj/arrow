@@ -9,7 +9,7 @@ namespace arrow {
     class HatHatStringExpression : public Expression
     {
       public:
-        HatHatStringExpression();
+        HatHatStringExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

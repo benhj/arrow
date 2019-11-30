@@ -4,7 +4,10 @@
 
 namespace arrow {
 
-    ArrowlessStatement::ArrowlessStatement() : Statement() {}
+    ArrowlessStatement::ArrowlessStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     ArrowlessStatement & ArrowlessStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

@@ -10,7 +10,7 @@ namespace arrow {
     class BooleanExpression : public Expression
     {
       public:
-        BooleanExpression();
+        BooleanExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

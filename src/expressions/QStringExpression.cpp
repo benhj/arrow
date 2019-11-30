@@ -3,9 +3,9 @@
 
 namespace arrow {
 
-    QStringExpression::QStringExpression()
-     : Expression()
-     , m_qStringToken()
+    QStringExpression::QStringExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_qStringToken()
     {
     }
 

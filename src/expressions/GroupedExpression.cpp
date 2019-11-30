@@ -2,9 +2,9 @@
 
 namespace arrow {
 
-    GroupedExpression::GroupedExpression() 
-    : Expression()
-    , m_expression{nullptr}
+    GroupedExpression::GroupedExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_expression{nullptr}
     {
     }
 

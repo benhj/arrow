@@ -5,7 +5,10 @@
 
 namespace arrow {
 
-    WhileStatement::WhileStatement() : Statement() {}
+    WhileStatement::WhileStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     WhileStatement & WhileStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

@@ -11,7 +11,7 @@ namespace arrow {
     class ForStatement : public Statement
     {
       public:
-        ForStatement();
+        ForStatement(long const lineNumber);
         ForStatement & withToken(Token token);
         ForStatement & withIndexer(Token token);
         ForStatement & withIdentifier(Token token);

@@ -11,7 +11,7 @@ namespace arrow {
     class WhileStatement : public Statement
     {
       public:
-        WhileStatement();
+        WhileStatement(long const lineNumber);
         WhileStatement & withToken(Token token);
         WhileStatement & withExpression(std::shared_ptr<Expression> expression);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);

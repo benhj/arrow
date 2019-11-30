@@ -5,7 +5,10 @@
 
 namespace arrow {
 
-    CallStatement::CallStatement() : Statement() {}
+    CallStatement::CallStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     CallStatement & CallStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

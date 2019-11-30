@@ -11,7 +11,7 @@ namespace arrow {
     class ExpressionCollectionExpression : public Expression
     {
       public:
-        ExpressionCollectionExpression();
+        ExpressionCollectionExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

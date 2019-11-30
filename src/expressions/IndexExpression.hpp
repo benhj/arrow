@@ -11,7 +11,7 @@ namespace arrow {
     class IndexExpression : public Expression
     {
       public:
-        IndexExpression();
+        IndexExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

@@ -9,7 +9,7 @@ namespace arrow {
     class MathExpression : public Expression
     {
       public:
-        MathExpression();
+        MathExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

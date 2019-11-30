@@ -5,9 +5,9 @@
 
 namespace arrow {
 
-    HatStringExpression::HatStringExpression()
-     : Expression()
-     , m_hatStringToken()
+    HatStringExpression::HatStringExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_hatStringToken()
     {
     }
 

@@ -2,11 +2,11 @@
 
 namespace arrow {
 
-    OperatorExpression::OperatorExpression() 
-    : Expression()
-    , m_expressionLeft{nullptr}
-    , m_op()
-    , m_expressionRight{nullptr}
+    OperatorExpression::OperatorExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_expressionLeft{nullptr}
+      , m_op()
+      , m_expressionRight{nullptr}
     {
     }
 
@@ -14,12 +14,7 @@ namespace arrow {
     {
         return nullptr;
     }
-/*
-    Type OperatorExpression::evaluate() const
-    {
-        return {TypeDescriptor::None, {false}};
-    }
-*/
+
     DecayType OperatorExpression::decayType() const
     {
         return DecayType::DECAYS_TO_NONE;

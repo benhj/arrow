@@ -5,7 +5,10 @@
 
 namespace arrow {
 
-    FunctionStatement::FunctionStatement() : Statement() {}
+    FunctionStatement::FunctionStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     FunctionStatement & FunctionStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

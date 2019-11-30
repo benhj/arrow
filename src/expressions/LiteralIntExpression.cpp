@@ -4,9 +4,9 @@
 
 namespace arrow {
 
-    LiteralIntExpression::LiteralIntExpression()
-     : Expression()
-     , m_intToken()
+    LiteralIntExpression::LiteralIntExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_intToken()
     {
     }
 

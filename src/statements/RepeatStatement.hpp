@@ -11,7 +11,7 @@ namespace arrow {
     class RepeatStatement : public Statement
     {
       public:
-        RepeatStatement();
+        RepeatStatement(long const lineNumber);
         RepeatStatement & withToken(Token token);
         RepeatStatement & withExpression(std::shared_ptr<Expression> expression);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);

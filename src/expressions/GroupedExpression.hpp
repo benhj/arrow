@@ -9,7 +9,7 @@ namespace arrow {
     class GroupedExpression : public Expression
     {
       public:
-        GroupedExpression();
+        GroupedExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

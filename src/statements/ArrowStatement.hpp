@@ -10,7 +10,7 @@ namespace arrow {
     class ArrowStatement : public Statement
     {
       public:
-        ArrowStatement();
+        ArrowStatement(long const lineNumber);
         ArrowStatement & withToken(Token token);
         ArrowStatement & withExpression(std::shared_ptr<Expression> expression);
         ArrowStatement & withIdentifier(Token identifier);

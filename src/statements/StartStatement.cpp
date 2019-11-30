@@ -3,7 +3,10 @@
 #include <utility>
 
 namespace arrow {
-    StartStatement::StartStatement() : Statement() {}
+    StartStatement::StartStatement(long const lineNumber) 
+      : Statement(lineNumber)
+    {
+    }
     StartStatement & StartStatement::withToken(Token token)
     {
         m_keywordToken = std::move(token);

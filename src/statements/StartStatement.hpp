@@ -10,7 +10,7 @@ namespace arrow {
     class StartStatement : public Statement
     {
       public:
-        StartStatement();
+        StartStatement(long const lineNumber);
         StartStatement & withToken(Token token);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;

@@ -9,7 +9,7 @@ namespace arrow {
     class LiteralIntExpression : public Expression
     {
       public:
-        LiteralIntExpression();
+        LiteralIntExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

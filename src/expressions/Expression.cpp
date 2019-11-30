@@ -1,5 +1,9 @@
 #include "Expression.hpp"
 
 namespace arrow {
-    Expression::Expression() : Node(){}
+    Expression::Expression(long const lineNumber)
+      : Node()
+      , m_lineNumber(lineNumber)
+    {
+    }
 }

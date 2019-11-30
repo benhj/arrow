@@ -34,8 +34,8 @@ namespace arrow {
         }
     }
 
-    BracedExpressionCollectionExpression::BracedExpressionCollectionExpression()
-     : Expression()
+    BracedExpressionCollectionExpression::BracedExpressionCollectionExpression(long const lineNumber) 
+      : Expression(lineNumber)
     {
     }
 

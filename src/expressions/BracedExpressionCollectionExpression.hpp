@@ -11,7 +11,7 @@ namespace arrow {
     class BracedExpressionCollectionExpression : public Expression
     {
       public:
-        BracedExpressionCollectionExpression();
+        BracedExpressionCollectionExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

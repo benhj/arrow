@@ -11,7 +11,7 @@ namespace arrow {
     class Expression : public Node
     {
       public:
-        Expression();
+        Expression(long const lineNumber);
 
         /// Returns an Evaluator that can be used to evaluate this
         virtual std::shared_ptr<ExpressionEvaluator> getEvaluator() const = 0;
@@ -22,5 +22,8 @@ namespace arrow {
 
         /// For debugging purposes
         virtual std::string toString() const = 0;
+
+      protected:
+        long m_lineNumber;
     };
 }

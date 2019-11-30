@@ -3,9 +3,9 @@
 
 namespace arrow {
 
-    BooleanExpression::BooleanExpression() 
-    : Expression()
-    , m_operatorExp(std::make_shared<OperatorExpression>())
+    BooleanExpression::BooleanExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_operatorExp(std::make_shared<OperatorExpression>(lineNumber))
     {
     }
 

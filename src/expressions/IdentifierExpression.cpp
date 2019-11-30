@@ -4,9 +4,9 @@
 
 namespace arrow {
 
-    IdentifierExpression::IdentifierExpression()
-     : Expression()
-     , m_identifier()
+    IdentifierExpression::IdentifierExpression(long const lineNumber) 
+      : Expression(lineNumber)
+      , m_identifier()
     {
     }
 
