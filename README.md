@@ -9,7 +9,9 @@ This forms the beginnings of a hopefully litte less crap (re-)implementation of 
 * more flexible
 * never be used in production because that would just be stupid!!
 
-In contrast to JASL, the Arrow programming language is weakly-typed. For example:
+In contrast to JASL, the Arrow programming language is weakly-typed.
+
+Speaking of types, here are some examples:
 
 ```
 ;;; a literal string
@@ -31,14 +33,18 @@ true -> truth;
 ;;; types, an int, a real, a list and a string
 (1, 1.5, [one two three], "hello") -> compound;
 
-;;; a function; d can be anything depending
-;;; on the function body, as indeed can the
-;;; parameters depending on the arguments.
-fn foo(a, b, c) -> d {
+;;; an integer array
+{1, 2, 3} -> A;
 
-}
+;;; a string array
+{"one", "two", "three"} -> B;
+
+;;; add element to end of array
+4 -> $A;
+"four" -> $B;
+
 ```
-If you've ever used POP-11 you should notice the similarity, especially with regards to the `->` (arrow) operator. One core difference -- besides being no way near as powerful -- is that Arrow instead uses braces to define scoping. Much of the syntax is also different.
+If you've ever used POP-11 you should notice the similarity, especially with regards to the `->` (arrow) operator. One core difference -- besides being no way near as powerful, and indeed a fair few other differences in syntax -- is that Arrow instead uses braces to define scoping.
 
 ## How does it work ('in a nutshell')?
 

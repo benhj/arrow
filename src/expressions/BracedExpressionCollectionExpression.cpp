@@ -12,7 +12,7 @@ namespace arrow {
                  std::vector<std::shared_ptr<Expression>> expressions,
                  TypeDescriptor const arrayType) {
 
-            std::vector<T> vecDeduced(expressions.size());
+            std::vector<T> vecDeduced;
             auto remType = TypeDescriptor::Nil;
             for(auto const & expression : expressions) {
 
@@ -23,7 +23,7 @@ namespace arrow {
                 // Incompatible types. All types in a {a, b, c} expression
                 // should be the same
                 else if(evaluated.m_descriptor != remType) {
-                    std::string error("Type mismatch on line... (TODO)");
+                    std::string error("Type mismatch in brace expression.");
                     throw std::runtime_error(error);
                 }
                 auto val = std::get<T>(evaluated.m_variantType);
@@ -66,6 +66,9 @@ namespace arrow {
                     return add<std::string>(cache, std::move(expressions), TypeDescriptor::Strings);
                 } else if(remType.m_descriptor == TypeDescriptor::Byte) {
                     return add<char>(cache, std::move(expressions), TypeDescriptor::Bytes);
+                } else {
+                    std::string error("Type mismatch in brace expression.");
+                    throw std::runtime_error(error);
                 }
 
             }
