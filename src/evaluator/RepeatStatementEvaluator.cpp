@@ -1,5 +1,6 @@
 #include "RepeatStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include <utility>
 
@@ -30,7 +31,7 @@ namespace arrow {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
         auto resolved = expressionEvaluator->evaluate(cache);
         if(!decaysToInt(resolved.m_descriptor)) {
-            throw std::runtime_error("Bad type descriptor for repeat statement expression.");
+            throw LanguageException("Bad type for repeat statement", m_statement.getLineNumber());
         }
         int64_t val;
         if(resolved.m_descriptor == TypeDescriptor::Real) {

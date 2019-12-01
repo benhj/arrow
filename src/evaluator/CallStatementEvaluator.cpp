@@ -3,6 +3,7 @@
 #include "evaluator/IdentifierEvaluator.hpp"
 #include "expressions/IdentifierExpression.hpp"
 #include "parser/Parser.hpp"
+#include "parser/LanguageException.hpp"
 #include "statements/FunctionStatement.hpp"
 #include <utility>
 
@@ -26,9 +27,7 @@ namespace arrow {
         auto functionStatement = Parser::getFunction(name);
         auto const functionLineNumber = functionStatement->getName().lineNumber;
         if(!functionStatement) {
-            std::string error("Can't find function on line ");
-            error.append(std::to_string(callLineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Can't find function", callLineNumber);
         }
 
         // Get the parameters of the function signature
@@ -38,11 +37,7 @@ namespace arrow {
 
         // Throw if signature mismatch
         if(paramCollEval.size() != expressionCollEval.size()) {
-            auto lineCall = m_statement.getName().lineNumber;
-            std::string error("Parameter indexing mismatch on lines ");
-            error.append(std::to_string(lineCall)).append(" and ");
-            error.append(std::to_string(functionLineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Parameter indexing mismatch", callLineNumber);
         }
 
         // The function has its own completely
@@ -65,10 +60,7 @@ namespace arrow {
             auto const result = newCache.get(funcReturnIdentifier);
             auto const callReturnIdentifier = m_statement.getReturnIdentifier();
             if(callReturnIdentifier.lexeme == Lexeme::NIL) {
-                std::string error("Return mismatch on line numbers ");
-                error.append(std::to_string(callLineNumber)).append(" and ");
-                error.append(std::to_string(functionLineNumber));
-                throw std::runtime_error(error);
+                throw LanguageException("Return mismatch", functionLineNumber);
             }
             cache.add(callReturnIdentifier, result);
         }

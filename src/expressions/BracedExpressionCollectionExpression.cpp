@@ -1,5 +1,6 @@
 #include "BracedExpressionCollectionExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 #include <iostream>
 
@@ -23,8 +24,7 @@ namespace arrow {
                 // Incompatible types. All types in a {a, b, c} expression
                 // should be the same
                 else if(evaluated.m_descriptor != remType) {
-                    std::string error("Type mismatch in brace expression.");
-                    throw std::runtime_error(error);
+                    throw LanguageException("Type mismatch in brace expression", expression->getLineNumber());
                 }
                 auto val = std::get<T>(evaluated.m_variantType);
                 vecDeduced.emplace_back(val);
@@ -67,8 +67,7 @@ namespace arrow {
                 } else if(remType.m_descriptor == TypeDescriptor::Byte) {
                     return add<char>(cache, std::move(expressions), TypeDescriptor::Bytes);
                 } else {
-                    std::string error("Type mismatch in brace expression.");
-                    throw std::runtime_error(error);
+                    throw LanguageException("Type mismatch in brace expression", (*expression)->getLineNumber());
                 }
 
             }

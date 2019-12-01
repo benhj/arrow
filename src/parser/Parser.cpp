@@ -40,6 +40,7 @@
 #include "expressions/QStringExpression.hpp"
 
 /// Other
+#include "LanguageException.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
 #include "lexer/Lexeme.hpp"
@@ -160,9 +161,7 @@ namespace arrow {
                 m_current = store;
             }
         }
-        std::string error("Unable to parse statement on line ");
-        error.append(std::to_string(currentToken().lineNumber));
-        throw std::runtime_error(error);
+        throw LanguageException("Unable to parse statement", currentToken().lineNumber);
     }
 
     bool Parser::notAtEnd() const

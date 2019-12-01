@@ -1,4 +1,5 @@
 #include "IdentifierEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -11,9 +12,8 @@ namespace arrow {
     Type IdentifierEvaluator::evaluate(Cache & cache) const
     {
         if(!cache.has(m_tok)) {
-            std::string error("Indentifier not found on line ");
-            error.append(std::to_string(m_tok.lineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Identifier not found",
+                                    m_tok.lineNumber);
         }
         return cache.get(m_tok);
     }

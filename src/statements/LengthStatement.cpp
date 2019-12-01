@@ -1,6 +1,7 @@
 #include "LengthStatement.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -44,9 +45,7 @@ namespace arrow {
                    type.m_descriptor != TypeDescriptor::Bools &&
                    type.m_descriptor != TypeDescriptor::Bytes &&
                    type.m_descriptor != TypeDescriptor::String) {
-                    std::string error("Not a container on line ");
-                    error.append(std::to_string(m_statement.getToken().lineNumber));
-                    throw std::runtime_error(error);
+                    throw LanguageException("Not a container", m_statement.getLineNumber());
                 }
 
                 auto identifier = m_statement.getIdentifier();

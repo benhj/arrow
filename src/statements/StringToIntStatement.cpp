@@ -1,6 +1,7 @@
 #include "StringToIntStatement.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -30,9 +31,7 @@ namespace arrow {
                 auto const expression = m_statement.getExpression();
                 auto const type = expression->getEvaluator()->evaluate(cache);
                 if(type.m_descriptor != TypeDescriptor::String) {
-                    std::string error("Not a string on line ");
-                    error.append(std::to_string(m_statement.getToken().lineNumber));
-                    throw std::runtime_error(error);
+                    throw LanguageException("Not a string", m_statement.getLineNumber());
                 }
                 auto converted = std::stold(std::get<std::string>(type.m_variantType));
                 auto identifier = m_statement.getIdentifier();

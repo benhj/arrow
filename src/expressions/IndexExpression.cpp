@@ -1,5 +1,6 @@
 #include "IndexExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -12,9 +13,7 @@ namespace arrow {
             auto index = exp->getEvaluator()->evaluate(cache);
             auto deduced = std::get<int64_t>(index.m_variantType);
             if(deduced >= static_cast<int64_t>(container.size())) {
-                std::string error("Index too large on line ");
-                //error.append(std::to_string(m_tok.lineNumber));
-                throw std::runtime_error(error);
+                throw LanguageException("Index too large", exp->getLineNumber());
             }
             if constexpr(std::is_same_v<T, Type>) {
                 return container[deduced];
@@ -50,9 +49,7 @@ namespace arrow {
             Type evaluate(Cache & cache) const override
             {
                 if(!cache.has(m_tok)) {
-                    std::string error("Value for identifier not found on line ");
-                    error.append(std::to_string(m_tok.lineNumber));
-                    throw std::runtime_error(error);
+                    throw LanguageException("Value for identifier not found", m_expression->getLineNumber());
                 }
 
                 auto type = cache.get(m_tok);
@@ -63,9 +60,7 @@ namespace arrow {
                     type.m_descriptor != TypeDescriptor::Bools &&
                     type.m_descriptor != TypeDescriptor::Strings &&
                     type.m_descriptor != TypeDescriptor::Bytes) {
-                    std::string error("Incompatiable type for index on line ");
-                    error.append(std::to_string(m_tok.lineNumber));
-                    throw std::runtime_error(error);
+                    throw LanguageException("Incompatiable type for index", m_expression->getLineNumber());
                 }
 
                 switch (type.m_descriptor) {

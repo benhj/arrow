@@ -22,7 +22,7 @@ namespace arrow {
         /// For debugging purposes
 	  	virtual std::string toString() const = 0;
 
-	  	long getLineNumer() const
+	  	long getLineNumber() const
 	  	{
 	  		return m_lineNumber;
 	  	}

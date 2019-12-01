@@ -1,6 +1,7 @@
 #include "ArgStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -30,7 +31,7 @@ namespace arrow {
                 auto evaluator = m_statement.getExpression()->getEvaluator();
                 auto evaluated = evaluator->evaluate(cache);
                 if(evaluated.m_descriptor != TypeDescriptor::Int) {
-                    throw std::runtime_error("whoops");
+                    throw LanguageException("Arg parsing broke", m_statement.getLineNumber());
                 }
                 auto const index = std::get<int64_t>(evaluated.m_variantType);
                 auto progArg = cache.getProgramArgument(index);

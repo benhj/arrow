@@ -1,5 +1,6 @@
 #include "WhileStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include <utility>
 
@@ -25,7 +26,8 @@ namespace arrow {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
         auto resolved = expressionEvaluator->evaluate(cache);
         if(resolved.m_descriptor != TypeDescriptor::Bool) {
-            throw std::runtime_error("Bad type descriptor for while statement expression.");
+            throw LanguageException("Bad type or while statement expression",
+                                    m_statement.getLineNumber());
         }
         auto booleanVal = std::get<bool>(resolved.m_variantType);
         auto bodyStatements = m_statement.getBodyStatements();

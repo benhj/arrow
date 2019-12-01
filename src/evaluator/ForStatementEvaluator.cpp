@@ -1,6 +1,7 @@
 #include "ForStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
 #include "expressions/IdentifierExpression.hpp"
+#include "parser/LanguageException.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include <utility>
 
@@ -49,7 +50,7 @@ namespace arrow {
     {
         auto indexer = m_statement.getIndexer();
         auto identifier = m_statement.getIdentifier();
-        IdentifierExpression exp(m_statement.getLineNumer());
+        IdentifierExpression exp(m_statement.getLineNumber());
         exp.withIdentifierToken(identifier);
         auto evaled = exp.getEvaluator()->evaluate(cache);
         if(evaled.m_descriptor != TypeDescriptor::List &&
@@ -58,7 +59,8 @@ namespace arrow {
            evaled.m_descriptor != TypeDescriptor::Reals &&
            evaled.m_descriptor != TypeDescriptor::Bools &&
            evaled.m_descriptor != TypeDescriptor::Strings) {
-            throw std::runtime_error("Bad type descriptor in for statement expression.");
+            throw LanguageException("Bad type descriptor in for statement expression",
+                                    identifier.lineNumber);
         }
 
         auto bodyStatements = m_statement.getBodyStatements();

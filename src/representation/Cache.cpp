@@ -1,4 +1,5 @@
 #include "Cache.hpp"
+#include "parser/LanguageException.hpp"
 
 namespace arrow {
 
@@ -42,9 +43,7 @@ namespace arrow {
             }
         }
         if(error) {
-            std::string error("incompatible type on line ");
-            error.append(std::to_string(identifier.lineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Incompatible type", identifier.lineNumber);
         }
         // Add brand new instance
         m_cacheStack[0].emplace(identifier.raw, type);
@@ -71,9 +70,7 @@ namespace arrow {
         auto found = findAndRetrieveCached(identifier.raw);
         auto casted = std::get<std::vector<Type>>(found->second.m_variantType);
         if(index >= casted.size()) {
-            std::string error("Index out of range on line ");
-            error.append(std::to_string(identifier.lineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Index out of range", identifier.lineNumber);
         }
         casted[index].m_variantType.swap(type.m_variantType);
         found->second.m_variantType = casted;

@@ -1,13 +1,15 @@
 #include "BooleanExpressionEvaluator.hpp"
 #include "expressions/BooleanExpression.hpp"
+#include "parser/LanguageException.hpp"
 #include "representation/TypeDescriptor.hpp"
 #include <utility>
 
 namespace arrow {
 
     struct BooleanEvaluator {
-        BooleanEvaluator(std::string op)
+        BooleanEvaluator(std::string op, long const lineNumber)
         : m_op(std::move(op))
+        , m_lineNumber(lineNumber)
         {
         }
 
@@ -28,7 +30,7 @@ namespace arrow {
             } else if(m_op == "/=") {
                 return left != right;
             } else {
-                throw std::runtime_error("Bad operator for type List.");
+                throw LanguageException("Bad operator for type String", m_lineNumber);
             }
         }
         bool operator()(std::vector<Type> left,
@@ -51,7 +53,7 @@ namespace arrow {
             //     return left != right;
             // } 
             // else {
-                throw std::runtime_error("Bad operator for type List.");
+                throw LanguageException("Bad operator for type List", m_lineNumber);
             // }
         }
 
@@ -88,14 +90,14 @@ namespace arrow {
                 } else if(m_op == "/=") {
                     return left != right;
                 } else {
-                    throw std::runtime_error("Bad operator for type.");
+                    throw LanguageException("Bad operator for type", m_lineNumber);
                 }
             }
-            std::string error("Incompatible types on line ");
-            throw std::runtime_error(error);
+            throw LanguageException("Incompatible types", m_lineNumber);
         }
       private:
         std::string m_op;
+        long m_lineNumber;
     };
 
     BooleanExpressionEvaluator::BooleanExpressionEvaluator(BooleanExpression expression)
@@ -110,7 +112,7 @@ namespace arrow {
         auto op = m_expression.getOperator();
         auto deducedLeft = leftEval->evaluate(cache);
         auto deducedRight = rightEval->evaluate(cache);
-        BooleanEvaluator evaluator{op.raw};
+        BooleanEvaluator evaluator{op.raw, m_expression.getLineNumber()};
         auto res = std::visit(evaluator, 
                   deducedLeft.m_variantType,
                   deducedRight.m_variantType);

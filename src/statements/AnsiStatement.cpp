@@ -1,6 +1,7 @@
 #include "AnsiStatement.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -40,9 +41,7 @@ namespace arrow {
                 auto const type = expression->getEvaluator()->evaluate(cache);
                 auto const token = m_statement.getToken();
                 if(type.m_descriptor != TypeDescriptor::Int) {
-                    std::string error("Bad type on line ");
-                    error.append(std::to_string(token.lineNumber));
-                    throw std::runtime_error(error);
+                    throw LanguageException("Bad type", m_statement.getLineNumber());
                 }
                 auto casted = std::get<int64_t>(type.m_variantType);
                 for(int64_t i = 0; i < casted; ++i) {

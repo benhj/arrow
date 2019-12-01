@@ -1,5 +1,6 @@
 #include "MathExpressionEvaluator.hpp"
 #include "expressions/MathExpression.hpp"
+#include "parser/LanguageException.hpp"
 #include "representation/TypeDescriptor.hpp"
 #include <utility>
 
@@ -15,16 +16,12 @@ namespace arrow {
         long double operator()(std::string left,
                                std::string right) const
         {
-            std::string error("Incompatible types on line ");
-            error.append(std::to_string(m_lineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Incompatible types on line", m_lineNumber);
         }
         long double operator()(std::vector<Type> left,
                                std::vector<Type> right) const
         {
-            std::string error("Incompatible types on line ");
-            error.append(std::to_string(m_lineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Incompatible types on line", m_lineNumber);
         }
 
         template <class Left, class Right>
@@ -63,9 +60,7 @@ namespace arrow {
                     }
                 }
             }
-            std::string error("Incompatible types on line ");
-            error.append(std::to_string(m_lineNumber));
-            throw std::runtime_error(error);
+            throw LanguageException("Incompatible types on line", m_lineNumber);
         }
       private:
         std::string m_op;

@@ -6,4 +6,9 @@ namespace arrow {
       , m_lineNumber(lineNumber)
     {
     }
+
+    long Expression::getLineNumber() const
+    {
+    	return m_lineNumber;
+    }
 }

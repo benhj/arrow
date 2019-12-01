@@ -1,5 +1,5 @@
 fn factorial(n) -> f {
-    int 1 -> f;
+    1 -> f;
     if (n > 1) {
         call factorial(n - 1) -> result;        
         n * result -> f;

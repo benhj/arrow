@@ -1,5 +1,6 @@
 #include "IfStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include <utility>
 
@@ -25,7 +26,7 @@ namespace arrow {
         auto ifEval = m_statement.getExpression()->getEvaluator();
         auto ifEvaluated = ifEval->evaluate(cache);
         if(ifEvaluated.m_descriptor != TypeDescriptor::Bool) {
-            throw std::runtime_error("Bad type descriptor for if statement.");
+            throw LanguageException("Bad type for if statement", m_statement.getLineNumber());
         }
         auto theBool = std::get<bool>(ifEvaluated.m_variantType);
         if(theBool) {
@@ -40,7 +41,7 @@ namespace arrow {
                 auto partExpressionEval = part->getExpression()->getEvaluator();
                 auto partExpressionEvaluated = partExpressionEval->evaluate(cache);
                 if(partExpressionEvaluated.m_descriptor != TypeDescriptor::Bool) {
-                    throw std::runtime_error("Bad type descriptor for else part of if statement.");
+                    throw LanguageException("Bad type for else statement", part->getLineNumber());
                 }
                 auto partBool = std::get<bool>(partExpressionEvaluated.m_variantType);
                 if(partBool) {

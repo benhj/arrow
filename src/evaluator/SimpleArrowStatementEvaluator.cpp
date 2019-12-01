@@ -1,6 +1,7 @@
 #include "SimpleArrowStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
 #include "expressions/IndexExpression.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -49,17 +50,15 @@ namespace arrow {
             auto exp = casted->getIndexExpression();
             auto indexEval = exp->getEvaluator()->evaluate(cache);
             if(indexEval.m_descriptor != TypeDescriptor::Int) {
-                std::string error("Bad expression for index at line ");
-                error.append(std::to_string(casted->getIdentifierToken().lineNumber));
-                throw std::runtime_error(error);
+                throw LanguageException("Bad expression for index",
+                                        m_statement.getLineNumber());
             }
             auto index = std::get<int64_t>(indexEval.m_variantType);
             try {
                 cache.setElementInContainer(containerIdentifier, index, evaluated);
             } catch (...) {
-                std::string error("Index too big at line ");
-                error.append(std::to_string(m_statement.getIdentifier().lineNumber));
-                throw std::runtime_error(error);
+                throw LanguageException("Index too big",
+                                        m_statement.getLineNumber());
             }
         } else {
 

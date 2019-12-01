@@ -1,4 +1,5 @@
 #include "FunctionStatementEvaluator.hpp"
+#include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -14,9 +15,9 @@ namespace arrow {
             statement->getEvaluator()->evaluate(cache);
         }
         auto const returnIdentifier = m_statement.getReturnIdentifier();
-        if(m_statement.getReturnIdentifier().lexeme !=
-           Lexeme::NIL && !cache.has(returnIdentifier)) {
-            throw std::runtime_error("Can't find return value in function statement");
+        if(returnIdentifier.lexeme != Lexeme::NIL && !cache.has(returnIdentifier)) {
+            throw LanguageException("Can't find return value in function statement",
+                                    returnIdentifier.lineNumber);
         }
     }
 }
