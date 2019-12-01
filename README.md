@@ -49,16 +49,6 @@ The Arrow programming language is weakly-typed:
 
 ;;; a boolean
 true -> truth;
-
-;;; a compound object containing four different
-;;; types, an int, a real, a list and a string
-(1, 1.5, [one two three], "hello") -> compound;
-
-;;; an integer array
-{1, 2, 3} -> A;
-
-;;; a string array
-{"one", "two", "three"} -> B;
 ```
 The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP11, the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
 
@@ -83,16 +73,17 @@ erase b[3];
 {1.1, 2.2, 3.3} -> c;
 
 ;;; The adding bit -- elements are 'pushed' onto the end
+;;; The instance c becomes {1.1, 2.2, 3.3, 4.4}.
 4.4 -> $c;
 
 ;;; Note arrays can be created using the same dollar syntax
-;;; d becomes {true}; i.e., it is initialized with a single elements
+;;; E.g. in the following d is initialized to become {true}
 true -> $d;
 
 ;;; for-based looping
 for i in c {
-	;;; print out element i
-	prn i;
+    ;;; print out element i
+    prn i;
 }
 ```
 
