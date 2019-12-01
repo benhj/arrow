@@ -92,6 +92,11 @@ namespace arrow {
         /// prn "hello";
         std::shared_ptr<Statement> parseArrowlessStatement();
 
+        /// Bespoke handling for a release statement
+        /// For example
+        /// release identifier;
+        std::shared_ptr<Statement> parseReleaseStatement();
+
         /// Parses a repeat statement of the form
         /// repeat expression times { statement* }
         /// For example

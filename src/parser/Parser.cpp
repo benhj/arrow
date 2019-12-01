@@ -20,6 +20,7 @@
 #include "statements/AnsiStatement.hpp"
 #include "statements/ArgStatement.hpp"
 #include "statements/LengthStatement.hpp"
+#include "statements/ReleaseStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -143,6 +144,7 @@ namespace arrow {
             static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
             if(pvec.empty()) {
                 pvec.emplace_back([this]{return parseArrowStatement();});
+                pvec.emplace_back([this]{return parseReleaseStatement();});
                 pvec.emplace_back([this]{return parseArrowlessStatement();});
                 pvec.emplace_back([this]{return parseRepeatStatement();});
                 pvec.emplace_back([this]{return parseWhileStatement();});
@@ -633,6 +635,23 @@ namespace arrow {
                     return arrowlessStatement;
                 }
             }
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<Statement> Parser::parseReleaseStatement()
+    {
+        if(currentToken().raw != "release") {
+            return nullptr;
+        }
+        auto const ln = currentToken().lineNumber;
+        auto releaseStatement = std::make_shared<ReleaseStatement>(ln);
+        releaseStatement->withToken(currentToken());
+        advanceTokenIterator();
+        releaseStatement->withIdentifier(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme == Lexeme::SEMICOLON) {
+            return releaseStatement;
         }
         return nullptr;
     }

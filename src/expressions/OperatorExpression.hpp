@@ -11,8 +11,6 @@ namespace arrow {
       public:
         OperatorExpression(long const lineNumber);
 
-        std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
-
         DecayType decayType() const override;
 
         OperatorExpression & withLeft(std::shared_ptr<Expression> expressionLeft);

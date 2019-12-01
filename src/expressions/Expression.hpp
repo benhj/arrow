@@ -14,7 +14,7 @@ namespace arrow {
         Expression(long const lineNumber);
 
         /// Returns an Evaluator that can be used to evaluate this
-        virtual std::shared_ptr<ExpressionEvaluator> getEvaluator() const = 0;
+        virtual std::shared_ptr<ExpressionEvaluator> getEvaluator() const;
 
         /// During expression evaluation, we need
         /// to know the overaching type that it decays to

@@ -10,8 +10,6 @@ namespace arrow {
       public:
         QQStringExpression(long const lineNumber);
 
-        std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
-
         DecayType decayType() const override;
 
         QQStringExpression & withQQStringToken(Token qQStringToken);

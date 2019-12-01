@@ -10,11 +10,6 @@ namespace arrow {
     {
     }
 
-    std::shared_ptr<ExpressionEvaluator> OperatorExpression::getEvaluator() const
-    {
-        return nullptr;
-    }
-
     DecayType OperatorExpression::decayType() const
     {
         return DecayType::DECAYS_TO_NONE;

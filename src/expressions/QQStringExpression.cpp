@@ -9,16 +9,6 @@ namespace arrow {
     {
     }
 
-    std::shared_ptr<ExpressionEvaluator> QQStringExpression::getEvaluator() const
-    {
-        return nullptr;
-    }
-/*
-    Type QQStringExpression::evaluate() const
-    {
-        return {TypeDescriptor::None, {false}};
-    }
-*/
     DecayType QQStringExpression::decayType() const
     {
         return DecayType::DECAYS_TO_STRING;
