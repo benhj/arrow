@@ -11,7 +11,7 @@ This forms the beginnings of a hopefully litte less crap (re-)implementation of 
 
 ## How does it work ('in a nutshell')?
 
-In terms of the implementation itself, I have thrown out the heavy boost spirit and ICU dependencies which were required by JASL for parsing and escape code handling.
+In terms of the implementation itself, I have thrown out the heavy boost spirit and ICU dependencies both of which were required by JASL for parsing and escape code handling.
 Now the Arrow interpretor is architectured from the ground up into three descrete components
 
 1. lexer
