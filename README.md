@@ -33,16 +33,13 @@ start {
 }
 ```
 
-# Basic types
+## Basic types
 
 The Arrow programming language is weakly-typed:
 
 ```
 ;;; a literal string
 "hello" -> str;
-
-;;; a list (homage to pop-11!)
-[one two three] -> L;
 
 ;;; a literal integer
 1 -> a;
@@ -64,3 +61,38 @@ true -> truth;
 {"one", "two", "three"} -> B;
 ```
 The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP11, the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
+
+## Arrays
+
+Arrow support the creation of arrays of basic types:
+
+```
+;;; an integer array
+{1, 2, 3} -> a;
+
+;;; a string array
+{"one", "two", "three"} -> b;
+
+;;; updating an element (a becomes {1, 4, 3})
+4 -> a[1];
+
+;;; erasing elements (b becomes {"one", "two"})
+erase b[3];
+
+;;; adding elements (first create, then add)
+{1.1, 2.2, 3.3} -> c;
+
+;;; Elements are 'pushed' on to the end
+4.4 -> $c;
+
+;;; Note arrays can be created using the same dollar syntax
+;;; d becomes {true}; i.e., it has a single elements
+true -> $d;
+
+;;; for-based looping
+for i in c {
+	;;; print out element i
+	prn i;
+}
+```
+
