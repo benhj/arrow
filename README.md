@@ -1,6 +1,6 @@
 # Arrow
 
-This forms the beginnings of a hopefully litte less crap (re-)implementation of my other interpreted language, JASL. The implementation here is designed from the ground up to
+This forms the beginnings of a hopefully litte less crap (re-)implementation of an interpretor I wrote for my other interpreted language, JASL. The implementation here is designed from the ground up to
 * be a little less crap <--- the main thing!
 * be a fun way to understand parsers
 * have a minimal number of dependencies (besides C++17)
@@ -10,6 +10,8 @@ This forms the beginnings of a hopefully litte less crap (re-)implementation of 
 * never be used in production because that would just be stupid!!
 
 ## How does it work ('in a nutshell')?
+
+Briefly, by doing depth first evaluation of an AST.
 
 In terms of the implementation itself, I have thrown out the heavy boost spirit and ICU dependencies both of which were required by JASL for parsing and escape code handling.
 Now the Arrow interpretor is architectured from the ground up into three descrete components
