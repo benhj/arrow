@@ -23,7 +23,9 @@ Now the Arrow interpretor is architectured from the ground up into three descret
 The lexer tokenizes the program code into lexemes (tokens). For example the token `12` is represented by `Lexeme::INTEGER_NUM` and
 raw string data `12` while `"Hello!"` is represented by `Lexeme::LITERAL_STRING` and raw string data `Hello!`. 
 These lexemes are then parsed using a depth first parser to arrive at a collection of statements. Statements are then evaluated using the Evaluator
-in a depth-first manner. A program begins with a root statement, which in Arrow is the start statement:
+in a depth-first manner. 
+
+A program begins with a root statement, which in Arrow is the start statement:
 
 ```
 start {
