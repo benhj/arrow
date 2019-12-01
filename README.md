@@ -1,6 +1,6 @@
 # Arrow
 
-This forms the beginnings of a hopefully litte less crap (re-)implementation of my other interpreted language, JASL. The implementation here is designed from the ground up to
+This forms the beginnings of a hopefully litte less crap (re-)implementation of an interpretor I wrote for my other interpreted language, JASL. The implementation here is designed from the ground up to
 * be a little less crap <--- the main thing!
 * be a fun way to understand parsers
 * have a minimal number of dependencies (besides C++17)
@@ -11,7 +11,9 @@ This forms the beginnings of a hopefully litte less crap (re-)implementation of 
 
 ## How does it work ('in a nutshell')?
 
-In terms of the implementation itself, I have thrown out the heavy boost spirit and ICU dependencies which were required by JASL for parsing and escape code handling.
+Briefly, by doing depth first evaluation of an AST.
+
+In terms of the implementation itself, I have thrown out the heavy boost spirit and ICU dependencies both of which were required by JASL for parsing and escape code handling.
 Now the Arrow interpretor is architectured from the ground up into three descrete components
 
 1. lexer
@@ -21,7 +23,9 @@ Now the Arrow interpretor is architectured from the ground up into three descret
 The lexer tokenizes the program code into lexemes (tokens). For example the token `12` is represented by `Lexeme::INTEGER_NUM` and
 raw string data `12` while `"Hello!"` is represented by `Lexeme::LITERAL_STRING` and raw string data `Hello!`. 
 These lexemes are then parsed using a depth first parser to arrive at a collection of statements. Statements are then evaluated using the Evaluator
-in a depth-first manner. A program begins with a root statement, which in Arrow (like in JASL), is the start statement:
+in a depth-first manner. 
+
+A program begins with a root statement, which in Arrow is the start statement:
 
 ```
 start {
@@ -31,7 +35,7 @@ start {
 
 # Basic types
 
-In contrast to JASL, the Arrow programming language is weakly-typed:
+The Arrow programming language is weakly-typed:
 
 ```
 ;;; a literal string
@@ -59,4 +63,4 @@ true -> truth;
 ;;; a string array
 {"one", "two", "three"} -> B;
 ```
-If you've ever used POP-11 you should notice the similarity, especially with regards to the `->` (arrow) operator. One core difference -- besides being no way near as powerful, and indeed having a fair few other differences in syntax -- is that Arrow instead uses braces to define scoping. In addition, Arrow works by doing a depth first traversal of an AST. Future work might bring the strengths of stack-based bytecode interpretation. But as the saying goes, one step at a time.
+The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP11, the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
