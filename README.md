@@ -59,4 +59,4 @@ true -> truth;
 ;;; a string array
 {"one", "two", "three"} -> B;
 ```
-If you've ever used POP-11 you should notice the similarity, especially with regards to the `->` (arrow) operator. One core difference -- besides being no way near as powerful, and indeed having a fair few other differences in syntax -- is that Arrow instead uses braces to define scoping. In addition, Arrow works by doing a depth first traversal of an AST. Future work might bring the strengths of stack-based bytecode interpretation. But as the saying goes, one step at a time.
+The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP11, the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
