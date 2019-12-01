@@ -625,6 +625,7 @@ namespace arrow {
             if(!expression) {
                 throw LanguageException("Not an index expression", ln);
             }
+            arrowlessStatement->withExpression(std::move(expression));
             advanceTokenIterator();
             if(currentToken().lexeme == Lexeme::SEMICOLON) {
                 return std::make_shared<EraseStatement>(ln, std::move(arrowlessStatement));
