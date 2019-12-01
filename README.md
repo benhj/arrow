@@ -64,7 +64,7 @@ The use of the `->` (arrow) operator will feel very familiar to anyone with expe
 
 ## Arrays
 
-Arrow support the creation of arrays of basic types:
+Arrow supports the creation of arrays of basic types:
 
 ```
 ;;; an integer array
@@ -79,14 +79,14 @@ Arrow support the creation of arrays of basic types:
 ;;; erasing elements (b becomes {"one", "two"})
 erase b[3];
 
-;;; adding elements (first create, then add)
+;;; Adding elements following a creation..
 {1.1, 2.2, 3.3} -> c;
 
-;;; Elements are 'pushed' on to the end
+;;; The adding bit -- elements are 'pushed' onto the end
 4.4 -> $c;
 
 ;;; Note arrays can be created using the same dollar syntax
-;;; d becomes {true}; i.e., it has a single elements
+;;; d becomes {true}; i.e., it is initialized with a single elements
 true -> $d;
 
 ;;; for-based looping
