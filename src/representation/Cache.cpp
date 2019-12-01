@@ -3,6 +3,44 @@
 
 namespace arrow {
 
+    namespace {
+        template <typename T>
+        std::vector<T> getUpdatedArray(VariantType vt,
+                                       Type element,
+                                       int const index,
+                                       long const lineNumber)
+        {
+            auto casted = std::get<std::vector<T>>(vt);
+            if(index >= casted.size()) {
+                throw LanguageException("Index out of range", lineNumber);
+            }
+            if constexpr(std::is_same_v<T, Type>) {
+                casted[index].m_variantType.swap(element.m_variantType);
+            } else {
+                auto const val = std::get<T>(element.m_variantType);
+                casted[index] = val;
+            }
+            return casted;
+        }
+
+        template <typename T>
+        std::pair<bool, std::vector<T>> tryErase(VariantType vt,
+                                                 int const index,
+                                                 long const lineNumber)
+        {
+            try {
+                auto casted = std::get<std::vector<T>>(vt);
+                if(index >= casted.size()) {
+                    throw LanguageException("Index out of range", lineNumber);
+                }
+                casted.erase(std::begin(casted) + index);
+                return {true, casted};
+            } catch (...) {
+                return {false, std::vector<T>()};
+            }
+        }
+    }
+
     std::deque<Type> Cache::m_returnStack;
 
     Cache::Cache()
@@ -68,13 +106,91 @@ namespace arrow {
                                       Type const type)
     {
         auto found = findAndRetrieveCached(identifier.raw);
-        auto casted = std::get<std::vector<Type>>(found->second.m_variantType);
-        if(index >= casted.size()) {
-            throw LanguageException("Index out of range", identifier.lineNumber);
+        try {
+            if(type.m_descriptor == TypeDescriptor::Int) {
+                auto casted = getUpdatedArray<int64_t>(found->second.m_variantType, type,
+                                                       index, identifier.lineNumber);
+                found->second.m_variantType = casted;
+                return;
+            } else if(type.m_descriptor == TypeDescriptor::Real) {
+                auto casted = getUpdatedArray<long double>(found->second.m_variantType, type,
+                                                           index, identifier.lineNumber);
+                found->second.m_variantType = casted;
+                return;
+            } else if(type.m_descriptor == TypeDescriptor::String) {
+                auto casted = getUpdatedArray<std::string>(found->second.m_variantType, type,
+                                                           index, identifier.lineNumber);
+                found->second.m_variantType = casted;
+                return;
+            } else if(type.m_descriptor == TypeDescriptor::Byte) {
+                auto casted = getUpdatedArray<char>(found->second.m_variantType, type,
+                                                    index, identifier.lineNumber);
+                found->second.m_variantType = casted;
+                return;
+            } else if(type.m_descriptor == TypeDescriptor::Bool) {
+                auto casted = getUpdatedArray<bool>(found->second.m_variantType, type,
+                                                    index, identifier.lineNumber);
+                found->second.m_variantType = casted;
+                return;
+            } 
+        } catch (...) {
+            // if casting threw, it must be because of bad type conversion
+            // meaning we can instead try Type as the list element type.
         }
-        casted[index].m_variantType.swap(type.m_variantType);
+        auto casted = getUpdatedArray<Type>(found->second.m_variantType, type,
+                                            index, identifier.lineNumber);
         found->second.m_variantType = casted;
     }
+
+    void Cache::eraseElementInContainer(Token identifier,
+                                        int const index)
+    {
+        auto found = findAndRetrieveCached(identifier.raw);
+        {
+            auto result = tryErase<int64_t>(found->second.m_variantType, index, identifier.lineNumber);
+            if(result.first) {
+                found->second.m_variantType = result.second;
+                return;
+            }
+        }
+        {
+            auto result = tryErase<long double>(found->second.m_variantType, index, identifier.lineNumber);
+            if(result.first) {
+                found->second.m_variantType = result.second;
+                return;
+            }
+        }
+        {
+            auto result = tryErase<bool>(found->second.m_variantType, index, identifier.lineNumber);
+            if(result.first) {
+                found->second.m_variantType = result.second;
+                return;
+            }
+        }
+        {
+            auto result = tryErase<char>(found->second.m_variantType, index, identifier.lineNumber);
+            if(result.first) {
+                found->second.m_variantType = result.second;
+                return;
+            }
+        }
+        {
+            auto result = tryErase<std::string>(found->second.m_variantType, index, identifier.lineNumber);
+            if(result.first) {
+                found->second.m_variantType = result.second;
+                return;
+            }
+        }
+        {
+            auto result = tryErase<Type>(found->second.m_variantType, index, identifier.lineNumber);
+            if(result.first) {
+                found->second.m_variantType = result.second;
+                return;
+            }
+        }
+    }
+
+
     void Cache::pushCacheLayer()
     {
         m_cacheStack.emplace_front(CacheMap());

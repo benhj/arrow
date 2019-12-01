@@ -27,6 +27,9 @@ namespace arrow {
                                    int const index,
                                    Type const type);
 
+        void eraseElementInContainer(Token identifier,
+                                     int const index);
+
         static void pushReturnValue(Type t);
         static Type getAndPopReturnValue();
 

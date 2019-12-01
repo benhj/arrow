@@ -21,6 +21,7 @@
 #include "statements/ArgStatement.hpp"
 #include "statements/LengthStatement.hpp"
 #include "statements/ReleaseStatement.hpp"
+#include "statements/EraseStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -618,21 +619,33 @@ namespace arrow {
         auto arrowlessStatement = std::make_shared<ArrowlessStatement>(ln);
         arrowlessStatement->withToken(currentToken());
         advanceTokenIterator();
-        auto expression = parseExpression();
-        if(expression) {
-            arrowlessStatement->withExpression(std::move(expression));
+        auto const keyword = arrowlessStatement->getToken().raw;
+        if(keyword == "erase") {
+            auto expression = parseIndexExpression();
+            if(!expression) {
+                throw LanguageException("Not an index expression", ln);
+            }
             advanceTokenIterator();
-            if(notAtEnd()) {
-                if(currentToken().lexeme == Lexeme::SEMICOLON) {
-                    auto const keyword = arrowlessStatement->getToken().raw;
-                    if(keyword == "prn" || keyword == "pr" || keyword == "say") {
-                        return std::make_shared<EchoStatement>(ln, std::move(arrowlessStatement));
-                    } else if(keyword == "exit") {
-                        return std::make_shared<ExitStatement>(ln, std::move(arrowlessStatement));
-                    } else if(keyword == "ansi_up") {
-                        return std::make_shared<AnsiStatement>(ln, std::move(arrowlessStatement));
+            if(currentToken().lexeme == Lexeme::SEMICOLON) {
+                return std::make_shared<EraseStatement>(ln, std::move(arrowlessStatement));
+            }
+        } else {
+            auto expression = parseExpression();
+            if(expression) {
+                arrowlessStatement->withExpression(std::move(expression));
+                advanceTokenIterator();
+                if(notAtEnd()) {
+                    if(currentToken().lexeme == Lexeme::SEMICOLON) {
+                        
+                        if(keyword == "prn" || keyword == "pr" || keyword == "say") {
+                            return std::make_shared<EchoStatement>(ln, std::move(arrowlessStatement));
+                        } else if(keyword == "exit") {
+                            return std::make_shared<ExitStatement>(ln, std::move(arrowlessStatement));
+                        } else if(keyword == "ansi_up") {
+                            return std::make_shared<AnsiStatement>(ln, std::move(arrowlessStatement));
+                        }
+                        return arrowlessStatement;
                     }
-                    return arrowlessStatement;
                 }
             }
         }
