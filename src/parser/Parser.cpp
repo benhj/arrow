@@ -40,6 +40,8 @@
 #include "expressions/OperatorExpression.hpp"
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
+#include "expressions/SingleEqualExpression.hpp"
+#include "expressions/DoubleEqualExpression.hpp"
 
 /// Other
 #include "LanguageException.hpp"
@@ -279,6 +281,22 @@ namespace arrow {
         return exp;
     }
 
+    std::shared_ptr<Expression> Parser::parseSingleEqualExpression()
+    {
+        auto const ln = currentToken().lineNumber;
+        auto exp = std::make_shared<SingleEqualExpression>(ln);
+        exp->withToken(currentToken());
+        return exp;
+    }
+
+    std::shared_ptr<Expression> Parser::parseDoubleEqualExpression()
+    {
+        auto const ln = currentToken().lineNumber;
+        auto exp = std::make_shared<DoubleEqualExpression>(ln);
+        exp->withToken(currentToken());
+        return exp;
+    }
+
     std::shared_ptr<Expression> Parser::parseOperatorExpression()
     {
         auto const ln = currentToken().lineNumber;
@@ -487,6 +505,10 @@ namespace arrow {
             return parseQStringExpression();
         } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
             return parseListExpression();
+        } else if(currentToken().lexeme == Lexeme::EQUAL) {
+            return parseSingleEqualExpression();
+        } else if(currentToken().lexeme == Lexeme::EQUAL_EQUAL) {
+            return parseDoubleEqualExpression();
         } 
         return nullptr;
     }
@@ -526,14 +548,6 @@ namespace arrow {
                 return exp;
             } else if(currentToken().lexeme == Lexeme::LITERAL_STRING) {
                 return parseLiteralStringExpression();
-            } else if(currentToken().lexeme == Lexeme::HAT_HAT_STRING) {
-                return parseHatHatStringExpression();
-            } else if(currentToken().lexeme == Lexeme::HAT_STRING) {
-                return parseHatStringExpression();
-            } else if(currentToken().lexeme == Lexeme::Q_Q_STRING) {
-                return parseQQStringExpression();
-            } else if(currentToken().lexeme == Lexeme::Q_STRING) {
-                return parseQStringExpression();
             }
         }
         return nullptr;

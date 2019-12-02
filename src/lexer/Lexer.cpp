@@ -20,7 +20,7 @@ namespace arrow {
                     return true;
                 }
                 tokens.emplace_back(Lexeme::MINUS, "-", lineNumber);
-                return false;
+                return true;
             }
             case '/':
             {
@@ -31,7 +31,7 @@ namespace arrow {
                     return true;
                 }
                 tokens.emplace_back(Lexeme::DIVIDE, "/", lineNumber);
-                return false;
+                return true;
             }
             case '>':
             {
@@ -42,7 +42,7 @@ namespace arrow {
                     return true;
                 }
                 tokens.emplace_back(Lexeme::GREATER, ">", lineNumber);
-                return false;
+                return true;
             }
             case '<':
             {
@@ -53,7 +53,7 @@ namespace arrow {
                     return true;
                 }
                 tokens.emplace_back(Lexeme::LESS, "<", lineNumber);
-                return false;
+                return true;
             }
             case '|':
             {
@@ -75,6 +75,17 @@ namespace arrow {
                 }
                 return false;
             }
+            case '=':
+            {
+                auto next = stream.peek();
+                if(next != EOF && char(next) == '=') {
+                    stream.get(); // iterate
+                    tokens.emplace_back(Lexeme::EQUAL_EQUAL, "==", lineNumber);
+                    return true;
+                }
+                tokens.emplace_back(Lexeme::EQUAL, "=", lineNumber);
+                return true;
+            }
             default: return false;
         }
         return false;
@@ -86,7 +97,6 @@ namespace arrow {
         switch (c) {
             case '+': tokens.emplace_back(Lexeme::PLUS, "+", lineNumber); break;
             case '*': tokens.emplace_back(Lexeme::STAR, "*", lineNumber); break;
-            case '=': tokens.emplace_back(Lexeme::EQUAL, "=", lineNumber); break;
             case '%': tokens.emplace_back(Lexeme::PERCENT, "%", lineNumber); break;
             case '{': tokens.emplace_back(Lexeme::OPEN_CURLY, "{", lineNumber); break;
             case '}': tokens.emplace_back(Lexeme::CLOSE_CURLY, "}", lineNumber); break;
