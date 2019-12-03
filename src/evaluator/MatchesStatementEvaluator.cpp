@@ -66,7 +66,6 @@ namespace arrow {
             if(itLeft != std::end(left) && itRight == std::end(right)) {
                 return false;
             }
-
             return true;
         }
         bool handleEqEq(std::vector<Type> const & left,
@@ -179,6 +178,32 @@ namespace arrow {
                        Cache & cache,
                        long const lineNumber)
         {
+
+            // Edge-case 1. Two empty string always match.
+            if(left.empty() && right.empty()) {
+                return true;
+            }
+
+            // Edge-case 2. If one string is empty, there
+            // is no match.
+            if(left.empty() || right.empty()) {
+                return false;
+            }
+
+            // Edge-case 3. If the second string is longer, then
+            // there is no match.
+            if(right.size() > left.size()) {
+                return false;
+            }
+
+            // Edge-case 4. If the second string is simply [==],
+            // it matches the whole of the first string so we
+            // can return early.
+            if(right.size() == 1 && 
+               right.at(0).m_descriptor == TypeDescriptor::DoubleEqual) {
+                return true;
+            }
+
             auto itLeft = std::begin(left);
             auto itRight = std::begin(right);
             while(itLeft != std::end(left) && itRight != std::end(right)) {
@@ -237,13 +262,12 @@ namespace arrow {
                                 ++itRight;
                                 continue;
                             }
-                            
                         }
+                        return false;
                     }
-                    default: return false;
                 }
             }
-            return false;
+            return true;
         }
 
     }

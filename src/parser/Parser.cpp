@@ -22,6 +22,7 @@
 #include "statements/LengthStatement.hpp"
 #include "statements/ReleaseStatement.hpp"
 #include "statements/EraseStatement.hpp"
+#include "statements/MatchesStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -125,46 +126,28 @@ namespace arrow {
             advanceTokenIterator();
         }
 
-        // First try and parse a statement of the form
-        // 1 -> a;
-        // a + 1 -> b;
-        // etc.
-        // In contrast to most statement, this doesn't
-        // begin with an identifier so we need to try
-        // and parse these first.
-        auto store = m_current;
-        auto statement = parseSimpleArrowStatement();
-        if(statement) { 
-            return statement;
+        static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
+        if(pvec.empty()) {
+            pvec.emplace_back([this]{return parseSimpleArrowStatement();});
+            pvec.emplace_back([this]{return parseMatchesStatement();});
+            pvec.emplace_back([this]{return parseArrowStatement();});
+            pvec.emplace_back([this]{return parseReleaseStatement();});
+            pvec.emplace_back([this]{return parseArrowlessStatement();});
+            pvec.emplace_back([this]{return parseRepeatStatement();});
+            pvec.emplace_back([this]{return parseWhileStatement();});
+            pvec.emplace_back([this]{return parseForStatement();});
+            pvec.emplace_back([this]{return parseIfStatement();});
+            pvec.emplace_back([this]{return parseCallStatement();});
+            pvec.emplace_back([this]{return parseStartStatement();});
+            pvec.emplace_back([this]{return parseFunctionStatement();});
         }
-        // Revert token iterator state in case of failure
-        m_current = store;
-
-        // If that fails, try parsing a statement beginning
-        // with a keyword
-        if(!statement && currentToken().lexeme == Lexeme::GENERIC_STRING) {
-
-            static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
-            if(pvec.empty()) {
-                pvec.emplace_back([this]{return parseArrowStatement();});
-                pvec.emplace_back([this]{return parseReleaseStatement();});
-                pvec.emplace_back([this]{return parseArrowlessStatement();});
-                pvec.emplace_back([this]{return parseRepeatStatement();});
-                pvec.emplace_back([this]{return parseWhileStatement();});
-                pvec.emplace_back([this]{return parseForStatement();});
-                pvec.emplace_back([this]{return parseIfStatement();});
-                pvec.emplace_back([this]{return parseCallStatement();});
-                pvec.emplace_back([this]{return parseStartStatement();});
-                pvec.emplace_back([this]{return parseFunctionStatement();});
+        for(auto const & p : pvec) {
+            auto store = m_current;
+            auto statement = p();
+            if(statement) {
+                return statement;
             }
-            for(auto const & p : pvec) {
-                auto store = m_current;
-                auto statement = p();
-                if(statement) {
-                    return statement;
-                }
-                m_current = store;
-            }
+            m_current = store;
         }
         throw LanguageException("Unable to parse statement", currentToken().lineNumber);
     }
@@ -916,5 +899,41 @@ namespace arrow {
 
         m_functions.emplace(theName.raw, functionStatement);
         return functionStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parseMatchesStatement()
+    {
+        auto const ln = currentToken().lineNumber;
+        auto matchesStatement = std::make_shared<MatchesStatement>(ln);
+        auto const expLeft = parseExpression();
+        if(!expLeft) {
+            return nullptr;
+        }
+        matchesStatement->withLeftExpression(expLeft);
+        advanceTokenIterator();
+        auto const keyword = currentToken();
+        if(keyword.raw != "matches") {
+            return nullptr;
+        }
+        advanceTokenIterator();
+        auto const expRight = parseExpression();
+        if(!expRight) {
+            return nullptr;
+        }
+        matchesStatement->withRightExpression(expRight);
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::ARROW) {
+            return nullptr;
+        }
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
+        matchesStatement->withIdentifier(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::SEMICOLON) {
+            return nullptr;
+        }
+        return matchesStatement;
     }
 }

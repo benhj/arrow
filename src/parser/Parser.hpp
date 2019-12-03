@@ -135,5 +135,9 @@ namespace arrow {
         /// {
         /// }
         std::shared_ptr<Statement> parseFunctionStatement();
+
+        /// Parses a statement of the form
+        /// [one two three] matches [one two three] -> identifier;
+        std::shared_ptr<Statement> parseMatchesStatement();
     };
 }
