@@ -14,6 +14,9 @@ namespace arrow {
     {
       public:
         Parser(std::vector<Token> tokens);
+        Parser();
+
+        void setTokens(std::vector<Token> tokens);
 
         void parse();
 

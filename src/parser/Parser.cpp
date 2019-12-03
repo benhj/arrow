@@ -63,6 +63,18 @@ namespace arrow {
     {
     }
 
+    Parser::Parser()
+      : m_tokens()
+      , m_current()
+    {
+    }
+
+    void Parser::setTokens(std::vector<Token> tokens)
+    {
+        m_tokens = std::move(tokens);
+        m_current = std::begin(m_tokens);
+    }
+
     void Parser::parse()
     {
         while(notAtEnd()) {
