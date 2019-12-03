@@ -14,8 +14,6 @@ namespace arrow {
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 
-        DecayType decayType() const override;
-
         LiteralRealExpression & withRealToken(Token realToken);
 
         Token getRealToken() const;

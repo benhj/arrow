@@ -27,11 +27,6 @@ namespace arrow {
         return std::make_shared<StringEvaluator>(m_stringToken);
     }
 
-    DecayType LiteralStringExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_STRING;
-    }
-
     LiteralStringExpression & LiteralStringExpression::withStringToken(Token stringToken)
     {
         m_stringToken = std::move(stringToken);

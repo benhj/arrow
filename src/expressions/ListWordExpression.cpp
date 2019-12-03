@@ -28,11 +28,6 @@ namespace arrow {
         return std::make_shared<ListWordEvaluator>(m_word);
     }
 
-    DecayType ListWordExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_STRING;
-    }
-
     ListWordExpression & ListWordExpression::withWordToken(Token word)
     {
         m_word = std::move(word);

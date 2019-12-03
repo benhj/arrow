@@ -14,11 +14,6 @@ namespace arrow {
         return std::make_shared<MathExpressionEvaluator>(*this);
     }
 
-    DecayType MathExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_REAL;
-    }
-
     MathExpression & MathExpression::withLeft(std::shared_ptr<Expression> expressionLeft)
     {
         m_operatorExp->withLeft(std::move(expressionLeft));

@@ -27,11 +27,6 @@ namespace arrow {
         return std::make_shared<RealEvaluator>(m_realToken);
     }
 
-    DecayType LiteralRealExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_REAL;
-    }
-
     LiteralRealExpression & LiteralRealExpression::withRealToken(Token realToken)
     {
         m_realToken = std::move(realToken);

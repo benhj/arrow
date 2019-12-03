@@ -85,11 +85,6 @@ namespace arrow {
         return std::make_shared<IndexExpressionEvaluator>(m_identifier, m_indexExpression);
     }
 
-    DecayType IndexExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_STRING;
-    }
-
     IndexExpression & IndexExpression::withIdentifierToken(Token identifier)
     {
         m_identifier = std::move(identifier);

@@ -34,11 +34,6 @@ namespace arrow {
         return std::make_shared<ExpressionCollectionExpressionEvaluator>(*this);
     }
 
-    DecayType ExpressionCollectionExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_NONE;
-    }
-
     void ExpressionCollectionExpression::addExpression(std::shared_ptr<Expression> expression)
     {
         m_expressions.emplace_back(std::move(expression));

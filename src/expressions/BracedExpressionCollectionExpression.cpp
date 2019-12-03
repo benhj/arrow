@@ -77,11 +77,6 @@ namespace arrow {
         return std::make_shared<BracedExpressionCollectionExpressionEvaluator>(*this);
     }
 
-    DecayType BracedExpressionCollectionExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_NONE;
-    }
-
     void BracedExpressionCollectionExpression::addExpression(std::shared_ptr<Expression> expression)
     {
         m_expressions.emplace_back(std::move(expression));

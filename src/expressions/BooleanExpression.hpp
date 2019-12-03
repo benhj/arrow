@@ -13,9 +13,6 @@ namespace arrow {
         BooleanExpression(long const lineNumber);
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
-
-        DecayType decayType() const override;
-
         BooleanExpression & withLeft(std::shared_ptr<Expression> expressionLeft);
         BooleanExpression & withRight(std::shared_ptr<Expression> expressionRight);
         BooleanExpression & withOperator(Token op);

@@ -13,11 +13,6 @@ namespace arrow {
         return m_expression->getEvaluator();
     }
 
-    DecayType GroupedExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_NONE;
-    }
-
     GroupedExpression & GroupedExpression::withExpression(std::shared_ptr<Expression> expression)
     {
         m_expression = std::move(expression);

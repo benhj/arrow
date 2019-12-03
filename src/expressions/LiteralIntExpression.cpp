@@ -27,11 +27,6 @@ namespace arrow {
         return std::make_shared<IntEvaluator>(m_intToken);
     }
 
-    DecayType LiteralIntExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_INT;
-    }
-
     LiteralIntExpression & LiteralIntExpression::withIntToken(Token intToken)
     {
         m_intToken = std::move(intToken);

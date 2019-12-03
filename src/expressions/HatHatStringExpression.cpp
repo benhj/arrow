@@ -36,11 +36,6 @@ namespace arrow {
         return std::make_shared<HatHatStringEvaluator>(m_hatHatStringToken);
     }
 
-    DecayType HatHatStringExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_STRING;
-    }
-
     HatHatStringExpression & HatHatStringExpression::withHatHatStringToken(Token hatHatStringToken)
     {
         m_hatHatStringToken = std::move(hatHatStringToken);

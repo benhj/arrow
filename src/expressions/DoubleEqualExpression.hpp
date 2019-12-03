@@ -10,13 +10,8 @@ namespace arrow {
     {
       public:
         DoubleEqualExpression(long const lineNumber);
-
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
-
-        DecayType decayType() const override;
-
         DoubleEqualExpression & withToken(Token token);
-
         std::string toString() const override;
 
       private:

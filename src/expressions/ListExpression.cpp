@@ -14,11 +14,6 @@ namespace arrow {
         return std::make_shared<ListExpressionEvaluator>(*this);
     }
 
-    DecayType ListExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_LIST;
-    }
-
     void ListExpression::addPart(std::shared_ptr<Expression> expression)
     {
         m_parts.emplace_back(std::move(expression));

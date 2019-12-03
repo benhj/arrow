@@ -14,8 +14,6 @@ namespace arrow {
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 
-        DecayType decayType() const override;
-
         void addPart(std::shared_ptr<Expression> expression);
         int getPartsCount() const;
 

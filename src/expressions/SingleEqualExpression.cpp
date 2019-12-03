@@ -22,11 +22,6 @@ namespace arrow {
         return std::make_shared<SingleEqualEvaluator>();
     }
 
-    DecayType SingleEqualExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_STRING;
-    }
-
     SingleEqualExpression & SingleEqualExpression::withToken(Token token)
     {
         m_token = std::move(token);

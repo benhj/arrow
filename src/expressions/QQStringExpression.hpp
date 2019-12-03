@@ -11,8 +11,6 @@ namespace arrow {
       public:
         QQStringExpression(long const lineNumber);
 
-        DecayType decayType() const override;
-
         QQStringExpression & withQQStringToken(Token qQStringToken);
 
         Token getQQStringToken() const;

@@ -36,11 +36,6 @@ namespace arrow {
         return std::make_shared<IdentifierEvaluator>(m_identifier);
     }
 
-    DecayType IdentifierExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_STRING;
-    }
-
     IdentifierExpression & IdentifierExpression::withIdentifierToken(Token identifier)
     {
         m_identifier = std::move(identifier);

@@ -13,8 +13,6 @@ namespace arrow {
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 
-        DecayType decayType() const override;
-
         GroupedExpression & withExpression(std::shared_ptr<Expression> expression);
         
         std::shared_ptr<Expression> getExpression() const;

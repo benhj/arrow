@@ -9,11 +9,6 @@ namespace arrow {
     {
     }
 
-    DecayType QQStringExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_STRING;
-    }
-
     QQStringExpression & QQStringExpression::withQQStringToken(Token qQStringToken)
     {
         m_qQStringToken = std::move(qQStringToken);

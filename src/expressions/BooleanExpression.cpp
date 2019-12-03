@@ -14,11 +14,6 @@ namespace arrow {
         return std::make_shared<BooleanExpressionEvaluator>(*this);
     }
 
-    DecayType BooleanExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_BOOL;
-    }
-
     BooleanExpression & 
     BooleanExpression::withLeft(std::shared_ptr<Expression> expressionLeft)
     {

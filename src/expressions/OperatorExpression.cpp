@@ -10,11 +10,6 @@ namespace arrow {
     {
     }
 
-    DecayType OperatorExpression::decayType() const
-    {
-        return DecayType::DECAYS_TO_NONE;
-    }
-
     OperatorExpression & OperatorExpression::withLeft(std::shared_ptr<Expression> expressionLeft)
     {
         m_expressionLeft = std::move(expressionLeft);
