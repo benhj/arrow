@@ -24,17 +24,17 @@ start {
 
     ;;; trying out some pattern-matcher / list ideas
     [name sue age 30 job teacher home york] -> person;
-    call next_item("age", person) -> result;
+    next_item("age", person) -> result;
     prn result;
 
-    call next_item("home", person) -> result;
+    next_item("home", person) -> result;
     prn result;
 
-    call next_item("height", person) -> result;
+    next_item("height", person) -> result;
     prn result;
 
     [[animal cat][vehicle car][animal dog]] -> collection;
-    call find(collection, [vehicle ==]) -> found;
+    find(collection, [vehicle ==]) -> found;
     prn found;
 
 }

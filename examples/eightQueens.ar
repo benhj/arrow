@@ -33,15 +33,15 @@ fn printQueens(N, x) {
  fn placeNQueens(r, n, x) {
     0 -> c;
     while(c < n) {
-        call canPlaceQueen(r, c, x) -> yes;
+        canPlaceQueen(r, c, x) -> yes;
         if (yes) {
             c -> x[r];
-            call printQueens(n,x); 
+            printQueens(n,x); 
             if (r = n - 1) {
                 exit 1;
             } else {
                 ansi_up n;
-                call placeNQueens(r + 1, n, x);
+                placeNQueens(r + 1, n, x);
             }
         }
         c + 1 -> c;
@@ -56,5 +56,5 @@ start {
         [^i ^^x] -> x;
         i + 1 -> i;    
     }
-    call placeNQueens(0, N, x); 
+    placeNQueens(0, N, x); 
 }

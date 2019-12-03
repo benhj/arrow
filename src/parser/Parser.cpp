@@ -127,6 +127,7 @@ namespace arrow {
 
         static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
         if(pvec.empty()) {
+            pvec.emplace_back([this]{return parseCallStatement();});
             pvec.emplace_back([this]{return parseSimpleArrowStatement();});
             pvec.emplace_back([this]{return parseMatchesStatement();});
             pvec.emplace_back([this]{return parseArrowStatement();});
@@ -136,7 +137,6 @@ namespace arrow {
             pvec.emplace_back([this]{return parseWhileStatement();});
             pvec.emplace_back([this]{return parseForStatement();});
             pvec.emplace_back([this]{return parseIfStatement();});
-            pvec.emplace_back([this]{return parseCallStatement();});
             pvec.emplace_back([this]{return parseStartStatement();});
             pvec.emplace_back([this]{return parseFunctionStatement();});
         }
@@ -818,12 +818,9 @@ namespace arrow {
 
     std::shared_ptr<Statement> Parser::parseCallStatement()
     {
-        if(currentToken().raw != "call") { return nullptr; }
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
         auto const ln = currentToken().lineNumber;
         auto callStatement = std::make_shared<CallStatement>(ln);
-        callStatement->withToken(currentToken());
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
         callStatement->withFunctionNameToken(currentToken());
         advanceTokenIterator();
         auto collection = parseExpressionCollectionExpression();
