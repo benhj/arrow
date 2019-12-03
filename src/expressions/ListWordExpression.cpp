@@ -20,7 +20,7 @@ namespace arrow {
 
             Type evaluate(Cache & cache) const override
             {
-                return {TypeDescriptor::String, m_tok.raw};
+                return {TypeDescriptor::ListWord, m_tok.raw};
             }
           private:
             Token m_tok;
