@@ -25,6 +25,28 @@ namespace arrow {
         return m_qStringToken;
     }
 
+    std::shared_ptr<ExpressionEvaluator> 
+    QStringExpression::getEvaluator() const
+    {
+        struct QStringExpressionEvaluator : public ExpressionEvaluator
+        {
+            QStringExpressionEvaluator(QStringExpression expression)
+              : m_expression(std::move(expression))
+            {
+            }
+
+            Type evaluate(Cache &) const override
+            {
+                auto const token = m_expression.getQStringToken();
+                return {TypeDescriptor::QString, token.raw};
+            }
+
+          private:
+            QStringExpression m_expression;
+        };
+        return std::make_shared<QStringExpressionEvaluator>(*this);
+    }
+
     std::string QStringExpression::toString() const
     {
         std::string str("\n? string expression: ");

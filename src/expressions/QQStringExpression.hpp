@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Expression.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
 #include "lexer/Token.hpp"
 #include <memory>
 
@@ -15,6 +16,8 @@ namespace arrow {
         QQStringExpression & withQQStringToken(Token qQStringToken);
 
         Token getQQStringToken() const;
+
+        std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 
         std::string toString() const override;
 

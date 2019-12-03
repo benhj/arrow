@@ -74,6 +74,12 @@ namespace arrow {
         TypeDescriptor mutable m_descriptor;
         VariantType mutable m_variantType;
 
+        bool operator==(Type const & other) const
+        {
+            return m_descriptor == other.m_descriptor &&
+                   m_variantType == other.m_variantType;
+        }
+
         std::string toString() const
         {
             return std::visit(detail::TypeVisitor(), m_variantType);
