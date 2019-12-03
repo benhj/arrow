@@ -21,7 +21,12 @@ namespace arrow {
             }
             Type evaluate(Cache & cache) const override
             {
-                return IdentifierEvaluator(std::move(m_tok)).evaluate(cache);
+                // Note, literal string type needs to be converted to ListWord
+                auto type = IdentifierEvaluator(std::move(m_tok)).evaluate(cache);
+                if(type.m_descriptor == TypeDescriptor::String) {
+                    type.m_descriptor = TypeDescriptor::ListWord;
+                }
+                return type;
             }
           private:
             Token m_tok;

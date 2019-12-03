@@ -25,7 +25,6 @@ namespace arrow {
 
         // Get the function to evaluate
         auto functionStatement = Parser::getFunction(name);
-        auto const functionLineNumber = functionStatement->getName().lineNumber;
         if(!functionStatement) {
             throw LanguageException("Can't find function", callLineNumber);
         }
@@ -47,6 +46,7 @@ namespace arrow {
 
         // Push in parameters into new cache. The function
         // will then access these parameters
+        auto const functionLineNumber = functionStatement->getName().lineNumber;
         auto param = std::begin(paramCollEval);
         for (auto const & expr : expressionCollEval) {
             auto const raw = std::get<std::string>(param->m_variantType);

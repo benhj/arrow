@@ -1,0 +1,40 @@
+;;; will return all nested-list elements in collection that
+;;; match the given pattern
+fn find(collection, pattern) -> found {
+    [] -> found;
+    for i in collection {
+        i matches pattern -> yes;
+        if(yes) {
+            [^^found ^i] -> found;
+        }
+    }
+}
+
+
+;;; returns the next item after item in list
+fn next_item(item, list) -> next {
+    false -> next;
+    list matches [ == ^item ?found ==] -> m;
+    if (m) {
+        found -> next;
+    }
+}
+
+start {
+
+    ;;; trying out some pattern-matcher / list ideas
+    [name sue age 30 job teacher home york] -> person;
+    call next_item("age", person) -> result;
+    prn result;
+
+    call next_item("home", person) -> result;
+    prn result;
+
+    call next_item("height", person) -> result;
+    prn result;
+
+    [[animal cat][vehicle car][animal dog]] -> collection;
+    call find(collection, [vehicle ==]) -> found;
+    prn found;
+
+}

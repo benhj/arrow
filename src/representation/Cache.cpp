@@ -70,18 +70,10 @@ namespace arrow {
     void Cache::add(Token identifier, Type const type)
     {
         auto found = findAndRetrieveCached(identifier.raw);
-        auto error{false};
         if(found != CacheMap::iterator()) {
             // Remove original instance of value
-            if(found->second.m_descriptor == type.m_descriptor) {
-                found->second.m_variantType.swap(type.m_variantType);
-                return;
-            } else {
-                error = true;
-            }
-        }
-        if(error) {
-            throw LanguageException("Incompatible type", identifier.lineNumber);
+            found->second.m_variantType.swap(type.m_variantType);
+            return;
         }
         // Add brand new instance
         m_cacheStack[0].emplace(identifier.raw, type);

@@ -23,6 +23,7 @@ namespace arrow {
             {
                 auto t = IdentifierEvaluator(std::move(m_tok)).evaluate(cache);
                 if(t.m_descriptor == TypeDescriptor::String) {
+                    t.m_descriptor = TypeDescriptor::ListWord;
                     return t;
                 } else {
                     // Must be an embedded list

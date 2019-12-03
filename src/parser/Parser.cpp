@@ -83,7 +83,6 @@ namespace arrow {
         while(notAtEnd()) {
             auto expression = parseLiteralIntExpression();
             if(!expression) {
-                std::cout<<currentToken().lexeme<<std::endl;
                 break;
             }
             auto const evaluated = expression->getEvaluator()->evaluate(notUsed);
@@ -492,6 +491,10 @@ namespace arrow {
             return parseSingleEqualExpression();
         } else if(currentToken().lexeme == Lexeme::EQUAL_EQUAL) {
             return parseDoubleEqualExpression();
+        } else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {
+            return parseLiteralIntExpression();
+        } else if(currentToken().lexeme == Lexeme::REAL_NUM) {
+            return parseLiteralRealExpression();
         } 
         return nullptr;
     }
@@ -499,7 +502,8 @@ namespace arrow {
     std::shared_ptr<Expression> Parser::parseExpression(bool checkOperator)
     {
         if(m_current + 1 != std::end(m_tokens)) {
-            if (checkOperator && isBooleanOperator(nextToken().lexeme)) {
+            if (checkOperator && isBooleanOperator(nextToken().lexeme) &&
+                currentToken().lexeme != Lexeme::OPEN_SQUARE) {
                 return parseBooleanExpression();
             } else if(checkOperator && isMathOperator(nextToken().lexeme))  {
                 return parseMathExpression();
