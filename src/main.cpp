@@ -65,19 +65,24 @@ int main(int argc, char ** argv) {
         }
     },
     [&](std::string const & str) {
-        if (str != "\n") {
-            std::stringstream ss(str);
-            try {
-                auto tokens = arrow::Lexer::tokenize(ss);
-                p.setTokens(std::move(tokens));
-                p.parse();
-                std::cout<<"\033[1;37m";
-            } catch (...) {
-                std::cout<<"\033[1;31m";
+
+        if(str == "quit") {
+            std::cout<<"\033[1;37m"<<str;
+        } else {
+            if (str != "\n") {
+                std::stringstream ss(str);
+                try {
+                    auto tokens = arrow::Lexer::tokenize(ss);
+                    p.setTokens(std::move(tokens));
+                    p.parse();
+                    std::cout<<"\033[1;37m";
+                } catch (...) {
+                    std::cout<<"\033[1;31m";
+                }
             }
+            std::cout<<str;
+            std::cout<<"\033[0m";
         }
-        std::cout<<str;
-        std::cout<<"\033[0m";
     }, "Arrow v0.1", "\033[1;32m>> \033[0m");
     sp.start();
 

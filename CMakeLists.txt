@@ -28,8 +28,8 @@ add_library(evaluator_lib ${evaluator})
 add_library(representation_lib ${representation})
 
 # build the interpretor
-add_executable(output src/main.cpp)
-target_link_libraries(output
+add_executable(arrow src/main.cpp)
+target_link_libraries(arrow
                       parser_lib
                       lexer_lib
                       expressions_lib
@@ -45,4 +45,4 @@ target_compile_options(evaluator_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(expressions_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(statements_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(representation_lib PUBLIC ${COMP_FLAGS})
-target_compile_options(output PUBLIC ${COMP_FLAGS})
+target_compile_options(arrow PUBLIC ${COMP_FLAGS})
