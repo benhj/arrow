@@ -51,6 +51,10 @@ namespace arrow {
             Type evaluate(Cache & cache) const override
             {
                 auto expressions = m_ece.getExpressionCollection();
+                if(expressions.empty()) {
+                    throw LanguageException("Empty array initialization", m_ece.getLineNumber());
+                }
+
                 std::vector<Type> bigEval;
 
                 auto expression = std::begin(expressions);

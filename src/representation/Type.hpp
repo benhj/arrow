@@ -18,16 +18,19 @@ namespace arrow {
                 } else if constexpr(std::is_same_v<Var, bool>) {
                     return var ? "true" : "false";
                 } else if constexpr(std::is_same_v<Var, std::vector<Type>>) {
-                    std::string str("[");
-                    auto it = std::begin(var);
-                    for (; it != std::end(var) - 1; ++it) {
-                        str.append(it->toString()).append(" ");
+                    if(!var.empty()) {
+                        std::string str("[");
+                        auto it = std::begin(var);
+                        for (; it != std::end(var) - 1; ++it) {
+                            str.append(it->toString()).append(" ");
+                        }
+                        if(it != std::end(var)) {
+                            str.append(it->toString());
+                            str.append("]");
+                        }
+                        return str;
                     }
-                    if(it != std::end(var)) {
-                        str.append(it->toString());
-                        str.append("]");
-                    }
-                    return str;
+                    return "[]";
                 } else if constexpr(std::is_same_v<Var, std::vector<int64_t>> ||
                                     std::is_same_v<Var, std::vector<long double>> ||
                                     std::is_same_v<Var, std::vector<bool>> ||

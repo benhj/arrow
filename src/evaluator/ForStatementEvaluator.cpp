@@ -34,6 +34,8 @@ namespace arrow {
                     cache.add(indexer, {TypeDescriptor::Bool, element});
                 } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
                     cache.add(indexer, {TypeDescriptor::String, element});
+                } else if constexpr (std::is_same_v<typename T::value_type, char>) {
+                    cache.add(indexer, {TypeDescriptor::Byte, element});
                 }
                 evaluateBody(bodyStatements, cache);
                 cache.popCacheLayer();
@@ -58,7 +60,8 @@ namespace arrow {
            evaled.m_descriptor != TypeDescriptor::Ints &&
            evaled.m_descriptor != TypeDescriptor::Reals &&
            evaled.m_descriptor != TypeDescriptor::Bools &&
-           evaled.m_descriptor != TypeDescriptor::Strings) {
+           evaled.m_descriptor != TypeDescriptor::Strings &&
+           evaled.m_descriptor != TypeDescriptor::String) {
             throw LanguageException("Bad type descriptor in for statement expression",
                                     identifier.lineNumber);
         }
@@ -79,6 +82,9 @@ namespace arrow {
             evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Strings) {
             auto elements = std::get<std::vector<std::string>>(evaled.m_variantType);
+            evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+        } else if(evaled.m_descriptor == TypeDescriptor::String) {
+            auto elements = std::get<std::string>(evaled.m_variantType);
             evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         }
     }

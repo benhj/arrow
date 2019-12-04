@@ -213,7 +213,13 @@ namespace arrow {
         exp->withIdentifierToken(currentToken());
         advanceTokenIterator();
         advanceTokenIterator();
+        if(currentToken().lexeme == Lexeme::CLOSE_SQUARE) {
+            throw LanguageException("No index supplied", ln);
+        }
         auto innerExpression = parseExpression();
+        if(!innerExpression) {
+            return nullptr;
+        }
         exp->withIndexExpression(std::move(innerExpression));
         advanceTokenIterator();
         if(currentToken().lexeme != Lexeme::CLOSE_SQUARE) {
