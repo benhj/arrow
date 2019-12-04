@@ -58,6 +58,9 @@ int main(int argc, char ** argv) {
             for(auto const & s : statements) {
                 s->getEvaluator()->evaluate(cache);
             }
+        } catch (arrow::LanguageException const & e) {
+            std::cout<<"\u001b[31;1mError: \u001b[0m";
+            std::cout<<e.what()<<std::endl;
         } catch (...) {
         }
     },
