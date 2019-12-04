@@ -81,12 +81,17 @@ namespace arrow {
         auto deducedRight = rightEval->evaluate(cache);
 
         // String concatenation
-        if(deducedLeft.m_descriptor == TypeDescriptor::String &&
-           deducedRight.m_descriptor == TypeDescriptor::String) {
+        if(deducedLeft.m_descriptor == TypeDescriptor::String) {
             if(op.raw == "+") {
                 auto str = std::get<std::string>(deducedLeft.m_variantType);
-                str = str.append(std::get<std::string>(deducedRight.m_variantType));
-                return {TypeDescriptor::String, str};
+                if(deducedRight.m_descriptor == TypeDescriptor::String) {
+                    str = str.append(std::get<std::string>(deducedRight.m_variantType));
+                    return {TypeDescriptor::String, str};
+                }
+                if(deducedRight.m_descriptor == TypeDescriptor::Byte) {
+                    str.push_back(std::get<char>(deducedRight.m_variantType));
+                    return {TypeDescriptor::String, str};
+                }
             }
         }
 

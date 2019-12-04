@@ -1,0 +1,18 @@
+
+
+fn reverse(str) -> out {
+    [] -> list;
+    for i in str {
+        [^i ^^list] -> list;
+    }
+    "" -> out;
+    for i in list {
+        out + i -> out;
+    }
+    prn out;
+}
+
+start {
+    reverse("hello") -> result;
+    prn result;
+}
