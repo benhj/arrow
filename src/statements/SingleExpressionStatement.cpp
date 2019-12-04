@@ -1,4 +1,5 @@
 #include "SingleExpressionStatement.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
 #include <utility>
 
@@ -26,6 +27,19 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> SingleExpressionStatement::getEvaluator() const
     {
-        return nullptr;
+        struct SingleExpressionStatementEvaluator : public StatementEvaluator
+        {
+            SingleExpressionStatementEvaluator(SingleExpressionStatement statement)
+              : m_statement(std::move(statement))
+            {}
+            void evaluate(Cache & cache) const override
+            {
+                auto const expression = m_statement.getExpression();
+                (void)expression->getEvaluator()->evaluate(cache);
+            }
+          private:
+            SingleExpressionStatement m_statement;
+        };
+        return std::make_shared<SingleExpressionStatementEvaluator>(*this);
     }
 }

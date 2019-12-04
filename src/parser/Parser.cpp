@@ -2,31 +2,34 @@
 #include "Parser.hpp"
 
 /// Statements
-#include "statements/ArrowStatement.hpp"
+#include "statements/AnsiStatement.hpp"
+#include "statements/ArgStatement.hpp"
 #include "statements/ArrowlessStatement.hpp"
-#include "statements/CallStatement.hpp"
-#include "statements/ForStatement.hpp"
-#include "statements/IfStatement.hpp"
+#include "statements/ArrowStatement.hpp"
 #include "statements/EchoStatement.hpp"
-#include "statements/ElseStatement.hpp"
 #include "statements/ElseIfStatement.hpp"
+#include "statements/ElseStatement.hpp"
+#include "statements/EraseStatement.hpp"
+#include "statements/ExitStatement.hpp"
+#include "statements/ForStatement.hpp"
 #include "statements/FunctionStatement.hpp"
+#include "statements/IfStatement.hpp"
+#include "statements/LengthStatement.hpp"
+#include "statements/MatchesStatement.hpp"
+#include "statements/ReleaseStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/SimpleArrowStatement.hpp"
+#include "statements/SingleExpressionStatement.hpp"
 #include "statements/StartStatement.hpp"
 #include "statements/StringToIntStatement.hpp"
 #include "statements/WhileStatement.hpp"
-#include "statements/ExitStatement.hpp"
-#include "statements/AnsiStatement.hpp"
-#include "statements/ArgStatement.hpp"
-#include "statements/LengthStatement.hpp"
-#include "statements/ReleaseStatement.hpp"
-#include "statements/EraseStatement.hpp"
-#include "statements/MatchesStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
 #include "expressions/BracedExpressionCollectionExpression.hpp"
+#include "expressions/DoubleEqualExpression.hpp"
+#include "expressions/ExpressionCollectionExpression.hpp"
+#include "expressions/FunctionExpression.hpp"
 #include "expressions/GroupedExpression.hpp"
 #include "expressions/HatHatStringExpression.hpp"
 #include "expressions/HatStringExpression.hpp"
@@ -42,13 +45,11 @@
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
 #include "expressions/SingleEqualExpression.hpp"
-#include "expressions/DoubleEqualExpression.hpp"
-#include "expressions/FunctionExpression.hpp"
 
 /// Other
-#include "LanguageException.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"
+#include "LanguageException.hpp"
 #include "lexer/Lexeme.hpp"
 #include <algorithm>
 #include <functional>
@@ -142,12 +143,12 @@ namespace arrow {
         if(m_current + 1 != std::end(m_tokens)) {
             static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
             if(pvec.empty()) {
-                //pvec.emplace_back([this]{return parseCallStatement();});
                 pvec.emplace_back([this]{return parseFunctionStatement();});
                 pvec.emplace_back([this]{return parseSimpleArrowStatement();});
                 pvec.emplace_back([this]{return parseArrowStatement();});
                 pvec.emplace_back([this]{return parseMatchesStatement();});
                 pvec.emplace_back([this]{return parseReleaseStatement();});
+                pvec.emplace_back([this]{return parseSingleExpressionStatement();});
                 pvec.emplace_back([this]{return parseArrowlessStatement();});
                 pvec.emplace_back([this]{return parseRepeatStatement();});
                 pvec.emplace_back([this]{return parseWhileStatement();});
@@ -861,34 +862,6 @@ namespace arrow {
         return ifStatement;
     }
 
-    std::shared_ptr<Statement> Parser::parseCallStatement()
-    {
-        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        auto const ln = currentToken().lineNumber;
-        auto callStatement = std::make_shared<CallStatement>(ln);
-        callStatement->withFunctionNameToken(currentToken());
-        advanceTokenIterator();
-        auto collection = parseExpressionCollectionExpression();
-        if(!collection) { return nullptr; }
-        callStatement->withExpressionCollection(std::move(collection));
-        advanceTokenIterator();
-
-        // Handle 'arrow-less' condition (not returning call).
-        if(currentToken().lexeme != Lexeme::ARROW) {
-            if(currentToken().lexeme == Lexeme::SEMICOLON) {
-                callStatement->withIdentifier(Token{Lexeme::NIL, "nil", currentToken().lineNumber});
-                return callStatement;
-            }
-            return nullptr;
-        }
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        callStatement->withIdentifier(currentToken());
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::SEMICOLON) { return nullptr; }
-        return callStatement;
-    }
-
     std::shared_ptr<Statement> Parser::parseStartStatement()
     {
         if(currentToken().raw != "start") { return nullptr; }
@@ -981,5 +954,21 @@ namespace arrow {
             return nullptr;
         }
         return matchesStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parseSingleExpressionStatement()
+    {
+        auto const ln = currentToken().lineNumber;
+        auto singleExpressionStatement = std::make_shared<SingleExpressionStatement>(ln);
+        auto const expression = parseExpression();
+        if(!expression) {
+            return nullptr;
+        }
+        singleExpressionStatement->withExpression(expression);
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::SEMICOLON) {
+            return nullptr;
+        }
+        return singleExpressionStatement;
     }
 }

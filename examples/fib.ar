@@ -27,6 +27,6 @@ fn fib () {
 start {
     
     prn "Calling block fib";
-    fib() -> nil;
+    fib();
 
 }

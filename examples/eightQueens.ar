@@ -35,12 +35,12 @@ fn printQueens(N, x) {
     while(c < n) {
         if (canPlaceQueen(r, c, x)) {
             c -> x[r];
-            printQueens(n,x) -> nil;
+            printQueens(n,x);
             if (r = n - 1) {
                 exit 1;
             } else {
                 ansi_up n;
-                placeNQueens(r + 1, n, x) -> nil;
+                placeNQueens(r + 1, n, x);
             }
         }
         c + 1 -> c;
@@ -55,5 +55,5 @@ start {
         [^i ^^x] -> x;
         i + 1 -> i;    
     }
-    placeNQueens(0, N, x) -> nil; 
+    placeNQueens(0, N, x); 
 }
