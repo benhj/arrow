@@ -43,6 +43,7 @@
 #include "expressions/QStringExpression.hpp"
 #include "expressions/SingleEqualExpression.hpp"
 #include "expressions/DoubleEqualExpression.hpp"
+#include "expressions/FunctionExpression.hpp"
 
 /// Other
 #include "LanguageException.hpp"
@@ -141,10 +142,11 @@ namespace arrow {
         if(m_current + 1 != std::end(m_tokens)) {
             static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
             if(pvec.empty()) {
-                pvec.emplace_back([this]{return parseCallStatement();});
+                //pvec.emplace_back([this]{return parseCallStatement();});
+                pvec.emplace_back([this]{return parseFunctionStatement();});
                 pvec.emplace_back([this]{return parseSimpleArrowStatement();});
-                pvec.emplace_back([this]{return parseMatchesStatement();});
                 pvec.emplace_back([this]{return parseArrowStatement();});
+                pvec.emplace_back([this]{return parseMatchesStatement();});
                 pvec.emplace_back([this]{return parseReleaseStatement();});
                 pvec.emplace_back([this]{return parseArrowlessStatement();});
                 pvec.emplace_back([this]{return parseRepeatStatement();});
@@ -152,7 +154,6 @@ namespace arrow {
                 pvec.emplace_back([this]{return parseForStatement();});
                 pvec.emplace_back([this]{return parseIfStatement();});
                 pvec.emplace_back([this]{return parseStartStatement();});
-                pvec.emplace_back([this]{return parseFunctionStatement();});
             }
             for(auto const & p : pvec) {
                 auto store = m_current;
@@ -437,6 +438,20 @@ namespace arrow {
         return listExp;
     }
 
+    std::shared_ptr<Expression> Parser::parseFunctionExpression()
+    {
+        if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
+        if(nextToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
+        auto const ln = currentToken().lineNumber;
+        auto functionExpression = std::make_shared<FunctionExpression>(ln);
+        functionExpression->withFunctionNameToken(currentToken());
+        advanceTokenIterator();
+        auto collection = parseExpressionCollectionExpression();
+        if(!collection) { return nullptr; }
+        functionExpression->withExpressionCollection(std::move(collection));
+        return functionExpression;
+    }
+
     std::shared_ptr<Expression> 
     Parser::parseExpressionCollectionExpression(bool const identifierOnly)
     {
@@ -547,12 +562,17 @@ namespace arrow {
             } else if(currentToken().lexeme == Lexeme::REAL_NUM) {
                 return parseLiteralRealExpression();
             } else if(currentToken().lexeme == Lexeme::GENERIC_STRING) {
-                auto exp = parseIndexExpression();
                 auto store = m_current;
+                auto exp = parseFunctionExpression();
                 if(!exp) {
-                    return parseIdentifierExpression();
+                    m_current = store;
+                    store = m_current;
+                    exp = parseIndexExpression();
+                    if(!exp) {
+                        m_current = store;
+                        return parseIdentifierExpression();
+                    }
                 }
-                m_current = store;
                 return exp;
             } else if(currentToken().lexeme == Lexeme::LITERAL_STRING) {
                 return parseLiteralStringExpression();
@@ -564,6 +584,10 @@ namespace arrow {
     std::shared_ptr<Statement> Parser::parseArrowStatement()
     {
         auto const ln = currentToken().lineNumber;
+        // Don't attempt to parse function statements
+        if(currentToken().raw == "fn") {
+            return nullptr;
+        }
         auto arrowStatement = std::make_shared<ArrowStatement>(ln);
         arrowStatement->withToken(currentToken());
         auto const keyword = currentToken().raw;

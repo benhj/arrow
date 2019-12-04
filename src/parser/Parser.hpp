@@ -66,6 +66,7 @@ namespace arrow {
         std::shared_ptr<Expression> parseListWordExpression();
         std::shared_ptr<Expression> parseSingleEqualExpression();
         std::shared_ptr<Expression> parseDoubleEqualExpression();
+        std::shared_ptr<Expression> parseFunctionExpression();
 
         /// Parse a part of ListExpression. Note, we need to distinguish
         /// between 'plain' words and identifiers, both of which
