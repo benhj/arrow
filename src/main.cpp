@@ -53,31 +53,29 @@ int main(int argc, char ** argv) {
         if(com == "quit") {
             exit(0);
         }
-        std::stringstream ss;
-        ss << com;
         try {
-            auto tokens = arrow::Lexer::tokenize(ss);
-            p.setTokens(std::move(tokens));
-            p.parse();
             auto statements = p.getStatements();
             for(auto const & s : statements) {
                 s->getEvaluator()->evaluate(cache);
             }
         } catch (...) {
         }
-    }, 
+    },
     [&](std::string const & str) {
-        std::stringstream ss;
-        ss << str;
-        try {
-            p.parse();
-            std::cout<<"\033[1;31m";
-        } catch (...) {
-            std::cout<<"\033[1;37m";
+        if (str != "\n") {
+            std::stringstream ss(str);
+            try {
+                auto tokens = arrow::Lexer::tokenize(ss);
+                p.setTokens(std::move(tokens));
+                p.parse();
+                std::cout<<"\033[1;37m";
+            } catch (...) {
+                std::cout<<"\033[1;31m";
+            }
         }
         std::cout<<str;
         std::cout<<"\033[0m";
-    }, "Arrow v0.1", "\033[1;32mJ> \033[0m");
+    }, "Arrow v0.1", "\033[1;32m>> \033[0m");
     sp.start();
 
 

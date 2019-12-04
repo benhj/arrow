@@ -71,6 +71,7 @@ namespace arrow {
 
     void Parser::setTokens(std::vector<Token> tokens)
     {
+        m_statements.clear();
         m_tokens = std::move(tokens);
         m_current = std::begin(m_tokens);
     }
@@ -137,28 +138,30 @@ namespace arrow {
             advanceTokenIterator();
         }
 
-        static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
-        if(pvec.empty()) {
-            pvec.emplace_back([this]{return parseCallStatement();});
-            pvec.emplace_back([this]{return parseSimpleArrowStatement();});
-            pvec.emplace_back([this]{return parseMatchesStatement();});
-            pvec.emplace_back([this]{return parseArrowStatement();});
-            pvec.emplace_back([this]{return parseReleaseStatement();});
-            pvec.emplace_back([this]{return parseArrowlessStatement();});
-            pvec.emplace_back([this]{return parseRepeatStatement();});
-            pvec.emplace_back([this]{return parseWhileStatement();});
-            pvec.emplace_back([this]{return parseForStatement();});
-            pvec.emplace_back([this]{return parseIfStatement();});
-            pvec.emplace_back([this]{return parseStartStatement();});
-            pvec.emplace_back([this]{return parseFunctionStatement();});
-        }
-        for(auto const & p : pvec) {
-            auto store = m_current;
-            auto statement = p();
-            if(statement) {
-                return statement;
+        if(m_current + 1 != std::end(m_tokens)) {
+            static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
+            if(pvec.empty()) {
+                pvec.emplace_back([this]{return parseCallStatement();});
+                pvec.emplace_back([this]{return parseSimpleArrowStatement();});
+                pvec.emplace_back([this]{return parseMatchesStatement();});
+                pvec.emplace_back([this]{return parseArrowStatement();});
+                pvec.emplace_back([this]{return parseReleaseStatement();});
+                pvec.emplace_back([this]{return parseArrowlessStatement();});
+                pvec.emplace_back([this]{return parseRepeatStatement();});
+                pvec.emplace_back([this]{return parseWhileStatement();});
+                pvec.emplace_back([this]{return parseForStatement();});
+                pvec.emplace_back([this]{return parseIfStatement();});
+                pvec.emplace_back([this]{return parseStartStatement();});
+                pvec.emplace_back([this]{return parseFunctionStatement();});
             }
-            m_current = store;
+            for(auto const & p : pvec) {
+                auto store = m_current;
+                auto statement = p();
+                if(statement) {
+                    return statement;
+                }
+                m_current = store;
+            }
         }
         throw LanguageException("Unable to parse statement", currentToken().lineNumber);
     }
@@ -175,11 +178,17 @@ namespace arrow {
 
     Token Parser::currentToken() const
     {
+        if(m_current == std::end(m_tokens)) {
+            throw std::runtime_error("Parse error");
+        }
         return *m_current;
     }
 
     Token Parser::nextToken() const
     {
+        if(m_current + 1 == std::end(m_tokens)) {
+            throw std::runtime_error("Parse error");
+        }
         return *(m_current + 1);
     }
 
