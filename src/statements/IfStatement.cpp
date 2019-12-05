@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "ElseIfStatement.hpp"
 #include "ElseStatement.hpp"
 #include "IfStatement.hpp"

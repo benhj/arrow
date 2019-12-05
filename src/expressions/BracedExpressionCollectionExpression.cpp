@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "BracedExpressionCollectionExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"

@@ -1,3 +1,5 @@
+/// Ben Jones 2019 - present
+
 #include "lexer/Lexer.hpp"
 #include "lexer/Lexeme.hpp"
 #include "parser/Parser.hpp"

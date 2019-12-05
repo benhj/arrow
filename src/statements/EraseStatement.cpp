@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "EraseStatement.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/StatementEvaluator.hpp"

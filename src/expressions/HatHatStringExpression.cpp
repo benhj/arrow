@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "HatHatStringExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "evaluator/IdentifierEvaluator.hpp"

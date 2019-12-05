@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "WhileStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
 #include "evaluator/WhileStatementEvaluator.hpp"

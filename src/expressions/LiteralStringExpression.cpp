@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "LiteralStringExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>

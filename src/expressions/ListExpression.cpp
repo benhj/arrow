@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "ListExpression.hpp"
 #include "evaluator/ListExpressionEvaluator.hpp"
 

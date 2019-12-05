@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #pragma once
 
 #include "ExpressionEvaluator.hpp"

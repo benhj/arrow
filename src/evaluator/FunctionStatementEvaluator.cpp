@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "FunctionStatementEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>

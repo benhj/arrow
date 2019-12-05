@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "SimpleArrowStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
 #include "expressions/IndexExpression.hpp"

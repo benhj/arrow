@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "SingleEqualExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include <utility>

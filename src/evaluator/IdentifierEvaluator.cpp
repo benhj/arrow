@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "IdentifierEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>

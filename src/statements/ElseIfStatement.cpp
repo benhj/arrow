@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "ElseIfStatement.hpp"
 #include "evaluator/StatementEvaluator.hpp"
 #include <utility>

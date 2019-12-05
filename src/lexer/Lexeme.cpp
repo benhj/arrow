@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "Lexeme.hpp"
 #include <map>
 #include <string>

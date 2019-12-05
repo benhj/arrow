@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "WhileStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"

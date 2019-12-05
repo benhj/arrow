@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "BooleanExpression.hpp"
 #include "evaluator/BooleanExpressionEvaluator.hpp"
 

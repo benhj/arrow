@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "MathExpressionEvaluator.hpp"
 #include "expressions/MathExpression.hpp"
 #include "parser/LanguageException.hpp"

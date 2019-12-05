@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "IndexExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"

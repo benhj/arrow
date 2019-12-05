@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019 - present
+
 #include "MatchesStatement.hpp"
 #include "evaluator/MatchesStatementEvaluator.hpp"
 #include <utility>

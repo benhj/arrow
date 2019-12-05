@@ -1,3 +1,5 @@
+/// (c) Ben Jones 2019
+
 #include "ForStatementEvaluator.hpp"
 #include "ExpressionEvaluator.hpp"
 #include "expressions/IdentifierExpression.hpp"
