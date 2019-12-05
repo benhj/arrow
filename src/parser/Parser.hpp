@@ -130,6 +130,10 @@ namespace arrow {
         /// start { statement * }
         std::shared_ptr<Statement> parseStartStatement();
 
+        /// Parses an async statement:
+        /// start { statement * }
+        std::shared_ptr<Statement> parseAsyncStatement();
+
         /// Parses a function statement of the form
         /// fn:identifier identifier(expression1,..,expressionN) -> identifier
         /// {

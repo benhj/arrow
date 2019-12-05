@@ -7,6 +7,7 @@
 #include "lexer/Token.hpp"
 #include <deque>
 #include <map>
+#include <mutex>
 #include <string>
 
 namespace arrow {
@@ -41,6 +42,6 @@ namespace arrow {
         std::deque<CacheMap> mutable m_cacheStack;
         std::vector<Type> mutable m_programArguments;
         static std::deque<Type> m_returnStack;
-
+        std::mutex mutable m_mutex;
     };
 }

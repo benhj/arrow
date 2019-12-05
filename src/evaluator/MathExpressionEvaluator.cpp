@@ -89,9 +89,17 @@ namespace arrow {
                 if(deducedRight.m_descriptor == TypeDescriptor::String) {
                     str = str.append(std::get<std::string>(deducedRight.m_variantType));
                     return {TypeDescriptor::String, str};
-                }
-                if(deducedRight.m_descriptor == TypeDescriptor::Byte) {
+                } else if(deducedRight.m_descriptor == TypeDescriptor::Byte) {
                     str.push_back(std::get<char>(deducedRight.m_variantType));
+                    return {TypeDescriptor::String, str};
+                } else if(deducedRight.m_descriptor == TypeDescriptor::Int) {
+                    str = str.append(std::to_string(std::get<int64_t>(deducedRight.m_variantType)));
+                    return {TypeDescriptor::String, str};
+                } else if(deducedRight.m_descriptor == TypeDescriptor::Real) {
+                    str = str.append(std::to_string(std::get<long double>(deducedRight.m_variantType)));
+                    return {TypeDescriptor::String, str};
+                } else if(deducedRight.m_descriptor == TypeDescriptor::Bool) {
+                    str = str.append(std::to_string(std::get<bool>(deducedRight.m_variantType)));
                     return {TypeDescriptor::String, str};
                 }
             }

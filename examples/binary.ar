@@ -1,0 +1,39 @@
+;;; put helpers in some standard helper file?
+fn reverse(str) -> reversed {
+    ;;; reverse the string now since was constructed 
+    ;;; in reverse order
+    [] -> chars;
+    for i in str {
+        [^i ^^chars] -> chars;
+    }
+    "" -> reversed;
+    for i in chars {
+        reversed + i -> reversed;
+    }
+}
+
+fn binary (number) -> binaryString {
+    
+    ;;; make a string to store the binary string.
+    ;;; starts out empty
+    " " -> binaryString;
+
+    while (number > 0 ) {
+        (number % 2) -> bit;
+        (number / 2) -> number;
+        binaryString + bit -> binaryString;
+    }
+    reverse(binaryString) -> binaryString;
+}
+
+;;; requires an input program argument.
+start {
+    
+    ;;; get first program argument which is a string
+    ;;; that will need to be converted to a number
+    arg 0 -> a;
+
+    ;;; convert the above arbitrary int to 
+    ;;; a binary representation
+    prn ("The number " + a) + (" in binary is: " + binary(a));
+}

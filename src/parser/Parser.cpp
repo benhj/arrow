@@ -8,6 +8,7 @@
 #include "statements/ArgStatement.hpp"
 #include "statements/ArrowlessStatement.hpp"
 #include "statements/ArrowStatement.hpp"
+#include "statements/AsyncStatement.hpp"
 #include "statements/EchoStatement.hpp"
 #include "statements/ElseIfStatement.hpp"
 #include "statements/ElseStatement.hpp"
@@ -157,6 +158,7 @@ namespace arrow {
                 pvec.emplace_back([this]{return parseForStatement();});
                 pvec.emplace_back([this]{return parseIfStatement();});
                 pvec.emplace_back([this]{return parseStartStatement();});
+                pvec.emplace_back([this]{return parseAsyncStatement();});
             }
             for(auto const & p : pvec) {
                 auto store = m_current;
@@ -888,6 +890,25 @@ namespace arrow {
         }
         m_startStatement = startStatement;
         return startStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parseAsyncStatement()
+    {
+        if(currentToken().raw != "async") { return nullptr; }
+        auto const ln = currentToken().lineNumber;
+        auto asyncStatement = std::make_shared<AsyncStatement>(ln);
+        asyncStatement->withToken(currentToken());
+        advanceTokenIterator();
+        if(currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+        advanceTokenIterator();
+        while(currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+            auto statement = buildStatement();
+            if(statement) {
+                asyncStatement->addBodyStatement(std::move(statement));
+            }
+            advanceTokenIterator();
+        }
+        return asyncStatement;
     }
 
     std::shared_ptr<Statement> Parser::parseFunctionStatement()

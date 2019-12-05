@@ -45,13 +45,10 @@ namespace arrow {
             {
                 auto const bodyStatements = m_statement.getBodyStatements();
                 ThreadManager::create([bodyStatements{std::move(bodyStatements)}, &cache] {
-                    cache.pushCacheLayer();
                     for(auto const & inner : bodyStatements) {
                         inner->getEvaluator()->evaluate(cache);
                     }
-                    cache.popCacheLayer();
                 });
-
             }
           private:
             AsyncStatement m_statement;

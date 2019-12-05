@@ -8,6 +8,7 @@
 #include "parser/Parser.hpp"
 #include "parser/LanguageException.hpp"
 #include "statements/FunctionStatement.hpp"
+#include "utility/ThreadManager.hpp"
 #include <utility>
 
 namespace arrow {
@@ -19,6 +20,13 @@ namespace arrow {
     {
         // Pull out the name of the function
         auto const name = m_expression.getName().raw;
+
+        // Handle any built-in function here
+        if(name == "join_all") {
+            ThreadManager::joinAll();
+            return {TypeDescriptor::Nil, false};
+        }
+
         auto const callLineNumber = m_expression.getName().lineNumber;
 
         // Pull out the arguments being passed into the function
