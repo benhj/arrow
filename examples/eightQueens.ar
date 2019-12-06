@@ -5,8 +5,7 @@ fn canPlaceQueen(r, c, x) -> yes {
         x[i] -> tok;
         if ((tok = c) || ((i - r) = (tok - c)) || (i - r) = (c - tok)) {
             false -> yes;
-            ;;; so that we can break early
-            r -> i; 
+            break;
         }
         i + 1 -> i;
     }

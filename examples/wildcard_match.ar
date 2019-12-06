@@ -1,3 +1,10 @@
+fn tail(list) -> result {
+    [] -> result;
+    list matches [= ??tail] -> yes;
+    if(yes) {
+        tail -> result;
+    }
+}
 
 fn to_list(str) -> list {
     [] -> list;
@@ -32,7 +39,7 @@ fn wildcard_match(needle, haystack) -> result {
                 false -> withFinalCheck;
                 break;
             } else {
-                haystack matches [= ??haystack] -> nil;
+                tail(haystack) -> haystack;
             }
         } elseif (i = '*') {
 
@@ -44,16 +51,15 @@ fn wildcard_match(needle, haystack) -> result {
 
             list_length(haystack) -> length;
             0 -> j;
-            needle matches [= ??newNeedle] -> match;
+            tail(needle) -> newNeedle;
             haystack -> newHaystack;
-            true -> match2;
             while(j < length) {
                 if(wildcard_match(newNeedle, newHaystack)) {
                     true -> result;
                     false -> withFinalCheck;
                     break;
                 }
-                newHaystack matches [= ??newHaystack] -> match2;
+                tail(newHaystack) -> newHaystack;
                 j + 1 -> j;
             }
             false -> result;
@@ -61,8 +67,7 @@ fn wildcard_match(needle, haystack) -> result {
             break;
         } else {
             haystack[0] -> head;
-            [] -> newHaystack;
-            haystack matches [?head ??newHaystack] -> res;
+            tail(haystack) -> newHaystack;
             if(head /= i) {
                 false -> result;
                 false -> withFinalCheck;
@@ -80,16 +85,12 @@ fn wildcard_match(needle, haystack) -> result {
     if(withFinalCheck) {
         (haystack = []) -> result;
     }
-
 }
 
 start {
 
-    "helfdsfdsaflo.pdf" -> haystack;
+    "helfdsfdsaflo.txt" -> haystack;
     "*.pdf" -> needle;
-
     wildcard_match(to_list(needle), to_list(haystack)) -> matched;
-    
     prn matched;
-    
 }
