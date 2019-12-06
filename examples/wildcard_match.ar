@@ -1,0 +1,95 @@
+
+fn to_list(str) -> list {
+    [] -> list;
+    for i in str {
+        [^^list ^i] -> list;
+    }
+}
+
+fn list_length(list) -> length {
+
+    0 -> length;
+
+    for i in list {
+        length + 1 -> length;
+    }
+}
+
+;;; buggy wildcard matching algorithm. This
+;;; is a non-trivial problem and needs much refinement.
+fn wildcard_match(needle, haystack) -> result {
+
+    true -> withFinalCheck;
+    false -> result;
+
+    0 -> needleCounter;
+    list_length(needle) -> needleLength;
+
+    for i in needle {
+        if(i = '?') {
+            if(haystack = []) {
+                false -> result;
+                false -> withFinalCheck;
+                break;
+            } else {
+                haystack matches [= ??haystack] -> nil;
+            }
+        } elseif (i = '*') {
+
+            if((needleCounter + 1) = needleLength) {
+                true -> result;
+                false -> withFinalCheck;
+                break;
+            }
+
+            list_length(haystack) -> length;
+            0 -> j;
+            needle matches [= ??newNeedle] -> match;
+            haystack -> newHaystack;
+            true -> match2;
+            while(j < length) {
+                if(wildcard_match(newNeedle, newHaystack)) {
+                    true -> result;
+                    false -> withFinalCheck;
+                    break;
+                }
+                newHaystack matches [= ??newHaystack] -> match2;
+                j + 1 -> j;
+            }
+            false -> result;
+            false -> withFinalCheck;
+            break;
+        } else {
+            haystack[0] -> head;
+            [] -> newHaystack;
+            haystack matches [?head ??newHaystack] -> res;
+            if(head /= i) {
+                false -> result;
+                false -> withFinalCheck;
+                break;
+            } else {
+                newHaystack -> haystack;
+                list_length(haystack) -> len;
+                if(len = 0) {
+                    break;
+                }
+            }
+        }
+        needleCounter + 1 -> needleCounter;
+    }
+    if(withFinalCheck) {
+        (haystack = []) -> result;
+    }
+
+}
+
+start {
+
+    "helfdsfdsaflo.pdf" -> haystack;
+    "*.pdf" -> needle;
+
+    wildcard_match(to_list(needle), to_list(haystack)) -> matched;
+    
+    prn matched;
+    
+}
