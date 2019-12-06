@@ -9,7 +9,7 @@ namespace arrow {
       : m_statement(std::move(statement))
     {
     }
-    void FunctionStatementEvaluator::evaluate(Cache & cache) const
+    bool FunctionStatementEvaluator::evaluate(Cache & cache) const
     {
         auto const name = m_statement.getName().raw;
         auto const statements = m_statement.getBodyStatements();
@@ -21,5 +21,6 @@ namespace arrow {
             throw LanguageException("Can't find return value in function statement",
                                     returnIdentifier.lineNumber);
         }
+        return true;
     }
 }

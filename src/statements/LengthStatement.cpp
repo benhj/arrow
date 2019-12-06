@@ -36,7 +36,7 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            void evaluate(Cache & cache) const override
+            bool evaluate(Cache & cache) const override
             {
                 auto const expression = m_statement.getExpression();
                 auto const type = expression->getEvaluator()->evaluate(cache);
@@ -54,22 +54,22 @@ namespace arrow {
                 switch (type.m_descriptor) {
                     case TypeDescriptor::List:
                         set<Type>(type, identifier, cache);
-                        return;
+                        break;
                     case TypeDescriptor::Ints:
                         set<int64_t>(type, identifier, cache);
-                        return;
+                        break;
                     case TypeDescriptor::Reals:
                         set<long double>(type, identifier, cache);
-                        return;
+                        break;
                     case TypeDescriptor::Bools:
                         set<bool>(type, identifier, cache);
-                        return;
+                        break;
                     case TypeDescriptor::Strings:
                         set<std::string>(type, identifier, cache);
-                        return;
+                        break;
                     case TypeDescriptor::Bytes:
                         set<char>(type, identifier, cache);
-                        return;
+                        break;
                     case TypeDescriptor::String: {
                         auto casted = std::get<std::string>(type.m_variantType);
                         cache.add(identifier, {TypeDescriptor::Int, static_cast<int64_t>(casted.size())});
@@ -77,6 +77,7 @@ namespace arrow {
                     default:
                         break;
                 }
+                return true;
             }
           private:
             LengthStatement m_statement;

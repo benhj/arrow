@@ -19,6 +19,7 @@ namespace arrow {
         // Literals
         GENERIC_STRING, LITERAL_STRING, INTEGER_NUM, REAL_NUM,
         HAT_STRING, HAT_HAT_STRING, Q_STRING, Q_Q_STRING,
+        LITERAL_CHAR,
 
         // Array represetation
         DOLLAR_STRING,

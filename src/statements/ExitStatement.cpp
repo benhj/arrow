@@ -36,9 +36,10 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            void evaluate(Cache & cache) const override
+            bool evaluate(Cache & cache) const override
             {
                 exit(0);
+                return true;
             }
           private:
             ExitStatement m_statement;

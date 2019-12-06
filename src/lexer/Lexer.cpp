@@ -306,6 +306,26 @@ namespace arrow {
         return false;
     }
 
+    bool checkIfLiteralCharToken(char const c,
+                                 std::istream & stream,
+                                 std::vector<Token> & tokens,
+                                 long & lineNumber) {
+        if(c == '\'') {
+            auto next = stream.peek();
+            std::string dat;
+            if(next != '\'') {
+                dat.push_back(next);
+                stream.get();
+            }
+            if(c != '\'') {
+                return false;
+            }
+            stream.get();
+            tokens.emplace_back(Lexeme::LITERAL_CHAR, std::move(dat), lineNumber);
+        }
+        return false;
+    }
+
     std::vector<Token> Lexer::tokenize(std::istream & stream) {
         std::vector<Token> tokens;
         long lineNumber{1};
@@ -318,6 +338,7 @@ namespace arrow {
             if(checkIfMultiAlphaToken(c, stream, tokens, lineNumber)) { continue; }
             if(checkIfNumberToken(c, stream, tokens, lineNumber)) { continue; }
             if(checkIfLiteralStringToken(c, stream, tokens, lineNumber)) { continue; }
+            if(checkIfLiteralCharToken(c, stream, tokens, lineNumber)) { continue; }
         }
         return tokens;
     }

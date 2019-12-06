@@ -9,6 +9,6 @@ namespace arrow {
     class StatementEvaluator
     {
       public:
-        virtual void evaluate(Cache&) const = 0;
+        virtual bool evaluate(Cache&) const = 0;
     };
 }

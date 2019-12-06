@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit RepeatStatementEvaluator(RepeatStatement statement);
-        void evaluate(Cache&) const override;
+        bool evaluate(Cache&) const override;
       private:
         RepeatStatement m_statement;
     };

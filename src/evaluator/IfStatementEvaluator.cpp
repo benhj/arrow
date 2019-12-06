@@ -9,12 +9,15 @@
 namespace arrow {
 
     namespace {
-        void evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
+        bool evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
                           Cache & cache)
         {
             for(auto const & statement : bodyStatements) {
-                statement->getEvaluator()->evaluate(cache); 
+                if(!statement->getEvaluator()->evaluate(cache)) {
+                    return false;
+                }
             }
+            return true;
         }
     }
 
@@ -23,7 +26,7 @@ namespace arrow {
     {
     }
 
-    void IfStatementEvaluator::evaluate(Cache & cache) const
+    bool IfStatementEvaluator::evaluate(Cache & cache) const
     {
         auto ifEval = m_statement.getExpression()->getEvaluator();
         auto ifEvaluated = ifEval->evaluate(cache);
@@ -34,9 +37,9 @@ namespace arrow {
         if(theBool) {
             cache.pushCacheLayer();
             auto bodyStatements = m_statement.getBodyStatements();
-            evaluateBody(std::move(bodyStatements), cache);
+            auto const evaluated = evaluateBody(std::move(bodyStatements), cache);
             cache.popCacheLayer();
-            return;
+            return evaluated;
         } else {
             auto elseIfParts = m_statement.getElseIfParts();
             for(auto const & part : elseIfParts) {
@@ -49,18 +52,20 @@ namespace arrow {
                 if(partBool) {
                     cache.pushCacheLayer();
                     auto bodyStatements = part->getBodyStatements();
-                    evaluateBody(std::move(bodyStatements), cache);
+                    auto const evaluated = evaluateBody(std::move(bodyStatements), cache);
                     cache.popCacheLayer();
-                    return;
+                    return evaluated;
                 }
             }
             auto elsePart = m_statement.getElsePart();
             if(elsePart) {
                 cache.pushCacheLayer();
                 auto bodyStatements = elsePart->getBodyStatements();
-                evaluateBody(std::move(bodyStatements), cache);
+                auto const evaluated = evaluateBody(std::move(bodyStatements), cache);
                 cache.popCacheLayer();
+                return evaluated;
             }
         }
+        return true;
     }
 }

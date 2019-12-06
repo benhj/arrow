@@ -19,7 +19,10 @@ namespace arrow {
         }
 
         /// Returns an Evaluator that can be used to evaluate this
-        virtual std::shared_ptr<StatementEvaluator> getEvaluator() const = 0;
+        virtual std::shared_ptr<StatementEvaluator> getEvaluator() const
+        {
+            return nullptr;
+        }
 
         /// For debugging purposes
 	  	virtual std::string toString() const = 0;

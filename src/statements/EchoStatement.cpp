@@ -35,7 +35,7 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            void evaluate(Cache & cache) const override
+            bool evaluate(Cache & cache) const override
             {
                 auto const expression = m_statement.getExpression();
                 auto const type = expression->getEvaluator()->evaluate(cache);
@@ -45,6 +45,7 @@ namespace arrow {
                 } else {
                     std::cout<<type.toString()<<std::endl;
                 }
+                return true;
             }
           private:
             EchoStatement m_statement;

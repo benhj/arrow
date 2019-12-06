@@ -44,12 +44,13 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            void evaluate(Cache & cache) const override
+            bool evaluate(Cache & cache) const override
             {
                 auto const identifier = m_statement.getIdentifier();
                 if(cache.has(identifier)) {
                     cache.remove(identifier);
                 }
+                return true;
             }
           private:
             ReleaseStatement m_statement;

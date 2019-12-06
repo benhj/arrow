@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         SimpleArrowStatementEvaluator(SimpleArrowStatement statement);
-        void evaluate(Cache&) const override;
+        bool evaluate(Cache&) const override;
       private:
         SimpleArrowStatement m_statement;
     };

@@ -37,7 +37,7 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            void evaluate(Cache & cache) const override
+            bool evaluate(Cache & cache) const override
             {
                 auto casted = dynamic_cast<IndexExpression*>(m_statement.getExpression().get());
                 auto containerIdentifier = casted->getIdentifierToken();
@@ -54,6 +54,7 @@ namespace arrow {
                     throw LanguageException("Problem erasing element",
                                             m_statement.getLineNumber());
                 }
+                return true;
             }
           private:
             EraseStatement m_statement;

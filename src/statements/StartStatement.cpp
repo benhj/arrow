@@ -47,12 +47,13 @@ namespace arrow {
             {
             }
 
-            void evaluate(Cache & cache) const override
+            bool evaluate(Cache & cache) const override
             {
                 auto const bodyStatements = m_statement.getBodyStatements();
                 for(auto const & inner : bodyStatements) {
                     inner->getEvaluator()->evaluate(cache);
                 }
+                return true;
             }
           private:
             StartStatement m_statement;

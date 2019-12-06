@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit IfStatementEvaluator(IfStatement statement);
-        void evaluate(Cache&) const override;
+        bool evaluate(Cache&) const override;
       private:
         IfStatement m_statement;
     };

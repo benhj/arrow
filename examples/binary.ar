@@ -19,8 +19,8 @@ fn binary (number) -> binaryString {
     " " -> binaryString;
 
     while (number > 0 ) {
-        (number % 2) -> bit;
-        (number / 2) -> number;
+        number % 2 -> bit;
+        number / 2 -> number;
         binaryString + bit -> binaryString;
     }
     reverse(binaryString) -> binaryString;

@@ -26,6 +26,7 @@
 #include "statements/StartStatement.hpp"
 #include "statements/StringToIntStatement.hpp"
 #include "statements/WhileStatement.hpp"
+#include "statements/LoopBreakStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -43,6 +44,7 @@
 #include "expressions/LiteralIntExpression.hpp"
 #include "expressions/LiteralRealExpression.hpp"
 #include "expressions/LiteralStringExpression.hpp"
+#include "expressions/LiteralCharExpression.hpp"
 #include "expressions/MathExpression.hpp"
 #include "expressions/OperatorExpression.hpp"
 #include "expressions/QQStringExpression.hpp"
@@ -144,6 +146,13 @@ namespace arrow {
         }
 
         if(m_current + 1 != std::end(m_tokens)) {
+
+            if(currentToken().raw == "break" && nextToken().raw == ";") {
+                advanceTokenIterator();
+                advanceTokenIterator();
+                return std::make_shared<LoopBreakStatement>(currentToken().lineNumber);
+            }
+
             static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
             if(pvec.empty()) {
                 pvec.emplace_back([this]{return parseFunctionStatement();});
@@ -260,6 +269,14 @@ namespace arrow {
     {
         auto const ln = currentToken().lineNumber;
         auto exp = std::make_shared<LiteralStringExpression>(ln);
+        exp->withStringToken(currentToken());
+        return exp;
+    }
+
+    std::shared_ptr<Expression> Parser::parseLiteralCharExpression()
+    {
+        auto const ln = currentToken().lineNumber;
+        auto exp = std::make_shared<LiteralCharExpression>(ln);
         exp->withStringToken(currentToken());
         return exp;
     }
@@ -587,6 +604,8 @@ namespace arrow {
                 return exp;
             } else if(currentToken().lexeme == Lexeme::LITERAL_STRING) {
                 return parseLiteralStringExpression();
+            } else if(currentToken().lexeme == Lexeme::LITERAL_CHAR) {
+                return parseLiteralCharExpression();
             }
         }
         return nullptr;

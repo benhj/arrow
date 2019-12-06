@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit FunctionStatementEvaluator(FunctionStatement statement);
-        void evaluate(Cache&) const override;
+        bool evaluate(Cache&) const override;
       private:
         FunctionStatement m_statement;
     };

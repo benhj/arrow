@@ -10,20 +10,24 @@
 namespace arrow {
 
     namespace {
-        void evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
+        bool evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
                           Cache & cache)
         {
             for(auto const & statement : bodyStatements) {
-                statement->getEvaluator()->evaluate(cache); 
+                if(!statement->getEvaluator()->evaluate(cache)) {
+                    return false;
+                }
             }
+            return true;
         }
 
         template <typename T>
-        void evaluateContainerElements(T elements,
+        bool evaluateContainerElements(T elements,
                                        std::vector<std::shared_ptr<Statement>> bodyStatements,
                                        Token indexer,
                                        Cache & cache)
         {
+            auto evaluated = false;
             for (auto const & element : elements) {
                 cache.pushCacheLayer();
                 if constexpr (std::is_same_v<typename T::value_type, Type>) {
@@ -39,9 +43,13 @@ namespace arrow {
                 } else if constexpr (std::is_same_v<typename T::value_type, char>) {
                     cache.add(indexer, {TypeDescriptor::Byte, element});
                 }
-                evaluateBody(bodyStatements, cache);
+                evaluated = evaluateBody(bodyStatements, cache);
                 cache.popCacheLayer();
+                if(!evaluated) {
+                    return false;
+                }
             }
+            return true;
         }
     }
 
@@ -50,7 +58,7 @@ namespace arrow {
     {
     }
 
-    void ForStatementEvaluator::evaluate(Cache & cache) const
+    bool ForStatementEvaluator::evaluate(Cache & cache) const
     {
         auto indexer = m_statement.getIndexer();
         auto identifier = m_statement.getIdentifier();
@@ -63,7 +71,8 @@ namespace arrow {
            evaled.m_descriptor != TypeDescriptor::Reals &&
            evaled.m_descriptor != TypeDescriptor::Bools &&
            evaled.m_descriptor != TypeDescriptor::Strings &&
-           evaled.m_descriptor != TypeDescriptor::String) {
+           evaled.m_descriptor != TypeDescriptor::String &&
+           evaled.m_descriptor != TypeDescriptor::Bytes) {
             throw LanguageException("Bad type descriptor in for statement expression",
                                     identifier.lineNumber);
         }
@@ -72,22 +81,26 @@ namespace arrow {
         if(evaled.m_descriptor == TypeDescriptor::List ||
            evaled.m_descriptor == TypeDescriptor::ExpressionCollection) {
             auto elements = std::get<std::vector<Type>>(evaled.m_variantType);
-            evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Ints) {
             auto elements = std::get<std::vector<int64_t>>(evaled.m_variantType);
-            evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Reals) {
             auto elements = std::get<std::vector<long double>>(evaled.m_variantType);
-            evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Bools) {
             auto elements = std::get<std::vector<bool>>(evaled.m_variantType);
-            evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Strings) {
             auto elements = std::get<std::vector<std::string>>(evaled.m_variantType);
-            evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::String) {
             auto elements = std::get<std::string>(evaled.m_variantType);
-            evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
+        } else if(evaled.m_descriptor == TypeDescriptor::Byte) {
+            auto elements = std::get<std::vector<char>>(evaled.m_variantType);
+            return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         }
+        return true;
     }
 }
