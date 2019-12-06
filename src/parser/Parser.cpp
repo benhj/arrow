@@ -147,14 +147,9 @@ namespace arrow {
 
         if(m_current + 1 != std::end(m_tokens)) {
 
-            if(currentToken().raw == "break" && nextToken().raw == ";") {
-                advanceTokenIterator();
-                advanceTokenIterator();
-                return std::make_shared<LoopBreakStatement>(currentToken().lineNumber);
-            }
-
             static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
             if(pvec.empty()) {
+                pvec.emplace_back([this]{return parseBreakStatement();});
                 pvec.emplace_back([this]{return parseFunctionStatement();});
                 pvec.emplace_back([this]{return parseSimpleArrowStatement();});
                 pvec.emplace_back([this]{return parseArrowStatement();});
@@ -742,6 +737,18 @@ namespace arrow {
         advanceTokenIterator();
         if(currentToken().lexeme == Lexeme::SEMICOLON) {
             return releaseStatement;
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<Statement> Parser::parseBreakStatement()
+    {
+        if(currentToken().raw != "break") { return nullptr; }
+        auto const ln = currentToken().lineNumber;
+        auto breakStatement = std::make_shared<LoopBreakStatement>(ln);
+        advanceTokenIterator();
+        if(currentToken().lexeme == Lexeme::SEMICOLON) {
+            return breakStatement;
         }
         return nullptr;
     }
