@@ -1,6 +1,6 @@
 # Arrow
 
-Arrow is a weakly typed interpreted programming language with a primary aim of helping one undertand how simple interpetors are implemented. A secondary aim has been to reimplement an interpretor for JASL (see), the original version of which became overly complex and bloated and therefore simply too crap to properly maintain.  
+Arrow is a weakly typed interpreted programming language with a primary aim of helping one undertand how interpetors are implemented. A secondary aim has been to reimplement an interpretor for JASL (see), the original version of which became overly complex and bloated and therefore simply too crap to properly maintain.  
 
 The implementation here is designed from the ground up to:
 
