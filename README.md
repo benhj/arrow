@@ -1,6 +1,8 @@
 # Arrow
 
-This forms the beginnings of a litte less crap (re-)implementation of a previously implemented interpretor that I abandoned due to its complexity and extremely poor maintainability. The implementation here is designed from the ground up to
+At its heart, Arrow is a weakly typed interpreted programming language with a primary aim of helping one undertand how simple interpetors are implemented. 
+
+In essense, the language syntax is based on that of a previously implemented interpretor that I abandoned due to high complexity and poor maintainability. The implementation here is designed from the ground up to:
 
 * be a little less crap <--- the main thing!
 * be a fun way to understand parsers
