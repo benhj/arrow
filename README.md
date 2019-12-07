@@ -5,13 +5,12 @@ Arrow is a weakly typed interpreted programming language with a primary aim of h
 The implementation here is designed from the ground up to:
 
 * be a little less crap <--- the main thing!
-* be a fun way to understand parsers
 * have a minimal number of dependencies (besides C++17)
 * faster
 * more powerful
 * more flexible
 
-The outcome of the secondary aim is a more flexible syntax; it leaves out much of the syntactic sugar of JASL (like using the call keyword to call a function) while (I hope) permitting a more 'natural' programming style that should be more familiar to users of C-like languages.
+The result is a far nicer syntax that does away with much of the syntactic sugar of JASL (like using the call keyword to call a function) and (I hope) permits a more 'natural' and less constrained style of programming.
 
 ## How does it work ('in a nutshell')?
 
