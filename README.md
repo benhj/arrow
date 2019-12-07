@@ -1,13 +1,13 @@
 # Arrow
 
-This forms the beginnings of a hopefully litte less crap (re-)implementation of an interpretor I wrote for my other interpreted language, JASL. The implementation here is designed from the ground up to
+This forms the beginnings of a hopefully litte less crap (re-)implementation of another interpretor that ended up becoming overly complex and too difficult to maintain. The implementation here is designed from the ground up to
+
 * be a little less crap <--- the main thing!
 * be a fun way to understand parsers
 * have a minimal number of dependencies (besides C++17)
 * faster
 * more powerful
 * more flexible
-* never be used in production because that would just be stupid!!
 
 ## How does it work ('in a nutshell')?
 
