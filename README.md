@@ -39,7 +39,9 @@ start {
 
 ## Basic types
 
-The Arrow programming language is weakly-typed and the arrow (`->`) operator is used for assignment, for example, the statement `1 -> a;` can be read as "the value 1 is out into the variable a".
+The Arrow programming language is weakly-typed and the arrow (`->`) operator is used for assignment, for example, the statement `1 -> a;` can be read as "the value 1 is out into the variable a". Note that this conveniently frees up the use of the `=` operator to be used purely for logical equality, thus `1 = 1` is an expression that evaluates to true rather than an assignment. There is therefore no need to use `==` to refer to equality.
+
+Here are a few other examples:
 
 ```
 ;;; a literal string
