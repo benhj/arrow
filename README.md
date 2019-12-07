@@ -1,6 +1,6 @@
 # Arrow
 
-This forms the beginnings of a hopefully litte less crap (re-)implementation of another interpretor that ended up becoming overly complex and too difficult to maintain. The implementation here is designed from the ground up to
+This forms the beginnings of a litte less crap (re-)implementation of a previously implemented interpretor that I abandoned due to its complexity and extremely poor maintainability. The implementation here is designed from the ground up to
 
 * be a little less crap <--- the main thing!
 * be a fun way to understand parsers
