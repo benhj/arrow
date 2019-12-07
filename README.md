@@ -1,16 +1,17 @@
 # Arrow
 
-Arrow is a weakly typed interpreted programming language with a primary aim of helping one undertand how interpetors are implemented. A secondary aim has been to reimplement an interpretor for JASL (see), the original version of which became overly complex and bloated and therefore simply too crap to properly maintain.  
+Arrow is a weakly typed interpreted programming language with a primary aim of being a syntactic testbed in the design and implementation of an interpretor. A core goal of the project hosted here has been to also reimplement an interpretor for JASL (see), the original version of which became overly complex and bloated and therefore simply too crap to properly maintain. 
 
 The implementation here is designed from the ground up to:
 
 * be a little less crap <--- the main thing!
+* be a fun way to learn about parsers
 * have a minimal number of dependencies (besides C++17)
 * faster
 * more powerful
 * more flexible
 
-The result is a far nicer syntax that does away with much of the syntactic sugar of JASL (like using the call keyword to call a function) and (I hope) permits a more 'natural' and less constrained style of programming.
+The result is a far nicer syntax that does away with much of the syntactic sugar of JASL (like having to use the call keyword to call a function) and (I hope) permits a more 'natural' and less constrained style of programming.
 
 ## How does it work ('in a nutshell')?
 
