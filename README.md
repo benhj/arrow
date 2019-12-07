@@ -11,7 +11,7 @@ The implementation here is designed from the ground up to:
 * more powerful
 * more flexible
 
-The outcome of the secondary aim is a more flexible syntax since it leaves out much of the syntactic sugar of JASL (like using the call keyword to call a function) and permits a more 'natural' programming style.
+The outcome of the secondary aim is a more flexible syntax since it leaves out much of the syntactic sugar of JASL (like using the call keyword to call a function) while (I hope) permitting a more 'natural' programming style that should be more familiar to users of C-like languages.
 
 ## How does it work ('in a nutshell')?
 
