@@ -39,7 +39,7 @@ start {
 
 ## Basic types
 
-The Arrow programming language is weakly-typed:
+The Arrow programming language is weakly-typed and the arrow (`->`) operator is used for assignment, for example, the statement `1 -> a;` can be read as "the value 1 is out into the variable a".
 
 ```
 ;;; a literal string
