@@ -33,7 +33,7 @@ fn wildcard_match(needle, haystack) -> result {
         if(i = '?') {
             if(haystack = []) {
                 false -> result;
-                break;
+                return;
             } else {
                 tail(haystack) -> haystack;
             }
@@ -41,7 +41,7 @@ fn wildcard_match(needle, haystack) -> result {
 
             if((needleCounter + 1) = needleLength) {
                 true -> result;
-                break;
+                return;
             }
 
             list_length(haystack) -> length;
@@ -51,25 +51,25 @@ fn wildcard_match(needle, haystack) -> result {
             while(j < length) {
                 if(wildcard_match(newNeedle, newHaystack)) {
                     true -> result;
-                    break;
+                    return;
                 }
                 tail(newHaystack) -> newHaystack;
                 j + 1 -> j;
             }
             false -> result;
-            break;
+            return;
         } else {
             haystack[0] -> head;
             tail(haystack) -> newHaystack;
             if(head /= i) {
                 false -> result;
-                break;
+                return;
             } else {
                 newHaystack -> haystack;
                 list_length(haystack) -> len;
                 if(len = 0) {
                     true -> result;
-                    break;
+                    return;
                 }
             }
         }
@@ -81,7 +81,7 @@ fn wildcard_match(needle, haystack) -> result {
 start {
 
     "hello.txt" -> haystack;
-    "*.txt" -> needle;
+    "*.t2t" -> needle;
     wildcard_match(to_list(needle), to_list(haystack)) -> matched;
     prn matched;
 }

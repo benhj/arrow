@@ -27,6 +27,7 @@
 #include "statements/StringToIntStatement.hpp"
 #include "statements/WhileStatement.hpp"
 #include "statements/LoopBreakStatement.hpp"
+#include "statements/ReturnStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -150,6 +151,7 @@ namespace arrow {
             static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
             if(pvec.empty()) {
                 pvec.emplace_back([this]{return parseBreakStatement();});
+                pvec.emplace_back([this]{return parseReturnStatement();});
                 pvec.emplace_back([this]{return parseFunctionStatement();});
                 pvec.emplace_back([this]{return parseSimpleArrowStatement();});
                 pvec.emplace_back([this]{return parseArrowStatement();});
@@ -749,6 +751,18 @@ namespace arrow {
         advanceTokenIterator();
         if(currentToken().lexeme == Lexeme::SEMICOLON) {
             return breakStatement;
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<Statement> Parser::parseReturnStatement()
+    {
+        if(currentToken().raw != "return") { return nullptr; }
+        auto const ln = currentToken().lineNumber;
+        auto returnStatement = std::make_shared<ReturnStatement>(ln);
+        advanceTokenIterator();
+        if(currentToken().lexeme == Lexeme::SEMICOLON) {
+            return returnStatement;
         }
         return nullptr;
     }

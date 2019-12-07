@@ -153,5 +153,8 @@ namespace arrow {
 
         /// break;
         std::shared_ptr<Statement> parseBreakStatement();
+
+        /// return;
+        std::shared_ptr<Statement> parseReturnStatement();
     };
 }
