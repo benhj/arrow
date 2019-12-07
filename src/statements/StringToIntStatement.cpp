@@ -28,7 +28,7 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            bool evaluate(Cache & cache) const override
+            StatementResult evaluate(Cache & cache) const override
             {
                 auto const expression = m_statement.getExpression();
                 auto const type = expression->getEvaluator()->evaluate(cache);
@@ -38,7 +38,7 @@ namespace arrow {
                 auto converted = std::stold(std::get<std::string>(type.m_variantType));
                 auto identifier = m_statement.getIdentifier();
                 cache.add(identifier, {TypeDescriptor::Int, converted});
-                return true;
+                return StatementResult::Continue;
             }
           private:
             StringToIntStatement m_statement;

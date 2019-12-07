@@ -6,9 +6,16 @@
 #include <memory>
 
 namespace arrow {
+
+    enum class StatementResult {
+        Break,
+        Return,
+        Continue
+    };
+
     class StatementEvaluator
     {
       public:
-        virtual bool evaluate(Cache&) const = 0;
+        virtual StatementResult evaluate(Cache&) const = 0;
     };
 }

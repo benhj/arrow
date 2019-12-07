@@ -37,7 +37,7 @@ namespace arrow {
       : m_statement(std::move(statement))
     {
     }
-    bool SimpleArrowStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult SimpleArrowStatementEvaluator::evaluate(Cache & cache) const
     {
         auto const expression = m_statement.getExpression();
         auto evaluated = expression->getEvaluator()->evaluate(cache);
@@ -125,6 +125,6 @@ namespace arrow {
                 }
             }
         }
-        return true;
+        return StatementResult::Continue;
     }
 }

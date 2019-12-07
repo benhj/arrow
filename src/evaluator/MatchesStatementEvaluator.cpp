@@ -278,7 +278,7 @@ namespace arrow {
       : m_statement(std::move(statement))
     {
     }
-    bool MatchesStatementEvaluator::evaluate(Cache & cache) const 
+    StatementResult MatchesStatementEvaluator::evaluate(Cache & cache) const 
     {
         auto const left = m_statement.getLeftExpression();
         auto const evalLeft = left->getEvaluator()->evaluate(cache);
@@ -300,17 +300,17 @@ namespace arrow {
         // Simple case -- direct match
         if(leftList == rightList) {
             cache.add(identifier, {TypeDescriptor::Bool, true});
-            return true;
+            return StatementResult::Continue;
         }
         // Pattern match
         else if(listMatch(leftList, rightList, cache, m_statement.getLineNumber())) {
             cache.add(identifier, {TypeDescriptor::Bool, true});
-            return true;
+            return StatementResult::Continue;
         } 
         // No match
         else {
             cache.add(identifier, {TypeDescriptor::Bool, false});
         }
-        return true;
+        return StatementResult::Continue;
     }
 }

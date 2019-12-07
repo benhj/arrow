@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit ForStatementEvaluator(ForStatement statement);
-        bool evaluate(Cache&) const override;
+        StatementResult evaluate(Cache&) const override;
       private:
         ForStatement m_statement;
     };

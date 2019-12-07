@@ -14,7 +14,7 @@ namespace arrow {
     {
       public:
         explicit MatchesStatementEvaluator(MatchesStatement statement);
-        bool evaluate(Cache&) const override;
+        StatementResult evaluate(Cache&) const override;
       private:
         MatchesStatement m_statement;
     };

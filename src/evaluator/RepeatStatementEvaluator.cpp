@@ -9,15 +9,16 @@
 namespace arrow {
 
     namespace {
-        bool evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
+        StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
                           Cache & cache)
         {
             for(auto const & statement : bodyStatements) {
-                if(!statement->getEvaluator()->evaluate(cache)) {
-                    return false;
+                auto const result = statement->getEvaluator()->evaluate(cache);
+                if(result != StatementResult::Continue) {
+                    return result;
                 }
             }
-            return true;
+            return StatementResult::Continue;
         }
         bool decaysToInt(TypeDescriptor const descriptor)
         {
@@ -31,7 +32,7 @@ namespace arrow {
     {
     }
 
-    bool RepeatStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult RepeatStatementEvaluator::evaluate(Cache & cache) const
     {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
         auto resolved = expressionEvaluator->evaluate(cache);
@@ -47,10 +48,10 @@ namespace arrow {
         }
         cache.pushCacheLayer();
         auto bodyStatements = m_statement.getBodyStatements();
-        auto evaluated = true;
+        auto evaluated = StatementResult::Continue;
         for(int64_t it = 0; it < val; ++it) {
-            if(!evaluateBody(bodyStatements, cache)) {
-                evaluated = false;
+            evaluated = evaluateBody(bodyStatements, cache);
+            if(evaluated != StatementResult::Continue) {
                 break;
             }
         }

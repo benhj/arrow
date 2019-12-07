@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit WhileStatementEvaluator(WhileStatement statement);
-        bool evaluate(Cache&) const override;
+        StatementResult evaluate(Cache&) const override;
       private:
         WhileStatement m_statement;
     };

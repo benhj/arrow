@@ -9,15 +9,16 @@
 namespace arrow {
 
     namespace {
-        bool evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                          Cache & cache)
+        StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
+                                     Cache & cache)
         {
             for(auto const & statement : bodyStatements) {
-                if(!statement->getEvaluator()->evaluate(cache)) {
-                    return false;
+                auto const result = statement->getEvaluator()->evaluate(cache);
+                if(result != StatementResult::Continue) {
+                    return result;
                 }
             }
-            return true;
+            return StatementResult::Continue;
         }
     }
 
@@ -26,7 +27,7 @@ namespace arrow {
     {
     }
 
-    bool WhileStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult WhileStatementEvaluator::evaluate(Cache & cache) const
     {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
         auto resolved = expressionEvaluator->evaluate(cache);
@@ -40,12 +41,12 @@ namespace arrow {
             cache.pushCacheLayer();
             auto const evaluated = evaluateBody(bodyStatements, cache);
             cache.popCacheLayer();
-            if(!evaluated) {
-                return false;
+            if(evaluated != StatementResult::Continue) {
+                return evaluated;
             }
             resolved = expressionEvaluator->evaluate(cache);
             booleanVal = std::get<bool>(resolved.m_variantType);
         }
-        return true;
+        return StatementResult::Continue;
     }
 }

@@ -10,24 +10,25 @@
 namespace arrow {
 
     namespace {
-        bool evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                          Cache & cache)
+        StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
+                                     Cache & cache)
         {
             for(auto const & statement : bodyStatements) {
-                if(!statement->getEvaluator()->evaluate(cache)) {
-                    return false;
+                auto const result = statement->getEvaluator()->evaluate(cache);
+                if(result != StatementResult::Continue) {
+                    return result;
                 }
             }
-            return true;
+            return StatementResult::Continue;
         }
 
         template <typename T>
-        bool evaluateContainerElements(T elements,
+        StatementResult evaluateContainerElements(T elements,
                                        std::vector<std::shared_ptr<Statement>> bodyStatements,
                                        Token indexer,
                                        Cache & cache)
         {
-            auto evaluated = false;
+            auto evaluated = StatementResult::Continue;
             for (auto const & element : elements) {
                 cache.pushCacheLayer();
                 if constexpr (std::is_same_v<typename T::value_type, Type>) {
@@ -45,11 +46,11 @@ namespace arrow {
                 }
                 evaluated = evaluateBody(bodyStatements, cache);
                 cache.popCacheLayer();
-                if(!evaluated) {
-                    return false;
+                if(evaluated != StatementResult::Continue) {
+                    return evaluated;
                 }
             }
-            return true;
+            return StatementResult::Continue;
         }
     }
 
@@ -58,7 +59,7 @@ namespace arrow {
     {
     }
 
-    bool ForStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult ForStatementEvaluator::evaluate(Cache & cache) const
     {
         auto indexer = m_statement.getIndexer();
         auto identifier = m_statement.getIdentifier();
@@ -101,6 +102,6 @@ namespace arrow {
             auto elements = std::get<std::vector<char>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         }
-        return true;
+        return StatementResult::Continue;
     }
 }

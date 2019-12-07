@@ -65,8 +65,6 @@ fn wildcard_match(needle, haystack) -> result {
                 false -> result;
                 break;
             } else {
-                prn "head: " + head;
-                prn "i: " + i;
                 newHaystack -> haystack;
                 list_length(haystack) -> len;
                 if(len = 0) {
@@ -83,7 +81,7 @@ fn wildcard_match(needle, haystack) -> result {
 start {
 
     "hello.txt" -> haystack;
-    "*.pdf" -> needle;
+    "*.txt" -> needle;
     wildcard_match(to_list(needle), to_list(haystack)) -> matched;
     prn matched;
 }

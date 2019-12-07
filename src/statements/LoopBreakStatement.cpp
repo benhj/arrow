@@ -21,9 +21,9 @@ namespace arrow {
     {
         struct LoopBreakStatementEvaluator : public StatementEvaluator
         {
-            bool evaluate(Cache &) const override
+            StatementResult evaluate(Cache &) const override
             {
-                return false;
+                return StatementResult::Break;
             }
         };
         return std::make_shared<LoopBreakStatementEvaluator>();

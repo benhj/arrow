@@ -28,7 +28,7 @@ namespace arrow {
             {
             }
 
-            bool evaluate(Cache & cache) const override
+            StatementResult evaluate(Cache & cache) const override
             {
                 auto evaluator = m_statement.getExpression()->getEvaluator();
                 auto evaluated = evaluator->evaluate(cache);
@@ -39,7 +39,7 @@ namespace arrow {
                 auto progArg = cache.getProgramArgument(index);
                 auto identifier = m_statement.getIdentifier();
                 cache.add(identifier, progArg);
-                return true;
+                return StatementResult::Continue;
             }
 
           private:

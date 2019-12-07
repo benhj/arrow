@@ -41,7 +41,7 @@ namespace arrow {
             {
             }
 
-            bool evaluate(Cache & cache) const override
+           StatementResult evaluate(Cache & cache) const override
             {
                 auto const bodyStatements = m_statement.getBodyStatements();
                 ThreadManager::create([bodyStatements{std::move(bodyStatements)}, &cache] {
@@ -49,7 +49,7 @@ namespace arrow {
                         inner->getEvaluator()->evaluate(cache);
                     }
                 });
-                return true;
+                return StatementResult::Continue;
             }
           private:
             AsyncStatement m_statement;
