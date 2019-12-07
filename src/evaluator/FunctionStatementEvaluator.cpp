@@ -13,10 +13,12 @@ namespace arrow {
     {
         auto const name = m_statement.getName().raw;
         auto const statements = m_statement.getBodyStatements();
-        for(auto const & statement : statements) {
-            statement->getEvaluator()->evaluate(cache);
-        }
         auto const returnIdentifier = m_statement.getReturnIdentifier();
+        for(auto const & statement : statements) {
+            if(!statement->getEvaluator()->evaluate(cache)) {
+                break;
+            }
+        }
         if(returnIdentifier.lexeme != Lexeme::NIL && !cache.has(returnIdentifier)) {
             throw LanguageException("Can't find return value in function statement",
                                     returnIdentifier.lineNumber);
