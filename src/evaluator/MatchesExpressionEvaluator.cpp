@@ -1,6 +1,6 @@
 /// (c) Ben Jones 2019
 
-#include "MatchesStatementEvaluator.hpp"
+#include "MatchesExpressionEvaluator.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
@@ -274,43 +274,37 @@ namespace arrow {
 
     }
 
-    MatchesStatementEvaluator::MatchesStatementEvaluator(MatchesStatement statement)
-      : m_statement(std::move(statement))
+    MatchesExpressionEvaluator::MatchesExpressionEvaluator(MatchesExpression expression)
+      : m_expression(std::move(expression))
     {
     }
-    StatementResult MatchesStatementEvaluator::evaluate(Cache & cache) const 
+    Type MatchesExpressionEvaluator::evaluate(Cache & cache) const 
     {
-        auto const left = m_statement.getLeftExpression();
+        auto const left = m_expression.getLeftExpression();
         auto const evalLeft = left->getEvaluator()->evaluate(cache);
         if(evalLeft.m_descriptor != TypeDescriptor::List) {
             throw LanguageException("Left expression not a list",
-                                    m_statement.getLineNumber());
+                                    m_expression.getLineNumber());
         }
-        auto const right = m_statement.getRightExpression();
+        auto const right = m_expression.getRightExpression();
         auto const evalRight = right->getEvaluator()->evaluate(cache);
         if(evalRight.m_descriptor != TypeDescriptor::List) {
             throw LanguageException("Right expression not a list",
-                                    m_statement.getLineNumber());
+                                    m_expression.getLineNumber());
         }
 
         auto const leftList = std::get<std::vector<Type>>(evalLeft.m_variantType);
         auto const rightList = std::get<std::vector<Type>>(evalRight.m_variantType);
-        auto const identifier = m_statement.getIdentifier();
 
         // Simple case -- direct match
         if(leftList == rightList) {
-            cache.add(identifier, {TypeDescriptor::Bool, true});
-            return StatementResult::Continue;
+            return {TypeDescriptor::Bool, true};
         }
         // Pattern match
-        else if(listMatch(leftList, rightList, cache, m_statement.getLineNumber())) {
-            cache.add(identifier, {TypeDescriptor::Bool, true});
-            return StatementResult::Continue;
+        else if(listMatch(leftList, rightList, cache, m_expression.getLineNumber())) {
+            return {TypeDescriptor::Bool, true};
         } 
         // No match
-        else {
-            cache.add(identifier, {TypeDescriptor::Bool, false});
-        }
-        return StatementResult::Continue;
+        return {TypeDescriptor::Bool, false};
     }
 }

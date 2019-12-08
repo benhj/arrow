@@ -18,7 +18,6 @@
 #include "statements/FunctionStatement.hpp"
 #include "statements/IfStatement.hpp"
 #include "statements/LengthStatement.hpp"
-#include "statements/MatchesStatement.hpp"
 #include "statements/ReleaseStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/SimpleArrowStatement.hpp"
@@ -51,6 +50,7 @@
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
 #include "expressions/SingleEqualExpression.hpp"
+#include "expressions/MatchesExpression.hpp"
 
 /// Other
 #include "evaluator/ExpressionEvaluator.hpp"
@@ -155,7 +155,6 @@ namespace arrow {
                 pvec.emplace_back([this]{return parseFunctionStatement();});
                 pvec.emplace_back([this]{return parseSimpleArrowStatement();});
                 pvec.emplace_back([this]{return parseArrowStatement();});
-                pvec.emplace_back([this]{return parseMatchesStatement();});
                 pvec.emplace_back([this]{return parseReleaseStatement();});
                 pvec.emplace_back([this]{return parseSingleExpressionStatement();});
                 pvec.emplace_back([this]{return parseArrowlessStatement();});
@@ -324,6 +323,39 @@ namespace arrow {
         auto exp = std::make_shared<DoubleEqualExpression>(ln);
         exp->withToken(currentToken());
         return exp;
+    }
+
+    std::shared_ptr<Expression> Parser::parseMatchesExpression()
+    {
+        auto const ln = currentToken().lineNumber;
+
+        auto store = m_current;
+        auto left = parseListExpression();
+        if(!left) {
+            m_current = store;
+            left = parseIdentifierExpression();
+            if(!left) {
+                return nullptr;
+            }
+        }
+        advanceTokenIterator();
+        if(currentToken().raw != "matches") {
+            return nullptr;
+        }
+        advanceTokenIterator();
+        store = m_current;
+        auto right = parseListExpression();
+        if(!right) {
+            m_current = store;
+            right = parseIdentifierExpression();
+            if(!right) {
+                return nullptr;
+            }
+        }
+        auto matchesExpression = std::make_shared<MatchesExpression>(ln);
+        matchesExpression->withLeftExpression(std::move(left));
+        matchesExpression->withRightExpression(std::move(right));
+        return matchesExpression;
     }
 
     std::shared_ptr<Expression> Parser::parseOperatorExpression()
@@ -581,7 +613,13 @@ namespace arrow {
             } else if(currentToken().lexeme == Lexeme::OPEN_CURLY) {
                 return parseBracedExpressionCollectionExpression();
             } else if(currentToken().lexeme == Lexeme::OPEN_SQUARE) {
-                return parseListExpression();
+                auto store = m_current;
+                auto exp = parseMatchesExpression();
+                if(!exp) {
+                    m_current = store;
+                    return parseListExpression();
+                }
+                return exp;
             } else if(currentToken().lexeme == Lexeme::INTEGER_NUM) {
                 return parseLiteralIntExpression();
             } else if(currentToken().lexeme == Lexeme::REAL_NUM) {
@@ -595,7 +633,12 @@ namespace arrow {
                     exp = parseIndexExpression();
                     if(!exp) {
                         m_current = store;
-                        return parseIdentifierExpression();
+                        store = m_current;
+                        exp = parseMatchesExpression();
+                        if(!exp) {
+                            m_current = store;
+                            return parseIdentifierExpression();
+                        }
                     }
                 }
                 return exp;
@@ -987,42 +1030,6 @@ namespace arrow {
 
         m_functions.emplace(theName.raw, functionStatement);
         return functionStatement;
-    }
-
-    std::shared_ptr<Statement> Parser::parseMatchesStatement()
-    {
-        auto const ln = currentToken().lineNumber;
-        auto matchesStatement = std::make_shared<MatchesStatement>(ln);
-        auto const expLeft = parseExpression();
-        if(!expLeft) {
-            return nullptr;
-        }
-        matchesStatement->withLeftExpression(expLeft);
-        advanceTokenIterator();
-        auto const keyword = currentToken();
-        if(keyword.raw != "matches") {
-            return nullptr;
-        }
-        advanceTokenIterator();
-        auto const expRight = parseExpression();
-        if(!expRight) {
-            return nullptr;
-        }
-        matchesStatement->withRightExpression(expRight);
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::ARROW) {
-            return nullptr;
-        }
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::GENERIC_STRING) {
-            return nullptr;
-        }
-        matchesStatement->withIdentifier(currentToken());
-        advanceTokenIterator();
-        if(currentToken().lexeme != Lexeme::SEMICOLON) {
-            return nullptr;
-        }
-        return matchesStatement;
     }
 
     std::shared_ptr<Statement> Parser::parseSingleExpressionStatement()

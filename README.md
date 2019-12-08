@@ -117,8 +117,7 @@ for i in Q {
 }
 ```
 
-List ^ and ^^ operators
------------------------
+### List ^ and ^^ operators
 
 The `^` operator can be used to insert elements into lists. For example:
 
@@ -152,4 +151,42 @@ Can also be useful when one wants to append elements to the end of a list, e.g.:
 [^^L ^str ^^P] -> L;
 ;;; list L is now [one two three four five six]
 ```
+
+### Pattern matching
+
+The power of the list type relly comes into its own with Arrow's pattern matcher. The syntax is based on that of POP-11 and thus uses the `matches` keyword to answer the question of whether a pattern matches a given list:
+
+```
+;;; identifier is a boolean
+list matches pattern -> identifier;
+```
+
+For example, the following match expressions all evaluate to true:
+
+```
+;;; direct match
+[one two three] matches [one two three]
+
+;;; 'any three' match
+[one two three] matches [= = =]
+
+;;; 'any collection' match
+[one two three] matches [==]
+
+;;; 'any single' followed by 'any collection' match
+[one two three] matches [= ==]
+```
+
+Above, `=` matches any single element while `==` matches any collection of elements.
+
+In addition, the `^` and `^^` operators as introduced above can be used, as shown bellow:
+
+```
+"one" -> string;
+[one two three] matches [^string two three] -> result;
+
+[two three] -> fragments;
+[one two three] matches [^string ^^fragments] -> result;
+```
+
 
