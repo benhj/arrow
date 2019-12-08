@@ -361,8 +361,8 @@ The example `binary.ar` in the `examples` folder demonstrates this more practica
 The `random(n)` expression can be used to create a random number in the interval `{0, n}`:
 
 ```
-random(10.0) -> a; ;;; between 0 and 10.0
-random(5) -> b;    ;;; between 0 and 5
+random(10.0) -> a; ;;; between 0 and 10.0 (a is a real number)
+random(5) -> b;    ;;; between 0 and 5 (b is an integer number)
 ```
 
 
