@@ -353,6 +353,7 @@ and will output
 1
 2
 ```
+The example `binary.ar` in the `examples` folder demonstrates this more practically.
 
 
 

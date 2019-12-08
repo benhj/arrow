@@ -28,12 +28,9 @@ fn binary (number) -> binaryString {
 
 ;;; requires an input program argument.
 start {
-    
-    ;;; get first program argument which is a string
-    ;;; that will need to be converted to a number
+    ;;; get first program argument
     arg 0 -> a;
 
-    ;;; convert the above arbitrary int to 
-    ;;; a binary representation
+    ;;; convert to a binary representation
     prn ("The number " + a) + (" in binary is: " + binary(a));
 }
