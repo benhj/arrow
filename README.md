@@ -367,6 +367,9 @@ random(5) -> b;    ;;; between 0 and 5 (b is an integer number)
 
 ;;; some random element of the supplied list
 random([one two three four]) -> c;
+
+;;; a random character (byte) from a string
+random("hello") -> d;
 ```
 
 
