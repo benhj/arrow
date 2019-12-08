@@ -55,6 +55,9 @@ Here are a few other examples:
 
 ;;; a boolean
 true -> truth;
+
+;;; a char (byte)
+'a' -> val;
 ```
 The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP11, the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
 
