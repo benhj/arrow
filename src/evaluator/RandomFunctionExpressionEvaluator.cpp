@@ -44,6 +44,13 @@ namespace arrow {
             auto const length = static_cast<long>(list.size());
             auto random = uid(re, Dist::param_type{0, length - 1});
             return list[random];
+        } else if(t.m_descriptor == TypeDescriptor::String) {
+            using Dist = std::uniform_int_distribution<long>;
+            static Dist uid {};
+            auto const str = std::get<std::string>(t.m_variantType);
+            auto const length = static_cast<long>(str.size());
+            auto random = uid(re, Dist::param_type{0, length - 1});
+            return {TypeDescriptor::Bytes, str[random]};
         }
 
         else {
