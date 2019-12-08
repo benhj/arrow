@@ -96,10 +96,11 @@ for i in c {
 }
 ```
 
-Lists
-=====
+## List 
 
-Lists are containers of string elements that may contain nested lists:
+The list type is directly based on that of POP11 and is a more powerful feature of Arrow.  Representationally, a list is sort of like a multi-variant array but has the appearance of a container of plain (unquoted) string elements. The power of the list really comes into its own with Arrow's pattern matchung functionality (more on this later).
+
+Some examples:
 
 ```
 [] -> emptyList;
