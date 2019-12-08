@@ -179,7 +179,7 @@ For example, the following match expressions all evaluate to true:
 
 Above, `=` matches any single element while `==` matches any collection of elements.
 
-In addition, the `^` and `^^` operators as introduced above can be used, as shown bellow:
+In addition, the `^` and `^^` operators as introduced above can be used:
 
 ```
 "one" -> string;
