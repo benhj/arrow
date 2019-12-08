@@ -96,3 +96,51 @@ for i in c {
 }
 ```
 
+Lists
+=====
+
+Lists are containers of string elements that may contain nested lists:
+
+```
+[] -> emptyList;
+[just a plain list] -> A;
+[Test a [nested list] list] -> L;
+[a very [very [even more nested] nested] nested list] -> Q;
+```
+
+List ^ and ^^ operators
+-----------------------
+
+The `^` operator can be used to insert elements into lists. For example:
+
+```
+[one two three] -> L;
+"inserted" -> str;
+[one two ^str three] -> L;
+;;; list L is now [one two inserted three]
+
+[one two three] -> L;
+[nested bit] -> P;
+[one two three ^P] -> L;
+;;; list L is now [one two three [nested bit]]
+```
+
+The `^^` operator can be used to flatten lists when inserting, e.g.:
+
+```
+[one two three] -> L;
+[unnested bit] -> P;
+[one two three ^^P] -> L;
+;;; list L is now [one two three unnested bit]
+```
+
+Can also be useful when one wants to append elements to the end of a list, e.g.:
+
+```
+[one two three] -> L;
+"four" -> str;
+[five six] -> P;
+[^^L ^str ^^P] -> L;
+;;; list L is now [one two three four five six]
+```
+
