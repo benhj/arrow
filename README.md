@@ -98,7 +98,7 @@ for i in c {
 
 ## List 
 
-The list type is directly based on that of POP11 and is a more powerful feature of Arrow.  Representationally, a list is sort of like a multi-variant array but has the appearance of a container of plain (unquoted) string elements. The power of the list really comes into its own with Arrow's pattern matchung functionality (more on this later).
+The list type is directly based on that of POP11 and is a more powerful feature of Arrow.  Representationally, a list is sort of like a multi-variant array but has the appearance of a container of plain (unquoted) string elements. Like in the programming language POP11, the power of the list really comes into its own with Arrow's pattern matching functionality (more on this later).
 
 Some examples:
 
