@@ -230,4 +230,102 @@ fn tail(list) -> result {
 
 ```
 
+## Control flow
+
+Arrow has fairly typical control flow mechanisms:
+
+```
+;;; if statements
+if (a = 1) {
+
+} elseif (a = 2) {
+
+} elseif (a = 3) {
+
+} else {
+        
+}
+
+;;; repeat statement
+repeat 5 times {
+    prn "hello!";
+}
+
+;;; while statement
+0 -> i;
+while (i < 5) {
+    prn i;
+    i + 1 -> i;
+}
+
+;;; for statement (for iterating over arrays, lists and strings)
+"hello" -> str;
+for c in str {
+    prn c;
+}
+```
+
+Note that like in most c-style languages, the `break;` statement can be used to break out of a loop early.
+
+## Functions
+
+Arrow begins with the start statement; other functions begin with the `fn` keyword:
+
+```
+;;; takes a single argument a. This can be anything.
+fn foo(a) {
+
+}
+
+;;; takes a couple of arguments and returns something
+;;; in the argument result
+fn bar(a, b) -> result {
+    1 -> result;
+}
+
+start {
+    foo(1);
+    foo([one two three]);
+    bar(true, false) -> a;
+    prn bar(1, "two");
+    if(bar(3, 4) > 1) {
+        ;;; etc.
+    }
+}
+
+```
+
+A `return;` statement can optionally be used to return from a function early:
+
+```
+fn foo(a) {
+    if(a = 1) {
+        return;
+    }
+
+    ;;; if the above is true,
+    ;;; we won't get to here
+    prn "hello!";
+}
+
+fn foo(a, b) -> result {
+    ;;; default return value
+    false -> result;
+    if((a matches [one two]) && (b < 5)) {
+        true -> result;
+        return;
+    } else {
+        prn "blah";
+    }
+}
+
+;;; etc.
+
+```
+
+
+
+
+
+
 

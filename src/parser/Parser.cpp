@@ -185,6 +185,11 @@ namespace arrow {
     void Parser::advanceTokenIterator()
     {
         ++m_current;
+
+        // skip over comments
+        while(m_current->lexeme == Lexeme::COMMENT) {
+            ++m_current;
+        }
     }
 
     Token Parser::currentToken() const
