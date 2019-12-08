@@ -97,9 +97,9 @@ for i in c {
 }
 ```
 
-## List 
+## Lists
 
-The list type is directly based on that of POP11 and is a more powerful feature of Arrow.  Representationally, a list is sort of like a multi-variant array but has the appearance of a container of plain (unquoted) string elements. Like in the programming language POP11, the power of the list really comes into its own with Arrow's pattern matching functionality (more on this later).
+The list type is directly based on that of POP-11 and is a more powerful feature of Arrow.  Representationally, a list is sort of like a multi-variant array but has the appearance of a container of plain (unquoted) string elements. Like in the programming language POP-11, the power of the list really comes into its own with Arrow's pattern matching functionality (more on this later).
 
 Some examples:
 
@@ -110,7 +110,7 @@ Some examples:
 [a very [very [even more nested] nested] nested list] -> Q;
 
 ;;; as with arrays lists can be looped over
-;;; by adopting for loop syntax:
+;;; by adopting the following for loop syntax:
 for i in Q {
     prn i;
     ;;; etc.
@@ -119,7 +119,7 @@ for i in Q {
 
 ### List ^ and ^^ operators
 
-The `^` operator can be used to insert elements into lists. For example:
+The `^` and `^^` operators can be used to insert elements into lists. For example:
 
 ```
 [one two three] -> L;
@@ -133,7 +133,7 @@ The `^` operator can be used to insert elements into lists. For example:
 ;;; list L is now [one two three [nested bit]]
 ```
 
-The `^^` operator can be used to flatten lists when inserting, e.g.:
+The `^^` operator inserts a sequence of elements, e.g.:
 
 ```
 [one two three] -> L;
@@ -142,7 +142,7 @@ The `^^` operator can be used to flatten lists when inserting, e.g.:
 ;;; list L is now [one two three unnested bit]
 ```
 
-Can also be useful when one wants to append elements to the end of a list, e.g.:
+These operators can be used to append, prepend and concatenate lists in useful ways:
 
 ```
 [one two three] -> L;
