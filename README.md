@@ -330,6 +330,7 @@ The following statements can be used to echo stuff to the screen:
 ```
 prn "hello"; ;;; hello with a new-line
 pr "hello"; ;;; hello without a new-line
+pr "hello\n"; ;;; with new-line char
 ```
 
 To get data into a program, from the command line, the `arg` keyword can be used in the following way:
