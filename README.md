@@ -60,7 +60,7 @@ true -> truth;
 ;;; a char (byte)
 'a' -> val;
 ```
-The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP11, the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
+The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP-11 (and likely several other languages that I'm not familiar with), the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
 
 ## Arrays
 
