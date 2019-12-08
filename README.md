@@ -154,7 +154,7 @@ These operators can be used to append, prepend and concatenate lists in useful w
 
 ### Pattern matching
 
-The power of the list type relly comes into its own with Arrow's pattern matcher. The syntax is based on that of POP-11 and thus uses the `matches` keyword to answer the question of whether a pattern matches a given list:
+The power of the list type really comes into its own with Arrow's pattern matcher. As with other list syntax, the pattern matching syntax is based on that of POP-11 and thus uses the `matches` keyword to answer the question of whether a pattern matches a given list:
 
 ```
 ;;; identifier is a boolean
