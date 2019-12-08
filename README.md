@@ -107,6 +107,13 @@ Some examples:
 [just a plain list] -> A;
 [Test a [nested list] list] -> L;
 [a very [very [even more nested] nested] nested list] -> Q;
+
+;;; as with arrays lists can be looped over
+;;; by adopting for loop syntax:
+for i in Q {
+    prn i;
+    ;;; etc.
+}
 ```
 
 List ^ and ^^ operators
