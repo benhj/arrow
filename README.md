@@ -5,6 +5,7 @@ Arrow is a weakly typed interpreted programming language with a primary aim of b
 The implementation here is designed from the ground up to:
 
 * be a little less crap <--- the main thing!
+* more extensible and maintainable
 * be a fun way to learn about parsers
 * have a minimal number of dependencies (besides C++17)
 * faster
