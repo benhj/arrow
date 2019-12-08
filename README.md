@@ -323,6 +323,37 @@ fn foo(a, b) -> result {
 
 ```
 
+## Program I/O
+
+The following statements can be used to echo stuff to the screen:
+
+```
+prn "hello"; ;;; hello with a new-line
+pr "hello"; ;;; hello without a new-line
+```
+
+To get data into a program, from the command line, the `arg` keyword can be used in the following way:
+
+```
+start {
+    arg 0 -> a;
+    arg 1 -> b;
+    prn a;
+    prn b;
+}
+```
+
+Running such a program saved as `prog.ar` might be invoked as follows:
+
+```
+./arrow prog.ar 1 2
+```
+and will output
+```
+1
+2
+```
+
 
 
 
