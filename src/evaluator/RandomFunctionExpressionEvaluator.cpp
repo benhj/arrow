@@ -37,7 +37,18 @@ namespace arrow {
             static Dist udd {};
             auto const val = std::get<long double>(t.m_variantType);
             return {TypeDescriptor::Real, udd(re, Dist::param_type{0, val})};
-        } else {
+        } 
+        /*
+        else if(t.m_descriptor == TypeDescriptor::List) {
+            using Dist = std::uniform_real_distribution<long>;
+            static Dist uid {};
+            auto const list = std::get<std::vector<Type>>(t.m_variantType);
+            auto const length = list.size();
+            auto random = uid(re, Dist::param_type{0, length};
+            return {TypeDescriptor::Real, udd(re, Dist::param_type{0, val})};
+        }*/
+
+        else {
             throw LanguageException("Bad type for random", callLineNumber);
         }
 
