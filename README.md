@@ -1,6 +1,6 @@
 # Arrow
 
-Arrow is a weakly typed interpreted programming language with a primary aim of being a syntactic testbed in the design and implementation of an interpretor. A core goal has further been to reimplement an interpretor for JASL (see), the original version of which became overly complex and bloated and therefore, put simply, too crap to properly maintain. 
+Arrow is a weakly typed interpreted programming language with a primary aim of being a syntactic testbed in the design and implementation of an interpretor. A core goal has further been to reimplement an interpretor for JASL (see [JASL](https://github.com/benhj/jasl)), the original version of which became overly complex and bloated and therefore, put simply, too crap to properly maintain. 
 
 The implementation here is designed from the ground up to:
 
@@ -12,7 +12,7 @@ The implementation here is designed from the ground up to:
 * more powerful
 * more flexible
 
-The result is a far nicer syntax that does away with much of the syntactic sugar of JASL (like having to use the call keyword to call a function) and (I hope) permits a more 'natural' and less constrained style of programming.
+The result is a far nicer syntax that does away with much of the syntactic sugar of JASL (like having to use the `call` keyword to call a function) and (I hope) permits a more 'natural' and less constrained style of programming.
 
 ## How does it work ('in a nutshell')?
 
