@@ -328,8 +328,8 @@ fn foo(a, b) -> result {
 The following statements can be used to echo stuff to the screen:
 
 ```
-prn "hello"; ;;; hello with a new-line
-pr "hello"; ;;; hello without a new-line
+prn "hello";  ;;; hello with a new-line
+pr "hello";   ;;; hello without a new-line
 pr "hello\n"; ;;; with new-line char
 ```
 
@@ -356,6 +356,14 @@ and will output
 ```
 The example `binary.ar` in the `examples` folder demonstrates this more practically.
 
+## Random number generation
+
+The `random(n)` expression can be used to create a random number in the interval `{0, n}`:
+
+```
+random(10.0) -> a; ;;; between 0 and 10.0
+random(5) -> b;    ;;; between 0 and 5
+```
 
 
 
