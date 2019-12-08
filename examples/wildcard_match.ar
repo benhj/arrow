@@ -1,7 +1,6 @@
 fn tail(list) -> result {
     [] -> result;
-    list matches [= ??tail] -> yes;
-    if(yes) {
+    if(list matches [= ??tail]) {
         tail -> result;
     }
 }
@@ -80,8 +79,8 @@ fn wildcard_match(needle, haystack) -> result {
 
 start {
 
-    "hello.txt" -> haystack;
-    "*.t2t" -> needle;
+    "hello.pdf" -> haystack;
+    "*.txt" -> needle;
     wildcard_match(to_list(needle), to_list(haystack)) -> matched;
     prn matched;
 }

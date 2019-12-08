@@ -189,4 +189,45 @@ In addition, the `^` and `^^` operators as introduced above can be used, as show
 [one two three] matches [^string ^^fragments] -> result;
 ```
 
+Finally, `?` and `??` operators can be used to pull out elements:
+
+```
+[one two three] matches [?a ?b ?c] -> result;
+;;; prints one, two and three
+prn a;
+prn b;
+prn c;
+
+[one two three] matches [??all] -> result;
+;;; prints [one two three]
+prn all;
+
+[one two three] matches [?first ??rest] -> result;
+;;; prints one
+prn first;
+;;; prints [two three]
+prn rest;
+```
+
+Using a combination of the above operators, lists can be manipulated quite easily:
+
+```
+;;; a function to reverse a list
+fn reverse(input) -> result {
+    [] -> result;
+    for i in input {
+        [^i ^^list] -> result;
+    }
+}
+
+;;; a function to retrieve the tail of a list
+fn tail(list) -> result {
+    [] -> result;
+    if(list matches [= ??tail]) {
+        tail -> result;
+    }
+}
+
+```
+
 
