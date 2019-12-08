@@ -51,6 +51,7 @@
 #include "expressions/QStringExpression.hpp"
 #include "expressions/SingleEqualExpression.hpp"
 #include "expressions/MatchesExpression.hpp"
+#include "expressions/RandomFunctionExpression.hpp"
 
 /// Other
 #include "evaluator/ExpressionEvaluator.hpp"
@@ -505,13 +506,22 @@ namespace arrow {
         if(currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
         if(nextToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
         auto const ln = currentToken().lineNumber;
-        auto functionExpression = std::make_shared<FunctionExpression>(ln);
-        functionExpression->withFunctionNameToken(currentToken());
-        advanceTokenIterator();
-        auto collection = parseExpressionCollectionExpression();
-        if(!collection) { return nullptr; }
-        functionExpression->withExpressionCollection(std::move(collection));
-        return functionExpression;
+        if(currentToken().raw == "random") {
+            auto functionExpression = std::make_shared<RandomFunctionExpression>(ln);
+            advanceTokenIterator();
+            auto expression = parseExpression();
+            if(!expression) { return nullptr; }
+            functionExpression->withExpression(std::move(expression));
+            return functionExpression;
+        } else {
+            auto functionExpression = std::make_shared<FunctionExpression>(ln);
+            functionExpression->withFunctionNameToken(currentToken());
+            advanceTokenIterator();
+            auto collection = parseExpressionCollectionExpression();
+            if(!collection) { return nullptr; }
+            functionExpression->withExpressionCollection(std::move(collection));
+            return functionExpression;
+        }
     }
 
     std::shared_ptr<Expression> 
