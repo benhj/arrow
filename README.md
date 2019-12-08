@@ -358,11 +358,15 @@ The example `binary.ar` in the `examples` folder demonstrates this more practica
 
 ## Random number generation
 
-The `random(n)` expression can be used to create a random number in the interval `{0, n}`:
+The `random(n)` expression can be used to create a random number in the interval `{0, n}`, or to pull out a random element
+from a given container:
 
 ```
 random(10.0) -> a; ;;; between 0 and 10.0 (a is a real number)
 random(5) -> b;    ;;; between 0 and 5 (b is an integer number)
+
+;;; some random element of the supplied list
+random([one two three four]) -> c;
 ```
 
 
