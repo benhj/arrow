@@ -402,7 +402,7 @@ random({1, 2, 3, 4}) -> d;
 
 ## Interoperability with the operating system <a name="opinterop"></a>
  
-Arrow provides the `exec(<string expression>)` expression to run system commands directly. The result is a string that can be stored and then processed in the regular way, e.g.:
+Arrow provides the `exec(<string expression>)` expression to run system commands directly. The result is a string that can be stored in the regular way, e.g.:
 
 ```
 "/path/to/folder" -> folder;            ;;; path to some folder
