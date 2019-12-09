@@ -18,15 +18,15 @@
 #include "statements/FunctionStatement.hpp"
 #include "statements/IfStatement.hpp"
 #include "statements/LengthStatement.hpp"
+#include "statements/LoopBreakStatement.hpp"
 #include "statements/ReleaseStatement.hpp"
 #include "statements/RepeatStatement.hpp"
+#include "statements/ReturnStatement.hpp"
 #include "statements/SimpleArrowStatement.hpp"
 #include "statements/SingleExpressionStatement.hpp"
 #include "statements/StartStatement.hpp"
 #include "statements/StringToIntStatement.hpp"
 #include "statements/WhileStatement.hpp"
-#include "statements/LoopBreakStatement.hpp"
-#include "statements/ReturnStatement.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -41,17 +41,18 @@
 #include "expressions/IndexExpression.hpp"
 #include "expressions/ListExpression.hpp"
 #include "expressions/ListWordExpression.hpp"
+#include "expressions/LiteralCharExpression.hpp"
 #include "expressions/LiteralIntExpression.hpp"
 #include "expressions/LiteralRealExpression.hpp"
 #include "expressions/LiteralStringExpression.hpp"
-#include "expressions/LiteralCharExpression.hpp"
+#include "expressions/MatchesExpression.hpp"
 #include "expressions/MathExpression.hpp"
 #include "expressions/OperatorExpression.hpp"
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
-#include "expressions/SingleEqualExpression.hpp"
-#include "expressions/MatchesExpression.hpp"
 #include "expressions/RandomFunctionExpression.hpp"
+#include "expressions/SingleEqualExpression.hpp"
+#include "expressions/StringInputExpression.hpp"
 
 /// Other
 #include "evaluator/ExpressionEvaluator.hpp"
@@ -513,6 +514,13 @@ namespace arrow {
             if(!expression) { return nullptr; }
             functionExpression->withExpression(std::move(expression));
             return functionExpression;
+        } else if(currentToken().raw == "input") {
+            auto stringInputExpression = std::make_shared<StringInputExpression>(ln);
+            advanceTokenIterator();
+            auto expression = parseExpression();
+            if(!expression) { return nullptr; }
+            stringInputExpression->withExpression(std::move(expression));
+            return stringInputExpression;
         } else {
             auto functionExpression = std::make_shared<FunctionExpression>(ln);
             functionExpression->withFunctionNameToken(currentToken());

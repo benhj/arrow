@@ -370,6 +370,11 @@ random([one two three four]) -> c;
 
 ;;; a random character (byte) from a string
 random("hello") -> d;
+
+
+;;; a random integer from an integer array
+random({1, 2, 3, 4}) -> d;
+
 ```
 
 
