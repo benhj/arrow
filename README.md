@@ -1,5 +1,7 @@
 # Arrow
 
+An interpreted programming language.
+
 # Table of Contents
 1. [About](#about)
 2. [How does it work?](#how)
