@@ -337,7 +337,7 @@ pr "hello\n"; ;;; with new-line char
 in a string variable, as shown by the following call statement:
 
 ```
-input(("What does 42 mean to you? ") -> result;
+input("What does 42 mean to you? ") -> result;
 ```
 
 To get data into a program, from the command line, the `arg` keyword can be used in the following way:
