@@ -1,5 +1,22 @@
 # Arrow
 
+# Table of Contents
+1. [About](#about)
+2. [How does it work?](#how)
+3. [Basic types](#types)
+4. [Arrays](#arrays)
+5. [Lists](#lists)
+6. [List ^ and ^^ operators](#listops)
+7. [Pattern matcher](#patternmatcher)
+8. [Control flow](#control)
+9. [Functions](#functions)
+10. [Program I/O](#io)
+11. [Random number generation](#randomnumbers)
+12. [Interoperability with the operating system](#opinterop)
+
+
+## About <a name="about"></a>
+
 Arrow is a weakly typed interpreted programming language with a primary aim of being a syntactic testbed in the design and implementation of an interpretor. A core goal has been to reimplement an interpretor for [JASL](https://github.com/benhj/jasl), the original version of which became overly complex and bloated and therefore, put simply, too crap to properly maintain. 
 
 The implementation here is designed from the ground up to:
@@ -14,7 +31,7 @@ The implementation here is designed from the ground up to:
 
 The result is a far nicer syntax that does away with much of the syntactic sugar of JASL (like having to use the `call` keyword to call a function) and (I hope) permits a more 'natural' and less constrained style of programming.
 
-## How does it work ('in a nutshell')?
+## How does it work ('in a nutshell')? <a name="how"></a>
 
 Briefly, by doing depth first evaluation of an AST.
 
@@ -38,7 +55,7 @@ start {
 }
 ```
 
-## Basic types
+## Basic types <a name="types"></a>
 
 The Arrow programming language is weakly-typed with the arrow (`->`) operator being used for assignment, for example, the statement `1 -> a;` can be read as "the value 1 is put into the variable a". Note that this conveniently frees up the use of the `=` operator to be used purely for logical equality, thus `1 = 1` is an expression that evaluates to true rather than an assignment.
 
@@ -62,7 +79,7 @@ true -> truth;
 ```
 The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP-11 (and likely several other languages that I'm not familiar with), the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
 
-## Arrays
+## Arrays <a name="arrays"></a>
 
 Arrow supports the creation of arrays of basic types:
 
@@ -97,7 +114,7 @@ for i in c {
 }
 ```
 
-## Lists
+## Lists <a name="lists"></a>
 
 The list type is directly based on that of POP-11 and is a more powerful feature of Arrow.  Representationally, a list is sort of like a multi-variant array but has the appearance of a container of plain (unquoted) string elements. Like in the programming language POP-11, the power of the list really comes into its own with Arrow's pattern matching functionality (more on this later).
 
@@ -117,7 +134,7 @@ for i in Q {
 }
 ```
 
-### List ^ and ^^ operators
+### List ^ and ^^ operators <a name="listops"></a>
 
 The `^` and `^^` operators can be used to insert elements into lists. For example:
 
@@ -152,7 +169,7 @@ These operators can be used to append, prepend and concatenate lists in useful w
 ;;; list L is now [one two three four five six]
 ```
 
-## Pattern Matcher
+## Pattern Matcher <a name="patternmatcher"></a>
 
 The power of the above-introduced list type really comes into its own with Arrow's pattern matcher. As with other list syntax, the pattern matching syntax is based on that of POP-11 and thus uses the `matches` keyword to answer the question of whether a pattern matches a given list:
 
@@ -230,7 +247,7 @@ fn tail(list) -> result {
 
 ```
 
-## Control flow
+## Control flow <a name="control"></a>
 
 Arrow has fairly typical control flow mechanisms:
 
@@ -267,7 +284,7 @@ for c in str {
 
 Note that like in most c-style languages, the `break;` statement can be used to break out of a loop early.
 
-## Functions
+## Functions <a name="functions"></a>
 
 Arrow begins with the start statement; other functions begin with the `fn` keyword:
 
@@ -323,7 +340,7 @@ fn foo(a, b) -> result {
 
 ```
 
-## Program I/O
+## Program I/O <a name="io"></a>
 
 The following statements can be used to echo stuff to the screen:
 
@@ -363,7 +380,7 @@ and will output
 ```
 The example `binary.ar` in the `examples` folder demonstrates this more practically.
 
-## Random number generation
+## Random number generation <a name="randomnumbers"></a>
 
 The `random(n)` expression can be used to create a random number in the interval `{0, n}`, or to pull out a random element
 from a given container:
@@ -383,17 +400,12 @@ random({1, 2, 3, 4}) -> d;
 
 ```
 
-## Interoperability with the operating system
-
+## Interoperability with the operating system <a name="opinterop"></a>
+ 
 Arrow provides the `exec(<string expression>)` expression to run system commands directly. The result is a string that can be stored and then processed in the regular way, e.g.:
 
 ```
 "/path/to/folder" -> folder;            ;;; path to some folder
 exec("/bin/ls " + folder) -> listing;   ;;; output of ls stored in identifier listing
 ```
-
-
-
-
-
 
