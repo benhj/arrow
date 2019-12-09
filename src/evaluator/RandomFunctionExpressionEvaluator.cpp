@@ -10,8 +10,24 @@
 #include "statements/FunctionStatement.hpp"
 #include "utility/ThreadManager.hpp"
 #include <utility>
+#include <random>
 
 namespace arrow {
+
+    namespace {
+
+        std::random_device rd;
+        std::default_random_engine re(rd());
+
+        long getRandomLong(long const upper)
+        {
+            using Dist = std::uniform_int_distribution<long>;
+            static Dist uid {};
+            return uid(re, Dist::param_type{0, upper});
+        }
+    }
+
+
     RandomFunctionExpressionEvaluator::RandomFunctionExpressionEvaluator(RandomFunctionExpression expression)
       : m_expression(std::move(expression))
     {
@@ -25,8 +41,6 @@ namespace arrow {
         auto const expression = m_expression.getExpression();
         auto const t = expression->getEvaluator()->evaluate(cache);
 
-        static std::default_random_engine re(m_r());
-
         if(t.m_descriptor == TypeDescriptor::Int) {
             auto const val = std::get<int64_t>(t.m_variantType);
             using Dist = std::uniform_int_distribution<int64_t>;
@@ -38,20 +52,24 @@ namespace arrow {
             auto const val = std::get<long double>(t.m_variantType);
             return {TypeDescriptor::Real, udd(re, Dist::param_type{0, val})};
         } else if(t.m_descriptor == TypeDescriptor::List) {
-            using Dist = std::uniform_int_distribution<long>;
-            static Dist uid {};
             auto const list = std::get<std::vector<Type>>(t.m_variantType);
-            auto const length = static_cast<long>(list.size());
-            auto random = uid(re, Dist::param_type{0, length - 1});
-            return list[random];
+            return list[getRandomLong(list.size() - 1)];
         } else if(t.m_descriptor == TypeDescriptor::String) {
-            using Dist = std::uniform_int_distribution<long>;
-            static Dist uid {};
             auto const str = std::get<std::string>(t.m_variantType);
-            auto const length = static_cast<long>(str.size());
-            auto random = uid(re, Dist::param_type{0, length - 1});
-            return {TypeDescriptor::Bytes, str[random]};
-        }
+            return {TypeDescriptor::Bytes, str[getRandomLong(str.size() - 1)]};
+        } else if(t.m_descriptor == TypeDescriptor::Strings) {
+            auto const vec = std::get<std::vector<std::string>>(t.m_variantType);
+            return {TypeDescriptor::String, vec[getRandomLong(vec.size() - 1)]};
+        } else if(t.m_descriptor == TypeDescriptor::Bytes) {
+            auto const vec = std::get<std::vector<char>>(t.m_variantType);
+            return {TypeDescriptor::Byte, vec[getRandomLong(vec.size() - 1)]};
+        } else if(t.m_descriptor == TypeDescriptor::Ints) {
+            auto const vec = std::get<std::vector<int64_t>>(t.m_variantType);
+            return {TypeDescriptor::Int, vec[getRandomLong(vec.size() - 1)]};
+        } else if(t.m_descriptor == TypeDescriptor::Reals) {
+            auto const vec = std::get<std::vector<long double>>(t.m_variantType);
+            return {TypeDescriptor::Real, vec[getRandomLong(vec.size() - 1)]};
+        }   
 
         else {
             throw LanguageException("Bad type for random", callLineNumber);

@@ -5,7 +5,6 @@
 #include "ExpressionEvaluator.hpp"
 #include "expressions/RandomFunctionExpression.hpp"
 #include "representation/Cache.hpp"
-#include <random>
 
 namespace arrow {
     class RandomFunctionExpressionEvaluator : public ExpressionEvaluator
@@ -15,6 +14,5 @@ namespace arrow {
         Type evaluate(Cache&) const override;
       private:
         RandomFunctionExpression m_expression;
-        std::random_device mutable m_r;
     };
 }
