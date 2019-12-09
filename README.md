@@ -152,9 +152,9 @@ These operators can be used to append, prepend and concatenate lists in useful w
 ;;; list L is now [one two three four five six]
 ```
 
-### Pattern matching
+## Pattern Matcher
 
-The power of the list type really comes into its own with Arrow's pattern matcher. As with other list syntax, the pattern matching syntax is based on that of POP-11 and thus uses the `matches` keyword to answer the question of whether a pattern matches a given list:
+The power of the above-introduced list type really comes into its own with Arrow's pattern matcher. As with other list syntax, the pattern matching syntax is based on that of POP-11 and thus uses the `matches` keyword to answer the question of whether a pattern matches a given list:
 
 ```
 ;;; identifier is a boolean
@@ -378,10 +378,18 @@ random([one two three four]) -> c;
 ;;; a random character (byte) from a string
 random("hello") -> d;
 
-
 ;;; a random integer from an integer array
 random({1, 2, 3, 4}) -> d;
 
+```
+
+## Interoperability with the operating system
+
+Arrow provides the `exec(<string expression>)` expression to run system commands directly. The result is a string that can be stored and then processed in the regular way, e.g.:
+
+```
+"/path/to/folder" -> folder;            ;;; path to some folder
+exec("/bin/ls " + folder) -> listing;   ;;; output of ls stored in identifier listing
 ```
 
 

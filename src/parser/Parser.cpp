@@ -53,6 +53,7 @@
 #include "expressions/RandomFunctionExpression.hpp"
 #include "expressions/SingleEqualExpression.hpp"
 #include "expressions/StringInputExpression.hpp"
+#include "expressions/SystemCommandExpression.hpp"
 
 /// Other
 #include "evaluator/ExpressionEvaluator.hpp"
@@ -521,7 +522,14 @@ namespace arrow {
             if(!expression) { return nullptr; }
             stringInputExpression->withExpression(std::move(expression));
             return stringInputExpression;
-        } else {
+        } else if(currentToken().raw == "exec") {
+            auto systemCommandExpression = std::make_shared<SystemCommandExpression>(ln);
+            advanceTokenIterator();
+            auto expression = parseExpression();
+            if(!expression) { return nullptr; }
+            systemCommandExpression->withExpression(std::move(expression));
+            return systemCommandExpression;
+        }  else {
             auto functionExpression = std::make_shared<FunctionExpression>(ln);
             functionExpression->withFunctionNameToken(currentToken());
             advanceTokenIterator();

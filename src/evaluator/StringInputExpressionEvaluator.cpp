@@ -14,20 +14,6 @@
 
 namespace arrow {
 
-    namespace {
-
-        std::random_device rd;
-        std::default_random_engine re(rd());
-
-        long getRandomLong(long const upper)
-        {
-            using Dist = std::uniform_int_distribution<long>;
-            static Dist uid {};
-            return uid(re, Dist::param_type{0, upper});
-        }
-    }
-
-
     StringInputExpressionEvaluator::StringInputExpressionEvaluator(StringInputExpression expression)
       : m_expression(std::move(expression))
     {
