@@ -333,6 +333,13 @@ pr "hello";   ;;; hello without a new-line
 pr "hello\n"; ;;; with new-line char
 ```
 
+..while the function `input(expression)` can be used to read input, the result of which can be stored
+in a string variable, as shown by the following call statement:
+
+```
+input(("What does 42 mean to you? ") -> result;
+```
+
 To get data into a program, from the command line, the `arg` keyword can be used in the following way:
 
 ```
