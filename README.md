@@ -235,7 +235,7 @@ Using a combination of the above operators, lists can be manipulated quite easil
 fn reverse(input) -> result {
     [] -> result;
     for i in input {
-        [^i ^^list] -> result;
+        [^i ^^result] -> result;
     }
 }
 
