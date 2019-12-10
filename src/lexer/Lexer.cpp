@@ -270,6 +270,31 @@ namespace arrow {
         return false;
     }
 
+    bool isPartOfEscapeCode(char const c) {
+        return (c == 'a' || c == 'b' || c == 'f' ||
+                c == 'n' || c == 'r' || c == 't' ||
+                c == 'v' || c == '\\');
+    }
+
+    char getEscapeCode(char const c) {
+        if(c == 'a') {
+            return '\a';
+        } else if(c == 'b') {
+            return '\b';
+        } else if(c == 'f') {
+            return '\f';
+        } else if(c == 'n') {
+            return '\n';
+        } else if(c == 'r') {
+            return '\r';
+        } else if(c == 't') {
+            return '\t';
+        } else if(c == 'v') {
+            return '\v';
+        } 
+        return '\\';
+    }
+
     bool checkIfLiteralStringToken(char const c,
                                    std::istream & stream,
                                    std::vector<Token> & tokens,
@@ -286,8 +311,8 @@ namespace arrow {
                 else if(next == '\\') {
                     stream.get();
                     next = stream.peek();
-                    if(next == 'n') {
-                        dat.push_back('\n');
+                    if(isPartOfEscapeCode(next)) {
+                        dat.push_back(getEscapeCode(next));
                         stream.get();
                         next = stream.peek();
                     }
@@ -314,8 +339,19 @@ namespace arrow {
             auto next = stream.peek();
             std::string dat;
             if(next != '\'') {
-                dat.push_back(next);
-                stream.get();
+
+                // new-line char handling
+                if(next == '\\') {
+                    stream.get();
+                    next = stream.peek();
+                    if(isPartOfEscapeCode(next)) {
+                        dat.push_back(getEscapeCode(next));
+                        stream.get();
+                    }
+                } else {
+                    dat.push_back(next);
+                    stream.get();
+                }
             }
             if(c != '\'') {
                 return false;

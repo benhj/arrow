@@ -86,7 +86,8 @@ namespace arrow {
         if(deducedLeft.m_descriptor == TypeDescriptor::String) {
             if(op.raw == "+") {
                 auto str = std::get<std::string>(deducedLeft.m_variantType);
-                if(deducedRight.m_descriptor == TypeDescriptor::String) {
+                if(deducedRight.m_descriptor == TypeDescriptor::String ||
+                   deducedRight.m_descriptor == TypeDescriptor::ListWord) {
                     str = str.append(std::get<std::string>(deducedRight.m_variantType));
                     return {TypeDescriptor::String, str};
                 } else if(deducedRight.m_descriptor == TypeDescriptor::Byte) {

@@ -73,6 +73,7 @@ namespace arrow {
            evaled.m_descriptor != TypeDescriptor::Bools &&
            evaled.m_descriptor != TypeDescriptor::Strings &&
            evaled.m_descriptor != TypeDescriptor::String &&
+           evaled.m_descriptor != TypeDescriptor::ListWord &&
            evaled.m_descriptor != TypeDescriptor::Bytes) {
             throw LanguageException("Bad type descriptor in for statement expression",
                                     identifier.lineNumber);
@@ -95,7 +96,7 @@ namespace arrow {
         } else if(evaled.m_descriptor == TypeDescriptor::Strings) {
             auto elements = std::get<std::vector<std::string>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
-        } else if(evaled.m_descriptor == TypeDescriptor::String) {
+        } else if(evaled.m_descriptor == TypeDescriptor::String || evaled.m_descriptor == TypeDescriptor::ListWord) {
             auto elements = std::get<std::string>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(bodyStatements), std::move(indexer), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Byte) {

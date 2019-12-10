@@ -1,6 +1,6 @@
 # Arrow
 
-An interpreted programming language.
+A weakly typed interpreted programming language.
 
 # Table of Contents
 1. [About](#about)
