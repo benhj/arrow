@@ -5,6 +5,7 @@
 #include "parser/LanguageException.hpp"
 #include "representation/TypeDescriptor.hpp"
 #include <utility>
+#include <cmath>
 
 namespace arrow {
 
@@ -47,12 +48,15 @@ namespace arrow {
                 } else if(m_op == "/") {
                     return left / right;
                 }
-                if constexpr(!std::is_same_v<Left, long double> &&
-                             !std::is_same_v<Left, char> &&
+                if constexpr(!std::is_same_v<Left, char> &&
                              std::is_same_v<Left, Right>) {
                     if(m_op == "%") {
-                        return left % right;
-                    } else if(m_op == "^") {
+                        return std::fmod(left, right);
+                    } 
+                } else if constexpr(!std::is_same_v<Left, long double> &&
+                             !std::is_same_v<Left, char> &&
+                             std::is_same_v<Left, Right>) {
+                    if(m_op == "^") {
                         return left ^ right;
                     }
                 } else if constexpr(!std::is_same_v<Left, long double> &&
@@ -110,6 +114,18 @@ namespace arrow {
         if(deducedLeft.m_descriptor == TypeDescriptor::Real ||
            deducedRight.m_descriptor == TypeDescriptor::Real) {
             intType = false;
+        }
+        if(!intType) {
+            if(deducedLeft.m_descriptor == TypeDescriptor::Int) {
+                auto const val = std::get<int64_t>(deducedLeft.m_variantType);
+                deducedLeft.m_descriptor = TypeDescriptor::Real;
+                deducedLeft.m_variantType = static_cast<long double>(val);
+            }
+            if(deducedRight.m_descriptor == TypeDescriptor::Int) {
+                auto const val = std::get<int64_t>(deducedRight.m_variantType);
+                deducedRight.m_descriptor = TypeDescriptor::Real;
+                deducedRight.m_variantType = static_cast<long double>(val);
+            }
         }
 
         MathEvaluator evaluator{op.raw, op.lineNumber};
