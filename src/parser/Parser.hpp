@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "TokenManager.hpp"
 #include "expressions/Expression.hpp"
 #include "lexer/Token.hpp"
 #include "statements/Statement.hpp"
@@ -31,8 +32,8 @@ namespace arrow {
         std::vector<Type> parseProgramArguments();
 
       private:
-        std::vector<Token> m_tokens;
-        std::vector<Token>::iterator m_current;
+
+        TokenManager m_tm;
 
         // The start statement represents a program's entry point.
         // (Similar to a main function in c in c++)
@@ -45,11 +46,6 @@ namespace arrow {
         // during function call
         static std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
         std::shared_ptr<Statement> buildStatement();
-
-        bool notAtEnd() const;
-        void advanceTokenIterator();
-        Token currentToken() const;
-        Token nextToken() const;
 
         std::shared_ptr<Expression> parseIdentifierExpression();
         std::shared_ptr<Expression> parseLiteralIntExpression();

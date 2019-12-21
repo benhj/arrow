@@ -14,6 +14,10 @@ namespace arrow {
     {
         return m_current != std::end(m_tokens);
     }
+    bool TokenManager::tokenPlusOneNotAtEnd() const
+    {
+        return m_current + 1 != std::end(m_tokens);
+    }
     void TokenManager::advanceTokenIterator()
     {
         ++m_current;
@@ -37,4 +41,13 @@ namespace arrow {
         return *(m_current + 1);
     }
 
+    std::vector<Token>::iterator
+    TokenManager::retrieveIt() const
+    {
+        return m_current;
+    }
+    void TokenManager::revert(std::vector<Token>::iterator orig)
+    {
+        m_current = orig;
+    }
 }

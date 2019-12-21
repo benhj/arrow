@@ -50,6 +50,7 @@ int main(int argc, char ** argv) {
         return 0;
     }
     // else run in interactive mode
+    /*
     arrow::Parser p;
     simpleprompt::SimplePrompt sp("", [&](std::string const & com){
         if(com == "quit") {
@@ -87,7 +88,7 @@ int main(int argc, char ** argv) {
         }
     }, "Arrow v0.1", "\033[1;32m>> \033[0m");
     sp.start();
-
+*/
 
     return 0;
 }
