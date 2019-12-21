@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "ExpressionParser.hpp"
 #include "TokenManager.hpp"
-#include "expressions/Expression.hpp"
 #include "lexer/Token.hpp"
 #include "statements/Statement.hpp"
 #include <map>
@@ -17,10 +17,6 @@ namespace arrow {
     {
       public:
         Parser(std::vector<Token> tokens);
-        Parser();
-
-        void setTokens(std::vector<Token> tokens);
-
         void parse();
 
         std::shared_ptr<Statement> getStartStatement() const;
@@ -35,6 +31,8 @@ namespace arrow {
 
         TokenManager m_tm;
 
+        ExpressionParser m_ep;
+
         // The start statement represents a program's entry point.
         // (Similar to a main function in c in c++)
         std::shared_ptr<Statement> m_startStatement;
@@ -46,39 +44,6 @@ namespace arrow {
         // during function call
         static std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
         std::shared_ptr<Statement> buildStatement();
-
-        std::shared_ptr<Expression> parseIdentifierExpression();
-        std::shared_ptr<Expression> parseLiteralIntExpression();
-        std::shared_ptr<Expression> parseLiteralRealExpression();
-        std::shared_ptr<Expression> parseLiteralStringExpression();
-        std::shared_ptr<Expression> parseLiteralCharExpression();
-        std::shared_ptr<Expression> parseHatStringExpression();
-        std::shared_ptr<Expression> parseHatHatStringExpression();
-        std::shared_ptr<Expression> parseIndexExpression();
-        std::shared_ptr<Expression> parseQStringExpression();
-        std::shared_ptr<Expression> parseQQStringExpression();
-        std::shared_ptr<Expression> parseOperatorExpression();
-        std::shared_ptr<Expression> parseBooleanExpression();
-        std::shared_ptr<Expression> parseMathExpression();
-        std::shared_ptr<Expression> parseGroupedExpression();
-        std::shared_ptr<Expression> parseListExpression();
-        std::shared_ptr<Expression> parseListWordExpression();
-        std::shared_ptr<Expression> parseSingleEqualExpression();
-        std::shared_ptr<Expression> parseDoubleEqualExpression();
-        std::shared_ptr<Expression> parseFunctionExpression();
-        std::shared_ptr<Expression> parseMatchesExpression();
-
-        /// Parse a part of ListExpression. Note, we need to distinguish
-        /// between 'plain' words and identifiers, both of which
-        /// are generic strings.
-        std::shared_ptr<Expression> parseListExpressionType();
-        std::shared_ptr<Expression> 
-        parseExpressionCollectionExpression(bool const identifierOnly = false);
-
-        /// Expresions of the type {a, b, c}
-        std::shared_ptr<Expression> parseBracedExpressionCollectionExpression();
-
-        std::shared_ptr<Expression> parseExpression(bool checkOperator = true);
 
         /// Parses statements of the form
         /// keyword expression -> identifier;
