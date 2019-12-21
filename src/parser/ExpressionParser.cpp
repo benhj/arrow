@@ -493,7 +493,7 @@ namespace arrow {
                 auto exp = parseFunctionExpression();
                 if(!exp) {
                     m_tm.revert(store);
-                    auto store = m_tm.retrieveIt();
+                    store = m_tm.retrieveIt();
                     exp = parseIndexExpression();
                     if(!exp) {
                         m_tm.revert(store);
