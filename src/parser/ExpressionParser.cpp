@@ -326,41 +326,11 @@ namespace arrow {
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<GroupedExpression>(ln);
         if(expression) {
-
             exp->withExpression(std::move(expression));
-
             // Skip to get to next paren
             m_tm.advanceTokenIterator();
-
             if(m_tm.currentToken().lexeme != Lexeme::CLOSE_PAREN) {
                 return nullptr;
-            }
-
-            // Check for additional parts
-            if(isMathOperator(m_tm.nextToken().lexeme)) {
-                auto extra = std::make_shared<MathExpression>(ln);
-                extra->withLeft(std::move(exp));
-                m_tm.advanceTokenIterator();
-                extra->withOperator(m_tm.currentToken());
-                m_tm.advanceTokenIterator();
-                auto right = parseExpression();
-                if(!right) {
-                    return nullptr;
-                }
-                extra->withRight(std::move(right));
-                return extra;
-            } else if(isBooleanOperator(m_tm.nextToken().lexeme)) {
-                auto extra = std::make_shared<BooleanExpression>(ln);
-                extra->withLeft(std::move(exp));
-                m_tm.advanceTokenIterator();
-                extra->withOperator(m_tm.currentToken());
-                m_tm.advanceTokenIterator();
-                auto right = parseExpression();
-                if(!right) {
-                    return nullptr;
-                }
-                extra->withRight(std::move(right));
-                return extra;
             }
             return exp;
         }
