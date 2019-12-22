@@ -305,8 +305,8 @@ namespace arrow {
             return nullptr;
         }
 
-        if(previousPrecedence &&
-           *previousPrecedence >= precedence(m_tm.nextToken().lexeme)) {
+        auto const thisPrecedence = precedence(m_tm.nextToken().lexeme);
+        if(previousPrecedence && *previousPrecedence > thisPrecedence) {
             return left;
         }
 
@@ -319,6 +319,16 @@ namespace arrow {
             return nullptr;
         }
         exp->withRight(std::move(rightExpression));
+
+        // More math stuff?
+        if(isMathOperator(m_tm.nextToken().lexeme)) {
+            return parseMathExpression(exp);
+        }
+        // More boolean stuff?
+        if(isBooleanOperator(m_tm.nextToken().lexeme)) {
+            return parseBooleanExpression(exp);
+        }
+
         return exp;
     }
 
@@ -344,11 +354,19 @@ namespace arrow {
         m_tm.advanceTokenIterator();
 
         auto rightExpression = parseExpression(thisPrecedence);
+        if(!rightExpression) {
+            return nullptr;
+        }
+
         exp->withRight(std::move(rightExpression));
 
         // More math stuff?
         if(isMathOperator(m_tm.nextToken().lexeme)) {
             return parseMathExpression(exp);
+        }
+        // More boolean stuff?
+        if(isBooleanOperator(m_tm.nextToken().lexeme)) {
+            return parseBooleanExpression(exp);
         }
         return exp;
     }
