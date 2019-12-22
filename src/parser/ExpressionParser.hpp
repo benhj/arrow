@@ -25,8 +25,8 @@ namespace arrow {
         std::shared_ptr<Expression> parseQStringExpression();
         std::shared_ptr<Expression> parseQQStringExpression();
         std::shared_ptr<Expression> parseOperatorExpression();
-        std::shared_ptr<Expression> parseBooleanExpression();
-        std::shared_ptr<Expression> parseMathExpression();
+        std::shared_ptr<Expression> parseBooleanExpression(std::shared_ptr<Expression> left);
+        std::shared_ptr<Expression> parseMathExpression(std::shared_ptr<Expression> left);
         std::shared_ptr<Expression> parseGroupedExpression();
         std::shared_ptr<Expression> parseListExpression();
         std::shared_ptr<Expression> parseListWordExpression();

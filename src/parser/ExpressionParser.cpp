@@ -46,6 +46,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseIdentifierExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<IdentifierExpression>(ln);
         exp->withIdentifierToken(m_tm.currentToken());
@@ -54,6 +57,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseIndexExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
         if(m_tm.nextToken().lexeme != Lexeme::OPEN_SQUARE) {
             return nullptr;
         }
@@ -80,6 +86,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseListWordExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<ListWordExpression>(ln);
         exp->withWordToken(m_tm.currentToken());
@@ -88,6 +97,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseLiteralIntExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::INTEGER_NUM) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<LiteralIntExpression>(ln);
         exp->withIntToken(m_tm.currentToken());
@@ -96,6 +108,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseLiteralRealExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::REAL_NUM) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<LiteralRealExpression>(ln);
         exp->withRealToken(m_tm.currentToken());
@@ -104,6 +119,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseLiteralStringExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::LITERAL_STRING) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<LiteralStringExpression>(ln);
         exp->withStringToken(m_tm.currentToken());
@@ -112,6 +130,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseLiteralCharExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::LITERAL_CHAR) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<LiteralCharExpression>(ln);
         exp->withStringToken(m_tm.currentToken());
@@ -120,6 +141,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseHatStringExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::HAT_STRING) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<HatStringExpression>(ln);
         exp->withHatStringToken(m_tm.currentToken());
@@ -128,6 +152,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseHatHatStringExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::HAT_HAT_STRING) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<HatHatStringExpression>(ln);
         exp->withHatHatStringToken(m_tm.currentToken());
@@ -136,6 +163,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseQStringExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::Q_STRING) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<QStringExpression>(ln);
         exp->withQStringToken(m_tm.currentToken());
@@ -144,6 +174,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseQQStringExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::Q_Q_STRING) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<QQStringExpression>(ln);
         exp->withQQStringToken(m_tm.currentToken());
@@ -152,6 +185,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseSingleEqualExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::EQUAL) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<SingleEqualExpression>(ln);
         exp->withToken(m_tm.currentToken());
@@ -160,6 +196,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseDoubleEqualExpression()
     {
+        if(m_tm.currentToken().lexeme != Lexeme::EQUAL_EQUAL) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<DoubleEqualExpression>(ln);
         exp->withToken(m_tm.currentToken());
@@ -168,8 +207,13 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseMatchesExpression()
     {
-        auto const ln = m_tm.currentToken().lineNumber;
 
+        if(m_tm.currentToken().lexeme != Lexeme::OPEN_SQUARE &&
+           m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
+
+        auto const ln = m_tm.currentToken().lineNumber;
         auto store = m_tm.retrieveIt();
         auto left = parseListExpression();
         if(!left) {
@@ -221,16 +265,17 @@ namespace arrow {
         return exp;
     }
 
-    std::shared_ptr<Expression> ExpressionParser::parseBooleanExpression()
+    std::shared_ptr<Expression>
+    ExpressionParser::parseBooleanExpression(std::shared_ptr<Expression> left)
     {
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<BooleanExpression>(ln);
-        auto leftExpression = parseExpression(false);
-        if(!leftExpression) {
-           return nullptr;
-        }
-        exp->withLeft(std::move(leftExpression));
+        exp->withLeft(std::move(left));
         m_tm.advanceTokenIterator();
+
+        if(!isBooleanOperator(m_tm.currentToken().lexeme)) {
+            return nullptr;
+        }
 
         exp->withOperator(m_tm.currentToken());
         m_tm.advanceTokenIterator();
@@ -243,16 +288,17 @@ namespace arrow {
         return exp;
     }
 
-    std::shared_ptr<Expression> ExpressionParser::parseMathExpression()
+    std::shared_ptr<Expression>
+    ExpressionParser::parseMathExpression(std::shared_ptr<Expression> left)
     {
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<MathExpression>(ln);
-        auto leftExpression = parseExpression(false);
-        if(!leftExpression) {
-           return nullptr;
-        }
-        exp->withLeft(std::move(leftExpression));
+        exp->withLeft(std::move(left));
         m_tm.advanceTokenIterator();
+
+        if(!isMathOperator(m_tm.currentToken().lexeme)) {
+            return nullptr;
+        }
 
         exp->withOperator(m_tm.currentToken());
         m_tm.advanceTokenIterator();
@@ -267,6 +313,11 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseGroupedExpression()
     {
+
+        if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
+            return nullptr;
+        }
+
         // Skip over paren
         m_tm.advanceTokenIterator();
 
@@ -318,7 +369,9 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseListExpression()
     {
-
+        if(m_tm.currentToken().lexeme != Lexeme::OPEN_SQUARE) {
+            return nullptr;
+        }
         // Skip over open square bracket
         m_tm.advanceTokenIterator();
         auto const ln = m_tm.currentToken().lineNumber;
@@ -432,84 +485,68 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseListExpressionType()
     {
-        if(m_tm.currentToken().lexeme == Lexeme::GENERIC_STRING) {
-            return parseListWordExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::HAT_HAT_STRING) {
-            return parseHatHatStringExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::HAT_STRING) {
-            return parseHatStringExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::Q_Q_STRING) {
-            return parseQQStringExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::Q_STRING) {
-            return parseQStringExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::OPEN_SQUARE) {
-            return parseListExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::EQUAL) {
-            return parseSingleEqualExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::EQUAL_EQUAL) {
-            return parseDoubleEqualExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::INTEGER_NUM) {
-            return parseLiteralIntExpression();
-        } else if(m_tm.currentToken().lexeme == Lexeme::REAL_NUM) {
-            return parseLiteralRealExpression();
-        } 
+        static std::vector<std::function<std::shared_ptr<Expression>(void)>> pvec;
+        if(pvec.empty()) {
+            pvec.emplace_back([this]{return parseListWordExpression();});
+            pvec.emplace_back([this]{return parseHatHatStringExpression();});
+            pvec.emplace_back([this]{return parseHatStringExpression();});
+            pvec.emplace_back([this]{return parseQStringExpression();});
+            pvec.emplace_back([this]{return parseQQStringExpression();});
+            pvec.emplace_back([this]{return parseListExpression();});
+            pvec.emplace_back([this]{return parseSingleEqualExpression();});
+            pvec.emplace_back([this]{return parseDoubleEqualExpression();});
+            pvec.emplace_back([this]{return parseLiteralIntExpression();});
+            pvec.emplace_back([this]{return parseLiteralRealExpression();});
+        }
+        for(auto const & p : pvec) {
+            auto store = m_tm.retrieveIt();
+            auto expression = p();
+            if(expression) {
+                return expression;
+            }
+            m_tm.revert(store);
+        }
         return nullptr;
     }
 
     std::shared_ptr<Expression> ExpressionParser::parseExpression(bool checkOperator)
     {
-        if(m_tm.tokenPlusOneNotAtEnd()) {
-            if (checkOperator && isBooleanOperator(m_tm.nextToken().lexeme) &&
-                m_tm.currentToken().lexeme != Lexeme::OPEN_SQUARE) {
-                return parseBooleanExpression();
-            } else if(checkOperator && isMathOperator(m_tm.nextToken().lexeme))  {
-                return parseMathExpression();
-            } else if(m_tm.currentToken().lexeme == Lexeme::OPEN_PAREN) {
 
+        if(m_tm.tokenPlusOneNotAtEnd()) {
+            static std::vector<std::function<std::shared_ptr<Expression>(void)>> pvec;
+            if(pvec.empty()) {
+                pvec.emplace_back([this]{return parseGroupedExpression();});
+                pvec.emplace_back([this]{return parseExpressionCollectionExpression();});
+                pvec.emplace_back([this]{return parseBracedExpressionCollectionExpression();});
+                pvec.emplace_back([this]{return parseMatchesExpression();});
+                pvec.emplace_back([this]{return parseListExpression();});
+                pvec.emplace_back([this]{return parseLiteralIntExpression();});
+                pvec.emplace_back([this]{return parseLiteralRealExpression();});
+                pvec.emplace_back([this]{return parseFunctionExpression();});
+                pvec.emplace_back([this]{return parseIndexExpression();});
+                pvec.emplace_back([this]{return parseIdentifierExpression();});
+                pvec.emplace_back([this]{return parseLiteralStringExpression();});
+                pvec.emplace_back([this]{return parseLiteralCharExpression();});
+            }
+            for(auto const & p : pvec) {
                 auto store = m_tm.retrieveIt();
-                auto exp = parseGroupedExpression();
-                if(!exp) {
-                    m_tm.revert(store);
-                    // try (a, b, c) collection
-                    return parseExpressionCollectionExpression();
-                }
-                return exp;
-            } else if(m_tm.currentToken().lexeme == Lexeme::OPEN_CURLY) {
-                return parseBracedExpressionCollectionExpression();
-            } else if(m_tm.currentToken().lexeme == Lexeme::OPEN_SQUARE) {
-                auto store = m_tm.retrieveIt();
-                auto exp = parseMatchesExpression();
-                if(!exp) {
-                    m_tm.revert(store);
-                    return parseListExpression();
-                }
-                return exp;
-            } else if(m_tm.currentToken().lexeme == Lexeme::INTEGER_NUM) {
-                return parseLiteralIntExpression();
-            } else if(m_tm.currentToken().lexeme == Lexeme::REAL_NUM) {
-                return parseLiteralRealExpression();
-            } else if(m_tm.currentToken().lexeme == Lexeme::GENERIC_STRING) {
-                auto store = m_tm.retrieveIt();
-                auto exp = parseFunctionExpression();
-                if(!exp) {
+                auto expression = p();
+                if(expression) {
+                    store = m_tm.retrieveIt();
+                    auto booleanEval = parseBooleanExpression(expression);
+                    if(booleanEval) {
+                        return booleanEval;
+                    }
                     m_tm.revert(store);
                     store = m_tm.retrieveIt();
-                    exp = parseIndexExpression();
-                    if(!exp) {
-                        m_tm.revert(store);
-                        store = m_tm.retrieveIt();
-                        exp = parseMatchesExpression();
-                        if(!exp) {
-                            m_tm.revert(store);
-                            return parseIdentifierExpression();
-                        }
+                    auto mathEval = parseMathExpression(expression);
+                    if(mathEval) {
+                        return mathEval;
                     }
+                    m_tm.revert(store);
+                    return expression;
                 }
-                return exp;
-            } else if(m_tm.currentToken().lexeme == Lexeme::LITERAL_STRING) {
-                return parseLiteralStringExpression();
-            } else if(m_tm.currentToken().lexeme == Lexeme::LITERAL_CHAR) {
-                return parseLiteralCharExpression();
+                m_tm.revert(store);
             }
         }
         return nullptr;
