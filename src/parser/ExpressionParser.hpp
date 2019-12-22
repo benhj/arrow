@@ -5,6 +5,7 @@
 #include "TokenManager.hpp"
 #include "expressions/Expression.hpp"
 #include "lexer/Token.hpp"
+#include <optional>
 
 namespace arrow {
 
@@ -12,7 +13,7 @@ namespace arrow {
     {
       public:
         ExpressionParser(TokenManager & tm);
-        std::shared_ptr<Expression> parseExpression(bool checkOperator = true);
+        std::shared_ptr<Expression> parseExpression(std::optional<int> = std::nullopt);
 
         std::shared_ptr<Expression> parseLiteralIntExpression();
         std::shared_ptr<Expression> parseIndexExpression();
@@ -25,8 +26,6 @@ namespace arrow {
         std::shared_ptr<Expression> parseQStringExpression();
         std::shared_ptr<Expression> parseQQStringExpression();
         std::shared_ptr<Expression> parseOperatorExpression();
-        std::shared_ptr<Expression> parseBooleanExpression(std::shared_ptr<Expression> left);
-        std::shared_ptr<Expression> parseMathExpression(std::shared_ptr<Expression> left);
         std::shared_ptr<Expression> parseGroupedExpression();
         std::shared_ptr<Expression> parseListExpression();
         std::shared_ptr<Expression> parseListWordExpression();
@@ -34,6 +33,14 @@ namespace arrow {
         std::shared_ptr<Expression> parseDoubleEqualExpression();
         std::shared_ptr<Expression> parseFunctionExpression();
         std::shared_ptr<Expression> parseMatchesExpression();
+
+
+        std::shared_ptr<Expression>
+        parseBooleanExpression(std::shared_ptr<Expression> left,
+                               std::optional<int> = std::nullopt);
+        std::shared_ptr<Expression>
+        parseMathExpression(std::shared_ptr<Expression> left,
+                            std::optional<int> = std::nullopt);
 
         /// Parse a part of ListExpression. Note, we need to distinguish
         /// between 'plain' words and identifiers, both of which
