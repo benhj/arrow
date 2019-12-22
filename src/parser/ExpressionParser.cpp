@@ -45,21 +45,23 @@ namespace arrow {
                 case Lexeme::AND:
                 case Lexeme::OR:
                     return 0;
+                case Lexeme::XOR:
+                    return 1;
                 case Lexeme::EQUAL:
                 case Lexeme::NOT_EQUAL:
-                    return 1;
+                    return 2;
                 case Lexeme::LESS:
                 case Lexeme::GREATER:
                 case Lexeme::LESS_EQUAL:
                 case Lexeme::GREATER_EQUAL:
-                    return 2; 
+                    return 3; 
                 case Lexeme::PLUS:
                 case Lexeme::MINUS:
-                    return 3;
+                    return 4;
                 case Lexeme::STAR:
                 case Lexeme::DIVIDE:
                 case Lexeme::PERCENT:
-                    return 4;
+                    return 5;
                 default:
                     // shouldn't ever happen
                     throw std::logic_error("Incorrect operator type");

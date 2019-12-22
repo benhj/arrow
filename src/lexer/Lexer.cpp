@@ -183,6 +183,9 @@ namespace arrow {
                         tokens.emplace_back(Lexeme::HAT_HAT_STRING, std::move(dat), lineNumber);
                         return true;
                     }
+                } else {
+                    std::string dat("^");
+                    tokens.emplace_back(Lexeme::XOR, std::move(dat), lineNumber);
                 }
             }
         } else if(c == '?') {
