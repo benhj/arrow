@@ -16,15 +16,15 @@ namespace arrow {
         RepeatStatement(long const lineNumber);
         RepeatStatement & withToken(Token token);
         RepeatStatement & withExpression(std::shared_ptr<Expression> expression);
-        void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
+        RepeatStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
         std::shared_ptr<Expression> getExpression() const;
-        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
+        std::shared_ptr<Statement> getInnerStatement() const;
       private:
         Token m_keywordToken; // the repeat keyword
         std::shared_ptr<Expression> m_expression;
-        std::vector<std::shared_ptr<Statement>> m_bodyStatements;
+        std::shared_ptr<Statement> m_innerStatement;
     };
 
 }

@@ -46,16 +46,15 @@ namespace arrow {
         } else {
             val = std::get<int64_t>(resolved.m_variantType);
         }
-        cache.pushCacheLayer();
-        auto bodyStatements = m_statement.getBodyStatements();
+
+        auto innerStatement = m_statement.getInnerStatement();
         auto evaluated = StatementResult::Continue;
         for(int64_t it = 0; it < val; ++it) {
-            evaluated = evaluateBody(bodyStatements, cache);
+            evaluated = innerStatement->getEvaluator()->evaluate(cache);
             if(evaluated != StatementResult::Continue) {
                 break;
             }
         }
-        cache.popCacheLayer();
         return evaluated;
     }
 }

@@ -22,6 +22,7 @@
 #include "statements/ReleaseStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/ReturnStatement.hpp"
+#include "statements/ScopedBlockStatement.hpp"
 #include "statements/SimpleArrowStatement.hpp"
 #include "statements/SingleExpressionStatement.hpp"
 #include "statements/StartStatement.hpp"
@@ -138,6 +139,24 @@ namespace arrow {
             }
         }
         throw LanguageException("Unable to parse statement", m_tm.currentToken().lineNumber);
+    }
+
+    std::shared_ptr<Statement> Parser::parseScopedBlockStatement()
+    {
+        if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
+            return nullptr;
+        }
+        m_tm.advanceTokenIterator();
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto sbs = std::make_shared<ScopedBlockStatement>(ln);
+        while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
+            auto statement = buildStatement();
+            if(statement) {
+                sbs->addBodyStatement(std::move(statement));
+            }
+            m_tm.advanceTokenIterator();
+        }
+        return sbs;
     }
 
     std::shared_ptr<Statement> Parser::parseArrowStatement()
@@ -312,15 +331,11 @@ namespace arrow {
             m_tm.advanceTokenIterator();
             if(m_tm.currentToken().raw != "times") { return nullptr; }
             m_tm.advanceTokenIterator();
-            if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
-            m_tm.advanceTokenIterator();
-            while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-                auto statement = buildStatement();
-                if(statement) {
-                    repeatStatement->addBodyStatement(std::move(statement));
-                }
-                m_tm.advanceTokenIterator();
+            auto innerStatement = parseScopedBlockStatement();
+            if(!innerStatement) {
+                return nullptr;
             }
+            repeatStatement->withInnerStatement(std::move(innerStatement));
         }
         return repeatStatement;
     }

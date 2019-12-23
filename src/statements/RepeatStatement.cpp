@@ -21,32 +21,23 @@ namespace arrow {
         m_expression = std::move(expression);
         return *this;
     }
-    void RepeatStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
+    RepeatStatement & RepeatStatement::withInnerStatement(std::shared_ptr<Statement> innerStatement)
     {
-        m_bodyStatements.emplace_back(std::move(bodyStatement));
+        m_innerStatement = std::move(innerStatement);
+        return *this;
     }
 
     std::string RepeatStatement::toString() const
     {
-        std::string str("\nKeyword: ");
-        str.append(m_keywordToken.raw);
-        str.append("\nExpression: ");
-        str.append(m_expression->toString());
-        str.append("\nBegin body statements:\n");
-        for(auto const & statement : m_bodyStatements) {
-            str.append(statement->toString());
-        }
-        str.append("\nEnd body statements.");
-        return str;
+        return ""; // TODO
     }
     std::shared_ptr<Expression> RepeatStatement::getExpression() const
     {
         return m_expression;
     }
-    std::vector<std::shared_ptr<Statement>>
-    RepeatStatement::getBodyStatements() const
+    std::shared_ptr<Statement> RepeatStatement::getInnerStatement() const
     {
-        return m_bodyStatements;
+        return m_innerStatement;
     }
 
     std::shared_ptr<StatementEvaluator> RepeatStatement::getEvaluator() const

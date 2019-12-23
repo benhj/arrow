@@ -114,5 +114,13 @@ namespace arrow {
 
         /// return;
         std::shared_ptr<Statement> parseReturnStatement();
+
+        /// A block of code: E.g.:
+        /// {
+        ///     statement1;
+        ///     statement2;
+        ///     statementN; 
+        /// }
+        std::shared_ptr<Statement> parseScopedBlockStatement();
     };
 }
