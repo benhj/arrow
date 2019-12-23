@@ -376,15 +376,11 @@ namespace arrow {
         if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
         forStatement->withIdentifier(m_tm.currentToken());
         m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
-        m_tm.advanceTokenIterator();
-        while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-            auto statement = buildStatement();
-            if(statement) {
-                forStatement->addBodyStatement(std::move(statement));
-            }
-            m_tm.advanceTokenIterator();
+        auto innerStatement = parseScopedBlockStatement();
+        if(!innerStatement) {
+            return nullptr;
         }
+        forStatement->withInnerStatement(std::move(innerStatement));
         return forStatement;
      }
 

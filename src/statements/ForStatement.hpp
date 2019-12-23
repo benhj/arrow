@@ -17,17 +17,17 @@ namespace arrow {
         ForStatement & withToken(Token token);
         ForStatement & withIndexer(Token token);
         ForStatement & withIdentifier(Token token);
-        void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
+        ForStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
         Token getIndexer() const;
         Token getIdentifier() const;
-        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
+        std::shared_ptr<Statement> getInnerStatement() const;
       private:
         Token m_keywordToken; // the while keyword
         Token m_indexer;
         Token m_identifier;
-        std::vector<std::shared_ptr<Statement>> m_bodyStatements;
+        std::shared_ptr<Statement> m_innerStatement;
     };
 
 }
