@@ -1,10 +1,8 @@
 fn char_length(chars) -> len {
-    prn chars;
     0 -> len;
     for i in chars { 
         len + 1 -> len; 
     }
-    prn "len: " + len;
 }
 
 fn prettyPrint(char) {
@@ -13,14 +11,14 @@ fn prettyPrint(char) {
 
 start {
 
-    1 - 2.0 -> minX;
-    1.0 -> maxX;
-    78 -> width;
-    36 -> height;
-    2 -> aspectRatio;
+    0.0 - 2.0 -> minX;
+    2.0 -> maxX;
+    88 -> width;
+    46 -> height;
+    2.0 -> aspectRatio;
 
     " .,-:;i+hHM$*#@ " -> chars;
-    16 -> nchars;
+    char_length(chars) -> nchars;
 
     maxX - ((minX * height) / (width * aspectRatio)) -> yScale;
     0 -> y;
@@ -37,7 +35,7 @@ start {
             while(i < nchars) {
                 a * a -> asquared;
                 b * b -> bsquared;
-                if((asquared + bsquared) > 2.0) {
+                if(sqrt(asquared + bsquared) > 2.0) {
                     break;
                 }
                 a -> a_;

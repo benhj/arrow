@@ -461,15 +461,15 @@ namespace arrow {
             systemCommandExpression->withExpression(std::move(expression));
             return systemCommandExpression;
         } else if(m_tm.currentToken().raw == "sqrt") {
-            auto sqrtFunctionExpression = std::make_shared<SqrtFunctionExpression>(ln);
+            auto functionExpression = std::make_shared<SqrtFunctionExpression>(ln);
             m_tm.advanceTokenIterator();
             auto expression = parseExpression();
             if(!expression) {
                 return nullptr;
             }
-            sqrtFunctionExpression->withExpression(std::move(expression));
-            return sqrtFunctionExpression;
-        }  else {
+            functionExpression->withExpression(std::move(expression));
+            return functionExpression;
+        } else {
             auto functionExpression = std::make_shared<FunctionExpression>(ln);
             functionExpression->withFunctionNameToken(m_tm.currentToken());
             m_tm.advanceTokenIterator();
