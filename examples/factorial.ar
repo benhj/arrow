@@ -1,13 +1,11 @@
 fn factorial(n) -> f {
     1 -> f;
-    if (n > 1) {
-        factorial(n - 1) -> result;        
-        n * result -> f;
+    if (n > 1) {     
+        n * factorial(n - 1) -> f;
     }
 }
 
 start {
     arg 0 -> N;
-    factorial(N) -> result;
-    pr "result: "; prn result;
+    pr "result: "; prn factorial(N);
 }
