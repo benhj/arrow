@@ -479,17 +479,11 @@ namespace arrow {
         auto startStatement = std::make_shared<StartStatement>(ln);
         startStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
+        auto innerStatement = parseScopedBlockStatement();
+        if(!innerStatement) {
             return nullptr;
         }
-        m_tm.advanceTokenIterator();
-        while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-            auto statement = buildStatement();
-            if(statement) {
-                startStatement->addBodyStatement(std::move(statement));
-            }
-            m_tm.advanceTokenIterator();
-        }
+        startStatement->withInnerStatement(std::move(innerStatement));
         m_startStatement = startStatement;
         return startStatement;
     }
@@ -548,18 +542,11 @@ namespace arrow {
             functionStatement->withReturnIdentifierToken(m_tm.currentToken());
             m_tm.advanceTokenIterator();
         }
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
+        auto innerStatement = parseScopedBlockStatement();
+        if(!innerStatement) {
             return nullptr;
         }
-        m_tm.advanceTokenIterator();
-        while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-            auto statement = buildStatement();
-            if(statement) {
-                functionStatement->addBodyStatement(std::move(statement));
-            }
-            m_tm.advanceTokenIterator();
-        }
-
+        functionStatement->withInnerStatement(std::move(innerStatement));
         m_functions.emplace(theName.raw, functionStatement);
         return functionStatement;
     }

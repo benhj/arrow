@@ -32,9 +32,10 @@ namespace arrow {
         m_expressionCollection = std::move(expression);
         return *this;
     }
-    void FunctionStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
+    FunctionStatement & FunctionStatement::withInnerStatement(std::shared_ptr<Statement> innerStatement)
     {
-        m_bodyStatements.emplace_back(std::move(bodyStatement));
+        m_innerStatement = std::move(innerStatement);
+        return *this;
     }
 
     Token FunctionStatement::getName() const
@@ -49,28 +50,14 @@ namespace arrow {
     {
         return m_returnIdentifier;
     }
-    std::vector<std::shared_ptr<Statement>> FunctionStatement::getBodyStatements() const
+    std::shared_ptr<Statement> FunctionStatement::getInnerStatement() const
     {
-        return m_bodyStatements;
+        return m_innerStatement;
     }
 
     std::string FunctionStatement::toString() const
     {
-        std::string str("\nKeyword: ");
-        str.append(m_keywordToken.raw);
-        str.append("\nReturn type: ");
-        str.append(m_typeToken.raw);
-        str.append("\nFunction name: ");
-        str.append(m_nameToken.raw);
-        str.append(m_expressionCollection->toString());
-        str.append("\nReturn identifier: ");
-        str.append(m_returnIdentifier.raw);
-        str.append("\nBegin body statements:\n");
-        for(auto const & statement : m_bodyStatements) {
-            str.append(statement->toString());
-        }
-        str.append("\nEnd body statements.");
-        return str;
+        return ""; // TODO
     }
 
     std::shared_ptr<StatementEvaluator> FunctionStatement::getEvaluator() const

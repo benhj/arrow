@@ -23,7 +23,10 @@ namespace arrow {
         auto theBool = std::get<bool>(ifEvaluated.m_variantType);
         if(theBool) {
             auto innerStatement = m_statement.getInnerStatement();
-            return innerStatement->getEvaluator()->evaluate(cache);
+            cache.pushCacheLayer();
+            auto res = innerStatement->getEvaluator()->evaluate(cache);
+            cache.popCacheLayer();
+            return res;
         } else {
             auto elseIfParts = m_statement.getElseIfParts();
             for(auto const & part : elseIfParts) {
@@ -35,13 +38,19 @@ namespace arrow {
                 auto partBool = std::get<bool>(partExpressionEvaluated.m_variantType);
                 if(partBool) {
                     auto innerStatement = part->getInnerStatement();
-                    return innerStatement->getEvaluator()->evaluate(cache);
+                    cache.pushCacheLayer();
+                    auto res = innerStatement->getEvaluator()->evaluate(cache);
+                    cache.popCacheLayer();
+                    return res;
                 }
             }
             auto elsePart = m_statement.getElsePart();
             if(elsePart) {
                 auto innerStatement = elsePart->getInnerStatement();
-                return innerStatement->getEvaluator()->evaluate(cache);
+                cache.pushCacheLayer();
+                auto res = innerStatement->getEvaluator()->evaluate(cache);
+                cache.popCacheLayer();
+                return res;
             }
         }
         return StatementResult::Continue;

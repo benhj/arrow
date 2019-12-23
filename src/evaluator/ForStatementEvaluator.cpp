@@ -21,6 +21,7 @@ namespace arrow {
 
             auto evaluated = StatementResult::Continue;
             for (auto const & element : elements) {
+                cache.pushCacheLayer();
                 if constexpr (std::is_same_v<typename T::value_type, Type>) {
                     cache.add(indexer, element);
                 } else if constexpr (std::is_same_v<typename T::value_type, int64_t>) {
@@ -35,6 +36,7 @@ namespace arrow {
                     cache.add(indexer, {TypeDescriptor::Byte, element});
                 }
                 evaluated = innerStatement->getEvaluator()->evaluate(cache);
+                cache.popCacheLayer();
                 if(evaluated != StatementResult::Continue) {
                     return evaluated;
                 }

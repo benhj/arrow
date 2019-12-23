@@ -18,20 +18,20 @@ namespace arrow {
         FunctionStatement & withReturnIdentifierToken(Token token);
         FunctionStatement & 
         withExpressionCollection(std::shared_ptr<Expression> expression);
-        void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
+        FunctionStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
         Token getName() const;
         std::shared_ptr<Expression> getExpressionCollection() const;
         Token getReturnIdentifier() const;
-        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
+        std::shared_ptr<Statement> getInnerStatement() const;
       private:
         Token m_keywordToken; // fn keyword
         Token m_typeToken; // return type
         Token m_nameToken;
         std::shared_ptr<Expression> m_expressionCollection;
         Token m_returnIdentifier;
-        std::vector<std::shared_ptr<Statement>> m_bodyStatements;
+        std::shared_ptr<Statement> m_innerStatement;
     };
 
 }

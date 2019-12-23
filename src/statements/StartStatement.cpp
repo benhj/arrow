@@ -14,27 +14,20 @@ namespace arrow {
         m_keywordToken = std::move(token);
         return *this;
     }
-    void StartStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
+    StartStatement & StartStatement::withInnerStatement(std::shared_ptr<Statement> innerStatement)
     {
-        m_bodyStatements.emplace_back(std::move(bodyStatement));
+        m_innerStatement = std::move(innerStatement);
+        return *this;
     }
 
-    std::vector<std::shared_ptr<Statement>>
-    StartStatement::getBodyStatements() const
+    std::shared_ptr<Statement> StartStatement::getInnerStatement() const
     {
-        return m_bodyStatements;
+        return m_innerStatement;
     }
 
     std::string StartStatement::toString() const
     {
-        std::string str("\nKeyword: ");
-        str.append(m_keywordToken.raw);
-        str.append("\nBegin body statements:\n");
-        for(auto const & statement : m_bodyStatements) {
-            str.append(statement->toString());
-        }
-        str.append("\nEnd body statements.");
-        return str;
+        return ""; // TODO
     }
 
     std::shared_ptr<StatementEvaluator> StartStatement::getEvaluator() const
@@ -49,11 +42,8 @@ namespace arrow {
 
             StatementResult evaluate(Cache & cache) const override
             {
-                auto const bodyStatements = m_statement.getBodyStatements();
-                for(auto const & inner : bodyStatements) {
-                    inner->getEvaluator()->evaluate(cache);
-                }
-                return StatementResult::Continue;
+                auto innerStatement = m_statement.getInnerStatement();
+                return innerStatement->getEvaluator()->evaluate(cache);
             }
           private:
             StartStatement m_statement;

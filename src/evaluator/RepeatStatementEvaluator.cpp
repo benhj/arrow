@@ -50,7 +50,9 @@ namespace arrow {
         auto innerStatement = m_statement.getInnerStatement();
         auto evaluated = StatementResult::Continue;
         for(int64_t it = 0; it < val; ++it) {
+            cache.pushCacheLayer();
             evaluated = innerStatement->getEvaluator()->evaluate(cache);
+            cache.popCacheLayer();
             if(evaluated != StatementResult::Continue) {
                 break;
             }

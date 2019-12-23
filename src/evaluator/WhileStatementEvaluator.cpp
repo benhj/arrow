@@ -24,7 +24,9 @@ namespace arrow {
         auto booleanVal = std::get<bool>(resolved.m_variantType);
         auto innerStatement = m_statement.getInnerStatement();
         while(booleanVal) {
+            cache.pushCacheLayer();
             auto evaluated = innerStatement->getEvaluator()->evaluate(cache);
+            cache.popCacheLayer();
             if(evaluated != StatementResult::Continue) {
                 return evaluated;
             }

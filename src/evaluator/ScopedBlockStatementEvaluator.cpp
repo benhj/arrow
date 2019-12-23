@@ -27,10 +27,8 @@ namespace arrow {
 
     StatementResult ScopedBlockStatementEvaluator::evaluate(Cache & cache) const
     {
-        cache.pushCacheLayer();
         auto bodyStatements = m_statement.getBodyStatements();
         auto const evaluated = evaluateBody(bodyStatements, cache);
-        cache.popCacheLayer();
         return evaluated;
     }
 }
