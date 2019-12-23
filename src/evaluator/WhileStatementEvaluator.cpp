@@ -8,20 +8,6 @@
 
 namespace arrow {
 
-    namespace {
-        StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                                     Cache & cache)
-        {
-            for(auto const & statement : bodyStatements) {
-                auto const result = statement->getEvaluator()->evaluate(cache);
-                if(result != StatementResult::Continue) {
-                    return result;
-                }
-            }
-            return StatementResult::Continue;
-        }
-    }
-
     WhileStatementEvaluator::WhileStatementEvaluator(WhileStatement statement)
       : m_statement(std::move(statement))
     {
@@ -36,11 +22,9 @@ namespace arrow {
                                     m_statement.getLineNumber());
         }
         auto booleanVal = std::get<bool>(resolved.m_variantType);
-        auto bodyStatements = m_statement.getBodyStatements();
+        auto innerStatement = m_statement.getInnerStatement();
         while(booleanVal) {
-            cache.pushCacheLayer();
-            auto const evaluated = evaluateBody(bodyStatements, cache);
-            cache.popCacheLayer();
+            auto evaluated = innerStatement->getEvaluator()->evaluate(cache);
             if(evaluated != StatementResult::Continue) {
                 return evaluated;
             }

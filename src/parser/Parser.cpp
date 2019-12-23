@@ -352,15 +352,11 @@ namespace arrow {
         if(expression) {
             whileStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
-            if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
-            m_tm.advanceTokenIterator();
-            while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-                auto statement = buildStatement();
-                if(statement) {
-                    whileStatement->addBodyStatement(std::move(statement));
-                }
-                m_tm.advanceTokenIterator();
+            auto innerStatement = parseScopedBlockStatement();
+            if(!innerStatement) {
+                return nullptr;
             }
+            whileStatement->withInnerStatement(std::move(innerStatement));
         }
         return whileStatement;
     }
