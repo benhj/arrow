@@ -114,6 +114,7 @@ namespace arrow {
 
             static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
             if(pvec.empty()) {
+                pvec.emplace_back([this]{return parseScopedBlockStatement();});
                 pvec.emplace_back([this]{return parseBreakStatement();});
                 pvec.emplace_back([this]{return parseReturnStatement();});
                 pvec.emplace_back([this]{return parseFunctionStatement();});
@@ -339,7 +340,7 @@ namespace arrow {
                 return nullptr;
             }
             m_tm.advanceTokenIterator();
-            auto innerStatement = parseScopedBlockStatement();
+            auto innerStatement = buildStatement();
             if(!innerStatement) {
                 return nullptr;
             }
@@ -364,7 +365,7 @@ namespace arrow {
         if(expression) {
             whileStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
-            auto innerStatement = parseScopedBlockStatement();
+            auto innerStatement = buildStatement();
             if(!innerStatement) {
                 return nullptr;
             }
@@ -396,7 +397,7 @@ namespace arrow {
         }
         forStatement->withIdentifier(m_tm.currentToken());
         m_tm.advanceTokenIterator();
-        auto innerStatement = parseScopedBlockStatement();
+        auto innerStatement = buildStatement();
         if(!innerStatement) {
             return nullptr;
         }
@@ -424,7 +425,7 @@ namespace arrow {
             ifStatement->withExpression(expression);
         }
         m_tm.advanceTokenIterator();
-        auto innerStatement = parseScopedBlockStatement();
+        auto innerStatement = buildStatement();
         if(!innerStatement) {
             return nullptr;
         }
@@ -447,7 +448,7 @@ namespace arrow {
                 elseIfStatement->withExpression(expression);
             }
             m_tm.advanceTokenIterator();
-            auto innerStatement = parseScopedBlockStatement();
+            auto innerStatement = buildStatement();
             if(!innerStatement) {
                 return nullptr;
             }
@@ -460,7 +461,7 @@ namespace arrow {
             auto elseStatement = std::make_shared<ElseStatement>(ln);
             elseStatement->withToken(m_tm.currentToken());
             m_tm.advanceTokenIterator();
-            auto innerStatement = parseScopedBlockStatement();
+            auto innerStatement = buildStatement();
             if(!innerStatement) {
                 return nullptr;
             }
@@ -479,7 +480,7 @@ namespace arrow {
         auto startStatement = std::make_shared<StartStatement>(ln);
         startStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
-        auto innerStatement = parseScopedBlockStatement();
+        auto innerStatement = buildStatement();
         if(!innerStatement) {
             return nullptr;
         }
@@ -542,7 +543,7 @@ namespace arrow {
             functionStatement->withReturnIdentifierToken(m_tm.currentToken());
             m_tm.advanceTokenIterator();
         }
-        auto innerStatement = parseScopedBlockStatement();
+        auto innerStatement = buildStatement();
         if(!innerStatement) {
             return nullptr;
         }
