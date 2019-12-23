@@ -27,9 +27,10 @@ namespace arrow {
     {
         return m_expression;
     }
-    void IfStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
+    IfStatement & IfStatement::withInnerStatement(std::shared_ptr<Statement> innerStatement)
     {
-        m_bodyStatements.emplace_back(std::move(bodyStatement));
+        m_innerStatement = std::move(innerStatement);
+        return *this;
     }
     void IfStatement::addElseIfPart(std::shared_ptr<ElseIfStatement> elseIfPart)
     {
@@ -40,10 +41,9 @@ namespace arrow {
         m_elsePart = std::move(elsePart);
         return *this;
     }
-    std::vector<std::shared_ptr<Statement>> 
-    IfStatement::getBodyStatements() const
+    std::shared_ptr<Statement> IfStatement::getInnerStatement() const
     {
-        return m_bodyStatements;
+        return m_innerStatement;
     }
 
     std::vector<std::shared_ptr<ElseIfStatement>> 
@@ -59,28 +59,7 @@ namespace arrow {
 
     std::string IfStatement::toString() const
     {
-        std::string str("\nKeyword: ");
-        str.append(m_keywordToken.raw);
-        str.append("\nExpression: ");
-        str.append(m_expression->toString());
-        str.append("\nBegin body statements:\n");
-        for(auto const & statement : m_bodyStatements) {
-            str.append(statement->toString());
-        }
-        str.append("\nEnd body statements.");
-        if(!m_elseIfParts.empty()) {
-            str.append("\nBegin elseif parts:\n");
-            for(auto const & elseifPart : m_elseIfParts) {
-                str.append(elseifPart->toString());
-            }
-            str.append("\nEnd elseif part.\n");
-        }
-        if(m_elsePart) {
-            str.append("\nBegin else part:\n");
-            str.append(m_elsePart->toString());
-            str.append("\nEnd else part.");
-        }
-        return str;
+        return ""; // TODO
     }
 
     std::shared_ptr<StatementEvaluator> IfStatement::getEvaluator() const

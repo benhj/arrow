@@ -24,27 +24,19 @@ namespace arrow {
     {
         return m_expression;
     }
-    void ElseIfStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
+    ElseIfStatement & ElseIfStatement::withInnerStatement(std::shared_ptr<Statement> innerStatement)
     {
-        m_bodyStatements.emplace_back(std::move(bodyStatement));
+        m_innerStatement = std::move(innerStatement);
+        return *this;
     }
-    std::vector<std::shared_ptr<Statement>> ElseIfStatement::getBodyStatements() const
+    std::shared_ptr<Statement> ElseIfStatement::getInnerStatement() const
     {
-        return m_bodyStatements;
+        return m_innerStatement;
     }
 
     std::string ElseIfStatement::toString() const
     {
-        std::string str("\nKeyword: ");
-        str.append(m_keywordToken.raw);
-        str.append("\nExpression: ");
-        str.append(m_expression->toString());
-        str.append("\nBegin body statements:\n");
-        for(auto const & statement : m_bodyStatements) {
-            str.append(statement->toString());
-        }
-        str.append("\nEnd body statements.");
-        return str;
+        return ""; // TODO
     }
 
     std::shared_ptr<StatementEvaluator> ElseIfStatement::getEvaluator() const

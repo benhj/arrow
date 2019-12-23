@@ -424,17 +424,12 @@ namespace arrow {
             ifStatement->withExpression(expression);
         }
         m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
+        auto innerStatement = parseScopedBlockStatement();
+        if(!innerStatement) {
             return nullptr;
         }
-        m_tm.advanceTokenIterator();
-        while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-            auto statement = buildStatement();
-            if(statement) {
-                ifStatement->addBodyStatement(std::move(statement));
-            }
-            m_tm.advanceTokenIterator();
-        }
+        ifStatement->withInnerStatement(std::move(innerStatement));
+
         while(m_tm.nextToken().raw == "elseif") {
             m_tm.advanceTokenIterator();
             ln = m_tm.currentToken().lineNumber;
@@ -452,17 +447,11 @@ namespace arrow {
                 elseIfStatement->withExpression(expression);
             }
             m_tm.advanceTokenIterator();
-            if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
+            auto innerStatement = parseScopedBlockStatement();
+            if(!innerStatement) {
                 return nullptr;
             }
-            m_tm.advanceTokenIterator();
-            while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-                auto statement = buildStatement();
-                if(statement) {
-                    elseIfStatement->addBodyStatement(std::move(statement));
-                }
-                m_tm.advanceTokenIterator();
-            }
+            elseIfStatement->withInnerStatement(std::move(innerStatement));
             ifStatement->addElseIfPart(std::move(elseIfStatement));
         }
         if(m_tm.nextToken().raw == "else") {
@@ -471,17 +460,11 @@ namespace arrow {
             auto elseStatement = std::make_shared<ElseStatement>(ln);
             elseStatement->withToken(m_tm.currentToken());
             m_tm.advanceTokenIterator();
-            if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
+            auto innerStatement = parseScopedBlockStatement();
+            if(!innerStatement) {
                 return nullptr;
             }
-            m_tm.advanceTokenIterator();
-            while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
-                auto statement = buildStatement();
-                if(statement) {
-                    elseStatement->addBodyStatement(std::move(statement));
-                }
-                m_tm.advanceTokenIterator();
-            }
+            elseStatement->withInnerStatement(std::move(innerStatement));
             ifStatement->withElsePart(std::move(elseStatement));
         }
         return ifStatement;

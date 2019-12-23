@@ -15,25 +15,18 @@ namespace arrow {
         m_keywordToken = std::move(token);
         return *this;
     }
-    void ElseStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)
+    ElseStatement & ElseStatement::withInnerStatement(std::shared_ptr<Statement> innerStatement)
     {
-        m_bodyStatements.emplace_back(std::move(bodyStatement));
+        m_innerStatement = std::move(innerStatement);
+        return *this;
     }
-    std::vector<std::shared_ptr<Statement>> 
-    ElseStatement::getBodyStatements() const
+    std::shared_ptr<Statement> ElseStatement::getInnerStatement() const
     {
-        return m_bodyStatements;
+        return m_innerStatement;
     }
     std::string ElseStatement::toString() const
     {
-        std::string str("\nKeyword: ");
-        str.append(m_keywordToken.raw);
-        str.append("\nBegin body statements:\n");
-        for(auto const & statement : m_bodyStatements) {
-            str.append(statement->toString());
-        }
-        str.append("\nEnd body statements.");
-        return str;
+        return ""; // TODO
     }
 
     std::shared_ptr<StatementEvaluator> ElseStatement::getEvaluator() const

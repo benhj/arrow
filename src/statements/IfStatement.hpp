@@ -22,18 +22,18 @@ namespace arrow {
         IfStatement & withToken(Token token);
         IfStatement & withExpression(std::shared_ptr<Expression> expression);
         std::shared_ptr<Expression> getExpression() const;
-        void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
+        IfStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         void addElseIfPart(std::shared_ptr<ElseIfStatement> elseIfPart);
         IfStatement & withElsePart(std::shared_ptr<ElseStatement> elsePart);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
+        std::shared_ptr<Statement> getInnerStatement() const;
         std::vector<std::shared_ptr<ElseIfStatement>> getElseIfParts() const;
         std::shared_ptr<ElseStatement> getElsePart() const;
       private:
         Token m_keywordToken; // the if keyword
         std::shared_ptr<Expression> m_expression;
-        std::vector<std::shared_ptr<Statement>> m_bodyStatements;
+        std::shared_ptr<Statement> m_innerStatement;
         std::vector<std::shared_ptr<ElseIfStatement>> m_elseIfParts;
         std::shared_ptr<ElseStatement> m_elsePart;
     };

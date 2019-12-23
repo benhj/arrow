@@ -19,8 +19,8 @@ namespace arrow {
         ElseIfStatement & withToken(Token token);
         ElseIfStatement & withExpression(std::shared_ptr<Expression> expression);
         std::shared_ptr<Expression> getExpression() const;
-        void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
-        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
+        ElseIfStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
+        std::shared_ptr<Statement> getInnerStatement() const;
 
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
@@ -28,7 +28,7 @@ namespace arrow {
       private:
         Token m_keywordToken; // the elseif keyword
         std::shared_ptr<Expression> m_expression;
-        std::vector<std::shared_ptr<Statement>> m_bodyStatements;
+        std::shared_ptr<Statement> m_innerStatement;
     };
 
 }

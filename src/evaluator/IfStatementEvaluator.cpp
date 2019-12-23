@@ -8,20 +8,6 @@
 
 namespace arrow {
 
-    namespace {
-        StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                          Cache & cache)
-        {
-            for(auto const & statement : bodyStatements) {
-                auto const result = statement->getEvaluator()->evaluate(cache);
-                if(result != StatementResult::Continue) {
-                    return result;
-                }
-            }
-            return StatementResult::Continue;
-        }
-    }
-
     IfStatementEvaluator::IfStatementEvaluator(IfStatement statement)
       : m_statement(std::move(statement))
     {
@@ -36,11 +22,8 @@ namespace arrow {
         }
         auto theBool = std::get<bool>(ifEvaluated.m_variantType);
         if(theBool) {
-            cache.pushCacheLayer();
-            auto bodyStatements = m_statement.getBodyStatements();
-            auto const evaluated = evaluateBody(std::move(bodyStatements), cache);
-            cache.popCacheLayer();
-            return evaluated;
+            auto innerStatement = m_statement.getInnerStatement();
+            return innerStatement->getEvaluator()->evaluate(cache);
         } else {
             auto elseIfParts = m_statement.getElseIfParts();
             for(auto const & part : elseIfParts) {
@@ -51,20 +34,14 @@ namespace arrow {
                 }
                 auto partBool = std::get<bool>(partExpressionEvaluated.m_variantType);
                 if(partBool) {
-                    cache.pushCacheLayer();
-                    auto bodyStatements = part->getBodyStatements();
-                    auto const evaluated = evaluateBody(std::move(bodyStatements), cache);
-                    cache.popCacheLayer();
-                    return evaluated;
+                    auto innerStatement = part->getInnerStatement();
+                    return innerStatement->getEvaluator()->evaluate(cache);
                 }
             }
             auto elsePart = m_statement.getElsePart();
             if(elsePart) {
-                cache.pushCacheLayer();
-                auto bodyStatements = elsePart->getBodyStatements();
-                auto const evaluated = evaluateBody(std::move(bodyStatements), cache);
-                cache.popCacheLayer();
-                return evaluated;
+                auto innerStatement = elsePart->getInnerStatement();
+                return innerStatement->getEvaluator()->evaluate(cache);
             }
         }
         return StatementResult::Continue;

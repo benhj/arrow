@@ -17,13 +17,13 @@ namespace arrow {
       public:
         ElseStatement(long const lineNumber);
         ElseStatement & withToken(Token token);
-        void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
+        ElseStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
+        std::shared_ptr<Statement> getInnerStatement() const;
       private:
         Token m_keywordToken; // the else keyword
-        std::vector<std::shared_ptr<Statement>> m_bodyStatements;
+        std::shared_ptr<Statement> m_innerStatement;
     };
 
 }
