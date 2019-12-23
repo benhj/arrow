@@ -1,8 +1,5 @@
-
 ;;; a function wihtout a scoped block
-fn add(a, b) -> c 
-	a + b -> c;
+fn add(a, b) -> c a + b -> c;
 
 ;;; start without a scoped block
-start
-	prn add(1, 2);
+start prn add(1, 2);
