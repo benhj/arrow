@@ -27,7 +27,9 @@ namespace arrow {
             cache.pushCacheLayer();
             auto evaluated = innerStatement->getEvaluator()->evaluate(cache);
             cache.popCacheLayer();
-            if(evaluated != StatementResult::Continue) {
+            if(evaluated == StatementResult::Break) {
+                break;
+            } else if(evaluated == StatementResult::Return) {
                 return evaluated;
             }
             resolved = expressionEvaluator->evaluate(cache);

@@ -53,8 +53,10 @@ namespace arrow {
             cache.pushCacheLayer();
             evaluated = innerStatement->getEvaluator()->evaluate(cache);
             cache.popCacheLayer();
-            if(evaluated != StatementResult::Continue) {
+            if(evaluated == StatementResult::Break) {
                 break;
+            } else if(evaluated == StatementResult::Return) {
+                return evaluated;
             }
         }
         return evaluated;

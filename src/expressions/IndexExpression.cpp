@@ -8,6 +8,7 @@
 namespace arrow {
 
     namespace {
+
         template <typename T>
         Type getElement(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
         {
@@ -30,6 +31,17 @@ namespace arrow {
             } else if constexpr(std::is_same_v<T, char>) {
                 return {TypeDescriptor::Byte, container[deduced]};
             }
+        }
+        template<>
+        Type getElement<std::string>(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
+        {
+            auto container = std::get<std::string>(statementType.m_variantType);
+            auto index = exp->getEvaluator()->evaluate(cache);
+            auto deduced = std::get<int64_t>(index.m_variantType);
+            if(deduced >= static_cast<int64_t>(container.size())) {
+                throw LanguageException("Index too large", exp->getLineNumber());
+            }
+            return {TypeDescriptor::Byte, container[deduced]};
         }
     }
 
@@ -61,7 +73,8 @@ namespace arrow {
                     type.m_descriptor != TypeDescriptor::Reals &&
                     type.m_descriptor != TypeDescriptor::Bools &&
                     type.m_descriptor != TypeDescriptor::Strings &&
-                    type.m_descriptor != TypeDescriptor::Bytes) {
+                    type.m_descriptor != TypeDescriptor::Bytes &&
+                    type.m_descriptor != TypeDescriptor::String) {
                     throw LanguageException("Incompatiable type for index", m_expression->getLineNumber());
                 }
 
@@ -76,6 +89,8 @@ namespace arrow {
                         return getElement<std::string>(std::move(type), std::move(m_expression), cache);
                     case TypeDescriptor::Bytes:
                         return getElement<char>(std::move(type), std::move(m_expression), cache);
+                    case TypeDescriptor::String:
+                        return getElement<std::string>(std::move(type), std::move(m_expression), cache);
                     default: break;
                 }
                 return getElement<Type>(std::move(type), std::move(m_expression), cache);

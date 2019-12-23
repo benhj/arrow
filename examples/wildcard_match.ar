@@ -80,7 +80,7 @@ fn wildcard_match(needle, haystack) -> result {
 start {
 
     "hello.pdf" -> haystack;
-    "*.txt" -> needle;
+    "*.pdf" -> needle;
     wildcard_match(to_list(needle), to_list(haystack)) -> matched;
     prn matched;
 }
