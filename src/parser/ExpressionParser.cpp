@@ -414,7 +414,9 @@ namespace arrow {
             // distinguish between plain words and identifiers
             // both of which are generic string lexeme types.
             auto exp = parseListExpressionType();
-            if(!exp) { return nullptr; }
+            if(!exp) {
+                return nullptr;
+            }
             listExp->addPart(std::move(exp));
             m_tm.advanceTokenIterator();
         }
@@ -423,28 +425,38 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseFunctionExpression()
     {
-        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) { return nullptr; }
-        if(m_tm.nextToken().lexeme != Lexeme::OPEN_PAREN) { return nullptr; }
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
+        if(m_tm.nextToken().lexeme != Lexeme::OPEN_PAREN) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         if(m_tm.currentToken().raw == "random") {
             auto functionExpression = std::make_shared<RandomFunctionExpression>(ln);
             m_tm.advanceTokenIterator();
             auto expression = parseExpression();
-            if(!expression) { return nullptr; }
+            if(!expression) {
+                return nullptr;
+            }
             functionExpression->withExpression(std::move(expression));
             return functionExpression;
         } else if(m_tm.currentToken().raw == "input") {
             auto stringInputExpression = std::make_shared<StringInputExpression>(ln);
             m_tm.advanceTokenIterator();
             auto expression = parseExpression();
-            if(!expression) { return nullptr; }
+            if(!expression) {
+                return nullptr;
+            }
             stringInputExpression->withExpression(std::move(expression));
             return stringInputExpression;
         } else if(m_tm.currentToken().raw == "exec") {
             auto systemCommandExpression = std::make_shared<SystemCommandExpression>(ln);
             m_tm.advanceTokenIterator();
             auto expression = parseExpression();
-            if(!expression) { return nullptr; }
+            if(!expression) {
+                return nullptr;
+            }
             systemCommandExpression->withExpression(std::move(expression));
             return systemCommandExpression;
         }  else {
@@ -452,7 +464,9 @@ namespace arrow {
             functionExpression->withFunctionNameToken(m_tm.currentToken());
             m_tm.advanceTokenIterator();
             auto collection = parseExpressionCollectionExpression();
-            if(!collection) { return nullptr; }
+            if(!collection) {
+                return nullptr;
+            }
             functionExpression->withExpressionCollection(std::move(collection));
             return functionExpression;
         }
@@ -496,7 +510,9 @@ namespace arrow {
     std::shared_ptr<Expression> 
     ExpressionParser::parseBracedExpressionCollectionExpression()
     {
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) { return nullptr; }
+        if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
+            return nullptr;
+        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto expression = std::make_shared<BracedExpressionCollectionExpression>(ln);
         m_tm.advanceTokenIterator();
