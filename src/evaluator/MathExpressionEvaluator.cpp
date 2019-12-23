@@ -53,17 +53,17 @@ namespace arrow {
                     if(m_op == "%") {
                         return std::fmod(left, right);
                     } 
-                } else if constexpr(!std::is_same_v<Left, long double> &&
-                             !std::is_same_v<Left, char> &&
-                             std::is_same_v<Left, Right>) {
-                    if(m_op == "^") {
-                        return left ^ right;
-                    }
-                } else if constexpr(!std::is_same_v<Left, long double> &&
+                }
+                if constexpr(!std::is_same_v<Left, long double> &&
                                      std::is_same_v<Left, Right>) {
                     if(m_op == "^") {
                         return left ^ right;
                     }
+                }
+            } else if constexpr(std::is_same_v<Left, char> &&
+                                std::is_same_v<Left, Right>) {
+                if(m_op == "^") {
+                    return left ^ right;
                 }
             }
             throw LanguageException("Incompatible types on line", m_lineNumber);
