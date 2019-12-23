@@ -33,9 +33,8 @@ start {
             c_im -> b;
             0 -> i;
             while(i < nchars) {
-                a * a -> asquared;
-                b * b -> bsquared;
-                if(sqrt(asquared + bsquared) > 2.0) {
+                sqrt(a * a + b * b) -> sum;
+                if(sum > 2.0) {
                     break;
                 }
                 a -> a_;

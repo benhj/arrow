@@ -14,14 +14,15 @@ namespace arrow {
     }
     Type SqrtFunctionExpressionEvaluator::evaluate(Cache & cache) const
     {
-        auto const eval = m_expression.getEvaluator()->evaluate(cache);
+        auto const innerExpression = m_expression.getExpression();
+        auto const eval = innerExpression->getEvaluator()->evaluate(cache);
         if(eval.m_descriptor == TypeDescriptor::Int) {
             auto casted = std::get<int64_t>(eval.m_variantType);
-            auto val = static_cast<long double>(::sqrt(casted));
+            auto val = static_cast<long double>(sqrt(casted));
             return {TypeDescriptor::Real, val};
         } else if(eval.m_descriptor == TypeDescriptor::Real) {
             auto casted = std::get<long double>(eval.m_variantType);
-            auto val = static_cast<long double>(::sqrt(casted));
+            auto val = static_cast<long double>(sqrt(casted));
             return {TypeDescriptor::Real, val};
         } else {
             throw LanguageException("Bad type for sqrt", m_expression.getLineNumber());

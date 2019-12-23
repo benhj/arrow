@@ -12,7 +12,6 @@ namespace arrow {
       : Expression(lineNumber)
     {
     }
-
     std::shared_ptr<ExpressionEvaluator> SqrtFunctionExpression::getEvaluator() const
     {
         return std::make_shared<SqrtFunctionExpressionEvaluator>(*this);
