@@ -1,3 +1,15 @@
+;;; Mandelbrot example ported from
+;;; https://github.com/ffwff/hana/blob/haru/examples/mandelbrot.hana
+;;; which in turn was ported from
+;;; http://warp.povusers.org/MandScripts/python.html
+;;; Note, should probably read 'not-quite-mandelbrot':
+;;; There is a bug somewhere that means it doesn't
+;;; quite look as it should do; likely in the
+;;; arrow interpretor itself.
+
+
+;;; returns the length of a container. In the context
+;;; of this program, a string of characters.
 fn char_length(chars) -> len {
     0 -> len;
     for i in chars { 
@@ -5,10 +17,6 @@ fn char_length(chars) -> len {
     }
 }
 
-;;; this should read 'not-quite-mandelbrot'
-;;; there is a bug somewhere that means it doesn't
-;;; quite look as it should do; likely in the
-;;; arrow interpretor itself.
 start {
 
     0.0 - 2.0 -> minX;
