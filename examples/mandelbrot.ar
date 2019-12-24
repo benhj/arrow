@@ -5,22 +5,22 @@ fn char_length(chars) -> len {
     }
 }
 
-fn prettyPrint(char) {
-    pr "" + char;
-}
-
+;;; this should read 'not-quite-mandelbrot'
+;;; there is a bug somewhere that means it doesn't
+;;; quite look as it should do; likely in the
+;;; arrow interpretor itself.
 start {
 
-    0.0 - 2.0 -> minX;
-    2.0 -> maxX;
-    88 -> width;
-    46 -> height;
-    0.5 -> aspectRatio;
+    0.0 - 1 -> minX;
+    1 -> maxX;
+    78 -> width;
+    36 -> height;
+    2.0 -> aspectRatio;
 
     " .,-:;i+hHM$*#@ " -> chars;
     char_length(chars) -> nchars;
 
-    maxX - ((minX * height) / (width * aspectRatio)) -> yScale;
+    maxX - (minX * height) / (width * aspectRatio) -> yScale;
     0 -> y;
     while (y < height) {
         0 -> x;
@@ -28,7 +28,7 @@ start {
         while (x < width) {
 
             minX + x * (maxX - minX) / width -> c_re;
-            ((y * yScale) / height) - (yScale / 2.0) -> c_im;
+            (y * yScale) / height - yScale / 2.0 -> c_im;
             c_re -> a;
             c_im -> b;
             0 -> i;
@@ -39,11 +39,11 @@ start {
                 }
                 a -> a_;
                 b -> b_;
-                (a_ * a_) - (b_ * b_) + c_re -> a;
-                ((2 * a_) * b_) + c_im -> b;
+                a_ * a_ - b_ * b_ + c_re -> a;
+                2 * a_ * b_ + c_im -> b;
                 i + 1 -> i;
             }
-            if(i = 16) {
+            if(i = nchars) {
                 i - 1 -> i;
             }
             output + chars[i] -> output;
