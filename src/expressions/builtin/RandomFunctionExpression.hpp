@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "BuiltInFunctionExpression.hpp"
 #include "BuiltInFunctionExpressionBuilder.hpp"
 #include "expressions/Expression.hpp"
 #include "lexer/Token.hpp"
@@ -10,11 +11,11 @@
 
 namespace arrow {
     
-    class RandomFunctionExpression : public Expression {
+    class RandomFunctionExpression : public Expression, public BuiltInFunctionExpression
+    {
       public:
         RandomFunctionExpression(long const lineNumber);
-        RandomFunctionExpression & 
-        withExpression(std::shared_ptr<Expression> expression);
+        void setExpression(std::shared_ptr<Expression> expression) override;
         std::shared_ptr<Expression> getExpression() const;
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
         std::string toString() const override;

@@ -6,9 +6,11 @@
 #include "expressions/Expression.hpp"
 #include "lexer/Token.hpp"
 #include <optional>
+#include <memory>
 
 namespace arrow {
 
+    class BuiltInFunctionExpressionParser;
     class ExpressionParser
     {
       public:
@@ -56,5 +58,6 @@ namespace arrow {
       private:
 
         TokenManager & m_tm;
+        std::shared_ptr<BuiltInFunctionExpressionParser> m_builtinsParser;
     };
 }

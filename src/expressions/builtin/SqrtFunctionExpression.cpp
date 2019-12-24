@@ -17,11 +17,9 @@ namespace arrow {
         return std::make_shared<SqrtFunctionExpressionEvaluator>(*this);
     }
 
-    SqrtFunctionExpression & 
-    SqrtFunctionExpression::withExpression(std::shared_ptr<Expression> expression)
+    void SqrtFunctionExpression::setExpression(std::shared_ptr<Expression> expression)
     {
         m_expression = std::move(expression);
-        return *this;
     }
     std::shared_ptr<Expression>
     SqrtFunctionExpression::getExpression() const

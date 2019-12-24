@@ -16,7 +16,7 @@ namespace arrow {
     {
       public:
         BuiltInFunctionExpressionParser(TokenManager & tm);
-        std::shared_ptr<Expression> parseExpression();
+        std::shared_ptr<Expression> parseExpression(std::string name);
 
       private:
         TokenManager & m_tm;

@@ -2,6 +2,7 @@
 
 /// This
 #include "ExpressionParser.hpp"
+#include "BuiltInFunctionExpressionParser.hpp"
 
 /// Expressions
 #include "expressions/BooleanExpression.hpp"
@@ -72,6 +73,7 @@ namespace arrow {
 
     ExpressionParser::ExpressionParser(TokenManager & tm)
       : m_tm(tm)
+      , m_builtinsParser(std::make_shared<BuiltInFunctionExpressionParser>(m_tm))
     {
     }
 
@@ -433,42 +435,16 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        if(m_tm.currentToken().raw == "random") {
-            auto functionExpression = std::make_shared<RandomFunctionExpression>(ln);
+        auto builtin = m_builtinsParser->parseExpression(m_tm.currentToken().raw);
+        if(builtin) {
             m_tm.advanceTokenIterator();
             auto expression = parseExpression();
             if(!expression) {
                 return nullptr;
             }
-            functionExpression->withExpression(std::move(expression));
-            return functionExpression;
-        } else if(m_tm.currentToken().raw == "input") {
-            auto stringInputExpression = std::make_shared<StringInputExpression>(ln);
-            m_tm.advanceTokenIterator();
-            auto expression = parseExpression();
-            if(!expression) {
-                return nullptr;
-            }
-            stringInputExpression->withExpression(std::move(expression));
-            return stringInputExpression;
-        } else if(m_tm.currentToken().raw == "exec") {
-            auto systemCommandExpression = std::make_shared<SystemCommandExpression>(ln);
-            m_tm.advanceTokenIterator();
-            auto expression = parseExpression();
-            if(!expression) {
-                return nullptr;
-            }
-            systemCommandExpression->withExpression(std::move(expression));
-            return systemCommandExpression;
-        } else if(m_tm.currentToken().raw == "sqrt") {
-            auto functionExpression = std::make_shared<SqrtFunctionExpression>(ln);
-            m_tm.advanceTokenIterator();
-            auto expression = parseExpression();
-            if(!expression) {
-                return nullptr;
-            }
-            functionExpression->withExpression(std::move(expression));
-            return functionExpression;
+            // HAF!!! Needs improvement.
+            dynamic_cast<BuiltInFunctionExpression*>(builtin.get())->setExpression(std::move(expression));
+            return builtin;
         } else {
             auto functionExpression = std::make_shared<FunctionExpression>(ln);
             functionExpression->withFunctionNameToken(m_tm.currentToken());

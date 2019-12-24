@@ -15,11 +15,9 @@ namespace arrow {
         return std::make_shared<SystemCommandExpressionEvaluator>(*this);
     }
 
-    SystemCommandExpression & 
-    SystemCommandExpression::withExpression(std::shared_ptr<Expression> expression)
+    void SystemCommandExpression::setExpression(std::shared_ptr<Expression> expression)
     {
         m_expression = std::move(expression);
-        return *this;
     }
     std::shared_ptr<Expression>
     SystemCommandExpression::getExpression() const

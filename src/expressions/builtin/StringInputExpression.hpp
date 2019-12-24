@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "BuiltInFunctionExpression.hpp"
 #include "BuiltInFunctionExpressionBuilder.hpp"
 #include "expressions/Expression.hpp"
 #include "lexer/Token.hpp"
@@ -10,12 +11,11 @@
 
 namespace arrow {
     
-    class StringInputExpression : public Expression
+    class StringInputExpression : public Expression, public BuiltInFunctionExpression
     {
       public:
         StringInputExpression(long const lineNumber);
-        StringInputExpression & 
-        withExpression(std::shared_ptr<Expression> expression);
+        void setExpression(std::shared_ptr<Expression> expression) override;
         std::shared_ptr<Expression> getExpression() const;
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
         std::string toString() const override;

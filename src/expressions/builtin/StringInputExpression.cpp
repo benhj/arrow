@@ -15,11 +15,9 @@ namespace arrow {
         return std::make_shared<StringInputExpressionEvaluator>(*this);
     }
 
-    StringInputExpression & 
-    StringInputExpression::withExpression(std::shared_ptr<Expression> expression)
+    void StringInputExpression::setExpression(std::shared_ptr<Expression> expression)
     {
         m_expression = std::move(expression);
-        return *this;
     }
     std::shared_ptr<Expression>
     StringInputExpression::getExpression() const
