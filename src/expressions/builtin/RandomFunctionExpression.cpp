@@ -1,7 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "RandomFunctionExpression.hpp"
-#include "evaluator/RandomFunctionExpressionEvaluator.hpp"
+#include "evaluator/builtin/RandomFunctionExpressionEvaluator.hpp"
 
 namespace arrow {
 
@@ -30,5 +30,10 @@ namespace arrow {
     std::string RandomFunctionExpression::toString() const
     {
         return ""; // todo
+    }
+
+    std::string RandomFunctionExpression::getName() const
+    {
+        return "random";
     }
 }

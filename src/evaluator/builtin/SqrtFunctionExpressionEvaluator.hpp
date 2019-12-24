@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "ExpressionEvaluator.hpp"
-#include "expressions/SqrtFunctionExpression.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
+#include "expressions/builtin/SqrtFunctionExpression.hpp"
 #include "representation/Cache.hpp"
 
 namespace arrow {

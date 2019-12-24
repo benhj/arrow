@@ -2,7 +2,7 @@
 
 #include "SqrtFunctionExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
-#include "evaluator/SqrtFunctionExpressionEvaluator.hpp"
+#include "evaluator/builtin/SqrtFunctionExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <cmath>
 
@@ -32,5 +32,10 @@ namespace arrow {
     std::string SqrtFunctionExpression::toString() const
     {
         return ""; // todo
+    }
+
+    std::string SqrtFunctionExpression::getName() const
+    {
+        return "sqrt";
     }
 }

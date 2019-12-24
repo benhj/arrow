@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "ExpressionEvaluator.hpp"
-#include "expressions/SystemCommandExpression.hpp"
+#include "evaluator/ExpressionEvaluator.hpp"
+#include "expressions/builtin/SystemCommandExpression.hpp"
 #include "representation/Cache.hpp"
 
 namespace arrow {

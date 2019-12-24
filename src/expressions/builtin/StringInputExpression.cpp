@@ -1,7 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "StringInputExpression.hpp"
-#include "evaluator/StringInputExpressionEvaluator.hpp"
+#include "evaluator/builtin/StringInputExpressionEvaluator.hpp"
 
 namespace arrow {
 
@@ -30,5 +30,10 @@ namespace arrow {
     std::string StringInputExpression::toString() const
     {
         return ""; // todo
+    }
+
+    std::string StringInputExpression::getName() const
+    {
+        return "input";
     }
 }

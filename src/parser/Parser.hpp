@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "ExpressionParser.hpp"
 #include "TokenManager.hpp"
 #include "lexer/Token.hpp"
+#include "representation/Type.hpp"
 #include "statements/Statement.hpp"
 #include <map>
 #include <memory>
@@ -12,6 +12,7 @@
 
 namespace arrow {
     
+    class ExpressionParser;
     class FunctionStatement;
     class Parser
     {
@@ -29,19 +30,22 @@ namespace arrow {
 
       private:
 
+        /// The class instance that iterates over the
+        /// collection of tokens used to build the AST.
         TokenManager m_tm;
 
-        ExpressionParser m_ep;
+        /// Parses expressions
+        std::unique_ptr<ExpressionParser> m_ep;
 
-        // The start statement represents a program's entry point.
-        // (Similar to a main function in c in c++)
+        /// The start statement represents a program's entry point.
+        /// (Similar to a main function in c in c++)
         std::shared_ptr<Statement> m_startStatement;
 
-        // Store non-function statements
+        /// Store non-function statements
         std::vector<std::shared_ptr<Statement>> m_statements;
 
-        // Collection of all function statements providing a lookup
-        // during function call
+        /// Collection of all function statements providing a lookup
+        /// during function call
         static std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
         std::shared_ptr<Statement> buildStatement();
 

@@ -2,6 +2,7 @@
 
 #include "lexer/Lexer.hpp"
 #include "lexer/Lexeme.hpp"
+#include "parser/ExpressionParser.hpp"
 #include "parser/Parser.hpp"
 #include "parser/LanguageException.hpp"
 #include "representation/Cache.hpp"

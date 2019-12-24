@@ -6,10 +6,10 @@ project (arrow)
 # put all source code in one place for convenience
 file(GLOB lexer src/lexer/*.cpp src/lexer/*.hpp)
 file(GLOB parser src/parser/*.cpp src/parser/*.hpp)
-file(GLOB expressions src/expressions/*.cpp src/expressions/*.hpp)
+file(GLOB_RECURSE expressions src/expressions/*.cpp src/expressions/*.hpp)
 file(GLOB statements src/statements/*.cpp src/statements/*.hpp)
 file(GLOB representation src/representation/*.cpp src/representation/*.hpp)
-file(GLOB evaluator src/evaluator/*.cpp src/evaluator/*.hpp)
+file(GLOB_RECURSE evaluator src/evaluator/*.cpp src/evaluator/*.hpp)
 file(GLOB utility src/utility/*.cpp src/utility/*.hpp)
 file(GLOB simpleprompt simpleprompt/*.hpp)
 

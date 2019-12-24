@@ -25,11 +25,11 @@
 #include "expressions/OperatorExpression.hpp"
 #include "expressions/QQStringExpression.hpp"
 #include "expressions/QStringExpression.hpp"
-#include "expressions/RandomFunctionExpression.hpp"
+#include "expressions/builtin/RandomFunctionExpression.hpp"
 #include "expressions/SingleEqualExpression.hpp"
-#include "expressions/StringInputExpression.hpp"
-#include "expressions/SystemCommandExpression.hpp"
-#include "expressions/SqrtFunctionExpression.hpp"
+#include "expressions/builtin/StringInputExpression.hpp"
+#include "expressions/builtin/SystemCommandExpression.hpp"
+#include "expressions/builtin/SqrtFunctionExpression.hpp"
 
 /// Other
 #include "LanguageException.hpp"

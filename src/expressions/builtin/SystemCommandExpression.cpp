@@ -1,7 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "SystemCommandExpression.hpp"
-#include "evaluator/SystemCommandExpressionEvaluator.hpp"
+#include "evaluator/builtin/SystemCommandExpressionEvaluator.hpp"
 
 namespace arrow {
 
@@ -30,5 +30,10 @@ namespace arrow {
     std::string SystemCommandExpression::toString() const
     {
         return ""; // todo
+    }
+
+    std::string SystemCommandExpression::getName() const
+    {
+        return "exec";
     }
 }

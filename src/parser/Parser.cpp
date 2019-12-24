@@ -2,6 +2,7 @@
 
 /// This
 #include "Parser.hpp"
+#include "ExpressionParser.hpp"
 
 /// Statements
 #include "statements/AnsiStatement.hpp"
@@ -44,7 +45,7 @@ namespace arrow {
 
     Parser::Parser(std::vector<Token> tokens)
       : m_tm(std::move(tokens))
-      , m_ep(m_tm)
+      , m_ep(std::make_unique<ExpressionParser>(m_tm))
     {
     }
 
@@ -66,7 +67,7 @@ namespace arrow {
         Cache notUsed;
 
         while(m_tm.notAtEnd()) {
-            auto expression = m_ep.parseLiteralIntExpression();
+            auto expression = m_ep->parseLiteralIntExpression();
             if(!expression) {
                 break;
             }
@@ -171,7 +172,7 @@ namespace arrow {
         auto const keyword = m_tm.currentToken().raw;
         m_tm.advanceTokenIterator();
         
-        auto expression = m_ep.parseExpression();
+        auto expression = m_ep->parseExpression();
         if(expression) {
             arrowStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
@@ -207,7 +208,7 @@ namespace arrow {
     {
         auto const ln = m_tm.currentToken().lineNumber;
         auto arrowStatement = std::make_shared<SimpleArrowStatement>(ln);
-        auto expression = m_ep.parseExpression();
+        auto expression = m_ep->parseExpression();
         if(expression) {
             arrowStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
@@ -221,7 +222,7 @@ namespace arrow {
                        m_tm.currentToken().lexeme == Lexeme::DOLLAR_STRING) {
                         arrowStatement->withIdentifier(m_tm.currentToken());
                         if(m_tm.nextToken().lexeme == Lexeme::OPEN_SQUARE) {
-                            auto indexExp = m_ep.parseIndexExpression();
+                            auto indexExp = m_ep->parseIndexExpression();
                             arrowStatement->withIndexExpression(std::move(indexExp));
                         } 
                         m_tm.advanceTokenIterator();
@@ -245,7 +246,7 @@ namespace arrow {
         m_tm.advanceTokenIterator();
         auto const keyword = arrowlessStatement->getToken().raw;
         if(keyword == "erase") {
-            auto expression = m_ep.parseIndexExpression();
+            auto expression = m_ep->parseIndexExpression();
             if(!expression) {
                 throw LanguageException("Not an index expression", ln);
             }
@@ -255,7 +256,7 @@ namespace arrow {
                 return std::make_shared<EraseStatement>(ln, std::move(arrowlessStatement));
             }
         } else {
-            auto expression = m_ep.parseExpression();
+            auto expression = m_ep->parseExpression();
             if(expression) {
                 arrowlessStatement->withExpression(std::move(expression));
                 m_tm.advanceTokenIterator();
@@ -331,7 +332,7 @@ namespace arrow {
         auto repeatStatement = std::make_shared<RepeatStatement>(ln);
         repeatStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
-        auto expression = m_ep.parseExpression();
+        auto expression = m_ep->parseExpression();
         if(expression) {
             repeatStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
@@ -360,7 +361,7 @@ namespace arrow {
         if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
             return nullptr;
         }
-        auto expression = m_ep.parseGroupedExpression();
+        auto expression = m_ep->parseGroupedExpression();
         if(expression) {
             whileStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
@@ -417,7 +418,7 @@ namespace arrow {
         }
         m_tm.advanceTokenIterator();
         {
-            auto expression = m_ep.parseGroupedExpression();
+            auto expression = m_ep->parseGroupedExpression();
             if(!expression) {
                 return nullptr;
             }
@@ -440,7 +441,7 @@ namespace arrow {
             }
             m_tm.advanceTokenIterator();
             {
-                auto expression = m_ep.parseGroupedExpression();
+                auto expression = m_ep->parseGroupedExpression();
                 if(!expression) {
                     return nullptr;
                 }
@@ -525,7 +526,7 @@ namespace arrow {
         auto const theName = m_tm.currentToken();
         functionStatement->withNameToken(theName);
         m_tm.advanceTokenIterator();
-        auto collection = m_ep.parseExpressionCollectionExpression(true /* ident only */);
+        auto collection = m_ep->parseExpressionCollectionExpression(true /* ident only */);
         if(!collection) {
             return nullptr;
         }
@@ -555,7 +556,7 @@ namespace arrow {
     {
         auto const ln = m_tm.currentToken().lineNumber;
         auto singleExpressionStatement = std::make_shared<SingleExpressionStatement>(ln);
-        auto const expression = m_ep.parseExpression();
+        auto const expression = m_ep->parseExpression();
         if(!expression) {
             return nullptr;
         }
