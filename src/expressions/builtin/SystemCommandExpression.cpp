@@ -31,9 +31,4 @@ namespace arrow {
     {
         return ""; // todo
     }
-
-    std::string SystemCommandExpression::getName() const
-    {
-        return "exec";
-    }
 }

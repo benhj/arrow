@@ -31,9 +31,4 @@ namespace arrow {
     {
         return ""; // todo
     }
-
-    std::string RandomFunctionExpression::getName() const
-    {
-        return "random";
-    }
 }

@@ -31,9 +31,4 @@ namespace arrow {
     {
         return ""; // todo
     }
-
-    std::string StringInputExpression::getName() const
-    {
-        return "input";
-    }
 }

@@ -33,9 +33,4 @@ namespace arrow {
     {
         return ""; // todo
     }
-
-    std::string SqrtFunctionExpression::getName() const
-    {
-        return "sqrt";
-    }
 }
