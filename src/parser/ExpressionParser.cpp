@@ -309,7 +309,7 @@ namespace arrow {
         }
 
         auto const thisPrecedence = precedence(m_tm.nextToken().lexeme);
-        if(previousPrecedence && *previousPrecedence > thisPrecedence) {
+        if(previousPrecedence && *previousPrecedence >= thisPrecedence) {
             return left;
         }
 
@@ -348,7 +348,7 @@ namespace arrow {
         }
 
         auto const thisPrecedence = precedence(m_tm.nextToken().lexeme);
-        if(previousPrecedence && *previousPrecedence > thisPrecedence) {
+        if(previousPrecedence && *previousPrecedence >= thisPrecedence) {
             return left;
         }
 

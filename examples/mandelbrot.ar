@@ -11,16 +11,20 @@ fn char_length(chars) -> len {
 ;;; arrow interpretor itself.
 start {
 
-    0.0 - 1 -> minX;
-    1 -> maxX;
+    0.0 - 2.0 -> minX;
+    2.0 -> maxX;
     78 -> width;
     36 -> height;
     2.0 -> aspectRatio;
 
+    ;;; The string of chars used for drawing
+    ;;; can be accessed like an array, for example,
+    ;;; chars[2] -> a; will extract the char at
+    ;;; index 2 and stick inside of a
     " .,-:;i+hHM$*#@ " -> chars;
-    char_length(chars) -> nchars;
+    char_length(chars) - 1 -> nchars;
 
-    maxX - (minX * height) / (width * aspectRatio) -> yScale;
+    (maxX - minX) * (height * 1.0 / width) * aspectRatio -> yScale;
     0 -> y;
     while (y < height) {
         0 -> x;
@@ -28,13 +32,15 @@ start {
         while (x < width) {
 
             minX + x * (maxX - minX) / width -> c_re;
-            (y * yScale) / height - yScale / 2.0 -> c_im;
+            y * yScale / height - yScale / 2.0 -> c_im;
             c_re -> a;
             c_im -> b;
             0 -> i;
             while(i < nchars) {
-                sqrt(a * a + b * b) -> sum;
-                if(sum > 2.0) {
+                ;;; parsing bug here. The function
+                ;;; sqrt needs to be within a grouped
+                ;;; expression for some reason.
+                if((sqrt(a * a + b * b)) > 2.0) {
                     break;
                 }
                 a -> a_;
@@ -42,9 +48,6 @@ start {
                 a_ * a_ - b_ * b_ + c_re -> a;
                 2 * a_ * b_ + c_im -> b;
                 i + 1 -> i;
-            }
-            if(i = nchars) {
-                i - 1 -> i;
             }
             output + chars[i] -> output;
             x + 1 -> x;
