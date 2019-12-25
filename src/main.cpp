@@ -52,17 +52,19 @@ int main(int argc, char ** argv) {
     }
     // else run in interactive mode
     /*
-    std::shared_ptr<arrow::Parser> p;
     simpleprompt::SimplePrompt sp("", [&](std::string const & com){
         if(com == "quit") {
             exit(0);
         }
+        std::stringstream ss(com);
+        auto tokens = arrow::Lexer::tokenize(ss);
+        arrow::Parser p(tokens);
         try {
-            if(p) {
-                auto statements = p->getStatements();
-                for(auto const & s : statements) {
-                    s->getEvaluator()->evaluate(cache);
-                }
+            p.parse();
+            auto statements = p.getStatements();
+            std::cout<<statements.size()<<std::endl;
+            for(auto const & s : statements) {
+                //s->getEvaluator()->evaluate(cache);
             }
         } catch (arrow::LanguageException const & e) {
             std::cout<<"\u001b[31;1mError: \u001b[0m";
@@ -78,10 +80,9 @@ int main(int argc, char ** argv) {
             std::stringstream ss(str);
             if (str != "\n") {
                 auto tokens = arrow::Lexer::tokenize(ss);
-                p.reset();
-                p = std::make_shared<arrow::Parser>(tokens);
+                arrow::Parser p(std::move(tokens));
                 try {
-                    p->parse();
+                    p.parse();
                     std::cout<<"\033[1;37m";
                 } catch (...) {
                     std::cout<<"\033[1;31m";
@@ -91,8 +92,8 @@ int main(int argc, char ** argv) {
             std::cout<<"\033[0m";
         }
     }, "Arrow v0.1", "\033[1;32m>> \033[0m");
-    sp.start();
-    */
+    sp.start();*/
+
     std::cout<<"\nArrow v0.1\n\n"<<std::endl;
     while(true) {
         std::cout<<">> ";
