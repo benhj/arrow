@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ExpressionParser.hpp"
 #include "TokenManager.hpp"
 #include "lexer/Token.hpp"
 #include "representation/Type.hpp"
@@ -11,13 +12,13 @@
 #include <vector>
 
 namespace arrow {
-    
-    class ExpressionParser;
+
     class FunctionStatement;
     class Parser
     {
       public:
         Parser(std::vector<Token> tokens);
+        Parser() = delete;
         void parse();
 
         std::shared_ptr<Statement> getStartStatement() const;
@@ -35,7 +36,7 @@ namespace arrow {
         TokenManager m_tm;
 
         /// Parses expressions
-        std::unique_ptr<ExpressionParser> m_ep;
+        ExpressionParser m_ep;
 
         /// The start statement represents a program's entry point.
         /// (Similar to a main function in c in c++)

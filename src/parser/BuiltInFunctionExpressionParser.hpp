@@ -11,11 +11,11 @@
 namespace arrow {
 
     class BuiltInFunctionExpressionBuilder;
-    class ExpressionParser;
     class BuiltInFunctionExpressionParser
     {
       public:
         BuiltInFunctionExpressionParser(TokenManager & tm);
+        BuiltInFunctionExpressionParser() = delete;
         std::shared_ptr<Expression> parseExpression(std::string name);
 
       private:

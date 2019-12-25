@@ -15,6 +15,7 @@ namespace arrow {
     {
       public:
         ExpressionParser(TokenManager & tm);
+        ExpressionParser() = delete;
         std::shared_ptr<Expression> parseExpression(std::optional<int> = std::nullopt);
 
         std::shared_ptr<Expression> parseLiteralIntExpression();
@@ -27,7 +28,6 @@ namespace arrow {
         std::shared_ptr<Expression> parseHatHatStringExpression();
         std::shared_ptr<Expression> parseQStringExpression();
         std::shared_ptr<Expression> parseQQStringExpression();
-        std::shared_ptr<Expression> parseOperatorExpression();
         std::shared_ptr<Expression> parseGroupedExpression();
         std::shared_ptr<Expression> parseListExpression();
         std::shared_ptr<Expression> parseListWordExpression();
@@ -56,7 +56,6 @@ namespace arrow {
         std::shared_ptr<Expression> parseBracedExpressionCollectionExpression();
 
       private:
-
         TokenManager & m_tm;
         std::shared_ptr<BuiltInFunctionExpressionParser> m_builtinsParser;
     };

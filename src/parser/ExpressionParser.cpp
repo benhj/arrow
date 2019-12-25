@@ -276,28 +276,6 @@ namespace arrow {
         return matchesExpression;
     }
 
-    std::shared_ptr<Expression> ExpressionParser::parseOperatorExpression()
-    {
-        auto const ln = m_tm.currentToken().lineNumber;
-        auto exp = std::make_shared<OperatorExpression>(ln);
-        auto leftExpression = parseExpression(false);
-        if(!leftExpression) {
-           return nullptr;
-        }
-        exp->withLeft(std::move(leftExpression));
-        m_tm.advanceTokenIterator();
-
-        exp->withOperator(m_tm.currentToken());
-        m_tm.advanceTokenIterator();
-
-        auto rightExpression = parseExpression();
-        if(!rightExpression) {
-            return nullptr;
-        }
-        exp->withRight(std::move(rightExpression));
-        return exp;
-    }
-
     std::shared_ptr<Expression>
     ExpressionParser::parseBooleanExpression(std::shared_ptr<Expression> left,
                                              std::optional<int> previousPrecedence)
@@ -378,7 +356,6 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseGroupedExpression()
     {
-
         if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
             return nullptr;
         }
@@ -429,9 +406,6 @@ namespace arrow {
     std::shared_ptr<Expression> ExpressionParser::parseFunctionExpression()
     {
         if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
-            return nullptr;
-        }
-        if(m_tm.nextToken().lexeme != Lexeme::OPEN_PAREN) {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
@@ -546,7 +520,7 @@ namespace arrow {
     std::shared_ptr<Expression> 
     ExpressionParser::parseExpression(std::optional<int> prevPrecedence)
     {
-        if(m_tm.tokenPlusOneNotAtEnd()) {
+        if(m_tm.notAtEnd() && m_tm.tokenPlusOneNotAtEnd()) {
             static std::vector<std::function<std::shared_ptr<Expression>(void)>> pvec;
             if(pvec.empty()) {
                 pvec.emplace_back([this]{return parseGroupedExpression();});

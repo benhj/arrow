@@ -11,6 +11,7 @@ namespace arrow {
     {
       public:
         explicit TokenManager(std::vector<Token> tokens);
+        TokenManager() = delete;
         bool notAtEnd() const;
         bool tokenPlusOneNotAtEnd() const;
         void advanceTokenIterator();
@@ -21,5 +22,7 @@ namespace arrow {
       private:
         std::vector<Token> m_tokens;
         std::vector<Token>::iterator m_current;
+        std::vector<Token>::iterator m_end;
+        int mutable m_called;
     };
 }

@@ -48,7 +48,7 @@ start {
                 ;;; parsing bug here. The function
                 ;;; sqrt needs to be within a grouped
                 ;;; expression for some reason.
-                if((sqrt(a * a + b * b)) > 2.0) {
+                if((sqrt (a * a + b * b)) > 2.0) {
                     break;
                 }
                 a -> a_;
