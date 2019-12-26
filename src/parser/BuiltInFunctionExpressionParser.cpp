@@ -6,6 +6,7 @@
 #include "expressions/builtin/SqrtFunctionExpression.hpp"
 #include "expressions/builtin/StringInputExpression.hpp"
 #include "expressions/builtin/SystemCommandExpression.hpp"
+#include "expressions/builtin/filesystem/FileReadLinesFunctionExpression.hpp"
 #include <algorithm>
 #include <utility>
 
@@ -25,6 +26,7 @@ namespace arrow {
             m_builtins.emplace_back(std::make_shared<SqrtFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<StringInputExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<SystemCommandExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<FileReadLinesFunctionExpressionBuilder>());
         }
         auto found = std::find_if(std::begin(m_builtins),
                                   std::end(m_builtins),
