@@ -1,22 +1,23 @@
 /// (c) Ben Jones 2019
 
-#include "FileReadLinesFunctionExpressionEvaluator.hpp"
+#include "FileReadBytesFunctionExpressionEvaluator.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
 
+#include <cstdint>
 #include <fstream>
 #include <stdexcept>
 #include <string>
 
 namespace arrow {
 
-    FileReadLinesFunctionExpressionEvaluator::FileReadLinesFunctionExpressionEvaluator
-    (FileReadLinesFunctionExpression expression)
+    FileReadBytesFunctionExpressionEvaluator::FileReadBytesFunctionExpressionEvaluator
+    (FileReadBytesFunctionExpression expression)
       : m_expression(std::move(expression))
     {
     }
-    Type FileReadLinesFunctionExpressionEvaluator::evaluate(Cache & cache) const
+    Type FileReadBytesFunctionExpressionEvaluator::evaluate(Cache & cache) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
@@ -34,14 +35,28 @@ namespace arrow {
         }
         try {
             auto const filename = std::get<std::string>(t.m_variantType);
-            std::vector<std::string> lines;
+
+            // open the file:
+            std::ifstream file(filename, std::ios::binary);
+
+            // Stop eating new lines in binary mode!!!
+            file.unsetf(std::ios::skipws);
+
+            // Get its size
+            file.seekg(0, std::ios::end);
+            auto const fileSize = file.tellg();
+            file.seekg(0, std::ios::beg);
+
+            // reserve capacity
+            std::vector<char> ba;
+            ba.reserve(fileSize);
 
             // read the data:
-            std::ifstream input(filename);
-            for( std::string line; getline( input, line ); ) {
-                lines.push_back(line);
-            }
-            return {TypeDescriptor::Strings, lines};
+            ba.insert(std::begin(ba),
+                      std::istream_iterator<char>(file),
+                      std::istream_iterator<char>());
+
+            return {TypeDescriptor::Bytes, ba};
         } catch (...) {
             throw LanguageException("Problem with filesystem command", callLineNumber);
         }
