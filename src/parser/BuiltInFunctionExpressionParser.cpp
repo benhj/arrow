@@ -8,6 +8,7 @@
 #include "expressions/builtin/SystemCommandExpression.hpp"
 #include "expressions/builtin/filesystem/FileReadLinesFunctionExpression.hpp"
 #include "expressions/builtin/filesystem/FileReadBytesFunctionExpression.hpp"
+#include "expressions/builtin/filesystem/FileWriteBytesFunctionExpression.hpp"
 #include "expressions/builtin/filesystem/FolderListFunctionExpression.hpp"
 #include "expressions/builtin/filesystem/FolderListRecursiveFunctionExpression.hpp"
 #include <algorithm>
@@ -33,6 +34,7 @@ namespace arrow {
             m_builtins.emplace_back(std::make_shared<FolderListFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FolderListRecursiveFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FileReadBytesFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<FileWriteBytesFunctionExpressionBuilder>());
         }
         auto found = std::find_if(std::begin(m_builtins),
                                   std::end(m_builtins),

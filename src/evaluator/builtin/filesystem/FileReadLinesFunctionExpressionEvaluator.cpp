@@ -30,7 +30,7 @@ namespace arrow {
         }
         auto const t = expressionCollEval[0];
         if(t.m_descriptor != TypeDescriptor::String) {
-            throw LanguageException("Exec function expects a string expression", callLineNumber);
+            throw LanguageException("Expects a string expression", callLineNumber);
         }
         try {
             auto const filename = std::get<std::string>(t.m_variantType);
