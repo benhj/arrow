@@ -111,8 +111,8 @@ int main(int argc, char ** argv) {
             for(auto const & s : statements) {
                 s->getEvaluator()->evaluate(cache);
             }
-        } catch (...) {
-
+        } catch (arrow::LanguageException const & e) {
+            std::cout<<e.report(false)<<std::endl;
         }
     }
     return 0;

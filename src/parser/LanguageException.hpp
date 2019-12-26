@@ -28,11 +28,17 @@ namespace arrow {
             m_errorString = std::move(errorString);
             return *this;
         }
+        char const * report(bool const withLineNumber) const{
+            std::string errorStr(m_errorString);
+            if(withLineNumber) {
+                errorStr.append(" on line number ")
+                        .append(std::to_string(m_lineNumber));
+            }
+            return errorStr.c_str();
+        }
+
         char const * what() const throw (){
-           return std::string(m_errorString)
-                  .append(" on line number ")
-                  .append(std::to_string(m_lineNumber))
-                  .c_str();
+            return report(true);
         }
 
       private:

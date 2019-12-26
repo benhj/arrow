@@ -59,7 +59,7 @@ start {
 
 ## Basic types <a name="types"></a>
 
-The Arrow programming language is weakly-typed with the arrow (`->`) operator being used for assignment, for example, the statement `1 -> a;` can be read as "the value 1 is put into the variable a". Note that this conveniently frees up the use of the `=` operator to be used purely for logical equality, thus `1 = 1` is an expression that evaluates to true rather than an assignment.
+The Arrow programming language is weakly-typed with the arrow (`->`) operator being used for assignment, for example, the statement `exp -> ident;` can be read as "the result of the expression `exp` is put into the variable `ident`". Note that this conveniently frees up the use of `=` operator to be used purely for logical equality, thus `1 = 1` is an expression that evaluates to true rather than an assignment.
 
 Here are a few other examples:
 
@@ -78,6 +78,9 @@ true -> truth;
 
 ;;; a char (byte)
 'a' -> val;
+
+;;; the result of a function
+sqrt(16.0) -> q;
 ```
 The use of the `->` (arrow) operator will feel very familiar to anyone with experience of POP-11 (and likely several other languages that I'm not familiar with), the latter of which has been and continues to be a major inspiration for the syntactic design of the Arrow programming language.
 
