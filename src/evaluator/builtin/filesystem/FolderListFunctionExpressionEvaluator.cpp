@@ -5,7 +5,7 @@
 #include "parser/LanguageException.hpp"
 #include <utility>
 
-//#include <filesystem>
+#include <filesystem>
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -18,7 +18,6 @@ namespace arrow {
     }
     Type FolderListFunctionExpressionEvaluator::evaluate(Cache & cache) const
     {
-        /*
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
 
@@ -37,20 +36,20 @@ namespace arrow {
             auto const folderName = std::get<std::string>(t.m_variantType);
             std::vector<std::string> lines;
 
-            using std::experimental::filesystem::directory_iterator;
+            using std::filesystem::directory_iterator;
             directory_iterator current(folderName);
             directory_iterator end;
-            while(current++ != end) {
-                auto const pathString = entry.path().string();
+            while(current != end) {
+                auto const pathString = current->path().string();
                 if(pathString == "." || pathString == "..") { 
                     continue;
                 }
                 lines.emplace_back(pathString);
+                ++current;
             }
             return {TypeDescriptor::Strings, lines};
         } catch (...) {
             throw LanguageException("Problem with filesystem command", callLineNumber);
         }
-        */ 
     }
 }
