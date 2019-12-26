@@ -412,7 +412,7 @@ namespace arrow {
         auto builtin = m_builtinsParser->parseExpression(m_tm.currentToken().raw);
         if(builtin) {
             m_tm.advanceTokenIterator();
-            auto expression = parseExpression();
+            auto expression = parseExpressionCollectionExpression();
             if(!expression) {
                 return nullptr;
             }

@@ -45,7 +45,12 @@ namespace arrow {
 
         // Pull out the arguments being passed into the function
         auto const expression = m_expression.getExpression();
-        auto const t = expression->getEvaluator()->evaluate(cache);
+        auto const col = expression->getEvaluator()->evaluate(cache);
+        auto const expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
+        if(expressionCollEval.empty()) {
+            throw LanguageException("Expected argument", m_expression.getLineNumber());
+        }
+        auto const t = expressionCollEval[0];
         if(t.m_descriptor != TypeDescriptor::String) {
             throw LanguageException("Exec function expects a string expression", callLineNumber);
         }
