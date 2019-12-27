@@ -11,6 +11,7 @@ file(GLOB statements src/statements/*.cpp src/statements/*.hpp)
 file(GLOB representation src/representation/*.cpp src/representation/*.hpp)
 file(GLOB_RECURSE evaluator src/evaluator/*.cpp src/evaluator/*.hpp)
 file(GLOB utility src/utility/*.cpp src/utility/*.hpp)
+file(GLOB receivers src/receivers/*.cpp src/receivers/*.hpp)
 file(GLOB simpleprompt simpleprompt/*.hpp)
 
 # ensure headers in the src folder are compiler-found
@@ -28,6 +29,7 @@ add_library(statements_lib ${statements})
 add_library(evaluator_lib ${evaluator})
 add_library(representation_lib ${representation})
 add_library(utility_lib ${utility})
+add_library(receivers_lib ${receivers})
 
 # build the interpretor
 add_executable(arrow src/main.cpp)
@@ -38,7 +40,8 @@ target_link_libraries(arrow
                       statements_lib
                       evaluator_lib
                       representation_lib
-                      utility_lib)
+                      utility_lib
+                      receivers_lib)
 
 # compile options. Lots of redundancy here. Can prob clean up.
 set(COMP_FLAGS -std=c++17 -O3 -ffast-math -funroll-loops -Wno-ctor-dtor-privacy -fno-pic)
@@ -49,4 +52,5 @@ target_compile_options(expressions_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(statements_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(representation_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(utility_lib PUBLIC ${COMP_FLAGS})
+target_compile_options(receivers_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(arrow PUBLIC ${COMP_FLAGS})
