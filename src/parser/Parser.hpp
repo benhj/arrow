@@ -6,6 +6,7 @@
 #include "TokenManager.hpp"
 #include "lexer/Token.hpp"
 #include "representation/Type.hpp"
+#include "receivers/Receiver.hpp"
 #include "statements/Statement.hpp"
 #include <map>
 #include <memory>
@@ -37,6 +38,11 @@ namespace arrow {
 
         /// Parses expressions
         ExpressionParser m_ep;
+
+        std::shared_ptr<Receiver> parseReceiver();
+        std::shared_ptr<Receiver> parseIdentifierReceiver();
+        std::shared_ptr<Receiver> parseDollarIdentifierReceiver();
+        std::shared_ptr<Receiver> parseArrayAccessorReceiver();
 
         /// The start statement represents a program's entry point.
         /// (Similar to a main function in c in c++)

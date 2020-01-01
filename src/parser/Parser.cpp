@@ -4,6 +4,11 @@
 #include "Parser.hpp"
 #include "ExpressionParser.hpp"
 
+/// Receivers
+#include "receivers/DollarIdentifierReceiver.hpp"
+#include "receivers/IdentifierReceiver.hpp"
+#include "receivers/ArrayAccessorReceiver.hpp"
+
 /// Statements
 #include "statements/AnsiStatement.hpp"
 #include "statements/ArgStatement.hpp"
@@ -79,6 +84,70 @@ namespace arrow {
             m_tm.advanceTokenIterator();
         }
         return types;
+    }
+
+    std::shared_ptr<Receiver> Parser::parseReceiver()
+    {
+        static std::vector<std::function<std::shared_ptr<Receiver>(void)>> pvec;
+        if(pvec.empty()) {
+            pvec.emplace_back([this]{return parseArrayAccessorReceiver();});
+            pvec.emplace_back([this]{return parseIdentifierReceiver();});
+            pvec.emplace_back([this]{return parseDollarIdentifierReceiver();});
+        }            
+        for(auto const & p : pvec) {
+            auto store = m_tm.retrieveIt();
+            auto rec = p();
+            if(rec) {
+                return rec;
+            }
+            m_tm.revert(store);
+        }
+        return nullptr;
+    }
+    std::shared_ptr<Receiver> Parser::parseIdentifierReceiver()
+    {
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto exp = std::make_shared<IdentifierReceiver>(ln);
+        exp->withIdentifierToken(m_tm.currentToken());
+        return exp;
+    }
+    std::shared_ptr<Receiver> Parser::parseDollarIdentifierReceiver()
+    {
+        if(m_tm.currentToken().lexeme != Lexeme::DOLLAR_STRING) {
+            return nullptr;
+        }
+        m_tm.advanceTokenIterator();
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto exp = std::make_shared<DollarIdentifierReceiver>(ln);
+        exp->withIdentifierToken(m_tm.currentToken());
+        return exp;
+    }
+    std::shared_ptr<Receiver> Parser::parseArrayAccessorReceiver()
+    {
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto rec = std::make_shared<ArrayAccessorReceiver>(ln);
+        rec->withIdentifierToken(m_tm.currentToken());
+        m_tm.advanceTokenIterator();
+        if(m_tm.currentToken().lexeme != Lexeme::OPEN_SQUARE) {
+            return nullptr;
+        }
+        m_tm.advanceTokenIterator();
+        auto expr = m_ep.parseExpression();
+        m_tm.advanceTokenIterator();
+        if(m_tm.currentToken().lexeme != Lexeme::CLOSE_SQUARE) {
+            return nullptr;
+        }
+        rec->withExpression(std::move(expr));
+        return rec;
     }
 
     std::shared_ptr<Statement> Parser::getStartStatement() const
@@ -220,6 +289,18 @@ namespace arrow {
                 }
                 m_tm.advanceTokenIterator();
                 if(m_tm.notAtEnd()) {
+                    auto receiver = parseReceiver();
+                    if(!receiver) {
+                        return nullptr;
+                    }
+                    arrowStatement->withIdentifier(std::move(receiver));
+                    m_tm.advanceTokenIterator();
+                    if(m_tm.notAtEnd()) {
+                        if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
+                            return arrowStatement;
+                        }
+                    }
+                    /*
                     if(m_tm.currentToken().lexeme == Lexeme::GENERIC_STRING ||
                        m_tm.currentToken().lexeme == Lexeme::DOLLAR_STRING) {
                         arrowStatement->withIdentifier(m_tm.currentToken());
@@ -233,7 +314,7 @@ namespace arrow {
                                 return arrowStatement;
                             }
                         }
-                    }
+                    }*/
                 }
             }
         }

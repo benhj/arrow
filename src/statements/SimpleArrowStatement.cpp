@@ -18,7 +18,7 @@ namespace arrow {
         m_expression = std::move(expression);
         return *this;
     }
-    SimpleArrowStatement & SimpleArrowStatement::withIdentifier(Token identifier)
+    SimpleArrowStatement & SimpleArrowStatement::withIdentifier(std::shared_ptr<Receiver> identifier)
     {
         m_identifier = std::move(identifier);
         return *this;
@@ -39,18 +39,14 @@ namespace arrow {
         return m_indexExpression;
     }
 
-    Token SimpleArrowStatement::getIdentifier() const
+    std::shared_ptr<Receiver> SimpleArrowStatement::getIdentifier() const
     {
         return m_identifier;
     }
 
     std::string SimpleArrowStatement::toString() const
     {
-        std::string str("\nExpression: ");
-        str.append(m_expression->toString());
-        str.append("\nIdentifier: ");
-        str.append(m_identifier.raw);
-        return str;
+        return ""; // TODO
     }
 
     std::shared_ptr<StatementEvaluator> SimpleArrowStatement::getEvaluator() const

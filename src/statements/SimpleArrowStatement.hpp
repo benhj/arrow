@@ -5,6 +5,8 @@
 #include "Statement.hpp"
 #include "lexer/Token.hpp"
 #include "expressions/Expression.hpp"
+#include "receivers/Receiver.hpp"
+
 #include <memory>
 
 namespace arrow {
@@ -18,10 +20,10 @@ namespace arrow {
       public:
         SimpleArrowStatement(long const lineNumber);
         SimpleArrowStatement & withExpression(std::shared_ptr<Expression> expression);
-        SimpleArrowStatement & withIdentifier(Token identifier);
+        SimpleArrowStatement & withIdentifier(std::shared_ptr<Receiver> identifier);
         SimpleArrowStatement & withIndexExpression(std::shared_ptr<Expression> expression);
 
-        Token getIdentifier() const;
+        std::shared_ptr<Receiver> getIdentifier() const;
         std::shared_ptr<Expression> getExpression() const;
         std::shared_ptr<Expression> getIndexExpression() const;
 
@@ -30,7 +32,7 @@ namespace arrow {
 
       private:
         std::shared_ptr<Expression> m_expression;
-        Token m_identifier;
+        std::shared_ptr<Receiver> m_identifier;
         std::shared_ptr<Expression> m_indexExpression;
     };
 
