@@ -1,16 +1,16 @@
 /// (c) Ben Jones 2019 - present
 
 #include "BuiltInFunctionExpressionParser.hpp"
-#include "expressions/builtin/BuiltInFunctionExpressionBuilder.hpp"
-#include "expressions/builtin/RandomFunctionExpression.hpp"
-#include "expressions/builtin/SqrtFunctionExpression.hpp"
-#include "expressions/builtin/StringInputExpression.hpp"
-#include "expressions/builtin/SystemCommandExpression.hpp"
-#include "expressions/builtin/filesystem/FileReadLinesFunctionExpression.hpp"
-#include "expressions/builtin/filesystem/FileReadBytesFunctionExpression.hpp"
-#include "expressions/builtin/filesystem/FileWriteBytesFunctionExpression.hpp"
-#include "expressions/builtin/filesystem/FolderListFunctionExpression.hpp"
-#include "expressions/builtin/filesystem/FolderListRecursiveFunctionExpression.hpp"
+#include "builtin/BuiltInFunctionExpressionBuilder.hpp"
+#include "builtin/RandomFunctionExpression.hpp"
+#include "builtin/SqrtFunctionExpression.hpp"
+#include "builtin/StringInputExpression.hpp"
+#include "builtin/SystemCommandExpression.hpp"
+#include "builtin/filesystem/FileReadLinesFunctionExpression.hpp"
+#include "builtin/filesystem/FileReadBytesFunctionExpression.hpp"
+#include "builtin/filesystem/FileWriteBytesFunctionExpression.hpp"
+#include "builtin/filesystem/FolderListFunctionExpression.hpp"
+#include "builtin/filesystem/FolderListRecursiveFunctionExpression.hpp"
 #include <algorithm>
 #include <utility>
 

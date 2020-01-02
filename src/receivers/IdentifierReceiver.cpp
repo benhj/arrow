@@ -1,7 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "IdentifierReceiver.hpp"
-#include "evaluator/receivers/IdentifierReceiverEvaluator.hpp"
+#include "evaluator/IdentifierReceiverEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
 

@@ -1,7 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "ArrayAccessorReceiver.hpp"
-#include "evaluator/receivers/ArrayAccessorReceiverEvaluator.hpp"
+#include "evaluator/ArrayAccessorReceiverEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
 

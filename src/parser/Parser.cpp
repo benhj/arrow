@@ -36,8 +36,8 @@
 #include "statements/WhileStatement.hpp"
 
 /// Other
-#include "evaluator/ExpressionEvaluator.hpp"
-#include "evaluator/StatementEvaluator.hpp"
+#include "expressions/evaluator/ExpressionEvaluator.hpp"
+#include "statements/evaluator/StatementEvaluator.hpp"
 #include "LanguageException.hpp"
 #include "lexer/Lexeme.hpp"
 #include <algorithm>

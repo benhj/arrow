@@ -1,7 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "DollarIdentifierReceiver.hpp"
-#include "evaluator/receivers/DollarIdentifierReceiverEvaluator.hpp"
+#include "evaluator/DollarIdentifierReceiverEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
 

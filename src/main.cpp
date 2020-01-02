@@ -6,8 +6,7 @@
 #include "parser/Parser.hpp"
 #include "parser/LanguageException.hpp"
 #include "representation/Cache.hpp"
-#include "evaluator/StatementEvaluator.hpp"
-#include "SimplePrompt.hpp"
+#include "statements/evaluator/StatementEvaluator.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -51,49 +50,6 @@ int main(int argc, char ** argv) {
         return 0;
     }
     // else run in interactive mode
-    /*
-    simpleprompt::SimplePrompt sp("", [&](std::string const & com){
-        if(com == "quit") {
-            exit(0);
-        }
-        std::stringstream ss(com);
-        auto tokens = arrow::Lexer::tokenize(ss);
-        arrow::Parser p(tokens);
-        try {
-            p.parse();
-            auto statements = p.getStatements();
-            std::cout<<statements.size()<<std::endl;
-            for(auto const & s : statements) {
-                //s->getEvaluator()->evaluate(cache);
-            }
-        } catch (arrow::LanguageException const & e) {
-            std::cout<<"\u001b[31;1mError: \u001b[0m";
-            std::cout<<e.what()<<std::endl;
-        } catch (...) {
-        }
-    },
-    [&](std::string const & str) {
-
-        if(str == "quit") {
-            std::cout<<"\033[1;37m"<<str;
-        } else {
-            std::stringstream ss(str);
-            if (str != "\n") {
-                auto tokens = arrow::Lexer::tokenize(ss);
-                arrow::Parser p(std::move(tokens));
-                try {
-                    p.parse();
-                    std::cout<<"\033[1;37m";
-                } catch (...) {
-                    std::cout<<"\033[1;31m";
-                }
-            }
-            std::cout<<str;
-            std::cout<<"\033[0m";
-        }
-    }, "Arrow v0.1", "\033[1;32m>> \033[0m");
-    sp.start();*/
-
     std::cout<<"\nArrow v0.1\n\n"<<std::endl;
     while(true) {
         std::cout<<">> ";
