@@ -91,10 +91,10 @@ namespace arrow {
     {
         static std::vector<std::function<std::shared_ptr<Receiver>(void)>> pvec;
         if(pvec.empty()) {
+            pvec.emplace_back([this]{return parseFileReceiver();});
             pvec.emplace_back([this]{return parseArrayAccessorReceiver();});
             pvec.emplace_back([this]{return parseIdentifierReceiver();});
             pvec.emplace_back([this]{return parseDollarIdentifierReceiver();});
-            //pvec.emplace_back([this]{return parseFileReceiver();});
         }            
         for(auto const & p : pvec) {
             auto store = m_tm.retrieveIt();
@@ -161,12 +161,13 @@ namespace arrow {
         auto const ln = m_tm.currentToken().lineNumber;
         auto rec = std::make_shared<FileReceiver>(ln);
         m_tm.advanceTokenIterator();
-        std::cout<<"here"<<std::endl;
-        /*
         if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
             return nullptr;
-        }*/
+        }
         auto expression = m_ep.parseExpression();
+        if(m_tm.currentToken().lexeme != Lexeme::CLOSE_PAREN) {
+            return nullptr;
+        }
         if(expression) {
             rec->setExpression(std::move(expression));
             return rec;
