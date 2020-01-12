@@ -43,6 +43,7 @@ namespace arrow {
         std::shared_ptr<Receiver> parseIdentifierReceiver();
         std::shared_ptr<Receiver> parseDollarIdentifierReceiver();
         std::shared_ptr<Receiver> parseArrayAccessorReceiver();
+        std::shared_ptr<Receiver> parseFileReceiver();
 
         /// The start statement represents a program's entry point.
         /// (Similar to a main function in c in c++)

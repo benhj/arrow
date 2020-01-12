@@ -8,6 +8,7 @@
 #include "receivers/DollarIdentifierReceiver.hpp"
 #include "receivers/IdentifierReceiver.hpp"
 #include "receivers/ArrayAccessorReceiver.hpp"
+#include "builtin/filesystem/FileReceiver.hpp"
 
 /// Statements
 #include "statements/AnsiStatement.hpp"
@@ -93,6 +94,7 @@ namespace arrow {
             pvec.emplace_back([this]{return parseArrayAccessorReceiver();});
             pvec.emplace_back([this]{return parseIdentifierReceiver();});
             pvec.emplace_back([this]{return parseDollarIdentifierReceiver();});
+            //pvec.emplace_back([this]{return parseFileReceiver();});
         }            
         for(auto const & p : pvec) {
             auto store = m_tm.retrieveIt();
@@ -148,6 +150,28 @@ namespace arrow {
         }
         rec->withExpression(std::move(expr));
         return rec;
+    }
+
+    std::shared_ptr<Receiver> Parser::parseFileReceiver()
+    {
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING &&
+           m_tm.currentToken().raw != "file") {
+            return nullptr;
+        }
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto rec = std::make_shared<FileReceiver>(ln);
+        m_tm.advanceTokenIterator();
+        std::cout<<"here"<<std::endl;
+        /*
+        if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
+            return nullptr;
+        }*/
+        auto expression = m_ep.parseExpression();
+        if(expression) {
+            rec->setExpression(std::move(expression));
+            return rec;
+        }
+        return nullptr;
     }
 
     std::shared_ptr<Statement> Parser::getStartStatement() const
@@ -300,21 +324,6 @@ namespace arrow {
                             return arrowStatement;
                         }
                     }
-                    /*
-                    if(m_tm.currentToken().lexeme == Lexeme::GENERIC_STRING ||
-                       m_tm.currentToken().lexeme == Lexeme::DOLLAR_STRING) {
-                        arrowStatement->withIdentifier(m_tm.currentToken());
-                        if(m_tm.nextToken().lexeme == Lexeme::OPEN_SQUARE) {
-                            auto indexExp = m_ep.parseIndexExpression();
-                            arrowStatement->withIndexExpression(std::move(indexExp));
-                        } 
-                        m_tm.advanceTokenIterator();
-                        if(m_tm.notAtEnd()) {
-                            if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
-                                return arrowStatement;
-                            }
-                        }
-                    }*/
                 }
             }
         }

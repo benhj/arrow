@@ -27,7 +27,7 @@ namespace arrow {
     {
       public:
         std::string getName() const override {
-            return "file_read_bytes";
+            return "file";
         }
         std::shared_ptr<Expression> build(long const ln) const override {
             return std::make_shared<FileReadBytesFunctionExpression>(ln);
