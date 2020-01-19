@@ -233,7 +233,6 @@ namespace arrow {
                     if(com == '\n') {
                         ++lineNumber;
                     }
-                    tokens.emplace_back(Lexeme::COMMENT, std::move(comment), lineNumber);
                     return true;
                 }
             }
