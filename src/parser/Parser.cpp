@@ -139,13 +139,12 @@ namespace arrow {
         auto rec = std::make_shared<ArrayAccessorReceiver>(ln);
         rec->withIdentifierToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_SQUARE) {
+        if(m_tm.currentToken().lexeme != Lexeme::COLON) {
             return nullptr;
         }
         m_tm.advanceTokenIterator();
         auto expr = m_ep.parseExpression();
-        m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::CLOSE_SQUARE) {
+        if(!expr) {
             return nullptr;
         }
         rec->withExpression(std::move(expr));

@@ -27,7 +27,7 @@ start {
 
     ;;; The string of chars used for drawing
     ;;; can be accessed like an array, for example,
-    ;;; chars[2] -> a; will extract the char at
+    ;;; chars:2 -> a; will extract the char at
     ;;; index 2 and stick inside of a
     " .,-:;i+hHM$*#@ " -> chars;
     char_length(chars) - 1 -> nchars;
@@ -57,7 +57,7 @@ start {
                 2 * a_ * b_ + c_im -> b;
                 i + 1 -> i;
             }
-            output + chars[i] -> output;
+            output + chars:i -> output;
             x + 1 -> x;
         }
         prn output;

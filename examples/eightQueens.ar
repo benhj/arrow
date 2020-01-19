@@ -2,7 +2,7 @@ fn canPlaceQueen(r, c, x) -> yes {
     true -> yes;
     0 -> i;
     while(i < r) {
-        x[i] -> tok;
+        x:i -> tok;
         if ((tok = c) || ((i - r) = (tok - c)) || (i - r) = (c - tok)) {
             false -> yes;
             return;
@@ -33,7 +33,7 @@ fn printQueens(N, x) {
     0 -> c;
     while(c < n) {
         if (canPlaceQueen(r, c, x)) {
-            c -> x[r];
+            c -> x:r;
             printQueens(n,x);
             if (r = n - 1) {
                 exit 1;

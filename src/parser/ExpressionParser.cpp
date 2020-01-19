@@ -90,7 +90,7 @@ namespace arrow {
         if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
             return nullptr;
         }
-        if(m_tm.nextToken().lexeme != Lexeme::OPEN_SQUARE) {
+        if(m_tm.nextToken().lexeme != Lexeme::COLON) {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
@@ -99,18 +99,11 @@ namespace arrow {
         exp->withIdentifierToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme == Lexeme::CLOSE_SQUARE) {
-            throw LanguageException("No index supplied", ln);
-        }
         auto innerExpression = parseExpression();
         if(!innerExpression) {
             return nullptr;
         }
         exp->withIndexExpression(std::move(innerExpression));
-        m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::CLOSE_SQUARE) {
-            return nullptr;
-        }
         return exp;
     }
 

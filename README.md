@@ -96,10 +96,10 @@ Arrow supports the creation of arrays of basic types:
 {"one", "two", "three"} -> b;
 
 ;;; updating an element (a becomes {1, 4, 3})
-4 -> a[1];
+4 -> a:1;
 
 ;;; erasing elements (b becomes {"one", "two"})
-erase b[3];
+erase b:3;
 
 ;;; Adding elements following a creation..
 {1.1, 2.2, 3.3} -> c;
