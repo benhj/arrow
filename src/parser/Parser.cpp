@@ -52,6 +52,7 @@ namespace arrow {
     Parser::Parser(std::vector<Token> tokens)
       : m_tm(std::move(tokens))
       , m_ep(m_tm)
+      , m_rp(m_tm)
       , m_startStatement(nullptr)
       , m_statements()
     {
@@ -85,93 +86,6 @@ namespace arrow {
             m_tm.advanceTokenIterator();
         }
         return types;
-    }
-
-    std::shared_ptr<Receiver> Parser::parseReceiver()
-    {
-        static std::vector<std::function<std::shared_ptr<Receiver>(void)>> pvec;
-        if(pvec.empty()) {
-            pvec.emplace_back([this]{return parseFileReceiver();});
-            pvec.emplace_back([this]{return parseArrayAccessorReceiver();});
-            pvec.emplace_back([this]{return parseIdentifierReceiver();});
-            pvec.emplace_back([this]{return parseDollarIdentifierReceiver();});
-        }            
-        for(auto const & p : pvec) {
-            auto store = m_tm.retrieveIt();
-            auto rec = p();
-            if(rec) {
-                return rec;
-            }
-            m_tm.revert(store);
-        }
-        return nullptr;
-    }
-    std::shared_ptr<Receiver> Parser::parseIdentifierReceiver()
-    {
-        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
-            return nullptr;
-        }
-        auto const ln = m_tm.currentToken().lineNumber;
-        auto exp = std::make_shared<IdentifierReceiver>(ln);
-        exp->withIdentifierToken(m_tm.currentToken());
-        return exp;
-    }
-    std::shared_ptr<Receiver> Parser::parseDollarIdentifierReceiver()
-    {
-        if(m_tm.currentToken().lexeme != Lexeme::DOLLAR_STRING) {
-            return nullptr;
-        }
-        m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
-            return nullptr;
-        }
-        auto const ln = m_tm.currentToken().lineNumber;
-        auto exp = std::make_shared<DollarIdentifierReceiver>(ln);
-        exp->withIdentifierToken(m_tm.currentToken());
-        return exp;
-    }
-    std::shared_ptr<Receiver> Parser::parseArrayAccessorReceiver()
-    {
-        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
-            return nullptr;
-        }
-        auto const ln = m_tm.currentToken().lineNumber;
-        auto rec = std::make_shared<ArrayAccessorReceiver>(ln);
-        rec->withIdentifierToken(m_tm.currentToken());
-        m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::COLON) {
-            return nullptr;
-        }
-        m_tm.advanceTokenIterator();
-        auto expr = m_ep.parseExpression();
-        if(!expr) {
-            return nullptr;
-        }
-        rec->withExpression(std::move(expr));
-        return rec;
-    }
-
-    std::shared_ptr<Receiver> Parser::parseFileReceiver()
-    {
-        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING &&
-           m_tm.currentToken().raw != "file") {
-            return nullptr;
-        }
-        auto const ln = m_tm.currentToken().lineNumber;
-        auto rec = std::make_shared<FileReceiver>(ln);
-        m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
-            return nullptr;
-        }
-        auto expression = m_ep.parseExpression();
-        if(m_tm.currentToken().lexeme != Lexeme::CLOSE_PAREN) {
-            return nullptr;
-        }
-        if(expression) {
-            rec->setExpression(std::move(expression));
-            return rec;
-        }
-        return nullptr;
     }
 
     std::shared_ptr<Statement> Parser::getStartStatement() const
@@ -313,7 +227,7 @@ namespace arrow {
                 }
                 m_tm.advanceTokenIterator();
                 if(m_tm.notAtEnd()) {
-                    auto receiver = parseReceiver();
+                    auto receiver = m_rp.parseReceiver();
                     if(!receiver) {
                         return nullptr;
                     }

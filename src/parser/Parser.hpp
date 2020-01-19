@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ExpressionParser.hpp"
+#include "ReceiverParser.hpp"
 #include "TokenManager.hpp"
 #include "lexer/Token.hpp"
 #include "representation/Type.hpp"
@@ -39,11 +40,8 @@ namespace arrow {
         /// Parses expressions
         ExpressionParser m_ep;
 
-        std::shared_ptr<Receiver> parseReceiver();
-        std::shared_ptr<Receiver> parseIdentifierReceiver();
-        std::shared_ptr<Receiver> parseDollarIdentifierReceiver();
-        std::shared_ptr<Receiver> parseArrayAccessorReceiver();
-        std::shared_ptr<Receiver> parseFileReceiver();
+        /// Parses receivers
+        ReceiverParser m_rp;
 
         /// The start statement represents a program's entry point.
         /// (Similar to a main function in c in c++)
