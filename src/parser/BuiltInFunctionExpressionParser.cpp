@@ -3,6 +3,7 @@
 #include "BuiltInFunctionExpressionParser.hpp"
 #include "builtin/BuiltInFunctionExpressionBuilder.hpp"
 #include "builtin/RandomFunctionExpression.hpp"
+#include "builtin/RegexFunctionExpression.hpp"
 #include "builtin/SqrtFunctionExpression.hpp"
 #include "builtin/StringInputExpression.hpp"
 #include "builtin/SystemCommandExpression.hpp"
@@ -27,6 +28,7 @@ namespace arrow {
         auto const ln = m_tm.currentToken().lineNumber;
         if(m_builtins.empty()) {
             m_builtins.emplace_back(std::make_shared<RandomFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<RegexFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<SqrtFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<StringInputExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<SystemCommandExpressionBuilder>());
