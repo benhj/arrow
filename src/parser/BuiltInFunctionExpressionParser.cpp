@@ -7,6 +7,7 @@
 #include "builtin/SqrtFunctionExpression.hpp"
 #include "builtin/StringInputExpression.hpp"
 #include "builtin/SystemCommandExpression.hpp"
+#include "builtin/TokenizeFunctionExpression.hpp"
 #include "builtin/filesystem/FileReadLinesFunctionExpression.hpp"
 #include "builtin/filesystem/FileReadBytesFunctionExpression.hpp"
 #include "builtin/filesystem/FileWriteBytesFunctionExpression.hpp"
@@ -32,6 +33,7 @@ namespace arrow {
             m_builtins.emplace_back(std::make_shared<SqrtFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<StringInputExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<SystemCommandExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<TokenizeFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FileReadLinesFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FolderListFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FolderListRecursiveFunctionExpressionBuilder>());

@@ -32,13 +32,22 @@ namespace arrow {
         if(t.m_descriptor != TypeDescriptor::String) {
             throw LanguageException("Expects a string expression", callLineNumber);
         }
+        char tok = '\n';
+        if(expressionCollEval.size() > 1) {
+            auto const thechar = expressionCollEval[1];
+            if(thechar.m_descriptor != TypeDescriptor::Byte) {
+                throw LanguageException("Expects a char token", callLineNumber);
+            }
+            tok = std::get<char>(thechar.m_variantType);
+        }
+
         try {
             auto const filename = std::get<std::string>(t.m_variantType);
             std::vector<std::string> lines;
 
             // read the data:
             std::ifstream input(filename);
-            for( std::string line; getline( input, line ); ) {
+            for( std::string line; getline( input, line, tok ); ) {
                 lines.push_back(line);
             }
             return {TypeDescriptor::Strings, lines};
