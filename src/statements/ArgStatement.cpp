@@ -32,12 +32,15 @@ namespace arrow {
             {
                 auto evaluator = m_statement.getExpression()->getEvaluator();
                 auto evaluated = evaluator->evaluate(cache);
+                /*
                 if(evaluated.m_descriptor != TypeDescriptor::Int) {
                     throw LanguageException("Arg parsing broke", m_statement.getLineNumber());
-                }
+                }*/
                 auto const index = std::get<int64_t>(evaluated.m_variantType);
                 auto progArg = cache.getProgramArgument(index);
                 auto identifier = m_statement.getIdentifier();
+
+                std::cout<<"B"<<std::endl;
                 cache.add(identifier, progArg);
                 return StatementResult::Continue;
             }
