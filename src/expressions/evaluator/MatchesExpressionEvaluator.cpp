@@ -86,6 +86,15 @@ namespace arrow {
                 return true;
             }
 
+            // Edge-case; handling for when match type is list
+            if(itRight->m_descriptor == TypeDescriptor::List) {
+                while(itLeft != std::end(left) && 
+                      itLeft->m_descriptor != TypeDescriptor::List) {
+                    ++itLeft;
+                }
+                return false;
+            }
+
             // More token to process in first. We keep looping until we
             // find a match.
             while(matches(*itLeft, *itRight) == MatchType::NoMatch) {
@@ -120,6 +129,7 @@ namespace arrow {
             if(itLeft != std::end(left) && itRight == std::end(right)) {
                 return false;
             }
+
 
             cache.add({Lexeme::GENERIC_STRING, var, lineNumber}, toStore);
             return true;
@@ -165,6 +175,7 @@ namespace arrow {
                 if(itLeft == std::end(left)) {
                     return false;
                 }
+                
                 matchType = matches(*itLeft, *itRight);
             }
 
@@ -232,6 +243,20 @@ namespace arrow {
                     {
                         if(handleEqEq(left, right, itLeft, itRight)) {
                             continue;
+                        } else {
+                            // Edge case in which one must be a list rather than a string
+                            if(itLeft->m_descriptor == TypeDescriptor::List &&
+                               itRight->m_descriptor == TypeDescriptor::List) {
+                                auto listFirst = std::get<std::vector<Type>>(itLeft->m_variantType);
+                                auto listSecond = std::get<std::vector<Type>>(itRight->m_variantType);
+                                while(!listMatch(listFirst, listSecond, cache, lineNumber)) {
+                                    ++itLeft;
+                                    listFirst = std::get<std::vector<Type>>(itLeft->m_variantType);
+                                }
+                                ++itRight;
+                                break;
+                                
+                            }
                         }
                         return false;
                     }

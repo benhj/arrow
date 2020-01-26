@@ -13,9 +13,7 @@ namespace arrow {
 
     void IdentifierReceiverEvaluator::evaluate(Type incoming, Cache & cache) const
     {
-        if(cache.has(m_tok) && cache.get(m_tok).m_descriptor != incoming.m_descriptor) {
-            cache.remove(m_tok);
-        }
+        // automatically does a replace
         cache.add(m_tok, incoming);
     }
 }

@@ -10,13 +10,12 @@ fn find(collection, pattern) -> found {
     }
 }
 
-
 ;;; returns the next item after item in list
 fn next_item(item, list) -> next {
     false -> next;
-    list matches [ == ^item ?found ==] -> m;
+    list matches [ == ^item ?found ==] -> m;	
     if (m) {
-        found -> next;
+       found -> next;
     }
 }
 
