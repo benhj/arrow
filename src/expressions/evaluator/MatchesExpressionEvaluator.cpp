@@ -9,6 +9,12 @@
 namespace arrow {
 
     namespace {
+
+        bool listMatch(std::vector<Type> const & left,
+                       std::vector<Type> const & right,
+                       Cache & cache,
+                       long const lineNumber);
+
         // To describe how list tokens match.
         enum class MatchType
         {
@@ -20,8 +26,19 @@ namespace arrow {
             NoMatch    // [hello], [goodbye]
         };
 
-        MatchType matches(Type left, Type right)
-        {
+        MatchType matches(Type left, Type right, Cache & cache, long const lineNumber)
+        {   
+            if(left.m_descriptor == TypeDescriptor::List &&
+                right.m_descriptor == TypeDescriptor::List) {
+                auto newLeft = std::get<std::vector<Type>>(left.m_variantType);
+                auto newRight = std::get<std::vector<Type>>(right.m_variantType);
+                if(listMatch(newLeft, newRight, cache, lineNumber)) {
+                    return MatchType::Exact;
+                } else {
+                    return MatchType::NoMatch;
+                }
+            }
+
             if(left == right) {
                 return MatchType::Exact;
             } else if(right.m_descriptor == TypeDescriptor::SingleEqual) {
@@ -73,7 +90,9 @@ namespace arrow {
         bool handleEqEq(std::vector<Type> const & left,
                         std::vector<Type> const & right,
                         std::vector<Type>::const_iterator & itLeft,
-                        std::vector<Type>::const_iterator & itRight)
+                        std::vector<Type>::const_iterator & itRight,
+                        Cache & cache,
+                        long const lineNumber)
         {
             ++itLeft;
             ++itRight;
@@ -97,7 +116,7 @@ namespace arrow {
 
             // More token to process in first. We keep looping until we
             // find a match.
-            while(matches(*itLeft, *itRight) == MatchType::NoMatch) {
+            while(matches(*itLeft, *itRight, cache, lineNumber) == MatchType::NoMatch) {
                 ++itLeft;
                 if(itLeft == std::end(left)) {
                     return false;
@@ -168,15 +187,14 @@ namespace arrow {
 
             // More tokens to process in left. We keep looping until we
             // find a match.
-            auto matchType = matches(*itLeft, *itRight);
+            auto matchType = matches(*itLeft, *itRight, cache, lineNumber);
             while(matchType == MatchType::NoMatch) {
                 elements.push_back(*itLeft);
                 ++itLeft;
                 if(itLeft == std::end(left)) {
                     return false;
                 }
-                
-                matchType = matches(*itLeft, *itRight);
+                matchType = matches(*itLeft, *itRight, cache, lineNumber);
             }
 
             ++itLeft;
@@ -222,7 +240,7 @@ namespace arrow {
             while(itLeft != std::end(left) && itRight != std::end(right)) {
 
                 // Discover type of token match
-                auto match = matches(*itLeft, *itRight);
+                auto match = matches(*itLeft, *itRight, cache, lineNumber);
 
                 switch(match) {
                     case MatchType::Exact:
@@ -241,7 +259,7 @@ namespace arrow {
                     }
                     case MatchType::DoubleEq:
                     {
-                        if(handleEqEq(left, right, itLeft, itRight)) {
+                        if(handleEqEq(left, right, itLeft, itRight, cache, lineNumber)) {
                             continue;
                         } else {
                             // Edge case in which one must be a list rather than a string
