@@ -1,0 +1,73 @@
+;;; Word-play. Generates random text from some input text
+
+fn to_words(lines) -> L {
+    [] -> L;
+    0 -> i;
+    for line in lines {
+        tokenize(line, ' ') -> toks;
+        for t in toks {
+            [^^L ^t] -> L;
+        }
+        i + 1 -> i;
+        if(i = 200) {
+            return;
+        }
+    }
+}
+
+fn contains(big, word) -> res {
+    big matches [??start [^word ==] ==] -> res;
+}
+
+fn insert(big, word) -> big {
+    [^^big [^word []]] -> big;
+}
+
+fn build(big, word, previous) -> big {
+    if(big matches [??start [^previous ?L] ??finish]) {
+        [^^L ^word] -> L;
+        [^previous ^L] -> inner;
+        [^^start ^inner ^^finish] -> big;
+    }
+}
+
+start {
+    "/Users/bjones/3gables.txt" -> dat;
+    file_read_lines(dat) -> lines;
+    to_words(lines) -> L;
+    [] -> big;
+    "the" -> prev;
+    insert(big, prev) -> big;
+    for w in L {
+        if(w /= "") {
+            if(contains(big, w) /= true) {
+                insert(big, w) -> big;
+            }
+        }
+    }
+    for w in L {
+        if(w /= "") {
+            if(contains(big, w) = true) {
+                build(big, w, prev) -> big;
+                w -> prev;
+            }
+        }
+    }
+
+    random(big) -> B;
+    "" -> following;
+    if(B matches [?start ?L]) {
+        pr start;
+        pr " ";
+        random(L) -> following;
+        pr following;
+        pr " ";
+    }
+    repeat 100 times {
+        if(big matches [== [^following ?L] ==]) {
+            random(L) -> following;
+            pr following;
+            pr " ";
+        }
+    }
+}
