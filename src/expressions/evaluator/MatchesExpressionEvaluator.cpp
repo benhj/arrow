@@ -28,8 +28,11 @@ namespace arrow {
 
         MatchType matches(Type left, Type right, Cache & cache, long const lineNumber)
         {   
-            if(left.m_descriptor == TypeDescriptor::List &&
-                right.m_descriptor == TypeDescriptor::List) {
+            
+            if(left == right) {
+                return MatchType::Exact;
+            } else if (left.m_descriptor == TypeDescriptor::List &&
+                   right.m_descriptor == TypeDescriptor::List) {
                 auto newLeft = std::get<std::vector<Type>>(left.m_variantType);
                 auto newRight = std::get<std::vector<Type>>(right.m_variantType);
                 if(listMatch(newLeft, newRight, cache, lineNumber)) {
@@ -39,9 +42,7 @@ namespace arrow {
                 }
             }
 
-            if(left == right) {
-                return MatchType::Exact;
-            } else if(right.m_descriptor == TypeDescriptor::SingleEqual) {
+            if(right.m_descriptor == TypeDescriptor::SingleEqual) {
                 return MatchType::SingleEq;
             } else if(right.m_descriptor == TypeDescriptor::DoubleEqual) {
                 return MatchType::DoubleEq;
@@ -275,17 +276,6 @@ namespace arrow {
                     }
                     case MatchType::NoMatch:
                     {
-                        // Edge case in which one must be a list rather than a string
-                        if(itLeft->m_descriptor == TypeDescriptor::List &&
-                           itRight->m_descriptor == TypeDescriptor::List) {
-                            auto listFirst = std::get<std::vector<Type>>(itLeft->m_variantType);
-                            auto listSecond = std::get<std::vector<Type>>(itRight->m_variantType);
-                            if(listMatch(listFirst, listSecond, cache, lineNumber)) {
-                                ++itLeft;
-                                ++itRight;
-                                continue;
-                            }
-                        }
                         return false;
                     }
                 }

@@ -27,7 +27,7 @@ fn ends_in_dot(word) -> yes {
 ;;; converts an array of lines to a list of words
 fn to_words(lines) -> L {
     [] -> L;
-    repeat 200 times {
+    repeat 20 times {
         random(lines) -> line;
         tokenize(line, ' ') -> toks;
         for t in toks {
@@ -65,7 +65,7 @@ fn build_upper(big) -> upper {
 }
 
 start {
-    "/Users/bjones/fort.txt" -> dat;
+    "/Users/bjones/hobbit.txt" -> dat;
     file_read_lines(dat) -> lines;
     to_words(lines) -> L;
 
