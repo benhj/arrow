@@ -32,8 +32,8 @@ namespace arrow {
                 return {TypeDescriptor::Byte, container[deduced]};
             }
         }
-        template<>
-        Type getElement<std::string>(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
+
+        Type getElementFromString(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
         {
             auto container = std::get<std::string>(statementType.m_variantType);
             auto index = exp->getEvaluator()->evaluate(cache);
@@ -74,7 +74,8 @@ namespace arrow {
                     type.m_descriptor != TypeDescriptor::Bools &&
                     type.m_descriptor != TypeDescriptor::Strings &&
                     type.m_descriptor != TypeDescriptor::Bytes &&
-                    type.m_descriptor != TypeDescriptor::String) {
+                    type.m_descriptor != TypeDescriptor::String &&
+                    type.m_descriptor != TypeDescriptor::ListWord) {
                     throw LanguageException("Incompatiable type for index", m_expression->getLineNumber());
                 }
 
@@ -90,7 +91,9 @@ namespace arrow {
                     case TypeDescriptor::Bytes:
                         return getElement<char>(std::move(type), std::move(m_expression), cache);
                     case TypeDescriptor::String:
-                        return getElement<std::string>(std::move(type), std::move(m_expression), cache);
+                        return getElementFromString(std::move(type), std::move(m_expression), cache);
+                    case TypeDescriptor::ListWord:
+                        return getElementFromString(std::move(type), std::move(m_expression), cache);
                     default: break;
                 }
                 return getElement<Type>(std::move(type), std::move(m_expression), cache);

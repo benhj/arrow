@@ -87,7 +87,8 @@ namespace arrow {
         auto deducedRight = rightEval->evaluate(cache);
 
         // String concatenation
-        if(deducedLeft.m_descriptor == TypeDescriptor::String) {
+        if(deducedLeft.m_descriptor == TypeDescriptor::String ||
+           deducedLeft.m_descriptor == TypeDescriptor::ListWord) {
             if(op.raw == "+") {
                 auto str = std::get<std::string>(deducedLeft.m_variantType);
                 if(deducedRight.m_descriptor == TypeDescriptor::String ||

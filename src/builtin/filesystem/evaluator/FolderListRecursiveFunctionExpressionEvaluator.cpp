@@ -5,7 +5,13 @@
 #include "parser/LanguageException.hpp"
 #include <utility>
 
+#if __has_include(<yvals_core.h>)
+#include <yvals_core.h>
+#endif
+
+#if defined(_HAS_CXX17)
 #include <filesystem>
+#endif
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -21,7 +27,7 @@ namespace arrow {
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
-
+        #if defined(_HAS_CXX17)
         // Pull out the arguments being passed into the function
         auto const expression = m_expression.getExpression();
         auto const col = expression->getEvaluator()->evaluate(cache);
@@ -52,5 +58,8 @@ namespace arrow {
         } catch (...) {
             throw LanguageException("Problem with filesystem command", callLineNumber);
         }
+        #else
+        throw LanguageException("Not supported", callLineNumber);
+        #endif
     }
 }

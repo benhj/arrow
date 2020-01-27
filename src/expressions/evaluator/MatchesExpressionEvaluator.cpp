@@ -101,17 +101,9 @@ namespace arrow {
             // [end of string ==] it means that even if there are
             // more tokens in the first string, we match them all
             // given '=='.
+            
             if(itRight == std::end(right)) {
                 return true;
-            }
-
-            // Edge-case; handling for when match type is list
-            if(itRight->m_descriptor == TypeDescriptor::List) {
-                while(itLeft != std::end(left) && 
-                      itLeft->m_descriptor != TypeDescriptor::List) {
-                    ++itLeft;
-                }
-                return false;
             }
 
             // More token to process in first. We keep looping until we
@@ -261,20 +253,6 @@ namespace arrow {
                     {
                         if(handleEqEq(left, right, itLeft, itRight, cache, lineNumber)) {
                             continue;
-                        } else {
-                            // Edge case in which one must be a list rather than a string
-                            if(itLeft->m_descriptor == TypeDescriptor::List &&
-                               itRight->m_descriptor == TypeDescriptor::List) {
-                                auto listFirst = std::get<std::vector<Type>>(itLeft->m_variantType);
-                                auto listSecond = std::get<std::vector<Type>>(itRight->m_variantType);
-                                while(!listMatch(listFirst, listSecond, cache, lineNumber)) {
-                                    ++itLeft;
-                                    listFirst = std::get<std::vector<Type>>(itLeft->m_variantType);
-                                }
-                                ++itRight;
-                                break;
-                                
-                            }
                         }
                         return false;
                     }
