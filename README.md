@@ -7,14 +7,15 @@ A weakly typed interpreted programming language.
 2. [How does it work?](#how)
 3. [Basic types](#types)
 4. [Arrays](#arrays)
-5. [Lists](#lists)
-6. [List ^ and ^^ operators](#listops)
-7. [Pattern matcher](#patternmatcher)
-8. [Control flow](#control)
-9. [Functions](#functions)
-10. [Program I/O](#io)
-11. [Random number generation](#randomnumbers)
-12. [Interoperability with the operating system](#opinterop)
+5. [Maps](#maps)
+6. [Lists](#lists)
+7. [List ^ and ^^ operators](#listops)
+8. [Pattern matcher](#patternmatcher)
+9. [Control flow](#control)
+10. [Functions](#functions)
+11. [Program I/O](#io)
+12. [Random number generation](#randomnumbers)
+13. [Interoperability with the operating system](#opinterop)
 
 
 ## About <a name="about"></a>
@@ -119,9 +120,28 @@ for i in c {
 }
 ```
 
+## Maps <a name="maps"></a>
+
+The Map type can be used like its namesake in C++ but permits multi-variant storage and can only be keyed on strings:
+
+```
+;;; A map is created the first time an element is inserted
+1 -> m:"one";           ;;; integer storage at key 'one'
+[one two] -> m:"two";   ;;; list storage at key 'two'
+"str" -> m:"three";     ;;; string storage
+;;; etc.
+
+;;; querying -- returns true if map contains element with key
+map_contains(m, "one") -> res;   ;;; res is true
+map_contains(m, "other") -> res; ;;; res is false
+
+;;; retrieve all keys (return type is a string array).
+map_keys(m) -> keys;
+```
+
 ## Lists <a name="lists"></a>
 
-The list type is directly based on that of POP-11 and is a more powerful feature of Arrow.  Representationally, a list is sort of like a multi-variant array but has the appearance of a container of plain (unquoted) string elements. Like in the programming language POP-11, the power of the list really comes into its own with Arrow's pattern matching functionality (more on this later).
+The list type is directly based on that of POP-11 and is designed to be used in natural language processing applications.  Representationally, a list is sort of like a string but implementation-wise, is actually a multi-variant array (and can indeed be used like a multi-dimensional array). Like in the programming language POP-11, the power of the list really comes into its own with Arrow's pattern matching functionality (more on this later).
 
 Some examples:
 
