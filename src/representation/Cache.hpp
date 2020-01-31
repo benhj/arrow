@@ -33,6 +33,8 @@ namespace arrow {
         void eraseElementInContainer(Token identifier,
                                      int const index);
 
+        void pushBackContainerElement(Token identifier, Type const type);
+
         static void pushReturnValue(Type t);
         static Type getAndPopReturnValue();
 

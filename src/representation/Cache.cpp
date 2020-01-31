@@ -95,6 +95,37 @@ namespace arrow {
             }
         }
     }
+
+    void Cache::pushBackContainerElement(Token identifier, Type const type)
+    {
+        auto found = findAndRetrieveCached(identifier.raw);
+        
+        if(found->second.m_descriptor == TypeDescriptor::Ints) {
+            auto & casted = std::get<std::vector<int64_t>>(found->second.m_variantType);
+            auto tval = std::get<int64_t>(type.m_variantType);
+            casted.push_back(tval);
+        } else if(found->second.m_descriptor == TypeDescriptor::Reals) {
+            auto & casted = std::get<std::vector<long double>>(found->second.m_variantType);
+            auto tval = std::get<long double>(type.m_variantType);
+            casted.push_back(tval);
+        } else if(found->second.m_descriptor == TypeDescriptor::Strings) {
+            auto & casted = std::get<std::vector<std::string>>(found->second.m_variantType);
+            auto tval = std::get<std::string>(type.m_variantType);
+            casted.push_back(tval);
+        } else if(found->second.m_descriptor == TypeDescriptor::Bytes) {
+            auto & casted = std::get<std::vector<char>>(found->second.m_variantType);
+            auto tval = std::get<char>(type.m_variantType);
+            casted.push_back(tval);
+        } else if(found->second.m_descriptor == TypeDescriptor::Bools) {
+            auto & casted = std::get<std::vector<bool>>(found->second.m_variantType);
+            auto tval = std::get<bool>(type.m_variantType);
+            casted.push_back(tval);
+        } else if(found->second.m_descriptor == TypeDescriptor::List) {
+            auto & casted = std::get<std::vector<Type>>(found->second.m_variantType);
+            casted.push_back(type);
+        } 
+    }
+
     void Cache::setElementInContainer(Token identifier,
                                       int const index,
                                       Type const type)

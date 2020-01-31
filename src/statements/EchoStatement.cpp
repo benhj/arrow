@@ -41,7 +41,7 @@ namespace arrow {
                 auto const type = expression->getEvaluator()->evaluate(cache);
                 auto const token = m_statement.getToken();
                 if(token.raw == "pr" || token.raw == "say") {
-                    std::cout<<type.toString();
+                    std::cout<<type.toString()<<std::flush;
                 } else {
                     std::cout<<type.toString()<<std::endl;
                 }

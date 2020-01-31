@@ -19,6 +19,12 @@ namespace arrow {
 
         }
 
+        void addToList(Type container, Type evaluated, 
+                 Cache & cache, TypeDescriptor const desc,
+                 Token identifier) {
+            cache.pushBackContainerElement(std::move(identifier), evaluated);
+        }
+
         template <typename T>
         void add(Type evaluated, Cache & cache, TypeDescriptor const desc,
                  Token identifier) {
@@ -68,6 +74,10 @@ namespace arrow {
                 add<std::string>(std::move(orig), std::move(evaluated),
                                  cache, TypeDescriptor::Strings,
                                  std::move(identifier));
+            } else if(orig.m_descriptor == TypeDescriptor::List) {
+                addToList(std::move(orig), std::move(evaluated),
+                          cache, TypeDescriptor::List,
+                          std::move(identifier));
             }
         } else if(evaluated.m_descriptor == TypeDescriptor::Int) {
 
