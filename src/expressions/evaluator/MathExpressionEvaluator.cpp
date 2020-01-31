@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "MathExpressionEvaluator.hpp"
 #include "expressions/MathExpression.hpp"
@@ -23,6 +23,11 @@ namespace arrow {
         }
         long double operator()(std::vector<Type> left,
                                std::vector<Type> right) const
+        {
+            throw LanguageException("Incompatible types on line", m_lineNumber);
+        }
+        long double operator()(std::map<std::string, Type> left,
+                               std::map<std::string, Type> right) const
         {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }

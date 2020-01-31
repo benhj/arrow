@@ -2,11 +2,6 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string>
-#include <variant>
-#include <vector>
-
 namespace arrow {
 
     /// Describes a given type
@@ -14,7 +9,7 @@ namespace arrow {
         Int, Bool, Real, Byte, String, List, BracketlessList,
         Ints, Bools, Reals, Bytes, Strings, None, SingleEqual,
         DoubleEqual, ExpressionCollection, BracedExpressionCollection,
-        Nil, QString, QQString, ListWord
+        Nil, QString, QQString, ListWord, Map
     };
 
 }

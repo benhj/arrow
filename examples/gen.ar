@@ -27,12 +27,17 @@ fn ends_in_dot(word) -> yes {
 ;;; converts an array of lines to a list of words
 fn to_words(lines) -> L {
     [] -> L;
-    repeat 20 times {
+    0 -> i;
+    for line in lines {
         random(lines) -> line;
         tokenize(line, ' ') -> toks;
         for t in toks {
             [^^L ^t] -> L;
         }
+        if(i = 200) {
+            break;
+        }
+        i + 1 -> i;
     }
 }
 
@@ -104,6 +109,7 @@ start {
 
     ;;; Continues to build the sentence until
     ;;; a word ends in a full-stop
+    repeat 5 times {
     while(true) {
         if(big matches [== [^following ?L] ==]) {
             random(L) -> following;
@@ -116,4 +122,5 @@ start {
         }
     }
     prn "";
+    }
 }

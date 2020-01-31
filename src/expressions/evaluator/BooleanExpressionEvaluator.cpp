@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "BooleanExpressionEvaluator.hpp"
 #include "expressions/BooleanExpression.hpp"
@@ -47,6 +47,12 @@ namespace arrow {
             else {
                 throw LanguageException("Bad operator for type List", m_lineNumber);
             }
+        }
+
+        bool operator()(std::map<std::string, Type> left,
+                        std::map<std::string, Type> right) const
+        {
+            throw LanguageException("Bad operator for type Map", m_lineNumber);
         }
 
         template <class Left, class Right>

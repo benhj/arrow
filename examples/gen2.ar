@@ -1,0 +1,119 @@
+;;; Word-play; an alternative implementation using arrays
+;;; and maps.
+
+;;; checks if a word starts with an uppercase letter
+fn starts_upper(word) -> res {
+    false -> res;
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" -> upper;
+    word:0 -> c;
+    for i in upper {
+        if(c = i) {
+            true -> res;
+            return;
+        }
+    }
+}
+
+fn ends_in_dot(word) -> yes {
+    false -> yes;
+    ' ' -> d;
+    for c in word {
+        c -> d;
+    }
+    if(d = '.') {
+        true -> yes;
+    }
+}
+
+;;; converts an array of lines to a list of words
+fn to_words(lines) -> L {
+    "" -> $L;
+    0 -> i;
+    for line in lines {
+        tokenize(line, ' ') -> toks;
+        for t in toks {
+            t -> $L;
+        }
+        if(i = 200) {
+            break;
+        }
+        i + 1 -> i;
+    }
+}
+
+fn build_map_rep(words) -> map {
+    [] -> map:"the";
+    for word in words {
+        if(word /= "") {
+            "" -> $array;
+            array -> map:word;
+        }
+    }
+}
+
+fn populate_map(map, stem, new) -> map {
+    if(map_contains(map, stem)) {
+        map:stem -> list;
+        new -> $list;
+        list -> map:stem;
+    }
+}
+
+;;; creates a list of all uppercase-starting words
+fn build_upper(keys) -> upper {
+    [] -> upper;
+    for k in keys {
+        if(starts_upper(k)) {
+            [^^upper ^k] -> upper;
+        }
+        
+    }
+}
+
+start {
+    "/Users/bjones/hobbit.txt" -> dat;
+    file_read_lines(dat) -> lines;
+    to_words(lines) -> L;
+
+    build_map_rep(L) -> map;
+
+    "the" -> prev;
+    for w in L {
+        if(w /= "") {
+            populate_map(map, prev, w) -> map;
+            w -> prev;
+        }
+    }
+
+    ;;; Build a list of words that begin
+    ;;; with an uppercase letter.
+    map_keys(map) -> keys;
+    build_upper(keys) -> upper;
+
+    ;;; Start with a random uppercase word
+    random(upper) -> u;
+    map:u -> words;
+    erase words:0;
+    words -> map:u;
+    random(words) -> following;
+    pr u + " ";
+    pr following + " ";
+
+    ;;; Continues to build the sentence until
+    ;;; a word ends in a full-stop
+    while(true) {
+        map:following -> words;
+        words:0 -> check;
+        if(check = "") {
+            erase words:0;
+        }
+        random(words) -> following;
+        if(following /= " ") {
+            pr following + " ";
+            if(ends_in_dot(following)) {
+                break;
+            }
+        }
+    }
+    prn "";
+}

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
 #include <string>
 #include <variant>
 #include <vector>
@@ -19,5 +20,6 @@ namespace arrow {
                                      std::vector<long double>,
                                      std::vector<std::string>,
                                      char,
-                                     std::vector<char>>;
+                                     std::vector<char>,
+                                     std::map<std::string, Type>>;
 }

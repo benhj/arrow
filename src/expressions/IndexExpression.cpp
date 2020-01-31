@@ -14,6 +14,11 @@ namespace arrow {
         {
             auto container = std::get<std::vector<T>>(statementType.m_variantType);
             auto index = exp->getEvaluator()->evaluate(cache);
+
+            if(index.m_descriptor != TypeDescriptor::Int) {
+                throw LanguageException("Expected an integer index", exp->getLineNumber());
+            }
+
             auto deduced = std::get<int64_t>(index.m_variantType);
             if(deduced >= static_cast<int64_t>(container.size())) {
                 throw LanguageException("Index too large", exp->getLineNumber());
@@ -67,6 +72,24 @@ namespace arrow {
                 }
 
                 auto type = cache.get(m_tok);
+
+                // Deduce for map access
+                if(type.m_descriptor == TypeDescriptor::Map) {
+                    auto key = m_expression->getEvaluator()->evaluate(cache);
+                    if(key.m_descriptor != TypeDescriptor::String &&
+                       key.m_descriptor != TypeDescriptor::ListWord) {
+                        throw LanguageException("Expected a string key", m_expression->getLineNumber());
+                    }
+                    auto container = std::get<std::map<std::string, Type>>(type.m_variantType);
+                    auto keyStr = std::get<std::string>(key.m_variantType);
+                    auto found = container.find(keyStr);
+                    if(found != std::end(container)) {
+                        return {found->second.m_descriptor, found->second.m_variantType};
+                    }
+                    throw LanguageException("Entry with key not found", m_expression->getLineNumber());
+                }
+
+                // Else deduce for array (vector) access
                 if(type.m_descriptor != TypeDescriptor::List &&
                     type.m_descriptor != TypeDescriptor::ExpressionCollection &&
                     type.m_descriptor != TypeDescriptor::Ints &&

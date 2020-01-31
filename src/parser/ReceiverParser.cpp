@@ -59,10 +59,6 @@ namespace arrow {
         if(m_tm.currentToken().lexeme != Lexeme::DOLLAR_STRING) {
             return nullptr;
         }
-        m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
-            return nullptr;
-        }
         auto const ln = m_tm.currentToken().lineNumber;
         auto exp = std::make_shared<DollarIdentifierReceiver>(ln);
         exp->withIdentifierToken(m_tm.currentToken());

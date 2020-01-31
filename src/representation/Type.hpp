@@ -61,8 +61,15 @@ namespace arrow {
                         str.append("}");
                     }
                     return str;
-                } 
-                else {
+                } else if constexpr(std::is_same_v<Var, std::map<std::string, Type>>) {
+                    std::string str;
+                    for (auto const & element : var) {
+                        str.append(element.first).append(": ");
+                        str.append(element.second.toString());
+                        str.append("\n");
+                    }
+                    return str;
+                } else {
                     return std::to_string(var);
                 }
             }
