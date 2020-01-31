@@ -82,16 +82,20 @@ start {
         string_to_list(in) -> list;
         list:0 -> seed;
         while(true) {
-            trim(seed) -> trimmed;
-            pr trimmed + " ";
-            if(ends_in_dot(seed)) {
-                prn " ";
-                break;
-            }
             next_words(L, seed) -> candidates;
-            random(candidates) -> seed;
-            while(seed = " ") {
+            if(candidates /= []) {
+                trim(seed) -> trimmed;
+                pr trimmed + " ";
+                if(ends_in_dot(seed)) {
+                    prn " ";
+                    break;
+                }
                 random(candidates) -> seed;
+                while(seed = " ") {
+                    random(candidates) -> seed;
+                }
+            } else {
+                "The" -> seed;
             }
         }
         prn " ";
