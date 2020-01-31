@@ -129,7 +129,10 @@ The Map type can be used like its namesake in C++ but permits multi-variant stor
 1 -> m:"one";           ;;; integer storage at key 'one'
 [one two] -> m:"two";   ;;; list storage at key 'two'
 "str" -> m:"three";     ;;; string storage
-;;; etc.
+
+;;; retrival
+m:"two" -> L;    ;;; L is now [one two]
+m:"three" -> s;  ;;; s is 'str'
 
 ;;; querying -- returns true if map contains element with key
 map_contains(m, "one") -> res;   ;;; res is true
