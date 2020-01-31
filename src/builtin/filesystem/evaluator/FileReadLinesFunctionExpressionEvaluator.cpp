@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <stdexcept>
+#include <sstream>
 #include <string>
 
 namespace arrow {
@@ -47,8 +48,17 @@ namespace arrow {
 
             // read the data:
             std::ifstream input(filename);
-            for( std::string line; getline( input, line, tok ); ) {
-                lines.push_back(line);
+            for( std::string line; getline( input, line); ) {
+                if(tok != '\n') {
+                    std::stringstream temp;
+                    temp << line;
+                    for( std::string line2; getline( temp, line2, tok); ) {
+                        lines.push_back(line2);
+                    }
+                } else {
+                    // split purely on '\n'
+                    lines.push_back(line);
+                }
             }
             return {TypeDescriptor::Strings, lines};
         } catch (...) {

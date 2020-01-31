@@ -1,12 +1,55 @@
 ;;; Word-play. Generates random text from some input text
 
+fn word_length(w) -> len {
+    0 -> len;
+    for c in w {
+        len + 1 -> len;
+    }
+
+}
+
+;;; checks if a word starts with an uppercase letter
+fn starts_upper(word) -> res {
+    false -> res;
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" -> upper;
+    if(word_length(word) > 0) {
+        word:0 -> c;
+        for i in upper {
+            if(c = i) {
+                true -> res;
+                return;
+            }
+        }
+    }
+}
+
+fn ends_in_dot(word) -> yes {
+    false -> yes;
+    ' ' -> d;
+    for c in word {
+        c -> d;
+    }
+    if(d = '.') {
+        true -> yes;
+    }
+}
+
+;;; creates a list of all uppercase-starting words
+fn build_upper(keys) -> upper {
+    [] -> upper;
+    0 -> i;
+    for k in keys {
+        if(starts_upper(k)) {
+            [^^upper ^k] -> upper;
+        }
+        i + 1 -> i;
+    }
+}
+
 fn next_words(L, word) -> next {
     [] -> next;
     false -> flag;
     for w in L {
-        if(w = " ") {
-            flag = false;
-        }
         if(flag) {
             w -> $next;
             false -> flag;
@@ -16,13 +59,41 @@ fn next_words(L, word) -> next {
     }
 }
 
-start {
-    file_read_lines("/Users/bjones/hobbit.txt", ' ') -> L;
-    "She" -> seed;
-    repeat 200 times {
-        pr seed + " ";
-        next_words(L, seed) -> candidates;
-        random(candidates) -> seed;
+fn string_to_list(str) -> words {
+    "" -> builder;
+    [] -> words;
+    for i in str {
+        if(i = ' ') {
+            trim(builder) -> $words;
+            "" -> builder;
+        } else {
+            i -> $builder;
+        }
     }
-    prn " ";
+    builder -> $words;
+}
+
+start {
+    file_read_lines("/Users/bjones/hellmach.txt", ' ') -> L;
+    ;;; build_upper(L) -> seeds;
+
+    while(true) {
+        input(">> ") -> in;
+        string_to_list(in) -> list;
+        list:0 -> seed;
+        while(true) {
+            trim(seed) -> trimmed;
+            pr trimmed + " ";
+            if(ends_in_dot(seed)) {
+                prn " ";
+                break;
+            }
+            next_words(L, seed) -> candidates;
+            random(candidates) -> seed;
+            while(seed = " ") {
+                random(candidates) -> seed;
+            }
+        }
+        prn " ";
+    }
 }

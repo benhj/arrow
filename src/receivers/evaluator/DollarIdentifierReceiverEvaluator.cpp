@@ -17,6 +17,17 @@ namespace arrow {
             vec.push_back(deduced);
             cache.add(std::move(identifier), {desc, vec});
 
+        }        
+
+        void addToString(Type container, Type evaluated, 
+                         Cache & cache, TypeDescriptor const desc,
+                         Token identifier) {
+
+            auto vec = std::get<std::string>(container.m_variantType);
+            auto deduced = std::get<char>(evaluated.m_variantType);
+            vec.push_back(deduced);
+            cache.add(std::move(identifier), {desc, vec});
+
         }
 
         void addToList(Type container, Type evaluated, 
@@ -74,7 +85,17 @@ namespace arrow {
                 add<std::string>(std::move(orig), std::move(evaluated),
                                  cache, TypeDescriptor::Strings,
                                  std::move(identifier));
-            } else if(orig.m_descriptor == TypeDescriptor::List) {
+            } else if(orig.m_descriptor == TypeDescriptor::Bytes &&
+                evaluated.m_descriptor == TypeDescriptor::Byte) {
+                add<char>(std::move(orig), std::move(evaluated),
+                                 cache, TypeDescriptor::Bytes,
+                                 std::move(identifier));
+            } else if(orig.m_descriptor == TypeDescriptor::String &&
+                evaluated.m_descriptor == TypeDescriptor::Byte) {
+                addToString(std::move(orig), std::move(evaluated),
+                                 cache, TypeDescriptor::Bytes,
+                                 std::move(identifier));
+            }  else if(orig.m_descriptor == TypeDescriptor::List) {
                 addToList(std::move(orig), std::move(evaluated),
                           cache, TypeDescriptor::List,
                           std::move(identifier));
