@@ -122,7 +122,7 @@ for i in c {
 
 ## Maps <a name="maps"></a>
 
-The Map type can be used like its namesake in C++ but permits multi-variant storage and can only be keyed on strings:
+The map type can be used like its namesake in C++ but permits multi-variant storage and can only be keyed on strings:
 
 ```
 ;;; A map is created the first time an element is inserted
@@ -130,7 +130,7 @@ The Map type can be used like its namesake in C++ but permits multi-variant stor
 [one two] -> m:"two";   ;;; list storage at key 'two'
 "str" -> m:"three";     ;;; string storage
 
-;;; retrival
+;;; retrieval
 m:"two" -> L;    ;;; L is now [one two]
 m:"three" -> s;  ;;; s is 'str'
 
