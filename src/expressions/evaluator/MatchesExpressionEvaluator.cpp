@@ -116,7 +116,13 @@ namespace arrow {
             }
             ++itLeft;
             ++itRight;
-            return true;
+
+            if(itLeft == std::end(left) &&
+               itRight == std::end(right)) {
+                return true;
+            }
+
+            return (itRight != std::end(right));
         }
         bool handleQVar(std::vector<Type> const & left,
                         std::vector<Type> const & right,
@@ -191,6 +197,11 @@ namespace arrow {
 
             ++itLeft;
             ++itRight;
+
+            if (itRight == std::end(right)) {
+                return false;
+            }
+
             cache.add({Lexeme::GENERIC_STRING, var, lineNumber},
                       {TypeDescriptor::List, std::move(elements)});
             return true;
@@ -279,8 +290,7 @@ namespace arrow {
                     }
                 }
             }
-            return (itRight == std::end(right) &&
-                    itLeft == std::end(left));
+            return true;
         }
 
     }
