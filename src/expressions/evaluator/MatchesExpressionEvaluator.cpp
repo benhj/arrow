@@ -28,7 +28,6 @@ namespace arrow {
 
         MatchType matches(Type left, Type right, Cache & cache, long const lineNumber)
         {   
-            
             if(left == right) {
                 return MatchType::Exact;
             } else if (left.m_descriptor == TypeDescriptor::List &&
@@ -280,7 +279,8 @@ namespace arrow {
                     }
                 }
             }
-            return true;
+            return (itRight == std::end(right) &&
+                    itLeft == std::end(left));
         }
 
     }

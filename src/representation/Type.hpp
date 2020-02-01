@@ -86,9 +86,15 @@ namespace arrow {
         TypeDescriptor mutable m_descriptor;
         VariantType mutable m_variantType;
 
+        bool listElementType() const
+        {
+            return m_descriptor == TypeDescriptor::String ||
+                   m_descriptor == TypeDescriptor::ListWord;
+        }
+
         bool operator==(Type const & other) const
         {
-            return m_descriptor == other.m_descriptor &&
+            return listElementType() == other.listElementType() &&
                    m_variantType == other.m_variantType;
         }
 
