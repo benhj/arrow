@@ -54,7 +54,19 @@ namespace arrow {
                                         m_expression->getLineNumber());
             }
 
-
+            auto item = cache.get(m_tok);
+            if(item.m_descriptor == TypeDescriptor::String ||
+                item.m_descriptor == TypeDescriptor::ListWord) {
+                auto str = std::get<std::string>(item.m_variantType);
+                if(incoming.m_descriptor != TypeDescriptor::Byte) {
+                    throw LanguageException("Incompatible type",
+                        m_expression->getLineNumber());
+                }
+                auto theChar = std::get<char>(incoming.m_variantType);
+                str[index] = theChar;
+                cache.add(m_tok, {item.m_descriptor, str});
+                return;
+            }
 
             cache.setElementInContainer(m_tok, index, incoming);
         } catch (...) {
