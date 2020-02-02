@@ -16,9 +16,9 @@ namespace arrow {
         m_keywordToken = std::move(token);
         return *this;
     }
-    ForStatement & ForStatement::withIndexer(Token token)
+    ForStatement & ForStatement::addIndexer(Token token)
     {
-        m_indexer = std::move(token);
+        m_indices.push_back(token);
         return *this;
     }
     ForStatement & ForStatement::withIdentifier(Token token)
@@ -40,9 +40,9 @@ namespace arrow {
     {
         return ""; // TODO
     }
-    Token ForStatement::getIndexer() const
+    std::vector<Token> ForStatement::getIndices() const
     {
-        return m_indexer;
+        return m_indices;
     }
     Token ForStatement::getIdentifier() const
     {

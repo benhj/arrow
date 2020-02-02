@@ -15,25 +15,51 @@ namespace arrow {
         StatementResult
         evaluateContainerElements(T elements,
                                   std::shared_ptr<Statement> innerStatement,
-                                  Token indexer,
+                                  std::vector<Token> indices,
                                   Cache & cache)
         {
 
             auto evaluated = StatementResult::Continue;
-            for (auto const & element : elements) {
+
+            auto it = std::begin(elements);
+            for(; it != std::end(elements); it += indices.size()) {
                 cache.pushCacheLayer();
                 if constexpr (std::is_same_v<typename T::value_type, Type>) {
-                    cache.add(indexer, element);
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        cache.add(index, *(it + step));
+                        ++step;
+                    }
                 } else if constexpr (std::is_same_v<typename T::value_type, int64_t>) {
-                    cache.add(indexer, {TypeDescriptor::Int, element});
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        cache.add(index, {TypeDescriptor::Int, *(it + step)});
+                        ++step;
+                    }
                 } else if constexpr (std::is_same_v<typename T::value_type, long double>) {
-                    cache.add(indexer, {TypeDescriptor::Real, element});
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        cache.add(index, {TypeDescriptor::Real, *(it + step)});
+                        ++step;
+                    }
                 } else if constexpr (std::is_same_v<typename T::value_type, bool>) {
-                    cache.add(indexer, {TypeDescriptor::Bool, element});
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        cache.add(index, {TypeDescriptor::Bool, *(it + step)});
+                        ++step;
+                    }
                 } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
-                    cache.add(indexer, {TypeDescriptor::String, element});
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        cache.add(index, {TypeDescriptor::String, *(it + step)});
+                        ++step;
+                    }
                 } else if constexpr (std::is_same_v<typename T::value_type, char>) {
-                    cache.add(indexer, {TypeDescriptor::Byte, element});
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        cache.add(index, {TypeDescriptor::Byte, *(it + step)});
+                        ++step;
+                    }
                 }
                 evaluated = innerStatement->getEvaluator()->evaluate(cache);
                 cache.popCacheLayer();
@@ -52,7 +78,7 @@ namespace arrow {
 
     StatementResult ForStatementEvaluator::evaluate(Cache & cache) const
     {
-        auto indexer = m_statement.getIndexer();
+        auto indices = m_statement.getIndices();
         auto identifier = m_statement.getIdentifier();
         IdentifierExpression exp(m_statement.getLineNumber());
         exp.withIdentifierToken(identifier);
@@ -74,25 +100,25 @@ namespace arrow {
         if(evaled.m_descriptor == TypeDescriptor::List ||
            evaled.m_descriptor == TypeDescriptor::ExpressionCollection) {
             auto elements = std::get<std::vector<Type>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Ints) {
             auto elements = std::get<std::vector<int64_t>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Reals) {
             auto elements = std::get<std::vector<long double>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Bools) {
             auto elements = std::get<std::vector<bool>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Strings) {
             auto elements = std::get<std::vector<std::string>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::String || evaled.m_descriptor == TypeDescriptor::ListWord) {
             auto elements = std::get<std::string>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Byte) {
             auto elements = std::get<std::vector<char>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indexer), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         }
         return StatementResult::Continue;
     }

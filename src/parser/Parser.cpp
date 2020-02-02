@@ -392,7 +392,7 @@ namespace arrow {
         if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
             return nullptr;
         }
-        forStatement->withIndexer(m_tm.currentToken());
+        forStatement->addIndexer(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().raw != "in") {
             return nullptr;
