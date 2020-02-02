@@ -8,95 +8,236 @@ fn word_length(w) -> len {
 
 }
 
-;;; checks if a word starts with an uppercase letter
-fn starts_upper(word) -> res {
-    false -> res;
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" -> upper;
-    if(word_length(word) > 0) {
-        word:0 -> c;
-        for i in upper {
-            if(c = i) {
-                true -> res;
-                return;
-            }
-        }
-    }
-}
+fn to_lower(word) -> word {
 
-fn ends_in_dot(word) -> yes {
-    false -> yes;
-    ' ' -> d;
-    for c in word {
-        c -> d;
+    if(word = "I") {
+        return;
     }
-    if(d = '.') {
-        true -> yes;
-    }
-}
 
-;;; creates a list of all uppercase-starting words
-fn build_upper(keys) -> upper {
-    [] -> upper;
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" -> str;
+    "abcdefghijklmnopqrstuvwxyz" -> lower;
     0 -> i;
-    for k in keys {
-        if(starts_upper(k)) {
-            [^^upper ^k] -> upper;
+    for c in str {
+        word:0 -> wordc;
+        if(wordc = c) {
+            lower:i -> loweri;
+            loweri -> word:0;
         }
         i + 1 -> i;
     }
 }
 
-fn next_words(L, word) -> next {
-    [] -> next;
-    false -> flag;
-    for w in L {
-        if(flag) {
-            w -> $next;
-            false -> flag;
-        } elseif(w = word) {
-            true -> flag;
+fn remove_speech_mark(word) -> w {
+    "" -> w;
+    for c in word {
+        if((c /= '"') && 
+           (c /= ',') && 
+           (c /= '?') &&
+           (c /= '-') &&
+           (c /= ')') &&
+           (c /= ':') &&
+           (c /= ';')) {
+            w + c -> w;
         }
+    }
+}
+
+fn ends_in_punc(word) -> yes {
+    false -> yes;
+    ' ' -> d;
+    for c in word {
+        c -> d;
+    }
+    if((d = '.') ||
+       (d = '?') ||
+       (d = ',') ||
+       (d = '-')) {
+        true -> yes;
+    }
+}
+
+fn next_words(L, word, word2) -> next {
+    length L -> len;
+    [] -> next;
+    "" -> a;
+    "" -> b;
+    "" -> c;
+    for a,b,c in L {
+        trim(a) -> a;
+        trim(b) -> b;
+        if((a /= "") && (b /= "")) {
+            if(((a = word) || (word = "")) && (b = word2)) {
+                trim(c) -> $next;
+            }
+        }
+    }
+}
+
+fn generate_seed_from_input(L) -> seeds {
+    [] -> seeds;
+    [] -> a;
+    [] -> b;
+    [] -> ex;
+    [] -> fin;
+    if(L matches [??a you ??b] ||
+       L matches [??a You ??b]) {
+        "I" -> $seeds;
+        if(a matches [== are] ||
+           a matches [== Are] ||
+           a matches [== are ==] ||
+           a matches [== Are ==]) {
+            "am" -> $seeds;
+        } else {
+            if (b matches [are ==] ||
+                b matches [are]) {
+                "am" -> $seeds;
+            } elseif (b matches[know ??ex]) {
+                if(ex matches [me] ||
+                   ex matches [== me]) {
+                    [You are] -> seeds;
+                } elseif (ex matches [??fin]) {
+                    [^^fin] -> seeds;
+                }
+            } else {
+                b:0 -> $seeds;
+            }
+        }
+        return;
+    }
+    if(L matches [== you] ||
+       L matches [== You]) {
+        "I" -> $seeds;
+        return;
+    }
+    if(L matches [??a I ??b]) {
+        "You" -> $seeds;
+        if(a matches [== am] ||
+           a matches [== Am]) {
+            "are" -> $seeds;
+        } else {
+            if(b matches [am ==]) {
+                "are" -> $seeds;
+            } else {
+                b:0 -> $seeds;
+            }
+        }
+        return;
+    }
+    if(L matches [== The ?a ==] ||
+       L matches [== the ?a ==]) {
+        [The ^a] -> seeds;    
+        return;
+    }
+
+    if(L matches [== what] ||
+       L matches [== What]) {
+        "What" -> $seeds;
+        return;
+    }
+    if(L matches [== what ?a ==] ||
+       L matches [== What ?a ==]) {
+        [What ^a] -> seeds;
+        return;
+    }
+    if(L matches [== who is ?a] ||
+        L matches [== Who is ?a]) {
+        a -> $seeds;
+    }
+    if(L matches [== why ==] ||
+        L matches [== Why ==]) {
+        "because" -> $seeds;
+    }
+    if(L matches [== is the ?a]) {
+        [^^seeds ^a] -> seeds;
+        return;
+    }
+    if(L matches [== is it]) {
+        [^^seeds it is] -> seeds;
+        return;
+    }
+    if(seeds = []) {
+        L:1 -> $seeds;
     }
 }
 
 fn string_to_list(str) -> words {
     "" -> builder;
-    [] -> words;
+    [[]] -> words;
     for i in str {
         if(i = ' ') {
-            trim(builder) -> $words;
+            to_lower(remove_speech_mark(trim(builder))) -> $words;
             "" -> builder;
         } else {
             i -> $builder;
         }
     }
-    builder -> $words;
+    to_lower(remove_speech_mark(builder)) -> $words;
 }
 
 start {
-    file_read_lines("/Users/bjones/hellmach.txt", ' ') -> L;
-    ;;; build_upper(L) -> seeds;
+    file_read_lines("/Users/bjones/aesop11.txt", ' ') -> L;
 
+    ;;; continue to query the user for new input
     while(true) {
         input(">> ") -> in;
         string_to_list(in) -> list;
-        list:0 -> seed;
-        while(true) {
-            next_words(L, seed) -> candidates;
+
+        ;;; Generate seed words based on input.
+        ;;; These seeds words will be used for
+        ;;; subsequent markov word generation
+        generate_seed_from_input(list) -> seeds;
+
+        "" -> seed;
+        "" -> seed2;
+        for s in seeds {
+            pr s;
+            pr " ";
+            s -> seed2;
+        }
+
+        ;;; when the word 'the' is encountered, the
+        ;;; sentence generation stops after following word.
+        ;;; This boolean is used to control that.
+        false -> the;
+
+        ;;; A variable for storing the next word to be printed
+        seed2 -> chosen;
+
+        ;;; Stop generating sentence when a given
+        ;;; word ends in puctuation (see function)
+        while(ends_in_punc(chosen) = false) {
+            next_words(L, seed, seed2) -> candidates;
             if(candidates /= []) {
-                trim(seed) -> trimmed;
-                pr trimmed + " ";
-                if(ends_in_dot(seed)) {
-                    prn " ";
+                random(candidates) -> chosen;
+                remove_speech_mark(chosen) -> chosen;
+
+                ;;; Don't continue with and parts.
+                ;;; Be concise.
+                if(chosen = "and") {
                     break;
                 }
-                random(candidates) -> seed;
-                while(seed = " ") {
-                    random(candidates) -> seed;
+
+                ;;; break if the preceding word was 'the'
+                if(the = false) {
+                    pr chosen + " ";
+                } else {
+                    pr chosen + " ";
+                    ;;;break;
+                }
+
+                ;;; For controlling when to break after the
+                ;;; word 'the'.
+                if(chosen = "the") {
+                    true -> the;
+                } else {
+                    false -> the;
                 }
             } else {
-                "The" -> seed;
+                pr "...";
+                break;
             }
+            seed2 -> seed;
+            chosen -> seed2;
         }
         prn " ";
     }
