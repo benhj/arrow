@@ -394,6 +394,14 @@ namespace arrow {
         }
         forStatement->addIndexer(m_tm.currentToken());
         m_tm.advanceTokenIterator();
+        while(m_tm.currentToken().lexeme == Lexeme::COMMA) {
+            if(m_tm.nextToken().lexeme != Lexeme::GENERIC_STRING) {
+                return nullptr;
+            }
+            forStatement->addIndexer(m_tm.nextToken());
+            m_tm.advanceTokenIterator();
+            m_tm.advanceTokenIterator();
+        }
         if(m_tm.currentToken().raw != "in") {
             return nullptr;
         }

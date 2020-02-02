@@ -22,41 +22,62 @@ namespace arrow {
             auto evaluated = StatementResult::Continue;
 
             auto it = std::begin(elements);
-            for(; it != std::end(elements); it += indices.size()) {
+            for(; it != std::end(elements); ++it) {
+                if(it >= std::end(elements)) {
+                    break;
+                }
                 cache.pushCacheLayer();
                 if constexpr (std::is_same_v<typename T::value_type, Type>) {
                     auto step = 0;
                     for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
                         cache.add(index, *(it + step));
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, int64_t>) {
                     auto step = 0;
                     for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
                         cache.add(index, {TypeDescriptor::Int, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, long double>) {
                     auto step = 0;
                     for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
                         cache.add(index, {TypeDescriptor::Real, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, bool>) {
                     auto step = 0;
                     for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
                         cache.add(index, {TypeDescriptor::Bool, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
                     auto step = 0;
                     for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
                         cache.add(index, {TypeDescriptor::String, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, char>) {
                     auto step = 0;
                     for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
                         cache.add(index, {TypeDescriptor::Byte, *(it + step)});
                         ++step;
                     }
