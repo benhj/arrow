@@ -7,8 +7,9 @@
 
 namespace arrow {
 
-    ScopedBlockStatement::ScopedBlockStatement(long const lineNumber) 
-      : Statement(lineNumber)
+    ScopedBlockStatement::ScopedBlockStatement(long const lineNumber,
+                                               std::ostream & os)
+    : Statement(lineNumber, os)
     {
     }
     void ScopedBlockStatement::addBodyStatement(std::shared_ptr<Statement> bodyStatement)

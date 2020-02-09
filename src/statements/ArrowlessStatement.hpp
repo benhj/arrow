@@ -12,7 +12,7 @@ namespace arrow {
     class ArrowlessStatement : public Statement
     {
       public:
-        ArrowlessStatement(long const lineNumber);
+        ArrowlessStatement(long const lineNumber, std::ostream&);
         ArrowlessStatement & withToken(Token token);
         ArrowlessStatement & withExpression(std::shared_ptr<Expression> expression);
         Token getToken() const;

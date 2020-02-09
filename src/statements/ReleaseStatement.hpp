@@ -10,7 +10,7 @@ namespace arrow {
     class ReleaseStatement : public Statement
     {
       public:
-        ReleaseStatement(long const lineNumber);
+        ReleaseStatement(long const lineNumber, std::ostream&);
         ReleaseStatement & withToken(Token token);
         ReleaseStatement & withIdentifier(Token token);
         Token getToken() const;

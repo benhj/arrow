@@ -13,7 +13,7 @@ namespace arrow {
     class ForStatement : public Statement
     {
       public:
-        ForStatement(long const lineNumber);
+        ForStatement(long const lineNumber, std::ostream&);
         ForStatement & withToken(Token token);
         ForStatement & addIndexer(Token token);
         ForStatement & withIdentifier(Token token);

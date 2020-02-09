@@ -14,7 +14,9 @@ namespace arrow {
     class ArgStatement : public Statement
     {
       public:
-        ArgStatement(long const lineNumber, ArrowStatement arrowStatement);
+        ArgStatement(long const lineNumber,
+                     ArrowStatement arrowStatement,
+                     std::ostream&);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
         ArgStatement const & withToken(Token token) const;

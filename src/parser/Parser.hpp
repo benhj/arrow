@@ -11,6 +11,7 @@
 #include "statements/Statement.hpp"
 #include <map>
 #include <memory>
+#include <ostream>
 #include <vector>
 
 namespace arrow {
@@ -19,7 +20,8 @@ namespace arrow {
     class Parser
     {
       public:
-        Parser(std::vector<Token> tokens);
+        Parser(std::vector<Token> tokens,
+               std::ostream & os);
         Parser() = delete;
         void parse();
 
@@ -36,6 +38,9 @@ namespace arrow {
         /// The class instance that iterates over the
         /// collection of tokens used to build the AST.
         TokenManager m_tm;
+
+        /// For outputting program
+        std::ostream & m_os;
 
         /// Parses expressions
         ExpressionParser m_ep;

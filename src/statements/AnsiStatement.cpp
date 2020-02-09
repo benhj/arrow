@@ -9,8 +9,9 @@
 namespace arrow {
 
     AnsiStatement::AnsiStatement(long const lineNumber,
-                                 std::shared_ptr<ArrowlessStatement> statement)
-    : Statement(lineNumber)
+                                 std::shared_ptr<ArrowlessStatement> statement,
+                                 std::ostream & os)
+    : Statement(lineNumber, os)
     , m_statement(std::move(statement))
     {
 
@@ -33,8 +34,10 @@ namespace arrow {
 
         struct AnsiStatementEvaluator : public StatementEvaluator
         {
-            AnsiStatementEvaluator(AnsiStatement statement)
+            AnsiStatementEvaluator(AnsiStatement statement,
+                                   std::ostream & os)
               : m_statement(std::move(statement))
+              , m_os(os)
             {
             }
             StatementResult evaluate(Cache & cache) const override
@@ -48,7 +51,7 @@ namespace arrow {
                 auto casted = std::get<int64_t>(type.m_variantType);
                 for(int64_t i = 0; i < casted; ++i) {
                     if(token.raw == "ansi_up") {
-                        std::cout<<"\x1b[A";
+                        m_os<<"\x1b[A";
                     } else if (token.raw == "ansi_down") {
                         // todo
                     }
@@ -57,8 +60,9 @@ namespace arrow {
             }
           private:
             AnsiStatement m_statement;
+            std::ostream & m_os;
         };
 
-        return std::make_shared<AnsiStatementEvaluator>(*this);
+        return std::make_shared<AnsiStatementEvaluator>(*this, m_os);
     }
 }

@@ -6,8 +6,9 @@
 #include <utility>
 
 namespace arrow {
-    AsyncStatement::AsyncStatement(long const lineNumber) 
-      : Statement(lineNumber)
+    AsyncStatement::AsyncStatement(long const lineNumber,
+                                   std::ostream & os)
+    : Statement(lineNumber, os)
     {
     }
     AsyncStatement & AsyncStatement::withToken(Token token)

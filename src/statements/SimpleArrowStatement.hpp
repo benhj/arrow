@@ -18,7 +18,7 @@ namespace arrow {
     class SimpleArrowStatement : public Statement
     {
       public:
-        SimpleArrowStatement(long const lineNumber);
+        SimpleArrowStatement(long const lineNumber, std::ostream&);
         SimpleArrowStatement & withExpression(std::shared_ptr<Expression> expression);
         SimpleArrowStatement & withIdentifier(std::shared_ptr<Receiver> identifier);
         SimpleArrowStatement & withIndexExpression(std::shared_ptr<Expression> expression);

@@ -7,8 +7,9 @@
 
 namespace arrow {
     
-    SimpleArrowStatement::SimpleArrowStatement(long const lineNumber) 
-      : Statement(lineNumber)
+    SimpleArrowStatement::SimpleArrowStatement(long const lineNumber,
+                                               std::ostream & os)
+    : Statement(lineNumber, os)
     {
     }
 

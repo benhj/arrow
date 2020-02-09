@@ -12,7 +12,7 @@ namespace arrow {
     class FunctionStatement : public Statement
     {
       public:
-        FunctionStatement(long const lineNumber);
+        FunctionStatement(long const lineNumber, std::ostream&);
         FunctionStatement & withToken(Token token);
         FunctionStatement & withNameToken(Token token);
         FunctionStatement & withReturnIdentifierToken(Token token);

@@ -7,8 +7,9 @@
 
 namespace arrow {
 
-    LoopBreakStatement::LoopBreakStatement(long const lineNumber)
-    : Statement(lineNumber)
+    LoopBreakStatement::LoopBreakStatement(long const lineNumber,
+                                           std::ostream & os)
+    : Statement(lineNumber, os)
     {
 
     }

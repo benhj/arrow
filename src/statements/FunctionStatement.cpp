@@ -7,8 +7,9 @@
 
 namespace arrow {
 
-    FunctionStatement::FunctionStatement(long const lineNumber) 
-      : Statement(lineNumber)
+    FunctionStatement::FunctionStatement(long const lineNumber,
+                                         std::ostream & os)
+    : Statement(lineNumber, os)
     {
     }
     FunctionStatement & FunctionStatement::withToken(Token token)

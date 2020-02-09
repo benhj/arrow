@@ -10,7 +10,9 @@ namespace arrow {
     class ExitStatement : public Statement
     {
       public:
-        ExitStatement(long const lineNumber, std::shared_ptr<ArrowlessStatement> statement);
+        ExitStatement(long const lineNumber,
+                      std::shared_ptr<ArrowlessStatement> statement,
+                      std::ostream&);
         Token getToken() const;
         std::shared_ptr<Expression> getExpression() const;
         std::string toString() const override;

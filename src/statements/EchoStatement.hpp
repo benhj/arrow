@@ -10,7 +10,9 @@ namespace arrow {
     class EchoStatement : public Statement
     {
       public:
-        EchoStatement(long const lineNumber, std::shared_ptr<ArrowlessStatement> statement);
+        EchoStatement(long const lineNumber,
+                      std::shared_ptr<ArrowlessStatement> statement,
+                      std::ostream&);
         Token getToken() const;
         std::shared_ptr<Expression> getExpression() const;
         std::string toString() const override;

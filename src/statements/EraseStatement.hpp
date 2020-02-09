@@ -10,7 +10,9 @@ namespace arrow {
     class EraseStatement : public Statement
     {
       public:
-        EraseStatement(long const lineNumber, std::shared_ptr<ArrowlessStatement> statement);
+        EraseStatement(long const lineNumber,
+                       std::shared_ptr<ArrowlessStatement> statement,
+                       std::ostream&);
         Token getToken() const;
         std::shared_ptr<Expression> getExpression() const;
         std::string toString() const override;
