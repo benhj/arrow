@@ -16,8 +16,16 @@ namespace arrow {
             auto deduced = std::get<T>(evaluated.m_variantType);
             vec.push_back(deduced);
             cache.add(std::move(identifier), {desc, vec});
+        }
 
-        }        
+        void addIntToRealVector(Type container, Type evaluated, 
+                 Cache & cache, TypeDescriptor const desc,
+                 std::string identifier) {
+            auto vec = std::get<std::vector<long double>>(container.m_variantType);
+            auto deduced = std::get<int64_t>(evaluated.m_variantType);
+            vec.push_back(deduced);
+            cache.add(std::move(identifier), {desc, vec});
+        }    
 
         void addToString(Type container, Type evaluated, 
                          Cache & cache, TypeDescriptor const desc,
@@ -66,12 +74,18 @@ namespace arrow {
                              std::move(identifier));
 
             } else if(orig.m_descriptor == TypeDescriptor::Reals &&
-                evaluated.m_descriptor == TypeDescriptor::Real) {
+                (evaluated.m_descriptor == TypeDescriptor::Real ||
+                 evaluated.m_descriptor == TypeDescriptor::Int)) {
 
-                add<long double>(std::move(orig), std::move(evaluated),
-                                 cache, TypeDescriptor::Reals,
-                                 std::move(identifier));
-
+                if(evaluated.m_descriptor == TypeDescriptor::Int) {
+                    addIntToRealVector(std::move(orig), std::move(evaluated),
+                                       cache, TypeDescriptor::Reals,
+                                       std::move(identifier));
+                } else {
+                    add<long double>(std::move(orig), std::move(evaluated),
+                                     cache, TypeDescriptor::Reals,
+                                     std::move(identifier));
+                }
             } else if(orig.m_descriptor == TypeDescriptor::Bools &&
                 evaluated.m_descriptor == TypeDescriptor::Bool) {
 
@@ -123,6 +137,11 @@ namespace arrow {
             add<std::string>(std::move(evaluated),
                              cache, TypeDescriptor::Strings,
                              std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Byte) {
+
+            add<char>(std::move(evaluated),
+                      cache, TypeDescriptor::Bytes,
+                      std::move(identifier));
         }
     }
 }
