@@ -49,7 +49,7 @@ namespace arrow {
                 }
                 auto index = std::get<int64_t>(indexEval.m_variantType);
                 try {
-                    cache.eraseElementInContainer(containerIdentifier, index);
+                    cache.eraseElementInContainer(containerIdentifier.raw, index);
                 } catch (...) {
                     throw LanguageException("Problem erasing element",
                                             m_statement.getLineNumber());

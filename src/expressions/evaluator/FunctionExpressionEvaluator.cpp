@@ -61,14 +61,14 @@ namespace arrow {
         auto param = std::begin(paramCollEval);
         for (auto const & expr : expressionCollEval) {
             auto const raw = std::get<std::string>(param->m_variantType);
-            newCache.add({Lexeme::GENERIC_STRING, raw, functionLineNumber}, expr);
+            newCache.add(raw, expr);
             ++param;
         }
 
         functionStatement->getEvaluator()->evaluate(newCache);
         auto const funcReturnIdentifier = functionStatement->getReturnIdentifier();
         if(funcReturnIdentifier.lexeme != Lexeme::NIL) {
-            return newCache.get(funcReturnIdentifier);
+            return newCache.get(funcReturnIdentifier.raw);
         }
         return {TypeDescriptor::Nil, false};
     }

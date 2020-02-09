@@ -39,9 +39,7 @@ namespace arrow {
                 auto const index = std::get<int64_t>(evaluated.m_variantType);
                 auto progArg = cache.getProgramArgument(index);
                 auto identifier = m_statement.getIdentifier();
-
-                std::cout<<"B"<<std::endl;
-                cache.add(identifier, progArg);
+                cache.add(identifier.raw, progArg);
                 return StatementResult::Continue;
             }
 

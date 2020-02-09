@@ -148,7 +148,7 @@ namespace arrow {
             }
 
 
-            cache.add({Lexeme::GENERIC_STRING, var, lineNumber}, toStore);
+            cache.add(var, toStore);
             return true;
         }
         bool handleQQVar(std::vector<Type> const & left,
@@ -178,8 +178,7 @@ namespace arrow {
                     elements.push_back(*itLeft);
                     ++itLeft;
                 }
-                cache.add({Lexeme::GENERIC_STRING, var, lineNumber},
-                          {TypeDescriptor::List, std::move(elements)});
+                cache.add(var, {TypeDescriptor::List, std::move(elements)});
                 return true;
             }
 
@@ -202,8 +201,7 @@ namespace arrow {
                 return false;
             }
 
-            cache.add({Lexeme::GENERIC_STRING, var, lineNumber},
-                      {TypeDescriptor::List, std::move(elements)});
+            cache.add(var, {TypeDescriptor::List, std::move(elements)});
             return true;
         }
 

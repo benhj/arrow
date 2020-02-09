@@ -12,7 +12,7 @@ namespace arrow {
         template <typename T>
         void set(Type type, Token identifier, Cache & cache) {
             auto casted = std::get<std::vector<T>>(type.m_variantType);
-            cache.add(identifier, {TypeDescriptor::Int, static_cast<int64_t>(casted.size())});
+            cache.add(identifier.raw, {TypeDescriptor::Int, static_cast<int64_t>(casted.size())});
         }
     }
 
@@ -72,7 +72,7 @@ namespace arrow {
                         break;
                     case TypeDescriptor::String: {
                         auto casted = std::get<std::string>(type.m_variantType);
-                        cache.add(identifier, {TypeDescriptor::Int, static_cast<int64_t>(casted.size())});
+                        cache.add(identifier.raw, {TypeDescriptor::Int, static_cast<int64_t>(casted.size())});
                     }
                     default:
                         break;

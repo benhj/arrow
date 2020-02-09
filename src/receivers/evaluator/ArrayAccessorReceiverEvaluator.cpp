@@ -16,6 +16,7 @@ namespace arrow {
     void ArrayAccessorReceiverEvaluator::evaluate(Type incoming, Cache & cache) const
     {
         auto indexEval = m_expression->getEvaluator()->evaluate(cache);
+        auto const & cacheKey = m_tok.raw;
 
         // Indexing for map creates a new map if it doesn't
         // already exist
@@ -23,8 +24,8 @@ namespace arrow {
            indexEval.m_descriptor == TypeDescriptor::ListWord) {
             // If item already exists and isn't a map, throw
             std::map<std::string, Type> themap;
-            if(cache.has(m_tok)) {
-                auto item = cache.get(m_tok);
+            if(cache.has(cacheKey)) {
+                auto item = cache.get(cacheKey);
                 if(item.m_descriptor != TypeDescriptor::Map) {
                     throw LanguageException("Incompatible type",
                                             m_expression->getLineNumber());
@@ -38,7 +39,7 @@ namespace arrow {
             } else {
                 themap.emplace(key, incoming);
             }
-            cache.add(m_tok, {TypeDescriptor::Map, themap});
+            cache.add(cacheKey, {TypeDescriptor::Map, themap});
             return;
         }
 
@@ -49,12 +50,12 @@ namespace arrow {
         }
         auto index = std::get<int64_t>(indexEval.m_variantType);
         try {
-            if(!cache.has(m_tok)) {
+            if(!cache.has(cacheKey)) {
                 throw LanguageException("Array not found",
                                         m_expression->getLineNumber());
             }
 
-            auto item = cache.get(m_tok);
+            auto item = cache.get(cacheKey);
             if(item.m_descriptor == TypeDescriptor::String ||
                 item.m_descriptor == TypeDescriptor::ListWord) {
                 auto str = std::get<std::string>(item.m_variantType);
@@ -64,11 +65,11 @@ namespace arrow {
                 }
                 auto theChar = std::get<char>(incoming.m_variantType);
                 str[index] = theChar;
-                cache.add(m_tok, {item.m_descriptor, str});
+                cache.add(cacheKey, {item.m_descriptor, str});
                 return;
             }
 
-            cache.setElementInContainer(m_tok, index, incoming);
+            cache.setElementInContainer(cacheKey, index, incoming);
         } catch (...) {
             throw LanguageException("Index too big",
                                     m_expression->getLineNumber());

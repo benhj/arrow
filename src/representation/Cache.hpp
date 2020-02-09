@@ -4,7 +4,6 @@
 
 #include "Type.hpp"
 #include "TypeDescriptor.hpp"
-#include "lexer/Token.hpp"
 #include <deque>
 #include <map>
 #include <mutex>
@@ -17,23 +16,23 @@ namespace arrow {
       public:
         using CacheMap = std::map<std::string, Type>;
         Cache();
-        Type get(Token identifier) const;
-        void add(Token identifier, Type const type);
-        bool has(Token identifier) const;
-        void remove(Token identifier) const;
+        Type get(std::string identifier) const;
+        void add(std::string identifier, Type const type);
+        bool has(std::string identifier) const;
+        void remove(std::string identifier) const;
         void pushCacheLayer();
         void popCacheLayer();
         void pushProgramArgument(Type arg);
         Type getProgramArgument(int64_t const index) const;
 
-        void setElementInContainer(Token identifier,
+        void setElementInContainer(std::string identifier,
                                    int const index,
                                    Type const type);
 
-        void eraseElementInContainer(Token identifier,
+        void eraseElementInContainer(std::string identifier,
                                      int const index);
 
-        void pushBackContainerElement(Token identifier, Type const type);
+        void pushBackContainerElement(std::string identifier, Type const type);
 
         static void pushReturnValue(Type t);
         static Type getAndPopReturnValue();

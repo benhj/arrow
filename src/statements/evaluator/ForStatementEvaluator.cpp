@@ -33,7 +33,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index, *(it + step));
+                        cache.add(index.raw, *(it + step));
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, int64_t>) {
@@ -42,7 +42,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index, {TypeDescriptor::Int, *(it + step)});
+                        cache.add(index.raw, {TypeDescriptor::Int, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, long double>) {
@@ -51,7 +51,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index, {TypeDescriptor::Real, *(it + step)});
+                        cache.add(index.raw, {TypeDescriptor::Real, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, bool>) {
@@ -60,7 +60,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index, {TypeDescriptor::Bool, *(it + step)});
+                        cache.add(index.raw, {TypeDescriptor::Bool, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
@@ -69,7 +69,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index, {TypeDescriptor::String, *(it + step)});
+                        cache.add(index.raw, {TypeDescriptor::String, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, char>) {
@@ -78,7 +78,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index, {TypeDescriptor::Byte, *(it + step)});
+                        cache.add(index.raw, {TypeDescriptor::Byte, *(it + step)});
                         ++step;
                     }
                 }

@@ -13,10 +13,11 @@ namespace arrow {
 
     Type IdentifierEvaluator::evaluate(Cache & cache) const
     {
-        if(!cache.has(m_tok)) {
+        auto const & cacheKey = m_tok.raw;
+        if(!cache.has(cacheKey)) {
             throw LanguageException("Identifier not found",
                                     m_tok.lineNumber);
         }
-        return cache.get(m_tok);
+        return cache.get(cacheKey);
     }
 }

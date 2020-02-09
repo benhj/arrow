@@ -10,7 +10,7 @@ namespace arrow {
         template <typename T>
         void add(Type container, Type evaluated, 
                  Cache & cache, TypeDescriptor const desc,
-                 Token identifier) {
+                 std::string identifier) {
 
             auto vec = std::get<std::vector<T>>(container.m_variantType);
             auto deduced = std::get<T>(evaluated.m_variantType);
@@ -21,7 +21,7 @@ namespace arrow {
 
         void addToString(Type container, Type evaluated, 
                          Cache & cache, TypeDescriptor const desc,
-                         Token identifier) {
+                         std::string identifier) {
 
             auto vec = std::get<std::string>(container.m_variantType);
             auto deduced = std::get<char>(evaluated.m_variantType);
@@ -32,13 +32,13 @@ namespace arrow {
 
         void addToList(Type container, Type evaluated, 
                  Cache & cache, TypeDescriptor const desc,
-                 Token identifier) {
+                 std::string identifier) {
             cache.pushBackContainerElement(std::move(identifier), evaluated);
         }
 
         template <typename T>
         void add(Type evaluated, Cache & cache, TypeDescriptor const desc,
-                 Token identifier) {
+                 std::string identifier) {
 
             auto deduced = std::get<T>(evaluated.m_variantType);
             std::vector<T> vec;
@@ -55,7 +55,7 @@ namespace arrow {
 
     void DollarIdentifierReceiverEvaluator::evaluate(Type evaluated, Cache & cache) const
     {
-        auto identifier = m_tok;
+        auto identifier = m_tok.raw;
         if(cache.has(identifier)) {
             auto orig = cache.get(identifier);
             if(orig.m_descriptor == TypeDescriptor::Ints &&

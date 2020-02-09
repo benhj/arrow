@@ -67,11 +67,12 @@ namespace arrow {
 
             Type evaluate(Cache & cache) const override
             {
-                if(!cache.has(m_tok)) {
+                auto const & cacheKey = m_tok.raw;
+                if(!cache.has(cacheKey)) {
                     throw LanguageException("Value for identifier not found", m_expression->getLineNumber());
                 }
 
-                auto type = cache.get(m_tok);
+                auto type = cache.get(cacheKey);
 
                 // Deduce for map access
                 if(type.m_descriptor == TypeDescriptor::Map) {

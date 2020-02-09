@@ -37,7 +37,7 @@ namespace arrow {
                 }
                 auto converted = std::stold(std::get<std::string>(type.m_variantType));
                 auto identifier = m_statement.getIdentifier();
-                cache.add(identifier, {TypeDescriptor::Int, converted});
+                cache.add(identifier.raw, {TypeDescriptor::Int, converted});
                 return StatementResult::Continue;
             }
           private:

@@ -9,13 +9,13 @@ namespace arrow {
         template <typename T>
         std::vector<T> getUpdatedArray(VariantType vt,
                                        Type element,
-                                       int const index,
-                                       long const lineNumber)
+                                       int const index)
         {
             auto casted = std::get<std::vector<T>>(vt);
+            /*
             if(index >= casted.size()) {
                 throw LanguageException("Index out of range", lineNumber);
-            }
+            }*/
             if constexpr(std::is_same_v<T, Type>) {
                 casted[index].m_variantType.swap(element.m_variantType);
             } else {
@@ -27,14 +27,14 @@ namespace arrow {
 
         template <typename T>
         std::pair<bool, std::vector<T>> tryErase(VariantType vt,
-                                                 int const index,
-                                                 long const lineNumber)
+                                                 int const index)
         {
             try {
                 auto casted = std::get<std::vector<T>>(vt);
+                /*
                 if(index >= casted.size()) {
                     throw LanguageException("Index out of range", lineNumber);
-                }
+                }*/
                 casted.erase(std::begin(casted) + index);
                 return {true, casted};
             } catch (...) {
@@ -62,33 +62,33 @@ namespace arrow {
         return CacheMap::iterator();
     }
 
-    Type Cache::get(Token identifier) const
+    Type Cache::get(std::string identifier) const
     {
-        auto found = findAndRetrieveCached(identifier.raw);
+        auto found = findAndRetrieveCached(identifier);
         if(found == CacheMap::iterator()) { return {TypeDescriptor::None, false}; }
         return found->second;
     }
 
-    void Cache::add(Token identifier, Type const type)
+    void Cache::add(std::string identifier, Type const type)
     {
-        auto found = findAndRetrieveCached(identifier.raw);
+        auto found = findAndRetrieveCached(identifier);
         if(found != CacheMap::iterator()) {
             // Remove original instance of value
             found->second.m_variantType.swap(type.m_variantType);
             return;
         }
         // Add brand new instance
-        m_cacheStack[0].emplace(identifier.raw, type);
+        m_cacheStack[0].emplace(identifier, type);
     }
-    bool Cache::has(Token identifier) const
+    bool Cache::has(std::string identifier) const
     {
-        auto found = findAndRetrieveCached(identifier.raw);
+        auto found = findAndRetrieveCached(identifier);
         return found != CacheMap::iterator();
     }
-    void Cache::remove(Token identifier) const
+    void Cache::remove(std::string identifier) const
     {
         for (auto & layer : m_cacheStack) {
-            auto found = layer.find(identifier.raw);
+            auto found = layer.find(identifier);
             if(found != std::end(layer)) {
                 layer.erase(found);
                 return;
@@ -96,9 +96,9 @@ namespace arrow {
         }
     }
 
-    void Cache::pushBackContainerElement(Token identifier, Type const type)
+    void Cache::pushBackContainerElement(std::string identifier, Type const type)
     {
-        auto found = findAndRetrieveCached(identifier.raw);
+        auto found = findAndRetrieveCached(identifier);
         
         if(found->second.m_descriptor == TypeDescriptor::Ints) {
             auto & casted = std::get<std::vector<int64_t>>(found->second.m_variantType);
@@ -126,35 +126,30 @@ namespace arrow {
         } 
     }
 
-    void Cache::setElementInContainer(Token identifier,
+    void Cache::setElementInContainer(std::string identifier,
                                       int const index,
                                       Type const type)
     {
-        auto found = findAndRetrieveCached(identifier.raw);
+        auto found = findAndRetrieveCached(identifier);
         try {
             if(type.m_descriptor == TypeDescriptor::Int) {
-                auto casted = getUpdatedArray<int64_t>(found->second.m_variantType, type,
-                                                       index, identifier.lineNumber);
+                auto casted = getUpdatedArray<int64_t>(found->second.m_variantType, type, index);
                 found->second.m_variantType = casted;
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Real) {
-                auto casted = getUpdatedArray<long double>(found->second.m_variantType, type,
-                                                           index, identifier.lineNumber);
+                auto casted = getUpdatedArray<long double>(found->second.m_variantType, type, index);
                 found->second.m_variantType = casted;
                 return;
             } else if(type.m_descriptor == TypeDescriptor::String) {
-                auto casted = getUpdatedArray<std::string>(found->second.m_variantType, type,
-                                                           index, identifier.lineNumber);
+                auto casted = getUpdatedArray<std::string>(found->second.m_variantType, type, index);
                 found->second.m_variantType = casted;
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Byte) {
-                auto casted = getUpdatedArray<char>(found->second.m_variantType, type,
-                                                    index, identifier.lineNumber);
+                auto casted = getUpdatedArray<char>(found->second.m_variantType, type, index);
                 found->second.m_variantType = casted;
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Bool) {
-                auto casted = getUpdatedArray<bool>(found->second.m_variantType, type,
-                                                    index, identifier.lineNumber);
+                auto casted = getUpdatedArray<bool>(found->second.m_variantType, type, index);
                 found->second.m_variantType = casted;
                 return;
             } 
@@ -163,51 +158,51 @@ namespace arrow {
             // meaning we can instead try Type as the list element type.
         }
         auto casted = getUpdatedArray<Type>(found->second.m_variantType, type,
-                                            index, identifier.lineNumber);
+                                            index);
         found->second.m_variantType = casted;
     }
 
-    void Cache::eraseElementInContainer(Token identifier,
+    void Cache::eraseElementInContainer(std::string identifier,
                                         int const index)
     {
-        auto found = findAndRetrieveCached(identifier.raw);
+        auto found = findAndRetrieveCached(identifier);
         {
-            auto result = tryErase<int64_t>(found->second.m_variantType, index, identifier.lineNumber);
+            auto result = tryErase<int64_t>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;
             }
         }
         {
-            auto result = tryErase<long double>(found->second.m_variantType, index, identifier.lineNumber);
+            auto result = tryErase<long double>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;
             }
         }
         {
-            auto result = tryErase<bool>(found->second.m_variantType, index, identifier.lineNumber);
+            auto result = tryErase<bool>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;
             }
         }
         {
-            auto result = tryErase<char>(found->second.m_variantType, index, identifier.lineNumber);
+            auto result = tryErase<char>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;
             }
         }
         {
-            auto result = tryErase<std::string>(found->second.m_variantType, index, identifier.lineNumber);
+            auto result = tryErase<std::string>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;
             }
         }
         {
-            auto result = tryErase<Type>(found->second.m_variantType, index, identifier.lineNumber);
+            auto result = tryErase<Type>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;

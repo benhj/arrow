@@ -46,7 +46,7 @@ namespace arrow {
             }
             StatementResult evaluate(Cache & cache) const override
             {
-                auto const identifier = m_statement.getIdentifier();
+                auto const & identifier = m_statement.getIdentifier().raw;
                 if(cache.has(identifier)) {
                     cache.remove(identifier);
                 }

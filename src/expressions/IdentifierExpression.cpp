@@ -23,14 +23,15 @@ namespace arrow {
 
             Type evaluate(Cache & cache) const override
             {
-                if(m_tok.raw == "true") {
+                auto const & cacheKey = m_tok.raw;
+                if(cacheKey == "true") {
                     return {TypeDescriptor::Bool, true};
-                } else if(m_tok.raw == "false") {
+                } else if(cacheKey == "false") {
                     return {TypeDescriptor::Bool, false};
-                } else if(!cache.has(m_tok)) {
+                } else if(!cache.has(cacheKey)) {
                     throw LanguageException("Value for identifier not found", m_tok.lineNumber);
                 }
-                return cache.get(m_tok);
+                return cache.get(cacheKey);
             }
           private:
             Token m_tok;

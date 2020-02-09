@@ -14,6 +14,6 @@ namespace arrow {
     void IdentifierReceiverEvaluator::evaluate(Type incoming, Cache & cache) const
     {
         // automatically does a replace
-        cache.add(m_tok, incoming);
+        cache.add(m_tok.raw, incoming);
     }
 }

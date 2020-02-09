@@ -15,7 +15,7 @@ namespace arrow {
         auto const innerStatement = m_statement.getInnerStatement();
         auto const returnIdentifier = m_statement.getReturnIdentifier();
         (void)innerStatement->getEvaluator()->evaluate(cache);
-        if(returnIdentifier.lexeme != Lexeme::NIL && !cache.has(returnIdentifier)) {
+        if(returnIdentifier.lexeme != Lexeme::NIL && !cache.has(returnIdentifier.raw)) {
             throw LanguageException("Can't find return value in function statement",
                                     returnIdentifier.lineNumber);
         }
