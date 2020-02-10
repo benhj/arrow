@@ -196,11 +196,11 @@ namespace arrow {
 
             ++itLeft;
             ++itRight;
-
+/*
             if (itRight == std::end(right)) {
                 return false;
             }
-
+*/
             cache.add(var, {TypeDescriptor::List, std::move(elements)});
             return true;
         }

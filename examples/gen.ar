@@ -56,20 +56,38 @@ fn ends_in_punc(word) -> yes {
     }
 }
 
-fn next_words(L, word, word2) -> next {
-    length L -> len;
-    [] -> next;
+fn build_representation(L) -> big {
     "" -> a;
     "" -> b;
     "" -> c;
+    [[[]]] -> big;
+    [] -> start;
+    [] -> finish;
+    0 -> i;
     for a,b,c in L {
-        trim(a) -> a;
-        trim(b) -> b;
+        remove_speech_mark(trim(a)) -> a;
+        remove_speech_mark(trim(b)) -> b;
         if((a /= "") && (b /= "")) {
-            if(((a = word) || (word = "")) && (b = word2)) {
-                trim(c) -> $next;
+            remove_speech_mark(trim(c)) -> c;
+            big matches [??start [^a ^b [??d]] ??finish] -> match;
+            if(match = false) {
+                [^a ^b [^c]] -> $big;
+            } else {
+                [^a ^b [^^d ^c]] -> node;
+                [^^start ^node ^^finish] -> big;
             }
         }
+        prn i;
+        i + 1 -> i;
+    }
+}
+
+fn next_words(representation, word1, word2) -> next {
+    [] -> next;
+    if(word1 = "") {
+        representation matches [== [= ^word2 ?next] == ] -> m;
+    } else {
+        representation matches [== [^word1 ^word2 ?next] == ] -> m;
     }
 }
 
@@ -175,7 +193,8 @@ fn string_to_list(str) -> words {
 }
 
 start {
-    file_read_lines("/Users/bjones/aesop11.txt", ' ') -> L;
+    file_read_lines("/Users/bjones/fort.txt", ' ') -> L;
+    build_representation(L) -> representation;
 
     ;;; continue to query the user for new input
     while(true) {
@@ -206,7 +225,7 @@ start {
         ;;; Stop generating sentence when a given
         ;;; word ends in puctuation (see function)
         while(ends_in_punc(chosen) = false) {
-            next_words(L, seed, seed2) -> candidates;
+            next_words(representation, seed, seed2) -> candidates;
             if(candidates /= []) {
                 random(candidates) -> chosen;
                 remove_speech_mark(chosen) -> chosen;

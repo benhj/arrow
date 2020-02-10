@@ -4,8 +4,7 @@
 ;;; score current test score
 fn test(a, b, score) -> score {
     0 -> pass;
-    if(a = b) { 1 -> pass; }
-    score + pass -> score;
+    if(a = b) { score + 1 -> score; }
 }
 
 ;;; a function that 'pretty-prints'
@@ -13,13 +12,19 @@ fn test(a, b, score) -> score {
 ;;; and notes the number of passes
 ;;; and the number of failures.
 fn print_score(exp, act) {
+    if(act < 10) {
+        pr "0";
+    }
     pr act;
     pr "/";
+    if(exp < 10) {
+        pr "0";
+    }
     pr exp;
     if(act = exp) {
-        prn "     PASS";
+        pr "     PASS";
     } else {
-        prn "     FAILURE";
+        pr "     FAILURE";
     }
 }
 
@@ -39,6 +44,7 @@ fn basic() {
     test(false, d, score)  -> score;
     test('c', e, score)    -> score;
     print_score(5, score);
+    prn "     (basic)";
 }
 
 ;;; basic integer array creation
@@ -64,6 +70,7 @@ fn int_array() {
     test(2, x, score) -> score;
 
     print_score(5, score);
+    prn "     (int_array)";
 }
 
 ;;; basic real array creation
@@ -92,6 +99,7 @@ fn real_array() {
     b:0 -> x;
     test(1.1, x, score) -> score;
     print_score(6, score);
+    prn "     (real_array)";
 }
 
 ;;; basic string array creation
@@ -116,6 +124,7 @@ fn string_array() {
     b:2 -> x;
     test("three", x, score) -> score;
     print_score(5, score);
+    prn "     (string_array)";
 }
 
 ;;; basic byte array creation
@@ -140,6 +149,126 @@ fn byte_array() {
     b:1 -> x;
     test('b', x, score) -> score;
     print_score(5, score);
+    prn "     (byte_array)";
+}
+
+fn strings() {
+    0 -> score;
+    "hello" -> str;
+    test("hello", str, score) -> score;
+    ',' -> $str;
+    test("hello,", str, score) -> score;
+    str + " world" -> str;
+    test("hello, world", str, score) -> score;
+    str + '.' -> str;
+    test("hello, world.", str, score) -> score;
+    str:0 -> h;
+    test('h', h, score) -> score;
+    '!' -> str:5;
+    test("hello! world.", str, score) -> score;
+    print_score(6, score);
+    prn "     (strings)";
+}
+
+fn lists() {
+    0 -> score;
+    [one two three] -> L;
+    test([one two three], L, score) -> score;
+    "four" -> $L;
+    test([one two three four], L, score) -> score;
+    [^^L five] -> L;
+    test([one two three four five], L, score) -> score;
+    [zero ^^L] -> L;
+    test([zero one two three four five], L, score) -> score;
+    "minus" -> a;
+    [^a ^^L] -> L;
+    test([minus zero one two three four five], L, score) -> score;
+    "pos" -> b;
+    [^^L ^b] -> L;
+    test([minus zero one two three four five pos], L, score) -> score;
+
+    ;;; nested list tests
+    [one two three [nested [bit]]] -> L;
+    test([one two three [nested [bit]]], L, score) -> score;
+    [another nesting] -> sub;
+    [^sub ^^L] -> L;
+    test([[another nesting] one two three [nested [bit]]], L, score) -> score;
+    [some bits] -> bits;
+    [one two three [nested ^bits]] -> L;
+    test([one two three [nested [some bits]]], L, score) -> score;
+    [one two three [nested ^^bits]] -> L;
+    test([one two three [nested some bits]], L, score) -> score;
+
+    print_score(10, score);
+    prn "     (lists)";
+}
+
+fn pattern_matcher() {
+    0 -> score;
+    [] matches [] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [one two three] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [= = =] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [==] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [= ==] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [one ==] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [== two three] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [== three] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [= two three] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [= two =] -> m;
+    test(true, m, score) -> score;
+    [one two three] matches [== two ==] -> m;
+    test(true, m, score) -> score;
+
+    ;;; extraction
+    [one two three] matches [?a ?b ?c] -> m;
+    test(true, m, score) -> score;
+    test("one", a, score) -> score;
+    test("two", b, score) -> score;
+    test("three", c, score) -> score;
+    [one two three] matches [??a] -> m;
+    test(true, m, score) -> score;
+    test([one two three], a, score) -> score;
+    [one two three] matches [??a two three] -> m;
+    test(true, m, score) -> score;
+    test([one], a, score) -> score;
+    [one two three] matches [?a two three] -> m;
+    test(true, m, score) -> score;
+    test("one", a, score) -> score;
+    [one two three] matches [??a three] -> m;
+    test(true, m, score) -> score;
+    test([one two], a, score) -> score;
+    [one two three] matches [one ??a] -> m;
+    test(true, m, score) -> score;
+    test([two three], a, score) -> score;
+    [one two three] matches [one ??a three] -> m;
+    test(true, m, score) -> score;
+    test([two], a, score) -> score;
+    [one two three] matches [one ?a three] -> m;
+    test(true, m, score) -> score;
+    test("two", a, score) -> score;
+    [one two three] matches [= ?a =] -> m;
+    test(true, m, score) -> score;
+    test("two", a, score) -> score;
+    [one two three] matches [?a two ?b] -> m;
+    test(true, m, score) -> score;
+    test("one", a, score) -> score;
+    test("three", b, score) -> score;
+    [one two three] matches [??a two ??b] -> m;
+    test(true, m, score) -> score;
+    test([one], a, score) -> score;
+    test([three], b, score) -> score;
+
+    print_score(37, score);
+    prn "     (pattern_matcher)";
 }
 
 start {
@@ -148,4 +277,7 @@ start {
     real_array();
     string_array();
     byte_array();
+    strings();
+    lists();
+    pattern_matcher();
 }
