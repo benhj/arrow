@@ -54,6 +54,6 @@ target_compile_options(builtin_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(arrow PUBLIC ${COMP_FLAGS})
 
 add_custom_command(TARGET arrow POST_BUILD
-    COMMAND arrow ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.arr
+    COMMAND arrow ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.ar
     COMMENT "Running tests..."
 )
