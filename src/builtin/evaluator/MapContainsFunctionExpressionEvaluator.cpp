@@ -16,15 +16,15 @@ namespace arrow {
     {
         auto const expression = m_expression.getExpression();
         auto const col = expression->getEvaluator()->evaluate(cache);
-        auto const expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
+        auto & expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(expressionCollEval.empty()) {
             throw LanguageException("Expected arguments", m_expression.getLineNumber());
         }
         if(expressionCollEval.size() < 2) {
             throw LanguageException("Expected extra argument", m_expression.getLineNumber());
         }
-        auto const mapEval = expressionCollEval[0];
-        auto const keyEval = expressionCollEval[1];
+        auto & mapEval = expressionCollEval[0];
+        auto & keyEval = expressionCollEval[1];
         if(mapEval.m_descriptor != TypeDescriptor::Map) {
             throw LanguageException("Not a map", m_expression.getLineNumber());
         }
@@ -32,8 +32,8 @@ namespace arrow {
            keyEval.m_descriptor != TypeDescriptor::ListWord) {
             throw LanguageException("Bad key expression", m_expression.getLineNumber());
         }
-        auto themap = std::get<std::map<std::string, Type>>(mapEval.m_variantType);
-        auto const thekey = std::get<std::string>(keyEval.m_variantType);
+        auto & themap = std::get<std::map<std::string, Type>>(mapEval.m_variantType);
+        auto & thekey = std::get<std::string>(keyEval.m_variantType);
         auto found = themap.find(thekey);
         auto result = (found != std::end(themap));
         return {TypeDescriptor::Bool, result};

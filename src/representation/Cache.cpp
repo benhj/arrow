@@ -7,11 +7,9 @@ namespace arrow {
 
     namespace {
         template <typename T>
-        std::vector<T> getUpdatedArray(VariantType vt,
-                                       Type element,
-                                       int const index)
+        void updateArray(VariantType & vt, Type element, int const index)
         {
-            auto casted = std::get<std::vector<T>>(vt);
+            auto & casted = std::get<std::vector<T>>(vt);
             /*
             if(index >= casted.size()) {
                 throw LanguageException("Index out of range", lineNumber);
@@ -22,7 +20,6 @@ namespace arrow {
                 auto const val = std::get<T>(element.m_variantType);
                 casted[index] = val;
             }
-            return casted;
         }
 
         template <typename T>
@@ -133,33 +130,26 @@ namespace arrow {
         auto found = findAndRetrieveCached(identifier);
         try {
             if(type.m_descriptor == TypeDescriptor::Int) {
-                auto casted = getUpdatedArray<int64_t>(found->second.m_variantType, type, index);
-                found->second.m_variantType = casted;
+                updateArray<int64_t>(found->second.m_variantType, type, index);
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Real) {
-                auto casted = getUpdatedArray<long double>(found->second.m_variantType, type, index);
-                found->second.m_variantType = casted;
+                updateArray<long double>(found->second.m_variantType, type, index);
                 return;
             } else if(type.m_descriptor == TypeDescriptor::String) {
-                auto casted = getUpdatedArray<std::string>(found->second.m_variantType, type, index);
-                found->second.m_variantType = casted;
+                updateArray<std::string>(found->second.m_variantType, type, index);
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Byte) {
-                auto casted = getUpdatedArray<char>(found->second.m_variantType, type, index);
-                found->second.m_variantType = casted;
+                updateArray<char>(found->second.m_variantType, type, index);
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Bool) {
-                auto casted = getUpdatedArray<bool>(found->second.m_variantType, type, index);
-                found->second.m_variantType = casted;
+                updateArray<bool>(found->second.m_variantType, type, index);
                 return;
             } 
         } catch (...) {
             // if casting threw, it must be because of bad type conversion
             // meaning we can instead try Type as the list element type.
         }
-        auto casted = getUpdatedArray<Type>(found->second.m_variantType, type,
-                                            index);
-        found->second.m_variantType = casted;
+        updateArray<Type>(found->second.m_variantType, type, index);
     }
 
     void Cache::eraseElementInContainer(std::string identifier,

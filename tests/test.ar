@@ -69,7 +69,14 @@ fn int_array() {
     b:1 -> x;
     test(2, x, score) -> score;
 
-    print_score(5, score);
+    ;;; for loop test
+    0 -> index;
+    for i in b {
+        test(b:index, i, score) -> score;
+        index + 1 -> index;
+    }
+
+    print_score(8, score);
     prn "     (int_array)";
 }
 
@@ -98,7 +105,15 @@ fn real_array() {
     ;;; element retrieval
     b:0 -> x;
     test(1.1, x, score) -> score;
-    print_score(6, score);
+
+    ;;; for loop test
+    0 -> index;
+    for i in b {
+        test(b:index, i, score) -> score;
+        index + 1 -> index;
+    }
+
+    print_score(10, score);
     prn "     (real_array)";
 }
 
@@ -123,7 +138,15 @@ fn string_array() {
     ;;; element retrieval
     b:2 -> x;
     test("three", x, score) -> score;
-    print_score(5, score);
+
+    ;;; for loop test
+    0 -> index;
+    for i in b {
+        test(b:index, i, score) -> score;
+        index + 1 -> index;
+    }
+
+    print_score(8, score);
     prn "     (string_array)";
 }
 
@@ -148,7 +171,15 @@ fn byte_array() {
     ;;; element retrieval
     b:1 -> x;
     test('b', x, score) -> score;
-    print_score(5, score);
+
+    ;;; for loop test
+    0 -> index;
+    for i in b {
+        test(b:index, i, score) -> score;
+        index + 1 -> index;
+    }
+
+    print_score(8, score);
     prn "     (byte_array)";
 }
 
@@ -166,7 +197,15 @@ fn strings() {
     test('h', h, score) -> score;
     '!' -> str:5;
     test("hello! world.", str, score) -> score;
-    print_score(6, score);
+
+    ;;; for loop test
+    0 -> index;
+    for i in str {
+        test(str:index, i, score) -> score;
+        index + 1 -> index;
+    }
+
+    print_score(19, score);
     prn "     (strings)";
 }
 
@@ -199,7 +238,14 @@ fn lists() {
     [one two three [nested ^^bits]] -> L;
     test([one two three [nested some bits]], L, score) -> score;
 
-    print_score(10, score);
+    ;;; for loop test
+    0 -> index;
+    for i in L {
+        test(L:index, i, score) -> score;
+        index + 1 -> index;
+    }
+
+    print_score(14, score);
     prn "     (lists)";
 }
 
@@ -271,6 +317,34 @@ fn pattern_matcher() {
     prn "     (pattern_matcher)";
 }
 
+fn maps() {
+    ;;; store arbitrary elements in a map
+    1 -> map:"a";
+    2.2 -> map:"b";
+    true -> map:"c";
+    'a' -> map:"d";
+    "hello" -> map:"e";
+    [one two three] -> map:"f";
+
+    ;;; get an array of all keys
+    map_keys(map) -> keys;
+
+    ;;; loop over keys and store values in vals
+    0 -> index;
+    [] -> vals;
+    for key in keys {
+        map:key -> value;
+        [^^vals ^value] -> vals;
+    }
+
+    ;;; interpret list as a bracketed pod type
+    0 -> score;
+    test((map:"a", map:"b", map:"c", map:"d", map:"e", map:"f"), vals, score) -> score;
+
+    print_score(1, score);
+    prn "     (maps)";
+}
+
 start {
     basic();
     int_array();
@@ -280,4 +354,5 @@ start {
     strings();
     lists();
     pattern_matcher();
+    maps();
 }

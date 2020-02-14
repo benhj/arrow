@@ -12,7 +12,7 @@ namespace arrow {
         template <typename T>
         Type getElement(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
         {
-            auto container = std::get<std::vector<T>>(statementType.m_variantType);
+            auto & container = std::get<std::vector<T>>(statementType.m_variantType);
             auto index = exp->getEvaluator()->evaluate(cache);
 
             if(index.m_descriptor != TypeDescriptor::Int) {
@@ -40,7 +40,7 @@ namespace arrow {
 
         Type getElementFromString(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
         {
-            auto container = std::get<std::string>(statementType.m_variantType);
+            auto & container = std::get<std::string>(statementType.m_variantType);
             auto index = exp->getEvaluator()->evaluate(cache);
             auto deduced = std::get<int64_t>(index.m_variantType);
             if(deduced >= static_cast<int64_t>(container.size())) {
@@ -81,8 +81,8 @@ namespace arrow {
                        key.m_descriptor != TypeDescriptor::ListWord) {
                         throw LanguageException("Expected a string key", m_expression->getLineNumber());
                     }
-                    auto container = std::get<std::map<std::string, Type>>(type.m_variantType);
-                    auto keyStr = std::get<std::string>(key.m_variantType);
+                    auto & container = std::get<std::map<std::string, Type>>(type.m_variantType);
+                    auto & keyStr = std::get<std::string>(key.m_variantType);
                     auto found = container.find(keyStr);
                     if(found != std::end(container)) {
                         return {found->second.m_descriptor, found->second.m_variantType};

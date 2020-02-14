@@ -22,23 +22,28 @@ namespace arrow {
         // already exist
         if(indexEval.m_descriptor == TypeDescriptor::String ||
            indexEval.m_descriptor == TypeDescriptor::ListWord) {
-            // If item already exists and isn't a map, throw
-            std::map<std::string, Type> themap;
+
+            auto mapKey = std::get<std::string>(indexEval.m_variantType);
+            // When already exists, insert by reference
             if(cache.has(cacheKey)) {
-                auto item = cache.get(cacheKey);
-                if(item.m_descriptor != TypeDescriptor::Map) {
+                auto item = cache.findAndRetrieveCached(cacheKey);
+                // If item already exists and isn't a map, throw
+                if(item->second.m_descriptor != TypeDescriptor::Map) {
                     throw LanguageException("Incompatible type",
                                             m_expression->getLineNumber());
                 }
-                themap = std::get<std::map<std::string, Type>>(item.m_variantType);
+                auto & themap = std::get<std::map<std::string, Type>>(item->second.m_variantType);
+                auto found = themap.find(mapKey);
+                if(found != std::end(themap)) {
+                    found->second = incoming;
+                } else {
+                    themap.emplace(mapKey, incoming);
+                }
+                return;
             }
-            auto key = std::get<std::string>(indexEval.m_variantType);
-            auto found = themap.find(key);
-            if(found != std::end(themap)) {
-                found->second = incoming;
-            } else {
-                themap.emplace(key, incoming);
-            }
+            // Else create a brand new map with initial element
+            std::map<std::string, Type> themap;
+            themap.emplace(mapKey, incoming);
             cache.add(cacheKey, {TypeDescriptor::Map, themap});
             return;
         }
@@ -55,17 +60,17 @@ namespace arrow {
                                         m_expression->getLineNumber());
             }
 
-            auto item = cache.get(cacheKey);
-            if(item.m_descriptor == TypeDescriptor::String ||
-                item.m_descriptor == TypeDescriptor::ListWord) {
-                auto str = std::get<std::string>(item.m_variantType);
+            // Assumed to exist given above check
+            auto item = cache.findAndRetrieveCached(cacheKey);
+            if(item->second.m_descriptor == TypeDescriptor::String ||
+                item->second.m_descriptor == TypeDescriptor::ListWord) {
+                auto & str = std::get<std::string>(item->second.m_variantType);
                 if(incoming.m_descriptor != TypeDescriptor::Byte) {
                     throw LanguageException("Incompatible type",
                         m_expression->getLineNumber());
                 }
                 auto theChar = std::get<char>(incoming.m_variantType);
                 str[index] = theChar;
-                cache.add(cacheKey, {item.m_descriptor, str});
                 return;
             }
 

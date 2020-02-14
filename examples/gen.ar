@@ -56,38 +56,47 @@ fn ends_in_punc(word) -> yes {
     }
 }
 
-fn build_representation(L) -> big {
+fn build_representation(L) -> map {
     "" -> a;
     "" -> b;
     "" -> c;
-    [[[]]] -> big;
-    [] -> start;
-    [] -> finish;
     0 -> i;
+    [] -> map:"hello world";
     for a,b,c in L {
         remove_speech_mark(trim(a)) -> a;
         remove_speech_mark(trim(b)) -> b;
         if((a /= "") && (b /= "")) {
             remove_speech_mark(trim(c)) -> c;
-            big matches [??start [^a ^b [??d]] ??finish] -> match;
+            a + " " + b -> key;
+            map_contains(map, key) -> match;
             if(match = false) {
-                [^a ^b [^c]] -> $big;
+                [^c] -> map:key;
             } else {
-                [^a ^b [^^d ^c]] -> node;
-                [^^start ^node ^^finish] -> big;
+                map:key -> orig;
+                c -> $orig;
+                orig -> map:key;
             }
         }
         prn i;
         i + 1 -> i;
+        if(i = 20000) {
+            return;
+        }
     }
 }
 
 fn next_words(representation, word1, word2) -> next {
+
     [] -> next;
+
     if(word1 = "") {
-        representation matches [== [= ^word2 ?next] == ] -> m;
-    } else {
-        representation matches [== [^word1 ^word2 ?next] == ] -> m;
+        "you" -> word1;
+    }
+
+    word1 + " " + word2 -> key;
+    map_contains(representation, key) -> res;
+    if(res) {
+        representation:key -> next;
     }
 }
 
@@ -136,7 +145,9 @@ fn generate_seed_from_input(L) -> seeds {
             if(b matches [am ==]) {
                 "are" -> $seeds;
             } else {
-                b:0 -> $seeds;
+                if (b /= []) {
+                    b:0 -> $seeds;
+                }
             }
         }
         return;
@@ -193,7 +204,7 @@ fn string_to_list(str) -> words {
 }
 
 start {
-    file_read_lines("/Users/bjones/fort.txt", ' ') -> L;
+    file_read_lines("/Users/bjones/hobbit.txt", ' ') -> L;
     build_representation(L) -> representation;
 
     ;;; continue to query the user for new input

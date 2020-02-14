@@ -13,7 +13,7 @@ namespace arrow {
 
         template <typename T>
         StatementResult
-        evaluateContainerElements(T elements,
+        evaluateContainerElements(T const & elements,
                                   std::shared_ptr<Statement> innerStatement,
                                   std::vector<Token> indices,
                                   Cache & cache)
@@ -120,25 +120,28 @@ namespace arrow {
         auto innerStatement = m_statement.getInnerStatement();
         if(evaled.m_descriptor == TypeDescriptor::List ||
            evaled.m_descriptor == TypeDescriptor::ExpressionCollection) {
-            auto elements = std::get<std::vector<Type>>(evaled.m_variantType);
+            auto & elements = std::get<std::vector<Type>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Ints) {
-            auto elements = std::get<std::vector<int64_t>>(evaled.m_variantType);
+            auto & elements = std::get<std::vector<int64_t>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Reals) {
-            auto elements = std::get<std::vector<long double>>(evaled.m_variantType);
+            auto & elements = std::get<std::vector<long double>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Bools) {
-            auto elements = std::get<std::vector<bool>>(evaled.m_variantType);
+            auto & elements = std::get<std::vector<bool>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
-        } else if(evaled.m_descriptor == TypeDescriptor::Strings) {
-            auto elements = std::get<std::vector<std::string>>(evaled.m_variantType);
+        } else if(evaled.m_descriptor == TypeDescriptor::Bytes) {
+            auto & elements = std::get<std::vector<char>>(evaled.m_variantType);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+        }  else if(evaled.m_descriptor == TypeDescriptor::Strings) {
+            auto & elements = std::get<std::vector<std::string>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::String || evaled.m_descriptor == TypeDescriptor::ListWord) {
-            auto elements = std::get<std::string>(evaled.m_variantType);
+            auto & elements = std::get<std::string>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Byte) {
-            auto elements = std::get<std::vector<char>>(evaled.m_variantType);
+            auto & elements = std::get<std::vector<char>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         }
         return StatementResult::Continue;

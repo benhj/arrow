@@ -6,6 +6,7 @@
 #include "TypeDescriptor.hpp"
 #include <deque>
 #include <map>
+#include <optional>
 #include <mutex>
 #include <string>
 
@@ -37,9 +38,10 @@ namespace arrow {
         static void pushReturnValue(Type t);
         static Type getAndPopReturnValue();
 
+        CacheMap::iterator findAndRetrieveCached(std::string identifier) const;
+
       private:
 
-        CacheMap::iterator findAndRetrieveCached(std::string identifier) const;
         std::deque<CacheMap> mutable m_cacheStack;
         std::vector<Type> mutable m_programArguments;
         static std::deque<Type> m_returnStack;

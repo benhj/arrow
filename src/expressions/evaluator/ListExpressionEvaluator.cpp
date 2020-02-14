@@ -17,7 +17,7 @@ namespace arrow {
         for(auto const & part : parts) {
             auto const evaluated = part->getEvaluator()->evaluate(cache);
             if(evaluated.m_descriptor == TypeDescriptor::BracketlessList) {
-                auto innerParts = std::get<std::vector<Type>>(evaluated.m_variantType);
+                auto & innerParts = std::get<std::vector<Type>>(evaluated.m_variantType);
                 for(auto const & inner : innerParts) {
                     elements.push_back(inner);
                 }

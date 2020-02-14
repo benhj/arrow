@@ -16,7 +16,7 @@ namespace arrow {
     {
         auto const expression = m_expression.getExpression();
         auto const col = expression->getEvaluator()->evaluate(cache);
-        auto const expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
+        auto & expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(expressionCollEval.empty()) {
             throw LanguageException("Expected argument", m_expression.getLineNumber());
         }
@@ -25,7 +25,7 @@ namespace arrow {
             throw LanguageException("Not a map", m_expression.getLineNumber());
         }
 
-        auto themap = std::get<std::map<std::string, Type>>(mapEval.m_variantType);
+        auto & themap = std::get<std::map<std::string, Type>>(mapEval.m_variantType);
         std::vector<std::string> keys;
         for(auto const & entry : themap) {
             keys.push_back(entry.first);
