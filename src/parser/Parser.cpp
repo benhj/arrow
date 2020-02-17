@@ -123,26 +123,25 @@ namespace arrow {
         }
 
         if(m_tm.tokenPlusOneNotAtEnd()) {
-            static std::vector<std::function<std::shared_ptr<Statement>(void)>> pvec;
-            if(pvec.empty()) {
-                pvec.emplace_back([this]{return parseBreakStatement();});
-                pvec.emplace_back([this]{return parseReturnStatement();});
-                pvec.emplace_back([this]{return parseFunctionStatement();});
-                pvec.emplace_back([this]{return parseSimpleArrowStatement();});
-                pvec.emplace_back([this]{return parseArrowStatement();});
-                pvec.emplace_back([this]{return parseReleaseStatement();});
-                pvec.emplace_back([this]{return parseSingleExpressionStatement();});
-                pvec.emplace_back([this]{return parseArrowlessStatement();});
-                pvec.emplace_back([this]{return parseRepeatStatement();});
-                pvec.emplace_back([this]{return parseWhileStatement();});
-                pvec.emplace_back([this]{return parseForStatement();});
-                pvec.emplace_back([this]{return parseIfStatement();});
-                pvec.emplace_back([this]{return parseStartStatement();});
-                pvec.emplace_back([this]{return parseAsyncStatement();});
-            }
+            static std::vector<std::function<std::shared_ptr<Statement>(Parser*)>> pvec{
+                [](Parser* t){return t->parseBreakStatement();},
+                [](Parser* t){return t->parseReturnStatement();},
+                [](Parser* t){return t->parseFunctionStatement();},
+                [](Parser* t){return t->parseSimpleArrowStatement();},
+                [](Parser* t){return t->parseArrowStatement();},
+                [](Parser* t){return t->parseReleaseStatement();},
+                [](Parser* t){return t->parseSingleExpressionStatement();},
+                [](Parser* t){return t->parseArrowlessStatement();},
+                [](Parser* t){return t->parseRepeatStatement();},
+                [](Parser* t){return t->parseWhileStatement();},
+                [](Parser* t){return t->parseForStatement();},
+                [](Parser* t){return t->parseIfStatement();},
+                [](Parser* t){return t->parseStartStatement();},
+                [](Parser* t){return t->parseAsyncStatement();},
+            };
             for(auto const & p : pvec) {
                 auto store = m_tm.retrieveIt();
-                auto statement = p();
+                auto statement = p(this);
                 if(statement) {
                     return statement;
                 }

@@ -27,16 +27,15 @@ namespace arrow {
 
     std::shared_ptr<Receiver> ReceiverParser::parseReceiver()
     {
-        static std::vector<std::function<std::shared_ptr<Receiver>(void)>> pvec;
-        if(pvec.empty()) {
-            pvec.emplace_back([this]{return parseFileReceiver();});
-            pvec.emplace_back([this]{return parseArrayAccessorReceiver();});
-            pvec.emplace_back([this]{return parseIdentifierReceiver();});
-            pvec.emplace_back([this]{return parseDollarIdentifierReceiver();});
-        }            
+        static std::vector<std::function<std::shared_ptr<Receiver>(ReceiverParser*)>> pvec{
+            [](ReceiverParser* t){return t->parseFileReceiver();},
+            [](ReceiverParser* t){return t->parseArrayAccessorReceiver();},
+            [](ReceiverParser* t){return t->parseIdentifierReceiver();},
+            [](ReceiverParser* t){return t->parseDollarIdentifierReceiver();},
+        };
         for(auto const & p : pvec) {
             auto store = m_tm.retrieveIt();
-            auto rec = p();
+            auto rec = p(this);
             if(rec) {
                 return rec;
             }
