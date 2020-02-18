@@ -1,0 +1,79 @@
+%YAML 1.2
+---
+name: Arrow
+file_extensions: [ar]
+scope: source.ar
+
+variables:
+  identifier: \b[[:alpha:]_][[:alnum:]_]*\b # upper and lowercase
+
+contexts:
+  main:
+    - match: \b(if|elseif|else|for|while|matches|in|start|break|return|exit)\b
+      scope: keyword.control.flow.arrow
+    - match: "^\\s*(fn)\\s*\\b({{identifier}})\\b"
+      captures:
+        1: keyword.arrow
+        2: entity.name.function.arrow
+    - match: \b([0-9]+)((.[0-9]+)?)\b
+      scope: constant.numeric.arrow
+    - match: \[
+      push: list
+    - match: \]
+      scope: invalid.illegal.stray-bracket-end
+    - match: \(
+      scope: punctuation.section.brackets.begin.arrow
+      push: brackets
+    - match: \)
+      scope: invalid.illegal.stray-bracket-end
+    - match: \{
+      push: curly
+    - match: \}
+      scope: invalid.illegal.stray-bracket-end
+    - match: ;;;
+      scope: punctuation.definition.comment.arrow
+      push: comments
+    - match: '"'
+      push: string
+    - match: ''''
+      push: char
+
+
+  brackets:
+    - meta_scope: meta.group.arrow
+    - match: \)
+      scope: punctuation.section.brackets.end.arrow
+      pop: true
+    - include: main
+
+  list:
+    - match: \]
+      pop: true
+    - include: main
+
+  curly:
+    - match: \}
+      pop: true
+    - include: main
+
+  string:
+    - meta_scope: string.quoted.double.arrow
+    - match: \\.
+      scope: constant.character.escape.arrow
+    - match: '"'
+      pop: true
+
+  char:
+    - meta_scope: string.quoted.single.arrow
+    - match: \\.
+      scope: constant.character.escape.arrow
+    - match: ''''
+      pop: true
+
+  comments:
+    - meta_scope: comment.line.arrow
+    - match: '(\\)$\n'
+      captures:
+        1: punctuation.separator.continuation.arrow
+    - match: \n
+      pop: true 
