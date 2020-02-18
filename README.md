@@ -282,11 +282,14 @@ Arrow allows one to create anonymous objects, which are collections of data, sto
 ;;; store a collection of data (an integer, a list, a real and a string)
 (1, [one two three], 5.5, "hello") -> anon;
 
-;;; access elements
+;;; element access
 anon:0 -> a;   ;;; 1
 anon:1 -> b;   ;;; [one two three]
 anon:2 -> c;   ;;; 5.5
 anon:3 -> d;   ;;; "hello"
+
+;;; element updating
+true -> anon:2;    ;;; 5.5 is now replaced with a boolean
 
 ;;; iterator access
 for d in anon {
