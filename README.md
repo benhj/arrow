@@ -11,11 +11,12 @@ A weakly typed interpreted programming language.
 6. [Lists](#lists)
 7. [List ^ and ^^ operators](#listops)
 8. [Pattern matcher](#patternmatcher)
-9. [Control flow](#control)
-10. [Functions](#functions)
-11. [Program I/O](#io)
-12. [Random number generation](#randomnumbers)
-13. [Interoperability with the operating system](#opinterop)
+9. [Anonymous objects](#anonobjects)
+10. [Control flow](#control)
+11. [Functions](#functions)
+12. [Program I/O](#io)
+13. [Random number generation](#randomnumbers)
+14. [Interoperability with the operating system](#opinterop)
 
 
 ## About <a name="about"></a>
@@ -273,6 +274,25 @@ fn tail(list) -> result {
     }
 }
 
+```
+## Anonymous Objects <a name="anonobjects"></a>
+
+Arrow allows one to create anonymous objects, which are collections of data, stored as a comma-separated list of elements:
+```
+;;; store a collection of data (an integer, a list, a real and a string)
+(1, [one two three], 5.5, "hello") -> anon;
+
+;;; access elements
+anon:0 -> a;   ;;; 1
+anon:1 -> b;   ;;; [one two three]
+anon:2 -> c;   ;;; 5.5
+anon:3 -> d;   ;;; "hello"
+
+;;; iterator access
+for d in anon {
+    ;;; process ith element
+    ;;; etc.
+}
 ```
 
 ## Control flow <a name="control"></a>
