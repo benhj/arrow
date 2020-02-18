@@ -483,22 +483,21 @@ namespace arrow {
 
     std::shared_ptr<Expression> ExpressionParser::parseListExpressionType()
     {
-        static std::vector<std::function<std::shared_ptr<Expression>(void)>> pvec;
-        if(pvec.empty()) {
-            pvec.emplace_back([this]{return parseListWordExpression();});
-            pvec.emplace_back([this]{return parseHatHatStringExpression();});
-            pvec.emplace_back([this]{return parseHatStringExpression();});
-            pvec.emplace_back([this]{return parseQStringExpression();});
-            pvec.emplace_back([this]{return parseQQStringExpression();});
-            pvec.emplace_back([this]{return parseListExpression();});
-            pvec.emplace_back([this]{return parseSingleEqualExpression();});
-            pvec.emplace_back([this]{return parseDoubleEqualExpression();});
-            pvec.emplace_back([this]{return parseLiteralIntExpression();});
-            pvec.emplace_back([this]{return parseLiteralRealExpression();});
-        }
+        static std::vector<std::function<std::shared_ptr<Expression>(ExpressionParser*)>> pvec{
+            [](ExpressionParser* t){return t->parseListWordExpression();},
+            [](ExpressionParser* t){return t->parseHatHatStringExpression();},
+            [](ExpressionParser* t){return t->parseHatStringExpression();},
+            [](ExpressionParser* t){return t->parseQStringExpression();},
+            [](ExpressionParser* t){return t->parseQQStringExpression();},
+            [](ExpressionParser* t){return t->parseListExpression();},
+            [](ExpressionParser* t){return t->parseSingleEqualExpression();},
+            [](ExpressionParser* t){return t->parseDoubleEqualExpression();},
+            [](ExpressionParser* t){return t->parseLiteralIntExpression();},
+            [](ExpressionParser* t){return t->parseLiteralRealExpression();},
+        };
         for(auto const & p : pvec) {
             auto store = m_tm.retrieveIt();
-            auto expression = p();
+            auto expression = p(this);
             if(expression) {
                 return expression;
             }
@@ -511,24 +510,23 @@ namespace arrow {
     ExpressionParser::parseExpression(std::optional<int> prevPrecedence)
     {
         if(m_tm.notAtEnd() && m_tm.tokenPlusOneNotAtEnd()) {
-            static std::vector<std::function<std::shared_ptr<Expression>(void)>> pvec;
-            if(pvec.empty()) {
-                pvec.emplace_back([this]{return parseGroupedExpression();});
-                pvec.emplace_back([this]{return parseExpressionCollectionExpression();});
-                pvec.emplace_back([this]{return parseBracedExpressionCollectionExpression();});
-                pvec.emplace_back([this]{return parseMatchesExpression();});
-                pvec.emplace_back([this]{return parseListExpression();});
-                pvec.emplace_back([this]{return parseLiteralIntExpression();});
-                pvec.emplace_back([this]{return parseLiteralRealExpression();});
-                pvec.emplace_back([this]{return parseFunctionExpression();});
-                pvec.emplace_back([this]{return parseIndexExpression();});
-                pvec.emplace_back([this]{return parseIdentifierExpression();});
-                pvec.emplace_back([this]{return parseLiteralStringExpression();});
-                pvec.emplace_back([this]{return parseLiteralCharExpression();});
-            }
+            static std::vector<std::function<std::shared_ptr<Expression>(ExpressionParser*)>> pvec{
+                [](ExpressionParser* t){return t->parseGroupedExpression();},
+                [](ExpressionParser* t){return t->parseExpressionCollectionExpression();},
+                [](ExpressionParser* t){return t->parseBracedExpressionCollectionExpression();},
+                [](ExpressionParser* t){return t->parseMatchesExpression();},
+                [](ExpressionParser* t){return t->parseListExpression();},
+                [](ExpressionParser* t){return t->parseLiteralIntExpression();},
+                [](ExpressionParser* t){return t->parseLiteralRealExpression();},
+                [](ExpressionParser* t){return t->parseFunctionExpression();},
+                [](ExpressionParser* t){return t->parseIndexExpression();},
+                [](ExpressionParser* t){return t->parseIdentifierExpression();},
+                [](ExpressionParser* t){return t->parseLiteralStringExpression();},
+                [](ExpressionParser* t){return t->parseLiteralCharExpression();},
+            };
             for(auto const & p : pvec) {
                 auto store = m_tm.retrieveIt();
-                auto expression = p();
+                auto expression = p(this);
                 if(expression) {
 
                     store = m_tm.retrieveIt();

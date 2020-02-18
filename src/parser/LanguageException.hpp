@@ -15,26 +15,24 @@ namespace arrow {
           : m_errorString(std::move(errorString))
           , m_lineNumber(lineNumber)
         {
+            update();
         }
-        ~LanguageException() throw(){}
+        ~LanguageException() throw() {}
 
         LanguageException & withErrorString(std::string errorString)
         {
             m_errorString = std::move(errorString);
+            update();
             return *this;
         }
-        LanguageException & withLineNumber(std::string errorString)
+        LanguageException & withLineNumber(long const lineNumber)
         {
-            m_errorString = std::move(errorString);
+            m_lineNumber = lineNumber;
+            update();
             return *this;
         }
         char const * report(bool const withLineNumber) const{
-            std::string errorStr(m_errorString);
-            if(withLineNumber) {
-                errorStr.append(" on line number ")
-                        .append(std::to_string(m_lineNumber));
-            }
-            return errorStr.c_str();
+            return withLineNumber ? m_errorStringWithLineNum.c_str() : m_errorString.c_str();
         }
 
         char const * what() const throw (){
@@ -42,7 +40,11 @@ namespace arrow {
         }
 
       private:
-        std::string m_errorString;
+        std::string m_errorString, m_errorStringWithLineNum;
         long m_lineNumber;
+
+        void update() {
+            m_errorStringWithLineNum = m_errorString + " on line number " + std::to_string(m_lineNumber);
+        }
     };
 }
