@@ -9,7 +9,7 @@ variables:
 
 contexts:
   main:
-    - match: \b(if|elseif|else|for|while|matches|in|start|break|return|exit)\b
+    - match: \b(if|elseif|else|for|while|matches|in|start|break|return|exit|repeat)\b
       scope: keyword.control.flow.arrow
     - match: "^\\s*(fn)\\s*\\b({{identifier}})\\b"
       captures:
@@ -17,6 +17,8 @@ contexts:
         2: entity.name.function.arrow
     - match: \b([0-9]+)((.[0-9]+)?)\b
       scope: constant.numeric.arrow
+    - match: \b(true|false)\b
+      scope: constant.boolean.arrow
     - match: \[
       push: list
     - match: \]

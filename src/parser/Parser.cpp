@@ -12,7 +12,6 @@
 
 /// Statements
 #include "statements/AnsiStatement.hpp"
-#include "statements/ArgStatement.hpp"
 #include "statements/ArrowlessStatement.hpp"
 #include "statements/ArrowStatement.hpp"
 #include "statements/AsyncStatement.hpp"
@@ -24,7 +23,6 @@
 #include "statements/ForStatement.hpp"
 #include "statements/FunctionStatement.hpp"
 #include "statements/IfStatement.hpp"
-#include "statements/LengthStatement.hpp"
 #include "statements/LoopBreakStatement.hpp"
 #include "statements/ReleaseStatement.hpp"
 #include "statements/RepeatStatement.hpp"
@@ -78,7 +76,7 @@ namespace arrow {
         Cache notUsed;
 
         while(m_tm.notAtEnd()) {
-            auto expression = m_ep.parseLiteralIntExpression();
+            auto expression = m_ep.parseExpression();
             if(!expression) {
                 break;
             }
@@ -116,7 +114,6 @@ namespace arrow {
 
     std::shared_ptr<Statement> Parser::buildStatement()
     {
-
         // Skip any comments
         while(m_tm.currentToken().lexeme == Lexeme::COMMENT) {
             m_tm.advanceTokenIterator();
@@ -198,10 +195,6 @@ namespace arrow {
                             if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
                                 if(keyword == "stoi") {
                                     return std::make_shared<StringToIntStatement>(ln, *arrowStatement, m_os);
-                                } else if(keyword == "arg") {
-                                    return std::make_shared<ArgStatement>(ln, *arrowStatement, m_os);
-                                } else if(keyword == "length") {
-                                    return std::make_shared<LengthStatement>(ln, *arrowStatement, m_os);
                                 }
                                 return arrowStatement;
                             }

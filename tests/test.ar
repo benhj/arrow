@@ -337,12 +337,81 @@ fn maps() {
         [^^vals ^value] -> vals;
     }
 
-    ;;; interpret list as a bracketed pod type
+    ;;; interpret list as an anonymous object
     0 -> score;
     test((map:"a", map:"b", map:"c", map:"d", map:"e", map:"f"), vals, score) -> score;
 
     print_score(1, score);
     prn "     (maps)";
+}
+
+fn anonymous_objects() {
+    0 -> score;
+    (1, [one two three], 1.1, true) -> object;
+
+    ;;; element access
+    test(object:0, 1, score) -> score;
+    test(object:1, [one two three], score) -> score;
+    test(object:2, 1.1, score) -> score;
+    test(object:3, true, score) -> score;
+
+    ;;; an anonymous object can be interpreted as a list
+    object:0 -> a;
+    object:1 -> b;
+    object:2 -> c;
+    object:3 -> d;
+    [^a ^b ^c ^d] -> list;
+    test(object, list, score) -> score;
+
+    ;;; element update
+    "hello" -> object:2;
+    object:2 -> c;
+    [^a ^b ^c ^d] -> list;
+    test(object, list, score) -> score;
+
+    print_score(6, score);
+    prn "     (anonymous_objects)";
+}
+
+fn for_loop_multi_element() {
+    0 -> score;
+
+    ;;; build a copy of a list using single
+    ;;; for-loop element access
+    [one two three] -> list;
+    [] -> copy;
+    for i in list {
+        [^^copy ^i] -> copy;
+    }
+    test(list, copy, score) -> score;
+
+    ;;; build a new list using double element access
+    [] -> copy;
+    "" -> j;
+    for i,j in list {
+        [^^copy ^i ^j] -> copy;
+    }
+
+    ;;; resulting list should look like this
+    [one two two three three three] -> res;
+    test(copy, res, score) -> score;
+
+    print_score(2, score);
+    prn "     (for_loop_multi_element)";
+}
+
+fn builtin_length() {
+    0 -> score;
+
+    test(5, length("hello"), score) -> score;
+    test(3, length([one two three]), score) -> score;
+    test(4, length({1, 2, 3, 4}), score) -> score;
+    test(5, length({1.1, 2.2, 3.3, 4.4, 5.5}), score) -> score;
+    test(2, length({true, false}), score) -> score;
+    test(3, length({'a', 'b', 'c'}), score) -> score;
+
+    print_score(6, score);
+    prn "     (builtin_length)";
 }
 
 start {
@@ -355,4 +424,7 @@ start {
     lists();
     pattern_matcher();
     maps();
+    anonymous_objects();
+    for_loop_multi_element();
+    builtin_length();
 }

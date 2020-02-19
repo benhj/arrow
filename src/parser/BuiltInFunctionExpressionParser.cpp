@@ -2,6 +2,8 @@
 
 #include "BuiltInFunctionExpressionParser.hpp"
 #include "builtin/BuiltInFunctionExpressionBuilder.hpp"
+#include "builtin/ArgExpression.hpp"
+#include "builtin/LengthExpression.hpp"
 #include "builtin/MapContainsFunctionExpression.hpp"
 #include "builtin/MapKeysFunctionExpression.hpp"
 #include "builtin/RandomFunctionExpression.hpp"
@@ -31,6 +33,8 @@ namespace arrow {
     {
         auto const ln = m_tm.currentToken().lineNumber;
         if(m_builtins.empty()) {
+            m_builtins.emplace_back(std::make_shared<ArgExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<LengthExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<MapContainsFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<MapKeysFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<RandomFunctionExpressionBuilder>());

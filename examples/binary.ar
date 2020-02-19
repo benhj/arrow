@@ -29,7 +29,7 @@ fn binary (number) -> binaryString {
 ;;; requires an input program argument.
 start {
     ;;; get first program argument
-    arg 0 -> a;
+    arg(0) -> a;
 
     ;;; convert to a binary representation
     prn binary(a);

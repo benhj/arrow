@@ -509,26 +509,27 @@ namespace arrow {
     std::shared_ptr<Expression> 
     ExpressionParser::parseExpression(std::optional<int> prevPrecedence)
     {
-        if(m_tm.notAtEnd() && m_tm.tokenPlusOneNotAtEnd()) {
-            static std::vector<std::function<std::shared_ptr<Expression>(ExpressionParser*)>> pvec{
-                [](ExpressionParser* t){return t->parseGroupedExpression();},
-                [](ExpressionParser* t){return t->parseExpressionCollectionExpression();},
-                [](ExpressionParser* t){return t->parseBracedExpressionCollectionExpression();},
-                [](ExpressionParser* t){return t->parseMatchesExpression();},
-                [](ExpressionParser* t){return t->parseListExpression();},
-                [](ExpressionParser* t){return t->parseLiteralIntExpression();},
-                [](ExpressionParser* t){return t->parseLiteralRealExpression();},
-                [](ExpressionParser* t){return t->parseFunctionExpression();},
-                [](ExpressionParser* t){return t->parseIndexExpression();},
-                [](ExpressionParser* t){return t->parseIdentifierExpression();},
-                [](ExpressionParser* t){return t->parseLiteralStringExpression();},
-                [](ExpressionParser* t){return t->parseLiteralCharExpression();},
-            };
-            for(auto const & p : pvec) {
-                auto store = m_tm.retrieveIt();
-                auto expression = p(this);
-                if(expression) {
-
+        static std::vector<std::function<std::shared_ptr<Expression>(ExpressionParser*)>> pvec{
+            [](ExpressionParser* t){return t->parseGroupedExpression();},
+            [](ExpressionParser* t){return t->parseExpressionCollectionExpression();},
+            [](ExpressionParser* t){return t->parseBracedExpressionCollectionExpression();},
+            [](ExpressionParser* t){return t->parseMatchesExpression();},
+            [](ExpressionParser* t){return t->parseListExpression();},
+            [](ExpressionParser* t){return t->parseLiteralIntExpression();},
+            [](ExpressionParser* t){return t->parseLiteralRealExpression();},
+            [](ExpressionParser* t){return t->parseFunctionExpression();},
+            [](ExpressionParser* t){return t->parseIndexExpression();},
+            [](ExpressionParser* t){return t->parseIdentifierExpression();},
+            [](ExpressionParser* t){return t->parseLiteralStringExpression();},
+            [](ExpressionParser* t){return t->parseLiteralCharExpression();},
+        };
+        for(auto const & p : pvec) {
+            auto store = m_tm.retrieveIt();
+            auto expression = p(this);
+            if(expression) {
+                // If more tokens, might be able to match on a
+                // boolean or math expression.
+                if(m_tm.tokenPlusOneNotAtEnd()) {
                     store = m_tm.retrieveIt();
                     auto booleanEval = parseBooleanExpression(expression, prevPrecedence);
                     if(booleanEval) {
@@ -541,11 +542,12 @@ namespace arrow {
                         return mathEval;
                     }
                     m_tm.revert(store);
-                    return expression;
                 }
-                m_tm.revert(store);
+                return expression;
             }
+            m_tm.revert(store);
         }
+        
         return nullptr;
     }
 }

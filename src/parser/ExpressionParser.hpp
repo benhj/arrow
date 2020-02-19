@@ -16,6 +16,7 @@ namespace arrow {
       public:
         ExpressionParser(TokenManager & tm);
         ExpressionParser() = delete;
+
         std::shared_ptr<Expression> parseExpression(std::optional<int> = std::nullopt);
 
         std::shared_ptr<Expression> parseLiteralIntExpression();

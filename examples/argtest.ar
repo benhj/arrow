@@ -1,0 +1,4 @@
+start {
+    arg(0) -> a;
+    prn a;
+}

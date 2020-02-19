@@ -6,6 +6,6 @@ fn factorial(n) -> f {
 }
 
 start {
-    arg 0 -> N;
+    arg(0) -> N;
     pr "result: "; prn factorial(N);
 }
