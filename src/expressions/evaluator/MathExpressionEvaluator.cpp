@@ -16,31 +16,31 @@ namespace arrow {
         {
         }
 
-        long double operator()(std::string left,
+        real operator()(std::string left,
                                std::string right) const
         {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }
-        long double operator()(std::vector<Type> left,
+        real operator()(std::vector<Type> left,
                                std::vector<Type> right) const
         {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }
-        long double operator()(std::map<std::string, Type> left,
+        real operator()(std::map<std::string, Type> left,
                                std::map<std::string, Type> right) const
         {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }
 
         template <class Left, class Right>
-        long double operator()(Left left, Right right) const
+        real operator()(Left left, Right right) const
         {
             if constexpr(std::is_same_v<Left, Right> &&
                          !std::is_same_v<Left, std::string> &&
                          !std::is_same_v<Left, std::vector<Type>> &&
                          !std::is_same_v<Left, std::vector<bool>> &&
                          !std::is_same_v<Left, std::vector<int64_t>>  &&
-                         !std::is_same_v<Left, std::vector<long double>> &&
+                         !std::is_same_v<Left, std::vector<real>> &&
                          !std::is_same_v<Left, std::vector<std::string>> &&
                          !std::is_same_v<Left, std::vector<char>> &&
                          !std::is_same_v<Left, char>) {
@@ -59,7 +59,7 @@ namespace arrow {
                         return std::fmod(left, right);
                     } 
                 }
-                if constexpr(!std::is_same_v<Left, long double> &&
+                if constexpr(!std::is_same_v<Left, real> &&
                                      std::is_same_v<Left, Right>) {
                     if(m_op == "^") {
                         return left ^ right;
@@ -107,7 +107,7 @@ namespace arrow {
                     str = str.append(std::to_string(std::get<int64_t>(deducedRight.m_variantType)));
                     return {TypeDescriptor::String, str};
                 } else if(deducedRight.m_descriptor == TypeDescriptor::Real) {
-                    str = str.append(std::to_string(std::get<long double>(deducedRight.m_variantType)));
+                    str = str.append(std::to_string(std::get<real>(deducedRight.m_variantType)));
                     return {TypeDescriptor::String, str};
                 } else if(deducedRight.m_descriptor == TypeDescriptor::Bool) {
                     str = str.append(std::to_string(std::get<bool>(deducedRight.m_variantType)));
@@ -125,12 +125,12 @@ namespace arrow {
             if(deducedLeft.m_descriptor == TypeDescriptor::Int) {
                 auto const val = std::get<int64_t>(deducedLeft.m_variantType);
                 deducedLeft.m_descriptor = TypeDescriptor::Real;
-                deducedLeft.m_variantType = static_cast<long double>(val);
+                deducedLeft.m_variantType = static_cast<real>(val);
             }
             if(deducedRight.m_descriptor == TypeDescriptor::Int) {
                 auto const val = std::get<int64_t>(deducedRight.m_variantType);
                 deducedRight.m_descriptor = TypeDescriptor::Real;
-                deducedRight.m_variantType = static_cast<long double>(val);
+                deducedRight.m_variantType = static_cast<real>(val);
             }
         }
 

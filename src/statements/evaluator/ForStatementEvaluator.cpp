@@ -1,10 +1,11 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "ForStatementEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "expressions/IdentifierExpression.hpp"
 #include "parser/LanguageException.hpp"
 #include "statements/ElseIfStatement.hpp"
+#include "representation/real.hpp"
 #include <utility>
 
 namespace arrow {
@@ -45,7 +46,7 @@ namespace arrow {
                         cache.add(index.raw, {TypeDescriptor::Int, *(it + step)});
                         ++step;
                     }
-                } else if constexpr (std::is_same_v<typename T::value_type, long double>) {
+                } else if constexpr (std::is_same_v<typename T::value_type, real>) {
                     auto step = 0;
                     for(auto const & index : indices) {
                         if((it + step) == std::end(elements)) {
@@ -126,7 +127,7 @@ namespace arrow {
             auto & elements = std::get<std::vector<int64_t>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Reals) {
-            auto & elements = std::get<std::vector<long double>>(evaled.m_variantType);
+            auto & elements = std::get<std::vector<real>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
         } else if(evaled.m_descriptor == TypeDescriptor::Bools) {
             auto & elements = std::get<std::vector<bool>>(evaled.m_variantType);

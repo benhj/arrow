@@ -23,11 +23,11 @@ namespace arrow {
         auto const eval = expressionCollEval[0];
         if(eval.m_descriptor == TypeDescriptor::Int) {
             auto casted = std::get<int64_t>(eval.m_variantType);
-            auto val = static_cast<long double>(sqrt(casted));
+            auto val = static_cast<real>(sqrt(casted));
             return {TypeDescriptor::Real, val};
         } else if(eval.m_descriptor == TypeDescriptor::Real) {
-            auto casted = std::get<long double>(eval.m_variantType);
-            auto val = static_cast<long double>(sqrt(casted));
+            auto casted = std::get<real>(eval.m_variantType);
+            auto val = static_cast<real>(sqrt(casted));
             return {TypeDescriptor::Real, val};
         } else {
             throw LanguageException("Bad type for sqrt", m_expression.getLineNumber());

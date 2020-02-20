@@ -65,7 +65,7 @@ namespace arrow {
                 if(remType.m_descriptor == TypeDescriptor::Int) {
                     return add<int64_t>(cache, std::move(expressions), TypeDescriptor::Ints);
                 } else if(remType.m_descriptor == TypeDescriptor::Real) {
-                    return add<long double>(cache, std::move(expressions), TypeDescriptor::Reals);
+                    return add<real>(cache, std::move(expressions), TypeDescriptor::Reals);
                 } else if(remType.m_descriptor == TypeDescriptor::Bool) {
                     return add<bool>(cache, std::move(expressions), TypeDescriptor::Bools);
                 } else if(remType.m_descriptor == TypeDescriptor::String) {

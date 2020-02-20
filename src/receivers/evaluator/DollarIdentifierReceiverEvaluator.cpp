@@ -15,7 +15,7 @@ namespace arrow {
         void addIntToRealVector(Type evaluated, Cache & cache, std::string identifier) {
             // This is always assumed to succeed
             auto found = cache.findAndRetrieveCached(std::move(identifier));
-            auto & vec = std::get<std::vector<long double>>(found->second.m_variantType);
+            auto & vec = std::get<std::vector<real>>(found->second.m_variantType);
             auto deduced = std::get<int64_t>(evaluated.m_variantType);
             vec.push_back(deduced);
         }    
@@ -66,7 +66,7 @@ namespace arrow {
                 if(evaluated.m_descriptor == TypeDescriptor::Int) {
                     addIntToRealVector(std::move(evaluated), cache, std::move(identifier));
                 } else {
-                    add<long double>(std::move(evaluated), cache, std::move(identifier));
+                    add<real>(std::move(evaluated), cache, std::move(identifier));
                 }
             } else if(orig.m_descriptor == TypeDescriptor::Bools &&
                 evaluated.m_descriptor == TypeDescriptor::Bool) {
@@ -101,7 +101,7 @@ namespace arrow {
 
         } else if (evaluated.m_descriptor == TypeDescriptor::Real) {
 
-            add<long double>(std::move(evaluated),
+            add<real>(std::move(evaluated),
                              cache, TypeDescriptor::Reals,
                              std::move(identifier));
 

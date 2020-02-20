@@ -52,9 +52,9 @@ namespace arrow {
             static Dist uid {};
             return {TypeDescriptor::Int, uid(re, Dist::param_type{0, val})};
         } else if(t.m_descriptor == TypeDescriptor::Real) {
-            using Dist = std::uniform_real_distribution<long double>;
+            using Dist = std::uniform_real_distribution<real>;
             static Dist udd {};
-            auto const val = std::get<long double>(t.m_variantType);
+            auto const val = std::get<real>(t.m_variantType);
             return {TypeDescriptor::Real, udd(re, Dist::param_type{0, val})};
         } else if(t.m_descriptor == TypeDescriptor::List) {
             auto const list = std::get<std::vector<Type>>(t.m_variantType);
@@ -72,7 +72,7 @@ namespace arrow {
             auto const vec = std::get<std::vector<int64_t>>(t.m_variantType);
             return {TypeDescriptor::Int, vec[getRandomLong(vec.size() - 1)]};
         } else if(t.m_descriptor == TypeDescriptor::Reals) {
-            auto const vec = std::get<std::vector<long double>>(t.m_variantType);
+            auto const vec = std::get<std::vector<real>>(t.m_variantType);
             return {TypeDescriptor::Real, vec[getRandomLong(vec.size() - 1)]};
         }   
 

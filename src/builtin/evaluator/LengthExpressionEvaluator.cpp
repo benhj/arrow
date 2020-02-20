@@ -1,6 +1,5 @@
 /// (c) Ben Jones 2020 - present
 
-
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include "parser/Parser.hpp"
@@ -54,7 +53,7 @@ namespace arrow {
                 theLength = getLength<int64_t>(t);
                 break;
             case TypeDescriptor::Reals:
-                theLength = getLength<long double>(t);
+                theLength = getLength<real>(t);
                 break;
             case TypeDescriptor::Bools:
                 theLength = getLength<bool>(t);

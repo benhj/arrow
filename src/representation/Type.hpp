@@ -34,7 +34,7 @@ namespace arrow {
                     }
                     return "[]";
                 } else if constexpr(std::is_same_v<Var, std::vector<int64_t>> ||
-                                    std::is_same_v<Var, std::vector<long double>> ||
+                                    std::is_same_v<Var, std::vector<real>> ||
                                     std::is_same_v<Var, std::vector<bool>> ||
                                     std::is_same_v<Var, std::vector<char>> ||
                                     std::is_same_v<Var, std::vector<std::string>>) {

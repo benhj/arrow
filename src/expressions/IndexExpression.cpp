@@ -27,7 +27,7 @@ namespace arrow {
                 return container[deduced];
             } else if constexpr(std::is_same_v<T, int64_t>) {
                 return {TypeDescriptor::Int, container[deduced]};
-            } else if constexpr(std::is_same_v<T, long double>) {
+            } else if constexpr(std::is_same_v<T, real>) {
                 return {TypeDescriptor::Real, container[deduced]};
             } else if constexpr(std::is_same_v<T, bool>) {
                 return {TypeDescriptor::Bool, container[deduced]};
@@ -107,7 +107,7 @@ namespace arrow {
                     case TypeDescriptor::Ints:
                         return getElement<int64_t>(std::move(type), std::move(m_expression), cache);
                     case TypeDescriptor::Reals:
-                        return getElement<long double>(std::move(type), std::move(m_expression), cache);
+                        return getElement<real>(std::move(type), std::move(m_expression), cache);
                     case TypeDescriptor::Bools:
                         return getElement<bool>(std::move(type), std::move(m_expression), cache);
                     case TypeDescriptor::Strings:

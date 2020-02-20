@@ -414,6 +414,30 @@ fn builtin_length() {
     prn "     (builtin_length)";
 }
 
+fn types() {
+    0 -> score;
+    test("int", type(1), score) -> score;
+    test("real", type(3.14), score) -> score;
+    test("list", type([one two]), score) -> score;
+    test("byte", type('c'), score) -> score;
+    test("string", type("hello"), score) -> score;
+    test("ints", type({1, 2, 3, 4}), score) -> score;
+    test("reals", type({1.1, 2.2, 3.3, 4.4, 5.5}), score) -> score;
+    test("bools", type({true, false}), score) -> score;
+    test("bytes", type({'a', 'b', 'c'}), score) -> score;
+    test("strings", type({"hello", "world"}), score) -> score;
+
+    ;;; type not found for identifier, so is identified as 'nil'
+    test("nil", type(a), score) -> score;
+
+    ;;; make sure that type can be pulled from identifier
+    1 -> a;
+    test("int", type(a), score) -> score;
+
+    print_score(12, score);
+    prn "     (types)";
+}
+
 start {
     basic();
     int_array();
@@ -427,4 +451,5 @@ start {
     anonymous_objects();
     for_loop_multi_element();
     builtin_length();
+    types();
 }

@@ -13,6 +13,7 @@
 #include "builtin/SystemCommandExpression.hpp"
 #include "builtin/TrimStringFunctionExpression.hpp"
 #include "builtin/TokenizeFunctionExpression.hpp"
+#include "builtin/TypeExpression.hpp"
 #include "builtin/filesystem/FileReadLinesFunctionExpression.hpp"
 #include "builtin/filesystem/FileReadBytesFunctionExpression.hpp"
 #include "builtin/filesystem/FileWriteBytesFunctionExpression.hpp"
@@ -44,6 +45,7 @@ namespace arrow {
             m_builtins.emplace_back(std::make_shared<SystemCommandExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<TokenizeFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<TrimStringFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<TypeExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FileReadLinesFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FolderListFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<FolderListRecursiveFunctionExpressionBuilder>());

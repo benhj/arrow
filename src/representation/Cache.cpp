@@ -102,8 +102,8 @@ namespace arrow {
             auto tval = std::get<int64_t>(type.m_variantType);
             casted.push_back(tval);
         } else if(found->second.m_descriptor == TypeDescriptor::Reals) {
-            auto & casted = std::get<std::vector<long double>>(found->second.m_variantType);
-            auto tval = std::get<long double>(type.m_variantType);
+            auto & casted = std::get<std::vector<real>>(found->second.m_variantType);
+            auto tval = std::get<real>(type.m_variantType);
             casted.push_back(tval);
         } else if(found->second.m_descriptor == TypeDescriptor::Strings) {
             auto & casted = std::get<std::vector<std::string>>(found->second.m_variantType);
@@ -133,7 +133,7 @@ namespace arrow {
                 updateArray<int64_t>(found->second.m_variantType, type, index);
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Real) {
-                updateArray<long double>(found->second.m_variantType, type, index);
+                updateArray<real>(found->second.m_variantType, type, index);
                 return;
             } else if(type.m_descriptor == TypeDescriptor::String) {
                 updateArray<std::string>(found->second.m_variantType, type, index);
@@ -164,7 +164,7 @@ namespace arrow {
             }
         }
         {
-            auto result = tryErase<long double>(found->second.m_variantType, index);
+            auto result = tryErase<real>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;

@@ -4,13 +4,14 @@
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include "statements/ElseIfStatement.hpp"
+#include "representation/real.hpp"
 #include <utility>
 
 namespace arrow {
 
     namespace {
         StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                          Cache & cache)
+                                     Cache & cache)
         {
             for(auto const & statement : bodyStatements) {
                 auto const result = statement->getEvaluator()->evaluate(cache);
@@ -41,7 +42,7 @@ namespace arrow {
         }
         int64_t val;
         if(resolved.m_descriptor == TypeDescriptor::Real) {
-            auto result = std::get<long double>(resolved.m_variantType);
+            auto result = std::get<real>(resolved.m_variantType);
             val = static_cast<int64_t>(result);
         } else {
             val = std::get<int64_t>(resolved.m_variantType);

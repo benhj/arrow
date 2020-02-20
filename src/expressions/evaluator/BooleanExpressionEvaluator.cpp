@@ -72,7 +72,7 @@ namespace arrow {
                 } else if(m_op == "&&") {
                     if constexpr(!std::is_same_v<Left, std::vector<bool>> &&
                                  !std::is_same_v<Left, std::vector<int64_t>>  &&
-                                 !std::is_same_v<Left, std::vector<long double>> &&
+                                 !std::is_same_v<Left, std::vector<real>> &&
                                  !std::is_same_v<Left, std::vector<char>> &&
                                  !std::is_same_v<Left, std::vector<std::string>>) {
                         return left && right;
@@ -80,7 +80,7 @@ namespace arrow {
                 } else if(m_op == "||") {
                     if constexpr(!std::is_same_v<Left, std::vector<bool>> &&
                                  !std::is_same_v<Left, std::vector<int64_t>>  &&
-                                 !std::is_same_v<Left, std::vector<long double>> &&
+                                 !std::is_same_v<Left, std::vector<real>> &&
                                  !std::is_same_v<Left, std::vector<char>> &&
                                  !std::is_same_v<Left, std::vector<std::string>>) {
                         return left || right;
