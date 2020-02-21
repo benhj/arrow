@@ -45,17 +45,17 @@
 
 namespace arrow {
 
-    std::map<std::string, std::shared_ptr<FunctionStatement>> Parser::m_functions{};
-
-    Parser::Parser(std::vector<Token> tokens, std::ostream & os)
+    Parser::Parser(std::vector<Token> tokens,
+                   Environment & environment,
+                   std::ostream & os)
       : m_tm(std::move(tokens))
+      , m_environment(environment)
       , m_os(os)
       , m_ep(m_tm)
       , m_rp(m_tm)
       , m_startStatement(nullptr)
       , m_statements()
     {
-        m_functions.clear();
     }
 
     void Parser::parse()
@@ -70,21 +70,19 @@ namespace arrow {
         }
     }
 
-    std::vector<Type> Parser::parseProgramArguments()
+    void Parser::parseProgramArguments()
     {
         std::vector<Type> types;
-        Environment notUsed;
-
         while(m_tm.notAtEnd()) {
             auto expression = m_ep.parseExpression();
             if(!expression) {
                 break;
             }
-            auto const evaluated = expression->getEvaluator()->evaluate(notUsed);
+            auto const evaluated = expression->getEvaluator()->evaluate(m_environment);
             types.push_back(evaluated);
+            m_environment.pushProgramArgument(evaluated);
             m_tm.advanceTokenIterator();
         }
-        return types;
     }
 
     std::shared_ptr<Statement> Parser::getStartStatement() const
@@ -95,21 +93,6 @@ namespace arrow {
     std::vector<std::shared_ptr<Statement>> Parser::getStatements() const
     {
         return m_statements;
-    }
-
-    std::shared_ptr<FunctionStatement> Parser::getFunction(std::string identifier)
-    {
-        auto found = std::find_if(std::begin(m_functions),
-                                  std::end(m_functions),
-                                  [identifier{std::move(identifier)}]
-                                  (auto const & p) {
-            return p.first == identifier;
-        });
-
-        if(found != std::end(m_functions)) {
-            return found->second;
-        }
-        return nullptr;
     }
 
     std::shared_ptr<Statement> Parser::buildStatement()
@@ -555,7 +538,7 @@ namespace arrow {
             return nullptr;
         }
         functionStatement->withInnerStatement(std::move(innerStatement));
-        m_functions.emplace(theName.raw, functionStatement);
+        m_environment.addFunctionStatement(theName.raw, functionStatement);
         return functionStatement;
     }
 

@@ -10,7 +10,8 @@ namespace arrow {
     enum class StatementResult {
         Break,
         Return,
-        Continue
+        Continue,
+        Exit
     };
 
     class StatementEvaluator

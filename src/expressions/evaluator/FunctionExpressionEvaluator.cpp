@@ -5,7 +5,6 @@
 #include "statements/evaluator/StatementEvaluator.hpp"
 #include "IdentifierEvaluator.hpp"
 #include "expressions/IdentifierExpression.hpp"
-#include "parser/Parser.hpp"
 #include "parser/LanguageException.hpp"
 #include "statements/FunctionStatement.hpp"
 #include "utility/ThreadManager.hpp"
@@ -35,7 +34,7 @@ namespace arrow {
         auto const expressionCollEval = std::get<std::vector<Type>>(t.m_variantType);
 
         // Get the function to evaluate
-        auto functionStatement = Parser::getFunction(name);
+        auto functionStatement = environment.getFunction(name);
         if(!functionStatement) {
             throw LanguageException("Can't find function", callLineNumber);
         }
@@ -51,9 +50,11 @@ namespace arrow {
         }
 
         // The function has its own completely
-        // isolated, local environment, so need to create
-        // a new one here.
+        // isolated, local environment but the function
+        // lookup table and argument maps should be inherited.
         Environment newEnvironment;
+        newEnvironment.withFunctions(environment.getFunctions());
+        newEnvironment.withProgramArgs(environment.getProgramArgs());
 
         // Push in parameters into new environment. The function
         // will then access these parameters
@@ -65,7 +66,10 @@ namespace arrow {
             ++param;
         }
 
-        functionStatement->getEvaluator()->evaluate(newEnvironment);
+        auto result = functionStatement->getEvaluator()->evaluate(newEnvironment);
+        if(result == StatementResult::Exit) {
+            environment.setExitState();
+        }
         auto const funcReturnIdentifier = functionStatement->getReturnIdentifier();
         if(funcReturnIdentifier.lexeme != Lexeme::NIL) {
             return newEnvironment.get(funcReturnIdentifier.raw);

@@ -40,12 +40,41 @@ namespace arrow {
         }
     }
 
-    std::deque<Type> Environment::m_returnStack;
-
     Environment::Environment()
       : m_environmentStack{}
+      , m_functions()
+      , m_programArguments()
+      , m_exitState(false)
     {
         pushEnvironmentLayer();
+    }
+
+    Environment &
+    Environment::withFunctions(std::map<std::string, std::shared_ptr<FunctionStatement>> funcs)
+    {
+        m_functions = std::move(funcs);
+        return *this;
+    }
+
+    Environment & Environment::withProgramArgs(std::vector<Type> progArgs)
+    {
+        m_programArguments = std::move(progArgs);
+        return *this;
+    }
+
+    std::vector<Type> Environment::getProgramArgs() const
+    {
+        return m_programArguments;
+    }
+
+    bool Environment::getExitState() const
+    {
+        return m_exitState;
+    }
+
+    void Environment::setExitState()
+    {
+        m_exitState = true;
     }
 
     Environment::EnvironmentMap::iterator
@@ -210,17 +239,34 @@ namespace arrow {
     {
         m_environmentStack.pop_front();
     }
+    void Environment::addFunctionStatement(std::string identifier,
+                                           std::shared_ptr<FunctionStatement> func)
+    {
+        m_functions.emplace(std::move(identifier), std::move(func));
+    }
 
-    void Environment::pushReturnValue(Type t)
+    std::shared_ptr<FunctionStatement>
+    Environment::getFunction(std::string identifier) const
     {
-        m_returnStack.push_front(std::move(t));
+        auto found = std::find_if(std::begin(m_functions),
+                                  std::end(m_functions),
+                                  [identifier{std::move(identifier)}]
+                                  (auto const & p) {
+            return p.first == identifier;
+        });
+
+        if(found != std::end(m_functions)) {
+            return found->second;
+        }
+        return nullptr;
     }
-    Type Environment::getAndPopReturnValue()
+
+    std::map<std::string, std::shared_ptr<FunctionStatement>>
+    Environment::getFunctions() const
     {
-        auto t = m_returnStack[0];
-        m_returnStack.pop_front();
-        return t;
+        return m_functions;
     }
+
     void Environment::pushProgramArgument(Type arg)
     {
         m_programArguments.push_back(std::move(arg));

@@ -15,6 +15,9 @@ namespace arrow {
                 if(result != StatementResult::Continue) {
                     return result;
                 }
+                if(environment.getExitState()) {
+                    return StatementResult::Exit;
+                }
             }
             return StatementResult::Continue;
         }
