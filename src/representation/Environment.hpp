@@ -42,7 +42,7 @@ namespace arrow {
 
       private:
 
-        std::deque<EnvironmentMap> mutable m_cacheStack;
+        std::deque<EnvironmentMap> mutable m_environmentStack;
         std::vector<Type> mutable m_programArguments;
         static std::deque<Type> m_returnStack;
         std::mutex mutable m_mutex;

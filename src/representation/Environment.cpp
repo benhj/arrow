@@ -43,14 +43,15 @@ namespace arrow {
     std::deque<Type> Environment::m_returnStack;
 
     Environment::Environment()
-      : m_cacheStack{}
+      : m_environmentStack{}
     {
         pushEnvironmentLayer();
     }
 
-    Environment::EnvironmentMap::iterator Environment::findAndRetrieveCached(std::string identifier) const
+    Environment::EnvironmentMap::iterator
+    Environment::findAndRetrieveCached(std::string identifier) const
     {
-        for (auto & layer : m_cacheStack) {
+        for (auto & layer : m_environmentStack) {
             auto found = layer.find(identifier);
             if(found != std::end(layer)) {
                 return found;
@@ -75,7 +76,7 @@ namespace arrow {
             return;
         }
         // Add brand new instance
-        m_cacheStack[0].emplace(identifier, type);
+        m_environmentStack[0].emplace(identifier, type);
     }
     bool Environment::has(std::string identifier) const
     {
@@ -84,7 +85,7 @@ namespace arrow {
     }
     void Environment::remove(std::string identifier) const
     {
-        for (auto & layer : m_cacheStack) {
+        for (auto & layer : m_environmentStack) {
             auto found = layer.find(identifier);
             if(found != std::end(layer)) {
                 layer.erase(found);
@@ -203,11 +204,11 @@ namespace arrow {
 
     void Environment::pushEnvironmentLayer()
     {
-        m_cacheStack.emplace_front(EnvironmentMap());
+        m_environmentStack.emplace_front(EnvironmentMap());
     }
     void Environment::popEnvironmentLayer()
     {
-        m_cacheStack.pop_front();
+        m_environmentStack.pop_front();
     }
 
     void Environment::pushReturnValue(Type t)
