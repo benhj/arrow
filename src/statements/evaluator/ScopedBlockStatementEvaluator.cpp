@@ -8,10 +8,10 @@ namespace arrow {
 
     namespace {
         StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                                     Environment & cache)
+                                     Environment & environment)
         {
             for(auto const & statement : bodyStatements) {
-                auto const result = statement->getEvaluator()->evaluate(cache);
+                auto const result = statement->getEvaluator()->evaluate(environment);
                 if(result != StatementResult::Continue) {
                     return result;
                 }
@@ -25,10 +25,10 @@ namespace arrow {
     {
     }
 
-    StatementResult ScopedBlockStatementEvaluator::evaluate(Environment & cache) const
+    StatementResult ScopedBlockStatementEvaluator::evaluate(Environment & environment) const
     {
         auto bodyStatements = m_statement.getBodyStatements();
-        auto const evaluated = evaluateBody(bodyStatements, cache);
+        auto const evaluated = evaluateBody(bodyStatements, environment);
         return evaluated;
     }
 }

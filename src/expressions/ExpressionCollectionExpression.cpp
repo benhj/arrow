@@ -21,12 +21,12 @@ namespace arrow {
               : m_ece(std::move(ece))
             {
             }
-            Type evaluate(Environment & cache) const override
+            Type evaluate(Environment & environment) const override
             {
                 auto expressions = m_ece.getExpressionCollection();
                 std::vector<Type> bigEval;
                 for(auto const & expression : expressions) {
-                    bigEval.emplace_back(expression->getEvaluator()->evaluate(cache));
+                    bigEval.emplace_back(expression->getEvaluator()->evaluate(environment));
                 }
                 return {TypeDescriptor::ExpressionCollection, bigEval};
             }

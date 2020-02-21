@@ -30,16 +30,16 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            StatementResult evaluate(Environment & cache) const override
+            StatementResult evaluate(Environment & environment) const override
             {
                 auto const expression = m_statement.getExpression();
-                auto const type = expression->getEvaluator()->evaluate(cache);
+                auto const type = expression->getEvaluator()->evaluate(environment);
                 if(type.m_descriptor != TypeDescriptor::String) {
                     throw LanguageException("Not a string", m_statement.getLineNumber());
                 }
                 auto converted = std::stold(std::get<std::string>(type.m_variantType));
                 auto identifier = m_statement.getIdentifier();
-                cache.add(identifier.raw, {TypeDescriptor::Int, converted});
+                environment.add(identifier.raw, {TypeDescriptor::Int, converted});
                 return StatementResult::Continue;
             }
           private:

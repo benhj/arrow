@@ -11,9 +11,9 @@ namespace arrow {
     {
     }
 
-    void IdentifierReceiverEvaluator::evaluate(Type incoming, Environment & cache) const
+    void IdentifierReceiverEvaluator::evaluate(Type incoming, Environment & environment) const
     {
         // automatically does a replace
-        cache.add(m_tok.raw, incoming);
+        environment.add(m_tok.raw, incoming);
     }
 }

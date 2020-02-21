@@ -21,10 +21,10 @@ namespace arrow {
               : m_tok(std::move(tok))
             {
             }
-            Type evaluate(Environment & cache) const override
+            Type evaluate(Environment & environment) const override
             {
                 // Note, literal string type needs to be converted to ListWord
-                auto type = IdentifierEvaluator(std::move(m_tok)).evaluate(cache);
+                auto type = IdentifierEvaluator(std::move(m_tok)).evaluate(environment);
                 if(type.m_descriptor == TypeDescriptor::String) {
                     type.m_descriptor = TypeDescriptor::ListWord;
                 }

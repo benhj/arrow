@@ -21,17 +21,17 @@ namespace arrow {
             {
             }
 
-            Type evaluate(Environment & cache) const override
+            Type evaluate(Environment & environment) const override
             {
-                auto const & cacheKey = m_tok.raw;
-                if(cacheKey == "true") {
+                auto const & environmentKey = m_tok.raw;
+                if(environmentKey == "true") {
                     return {TypeDescriptor::Bool, true};
-                } else if(cacheKey == "false") {
+                } else if(environmentKey == "false") {
                     return {TypeDescriptor::Bool, false};
-                } else if(!cache.has(cacheKey)) {
+                } else if(!environment.has(environmentKey)) {
                     throw LanguageException("Value for identifier not found", m_tok.lineNumber);
                 }
-                return cache.get(cacheKey);
+                return environment.get(environmentKey);
             }
           private:
             Token m_tok;

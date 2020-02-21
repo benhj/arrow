@@ -38,10 +38,10 @@ namespace arrow {
               , m_os(os)
             {
             }
-            StatementResult evaluate(Environment & cache) const override
+            StatementResult evaluate(Environment & environment) const override
             {
                 auto const expression = m_statement.getExpression();
-                auto const type = expression->getEvaluator()->evaluate(cache);
+                auto const type = expression->getEvaluator()->evaluate(environment);
                 auto const token = m_statement.getToken();
                 if(token.raw == "pr" || token.raw == "say") {
                     m_os<<type.toString()<<std::flush;

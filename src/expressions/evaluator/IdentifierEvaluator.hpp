@@ -10,7 +10,7 @@ namespace arrow {
 
     struct IdentifierEvaluator : public ExpressionEvaluator {
         IdentifierEvaluator(Token tok);
-        Type evaluate(Environment & cache) const override;
+        Type evaluate(Environment & environment) const override;
       private:
         Token m_tok;
     };

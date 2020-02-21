@@ -13,7 +13,7 @@
 
 int main(int argc, char ** argv) {
 
-    arrow::Environment cache;
+    arrow::Environment environment;
     // Load program file when an argument is provided
     if(argc > 1) {
         try {
@@ -31,7 +31,7 @@ int main(int argc, char ** argv) {
                 arrow::Parser p(argTokens, std::cout);
                 auto progArgs = p.parseProgramArguments();
                 for(auto const & a : progArgs) {
-                    cache.pushProgramArgument(a);
+                    environment.pushProgramArgument(a);
                 }
             }
 
@@ -41,7 +41,7 @@ int main(int argc, char ** argv) {
             p.parse();
             auto start = p.getStartStatement();
             if(start) {
-                start->getEvaluator()->evaluate(cache);
+                start->getEvaluator()->evaluate(environment);
             }
         } catch (std::exception const & e) {
             std::cout<<"\u001b[31;1mError: \u001b[0m";
@@ -65,7 +65,7 @@ int main(int argc, char ** argv) {
             parser.parse();
             auto statements = parser.getStatements();
             for(auto const & s : statements) {
-                s->getEvaluator()->evaluate(cache);
+                s->getEvaluator()->evaluate(environment);
             }
         } catch (arrow::LanguageException const & e) {
             std::cout<<e.report(false)<<std::endl;

@@ -9,13 +9,13 @@ namespace arrow {
       : m_statement(std::move(statement))
     {
     }
-    StatementResult FunctionStatementEvaluator::evaluate(Environment & cache) const
+    StatementResult FunctionStatementEvaluator::evaluate(Environment & environment) const
     {
         auto const name = m_statement.getName().raw;
         auto const innerStatement = m_statement.getInnerStatement();
         auto const returnIdentifier = m_statement.getReturnIdentifier();
-        (void)innerStatement->getEvaluator()->evaluate(cache);
-        if(returnIdentifier.lexeme != Lexeme::NIL && !cache.has(returnIdentifier.raw)) {
+        (void)innerStatement->getEvaluator()->evaluate(environment);
+        if(returnIdentifier.lexeme != Lexeme::NIL && !environment.has(returnIdentifier.raw)) {
             throw LanguageException("Can't find return value in function statement",
                                     returnIdentifier.lineNumber);
         }

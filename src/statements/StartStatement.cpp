@@ -41,10 +41,10 @@ namespace arrow {
             {
             }
 
-            StatementResult evaluate(Environment & cache) const override
+            StatementResult evaluate(Environment & environment) const override
             {
                 auto innerStatement = m_statement.getInnerStatement();
-                return innerStatement->getEvaluator()->evaluate(cache);
+                return innerStatement->getEvaluator()->evaluate(environment);
             }
           private:
             StartStatement m_statement;

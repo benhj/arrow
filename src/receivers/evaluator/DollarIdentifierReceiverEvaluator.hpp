@@ -10,7 +10,7 @@ namespace arrow {
 
     struct DollarIdentifierReceiverEvaluator : public ReceiverEvaluator {
         DollarIdentifierReceiverEvaluator(Token tok);
-        void evaluate(Type incoming, Environment & cache) const override;
+        void evaluate(Type incoming, Environment & environment) const override;
       private:
         Token m_tok;
     };

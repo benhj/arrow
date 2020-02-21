@@ -17,7 +17,7 @@ namespace arrow {
         evaluateContainerElements(T const & elements,
                                   std::shared_ptr<Statement> innerStatement,
                                   std::vector<Token> indices,
-                                  Environment & cache)
+                                  Environment & environment)
         {
 
             auto evaluated = StatementResult::Continue;
@@ -27,14 +27,14 @@ namespace arrow {
                 if(it >= std::end(elements)) {
                     break;
                 }
-                cache.pushEnvironmentLayer();
+                environment.pushEnvironmentLayer();
                 if constexpr (std::is_same_v<typename T::value_type, Type>) {
                     auto step = 0;
                     for(auto const & index : indices) {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index.raw, *(it + step));
+                        environment.add(index.raw, *(it + step));
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, int64_t>) {
@@ -43,7 +43,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index.raw, {TypeDescriptor::Int, *(it + step)});
+                        environment.add(index.raw, {TypeDescriptor::Int, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, real>) {
@@ -52,7 +52,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index.raw, {TypeDescriptor::Real, *(it + step)});
+                        environment.add(index.raw, {TypeDescriptor::Real, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, bool>) {
@@ -61,7 +61,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index.raw, {TypeDescriptor::Bool, *(it + step)});
+                        environment.add(index.raw, {TypeDescriptor::Bool, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {
@@ -70,7 +70,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index.raw, {TypeDescriptor::String, *(it + step)});
+                        environment.add(index.raw, {TypeDescriptor::String, *(it + step)});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, char>) {
@@ -79,12 +79,12 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        cache.add(index.raw, {TypeDescriptor::Byte, *(it + step)});
+                        environment.add(index.raw, {TypeDescriptor::Byte, *(it + step)});
                         ++step;
                     }
                 }
-                evaluated = innerStatement->getEvaluator()->evaluate(cache);
-                cache.popEnvironmentLayer();
+                evaluated = innerStatement->getEvaluator()->evaluate(environment);
+                environment.popEnvironmentLayer();
                 if(evaluated != StatementResult::Continue) {
                     return evaluated;
                 }
@@ -98,13 +98,13 @@ namespace arrow {
     {
     }
 
-    StatementResult ForStatementEvaluator::evaluate(Environment & cache) const
+    StatementResult ForStatementEvaluator::evaluate(Environment & environment) const
     {
         auto indices = m_statement.getIndices();
         auto identifier = m_statement.getIdentifier();
         IdentifierExpression exp(m_statement.getLineNumber());
         exp.withIdentifierToken(identifier);
-        auto evaled = exp.getEvaluator()->evaluate(cache);
+        auto evaled = exp.getEvaluator()->evaluate(environment);
         if(evaled.m_descriptor != TypeDescriptor::List &&
            evaled.m_descriptor != TypeDescriptor::ExpressionCollection &&
            evaled.m_descriptor != TypeDescriptor::Ints &&
@@ -122,28 +122,28 @@ namespace arrow {
         if(evaled.m_descriptor == TypeDescriptor::List ||
            evaled.m_descriptor == TypeDescriptor::ExpressionCollection) {
             auto & elements = std::get<std::vector<Type>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         } else if(evaled.m_descriptor == TypeDescriptor::Ints) {
             auto & elements = std::get<std::vector<int64_t>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         } else if(evaled.m_descriptor == TypeDescriptor::Reals) {
             auto & elements = std::get<std::vector<real>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         } else if(evaled.m_descriptor == TypeDescriptor::Bools) {
             auto & elements = std::get<std::vector<bool>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         } else if(evaled.m_descriptor == TypeDescriptor::Bytes) {
             auto & elements = std::get<std::vector<char>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         }  else if(evaled.m_descriptor == TypeDescriptor::Strings) {
             auto & elements = std::get<std::vector<std::string>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         } else if(evaled.m_descriptor == TypeDescriptor::String || evaled.m_descriptor == TypeDescriptor::ListWord) {
             auto & elements = std::get<std::string>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         } else if(evaled.m_descriptor == TypeDescriptor::Byte) {
             auto & elements = std::get<std::vector<char>>(evaled.m_variantType);
-            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), cache);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         }
         return StatementResult::Continue;
     }

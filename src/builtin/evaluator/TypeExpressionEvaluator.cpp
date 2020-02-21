@@ -13,7 +13,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type TypeExpressionEvaluator::evaluate(Environment & cache) const
+    Type TypeExpressionEvaluator::evaluate(Environment & environment) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
@@ -23,7 +23,7 @@ namespace arrow {
 
         std::string theType("nil");
         try {
-            auto const col = expression->getEvaluator()->evaluate(cache);
+            auto const col = expression->getEvaluator()->evaluate(environment);
             auto & expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
             if(expressionCollEval.empty()) {
                 throw LanguageException("Expected argument", m_expression.getLineNumber());

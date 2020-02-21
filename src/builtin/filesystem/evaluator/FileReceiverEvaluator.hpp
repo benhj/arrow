@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit FileReceiverEvaluator(FileReceiver receiver);
-         void evaluate(Type incoming, Environment & cache) const override;
+         void evaluate(Type incoming, Environment & environment) const override;
       private:
         FileReceiver m_receiver;
     };

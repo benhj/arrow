@@ -11,7 +11,7 @@ namespace arrow {
     namespace {
 
         template <typename T>
-        Type add(Environment & cache,
+        Type add(Environment & environment,
                  std::vector<std::shared_ptr<Expression>> expressions,
                  TypeDescriptor const arrayType) {
 
@@ -19,7 +19,7 @@ namespace arrow {
             auto remType = TypeDescriptor::Nil;
             for(auto const & expression : expressions) {
 
-                auto evaluated = expression->getEvaluator()->evaluate(cache);
+                auto evaluated = expression->getEvaluator()->evaluate(environment);
                 if(remType == TypeDescriptor::Nil) {
                     remType = evaluated.m_descriptor;
                 } 
@@ -50,7 +50,7 @@ namespace arrow {
               : m_ece(std::move(ece))
             {
             }
-            Type evaluate(Environment & cache) const override
+            Type evaluate(Environment & environment) const override
             {
                 auto expressions = m_ece.getExpressionCollection();
                 if(expressions.empty()) {
@@ -60,18 +60,18 @@ namespace arrow {
                 std::vector<Type> bigEval;
 
                 auto expression = std::begin(expressions);
-                auto remType = (*expression)->getEvaluator()->evaluate(cache);
+                auto remType = (*expression)->getEvaluator()->evaluate(environment);
 
                 if(remType.m_descriptor == TypeDescriptor::Int) {
-                    return add<int64_t>(cache, std::move(expressions), TypeDescriptor::Ints);
+                    return add<int64_t>(environment, std::move(expressions), TypeDescriptor::Ints);
                 } else if(remType.m_descriptor == TypeDescriptor::Real) {
-                    return add<real>(cache, std::move(expressions), TypeDescriptor::Reals);
+                    return add<real>(environment, std::move(expressions), TypeDescriptor::Reals);
                 } else if(remType.m_descriptor == TypeDescriptor::Bool) {
-                    return add<bool>(cache, std::move(expressions), TypeDescriptor::Bools);
+                    return add<bool>(environment, std::move(expressions), TypeDescriptor::Bools);
                 } else if(remType.m_descriptor == TypeDescriptor::String) {
-                    return add<std::string>(cache, std::move(expressions), TypeDescriptor::Strings);
+                    return add<std::string>(environment, std::move(expressions), TypeDescriptor::Strings);
                 } else if(remType.m_descriptor == TypeDescriptor::Byte) {
-                    return add<char>(cache, std::move(expressions), TypeDescriptor::Bytes);
+                    return add<char>(environment, std::move(expressions), TypeDescriptor::Bytes);
                 } else {
                     throw LanguageException("Type mismatch in brace expression", (*expression)->getLineNumber());
                 }

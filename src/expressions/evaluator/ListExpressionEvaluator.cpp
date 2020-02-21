@@ -10,12 +10,12 @@ namespace arrow {
       : m_listExpression(std::move(listExpression))
     {
     }
-    Type ListExpressionEvaluator::evaluate(Environment & cache) const 
+    Type ListExpressionEvaluator::evaluate(Environment & environment) const 
     {
         std::vector<Type> elements;
         auto const parts = m_listExpression.getParts();
         for(auto const & part : parts) {
-            auto const evaluated = part->getEvaluator()->evaluate(cache);
+            auto const evaluated = part->getEvaluator()->evaluate(environment);
             if(evaluated.m_descriptor == TypeDescriptor::BracketlessList) {
                 auto & innerParts = std::get<std::vector<Type>>(evaluated.m_variantType);
                 for(auto const & inner : innerParts) {

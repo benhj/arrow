@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         MathExpressionEvaluator(MathExpression expression);
-        Type evaluate(Environment & cache) const override;
+        Type evaluate(Environment & environment) const override;
       private:
         MathExpression m_expression;
     };

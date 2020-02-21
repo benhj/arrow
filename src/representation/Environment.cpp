@@ -48,7 +48,7 @@ namespace arrow {
         pushEnvironmentLayer();
     }
 
-    Environment::EnvironmentMap::iterator Environment::findAndRetrieveEnvironmentd(std::string identifier) const
+    Environment::EnvironmentMap::iterator Environment::findAndRetrieveCached(std::string identifier) const
     {
         for (auto & layer : m_cacheStack) {
             auto found = layer.find(identifier);
@@ -61,14 +61,14 @@ namespace arrow {
 
     Type Environment::get(std::string identifier) const
     {
-        auto found = findAndRetrieveEnvironmentd(identifier);
+        auto found = findAndRetrieveCached(identifier);
         if(found == EnvironmentMap::iterator()) { return {TypeDescriptor::None, false}; }
         return found->second;
     }
 
     void Environment::add(std::string identifier, Type const type)
     {
-        auto found = findAndRetrieveEnvironmentd(identifier);
+        auto found = findAndRetrieveCached(identifier);
         if(found != EnvironmentMap::iterator()) {
             // Remove original instance of value
             found->second.m_variantType.swap(type.m_variantType);
@@ -79,7 +79,7 @@ namespace arrow {
     }
     bool Environment::has(std::string identifier) const
     {
-        auto found = findAndRetrieveEnvironmentd(identifier);
+        auto found = findAndRetrieveCached(identifier);
         return found != EnvironmentMap::iterator();
     }
     void Environment::remove(std::string identifier) const
@@ -95,7 +95,7 @@ namespace arrow {
 
     void Environment::pushBackContainerElement(std::string identifier, Type const type)
     {
-        auto found = findAndRetrieveEnvironmentd(identifier);
+        auto found = findAndRetrieveCached(identifier);
         
         if(found->second.m_descriptor == TypeDescriptor::Ints) {
             auto & casted = std::get<std::vector<int64_t>>(found->second.m_variantType);
@@ -127,7 +127,7 @@ namespace arrow {
                                       int const index,
                                       Type const type)
     {
-        auto found = findAndRetrieveEnvironmentd(identifier);
+        auto found = findAndRetrieveCached(identifier);
         try {
             if(type.m_descriptor == TypeDescriptor::Int) {
                 updateArray<int64_t>(found->second.m_variantType, type, index);
@@ -155,7 +155,7 @@ namespace arrow {
     void Environment::eraseElementInContainer(std::string identifier,
                                         int const index)
     {
-        auto found = findAndRetrieveEnvironmentd(identifier);
+        auto found = findAndRetrieveCached(identifier);
         {
             auto result = tryErase<int64_t>(found->second.m_variantType, index);
             if(result.first) {

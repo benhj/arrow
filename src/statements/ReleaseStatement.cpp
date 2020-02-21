@@ -45,11 +45,11 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            StatementResult evaluate(Environment & cache) const override
+            StatementResult evaluate(Environment & environment) const override
             {
                 auto const & identifier = m_statement.getIdentifier().raw;
-                if(cache.has(identifier)) {
-                    cache.remove(identifier);
+                if(environment.has(identifier)) {
+                    environment.remove(identifier);
                 }
                 return StatementResult::Continue;
             }

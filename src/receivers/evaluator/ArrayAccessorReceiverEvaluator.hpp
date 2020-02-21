@@ -11,7 +11,7 @@ namespace arrow {
 
     struct ArrayAccessorReceiverEvaluator : public ReceiverEvaluator {
         ArrayAccessorReceiverEvaluator(Token tok, std::shared_ptr<Expression> expression);
-        void evaluate(Type incoming, Environment & cache) const override;
+        void evaluate(Type incoming, Environment & environment) const override;
       private:
         Token m_tok;
         std::shared_ptr<Expression> m_expression;

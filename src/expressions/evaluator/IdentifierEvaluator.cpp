@@ -11,13 +11,13 @@ namespace arrow {
     {
     }
 
-    Type IdentifierEvaluator::evaluate(Environment & cache) const
+    Type IdentifierEvaluator::evaluate(Environment & environment) const
     {
-        auto const & cacheKey = m_tok.raw;
-        if(!cache.has(cacheKey)) {
+        auto const & environmentKey = m_tok.raw;
+        if(!environment.has(environmentKey)) {
             throw LanguageException("Identifier not found",
                                     m_tok.lineNumber);
         }
-        return cache.get(cacheKey);
+        return environment.get(environmentKey);
     }
 }

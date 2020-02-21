@@ -16,7 +16,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type FunctionExpressionEvaluator::evaluate(Environment & cache) const
+    Type FunctionExpressionEvaluator::evaluate(Environment & environment) const
     {
         // Pull out the name of the function
         auto const name = m_expression.getName().raw;
@@ -31,7 +31,7 @@ namespace arrow {
 
         // Pull out the arguments being passed into the function
         auto const expressionColl = m_expression.getExpressionCollection();
-        auto const t = expressionColl->getEvaluator()->evaluate(cache);
+        auto const t = expressionColl->getEvaluator()->evaluate(environment);
         auto const expressionCollEval = std::get<std::vector<Type>>(t.m_variantType);
 
         // Get the function to evaluate
@@ -42,7 +42,7 @@ namespace arrow {
 
         // Get the parameters of the function signature
         auto const paramColl = functionStatement->getExpressionCollection();
-        auto const p = paramColl->getEvaluator()->evaluate(cache);
+        auto const p = paramColl->getEvaluator()->evaluate(environment);
         auto const paramCollEval = std::get<std::vector<Type>>(p.m_variantType);
 
         // Throw if signature mismatch
@@ -51,11 +51,11 @@ namespace arrow {
         }
 
         // The function has its own completely
-        // isolated, local cache, so need to create
+        // isolated, local environment, so need to create
         // a new one here.
         Environment newEnvironment;
 
-        // Push in parameters into new cache. The function
+        // Push in parameters into new environment. The function
         // will then access these parameters
         auto const functionLineNumber = functionStatement->getName().lineNumber;
         auto param = std::begin(paramCollEval);

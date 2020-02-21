@@ -16,7 +16,7 @@ namespace arrow {
     {
         struct DoubleEqualEvaluator : public ExpressionEvaluator
         {
-            Type evaluate(Environment & cache) const override
+            Type evaluate(Environment & environment) const override
             {
                 return {TypeDescriptor::DoubleEqual, std::string("==")};
             }

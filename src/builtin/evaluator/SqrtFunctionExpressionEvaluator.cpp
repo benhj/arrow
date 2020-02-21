@@ -12,10 +12,10 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type SqrtFunctionExpressionEvaluator::evaluate(Environment & cache) const
+    Type SqrtFunctionExpressionEvaluator::evaluate(Environment & environment) const
     {
         auto const expression = m_expression.getExpression();
-        auto const col = expression->getEvaluator()->evaluate(cache);
+        auto const col = expression->getEvaluator()->evaluate(environment);
         auto const expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(expressionCollEval.empty()) {
             throw LanguageException("Expected argument", m_expression.getLineNumber());

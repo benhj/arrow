@@ -38,7 +38,7 @@ namespace arrow {
         static void pushReturnValue(Type t);
         static Type getAndPopReturnValue();
 
-        EnvironmentMap::iterator findAndRetrieveEnvironmentd(std::string identifier) const;
+        EnvironmentMap::iterator findAndRetrieveCached(std::string identifier) const;
 
       private:
 

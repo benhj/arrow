@@ -13,43 +13,43 @@ namespace arrow {
     {
     }
 
-    StatementResult IfStatementEvaluator::evaluate(Environment & cache) const
+    StatementResult IfStatementEvaluator::evaluate(Environment & environment) const
     {
         auto ifEval = m_statement.getExpression()->getEvaluator();
-        auto ifEvaluated = ifEval->evaluate(cache);
+        auto ifEvaluated = ifEval->evaluate(environment);
         if(ifEvaluated.m_descriptor != TypeDescriptor::Bool) {
             throw LanguageException("Bad type for if statement", m_statement.getLineNumber());
         }
         auto theBool = std::get<bool>(ifEvaluated.m_variantType);
         if(theBool) {
             auto innerStatement = m_statement.getInnerStatement();
-            cache.pushEnvironmentLayer();
-            auto res = innerStatement->getEvaluator()->evaluate(cache);
-            cache.popEnvironmentLayer();
+            environment.pushEnvironmentLayer();
+            auto res = innerStatement->getEvaluator()->evaluate(environment);
+            environment.popEnvironmentLayer();
             return res;
         } else {
             auto elseIfParts = m_statement.getElseIfParts();
             for(auto const & part : elseIfParts) {
                 auto partExpressionEval = part->getExpression()->getEvaluator();
-                auto partExpressionEvaluated = partExpressionEval->evaluate(cache);
+                auto partExpressionEvaluated = partExpressionEval->evaluate(environment);
                 if(partExpressionEvaluated.m_descriptor != TypeDescriptor::Bool) {
                     throw LanguageException("Bad type for else statement", part->getLineNumber());
                 }
                 auto partBool = std::get<bool>(partExpressionEvaluated.m_variantType);
                 if(partBool) {
                     auto innerStatement = part->getInnerStatement();
-                    cache.pushEnvironmentLayer();
-                    auto res = innerStatement->getEvaluator()->evaluate(cache);
-                    cache.popEnvironmentLayer();
+                    environment.pushEnvironmentLayer();
+                    auto res = innerStatement->getEvaluator()->evaluate(environment);
+                    environment.popEnvironmentLayer();
                     return res;
                 }
             }
             auto elsePart = m_statement.getElsePart();
             if(elsePart) {
                 auto innerStatement = elsePart->getInnerStatement();
-                cache.pushEnvironmentLayer();
-                auto res = innerStatement->getEvaluator()->evaluate(cache);
-                cache.popEnvironmentLayer();
+                environment.pushEnvironmentLayer();
+                auto res = innerStatement->getEvaluator()->evaluate(environment);
+                environment.popEnvironmentLayer();
                 return res;
             }
         }

@@ -13,10 +13,10 @@ namespace arrow {
     {
     }
 
-    StatementResult WhileStatementEvaluator::evaluate(Environment & cache) const
+    StatementResult WhileStatementEvaluator::evaluate(Environment & environment) const
     {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
-        auto resolved = expressionEvaluator->evaluate(cache);
+        auto resolved = expressionEvaluator->evaluate(environment);
         if(resolved.m_descriptor != TypeDescriptor::Bool) {
             throw LanguageException("Bad type or while statement expression",
                                     m_statement.getLineNumber());
@@ -24,15 +24,15 @@ namespace arrow {
         auto booleanVal = std::get<bool>(resolved.m_variantType);
         auto innerStatement = m_statement.getInnerStatement();
         while(booleanVal) {
-            cache.pushEnvironmentLayer();
-            auto evaluated = innerStatement->getEvaluator()->evaluate(cache);
-            cache.popEnvironmentLayer();
+            environment.pushEnvironmentLayer();
+            auto evaluated = innerStatement->getEvaluator()->evaluate(environment);
+            environment.popEnvironmentLayer();
             if(evaluated == StatementResult::Break) {
                 break;
             } else if(evaluated == StatementResult::Return) {
                 return evaluated;
             }
-            resolved = expressionEvaluator->evaluate(cache);
+            resolved = expressionEvaluator->evaluate(environment);
             booleanVal = std::get<bool>(resolved.m_variantType);
         }
         return StatementResult::Continue;

@@ -12,24 +12,24 @@ namespace arrow {
     namespace {
         template <typename T>
         void add(Type container, Type evaluated, 
-                 Environment & cache, TypeDescriptor const desc,
+                 Environment & environment, TypeDescriptor const desc,
                  Token identifier) {
 
             auto vec = std::get<std::vector<T>>(container.m_variantType);
             auto deduced = std::get<T>(evaluated.m_variantType);
             vec.push_back(deduced);
-            cache.add(std::move(identifier), {desc, vec});
+            environment.add(std::move(identifier), {desc, vec});
 
         }
 
         template <typename T>
-        void add(Type evaluated, Environment & cache, TypeDescriptor const desc,
+        void add(Type evaluated, Environment & environment, TypeDescriptor const desc,
                  Token identifier) {
 
             auto deduced = std::get<T>(evaluated.m_variantType);
             std::vector<T> vec;
             vec.push_back(deduced);
-            cache.add(std::move(identifier), {desc, vec});
+            environment.add(std::move(identifier), {desc, vec});
 
         }
     }
@@ -38,13 +38,13 @@ namespace arrow {
       : m_statement(std::move(statement))
     {
     }
-    StatementResult SimpleArrowStatementEvaluator::evaluate(Environment & cache) const
+    StatementResult SimpleArrowStatementEvaluator::evaluate(Environment & environment) const
     {
         auto const expression = m_statement.getExpression();
-        auto evaluated = expression->getEvaluator()->evaluate(cache);
+        auto evaluated = expression->getEvaluator()->evaluate(environment);
         auto receiver = m_statement.getIdentifier();
         auto evaluator = receiver->getEvaluator();
-        evaluator->evaluate(evaluated, cache);
+        evaluator->evaluate(evaluated, environment);
         return StatementResult::Continue;
     }
 }

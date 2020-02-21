@@ -22,7 +22,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type FolderListFunctionExpressionEvaluator::evaluate(Environment & cache) const
+    Type FolderListFunctionExpressionEvaluator::evaluate(Environment & environment) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
@@ -30,7 +30,7 @@ namespace arrow {
         #if defined(_HAS_CXX17)
         // Pull out the arguments being passed into the function
         auto const expression = m_expression.getExpression();
-        auto const col = expression->getEvaluator()->evaluate(cache);
+        auto const col = expression->getEvaluator()->evaluate(environment);
         auto const expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(expressionCollEval.empty()) {
             throw LanguageException("Expected argument", m_expression.getLineNumber());

@@ -11,10 +11,10 @@ namespace arrow {
 
     namespace {
         StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                                     Environment & cache)
+                                     Environment & environment)
         {
             for(auto const & statement : bodyStatements) {
-                auto const result = statement->getEvaluator()->evaluate(cache);
+                auto const result = statement->getEvaluator()->evaluate(environment);
                 if(result != StatementResult::Continue) {
                     return result;
                 }
@@ -33,10 +33,10 @@ namespace arrow {
     {
     }
 
-    StatementResult RepeatStatementEvaluator::evaluate(Environment & cache) const
+    StatementResult RepeatStatementEvaluator::evaluate(Environment & environment) const
     {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
-        auto resolved = expressionEvaluator->evaluate(cache);
+        auto resolved = expressionEvaluator->evaluate(environment);
         if(!decaysToInt(resolved.m_descriptor)) {
             throw LanguageException("Bad type for repeat statement", m_statement.getLineNumber());
         }
@@ -51,9 +51,9 @@ namespace arrow {
         auto innerStatement = m_statement.getInnerStatement();
         auto evaluated = StatementResult::Continue;
         for(int64_t it = 0; it < val; ++it) {
-            cache.pushEnvironmentLayer();
-            evaluated = innerStatement->getEvaluator()->evaluate(cache);
-            cache.popEnvironmentLayer();
+            environment.pushEnvironmentLayer();
+            evaluated = innerStatement->getEvaluator()->evaluate(environment);
+            environment.popEnvironmentLayer();
             if(evaluated == StatementResult::Break) {
                 break;
             } else if(evaluated == StatementResult::Return) {

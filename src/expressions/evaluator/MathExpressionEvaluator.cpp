@@ -83,13 +83,13 @@ namespace arrow {
     {
     }
 
-    Type MathExpressionEvaluator::evaluate(Environment & cache) const
+    Type MathExpressionEvaluator::evaluate(Environment & environment) const
     {
         auto leftEval = m_expression.getExpressionLeft()->getEvaluator();
         auto rightEval = m_expression.getExpressionRight()->getEvaluator();
         auto op = m_expression.getOperator();
-        auto deducedLeft = leftEval->evaluate(cache);
-        auto deducedRight = rightEval->evaluate(cache);
+        auto deducedLeft = leftEval->evaluate(environment);
+        auto deducedRight = rightEval->evaluate(environment);
 
         // String concatenation
         if(deducedLeft.m_descriptor == TypeDescriptor::String ||

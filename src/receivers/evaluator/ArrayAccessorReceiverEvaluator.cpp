@@ -13,10 +13,10 @@ namespace arrow {
     {
     }
 
-    void ArrayAccessorReceiverEvaluator::evaluate(Type incoming, Environment & cache) const
+    void ArrayAccessorReceiverEvaluator::evaluate(Type incoming, Environment & environment) const
     {
-        auto indexEval = m_expression->getEvaluator()->evaluate(cache);
-        auto const & cacheKey = m_tok.raw;
+        auto indexEval = m_expression->getEvaluator()->evaluate(environment);
+        auto const & environmentKey = m_tok.raw;
 
         // Indexing for map creates a new map if it doesn't
         // already exist
@@ -25,8 +25,8 @@ namespace arrow {
 
             auto mapKey = std::get<std::string>(indexEval.m_variantType);
             // When already exists, insert by reference
-            if(cache.has(cacheKey)) {
-                auto item = cache.findAndRetrieveEnvironmentd(cacheKey);
+            if(environment.has(environmentKey)) {
+                auto item = environment.findAndRetrieveCached(environmentKey);
                 // If item already exists and isn't a map, throw
                 if(item->second.m_descriptor != TypeDescriptor::Map) {
                     throw LanguageException("Incompatible type",
@@ -44,7 +44,7 @@ namespace arrow {
             // Else create a brand new map with initial element
             std::map<std::string, Type> themap;
             themap.emplace(mapKey, incoming);
-            cache.add(cacheKey, {TypeDescriptor::Map, themap});
+            environment.add(environmentKey, {TypeDescriptor::Map, themap});
             return;
         }
 
@@ -55,13 +55,13 @@ namespace arrow {
         }
         auto index = std::get<int64_t>(indexEval.m_variantType);
         try {
-            if(!cache.has(cacheKey)) {
+            if(!environment.has(environmentKey)) {
                 throw LanguageException("Array not found",
                                         m_expression->getLineNumber());
             }
 
             // Assumed to exist given above check
-            auto item = cache.findAndRetrieveEnvironmentd(cacheKey);
+            auto item = environment.findAndRetrieveCached(environmentKey);
             if(item->second.m_descriptor == TypeDescriptor::String ||
                 item->second.m_descriptor == TypeDescriptor::ListWord) {
                 auto & str = std::get<std::string>(item->second.m_variantType);
@@ -74,7 +74,7 @@ namespace arrow {
                 return;
             }
 
-            cache.setElementInContainer(cacheKey, index, incoming);
+            environment.setElementInContainer(environmentKey, index, incoming);
         } catch (...) {
             throw LanguageException("Index too big",
                                     m_expression->getLineNumber());

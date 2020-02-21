@@ -12,7 +12,7 @@ namespace arrow {
 
         bool listMatch(std::vector<Type> const & left,
                        std::vector<Type> const & right,
-                       Environment & cache,
+                       Environment & environment,
                        long const lineNumber);
 
         // To describe how list tokens match.
@@ -26,7 +26,7 @@ namespace arrow {
             NoMatch    // [hello], [goodbye]
         };
 
-        MatchType matches(Type left, Type right, Environment & cache, long const lineNumber)
+        MatchType matches(Type left, Type right, Environment & environment, long const lineNumber)
         {   
             if(left == right) {
                 return MatchType::Exact;
@@ -34,7 +34,7 @@ namespace arrow {
                    right.m_descriptor == TypeDescriptor::List) {
                 auto newLeft = std::get<std::vector<Type>>(left.m_variantType);
                 auto newRight = std::get<std::vector<Type>>(right.m_variantType);
-                if(listMatch(newLeft, newRight, cache, lineNumber)) {
+                if(listMatch(newLeft, newRight, environment, lineNumber)) {
                     return MatchType::Exact;
                 } else {
                     return MatchType::NoMatch;
@@ -91,7 +91,7 @@ namespace arrow {
                         std::vector<Type> const & right,
                         std::vector<Type>::const_iterator & itLeft,
                         std::vector<Type>::const_iterator & itRight,
-                        Environment & cache,
+                        Environment & environment,
                         long const lineNumber)
         {
             ++itLeft;
@@ -108,7 +108,7 @@ namespace arrow {
 
             // More token to process in first. We keep looping until we
             // find a match.
-            while(matches(*itLeft, *itRight, cache, lineNumber) == MatchType::NoMatch) {
+            while(matches(*itLeft, *itRight, environment, lineNumber) == MatchType::NoMatch) {
                 ++itLeft;
                 if(itLeft == std::end(left)) {
                     return false;
@@ -128,7 +128,7 @@ namespace arrow {
                         std::vector<Type> const & right,
                         std::vector<Type>::const_iterator & itLeft,
                         std::vector<Type>::const_iterator & itRight,
-                        Environment & cache,
+                        Environment & environment,
                         long const lineNumber)
         {
 
@@ -148,14 +148,14 @@ namespace arrow {
             }
 
 
-            cache.add(var, toStore);
+            environment.add(var, toStore);
             return true;
         }
         bool handleQQVar(std::vector<Type> const & left,
                          std::vector<Type> const & right,
                          std::vector<Type>::const_iterator & itLeft,
                          std::vector<Type>::const_iterator & itRight,
-                         Environment & cache,
+                         Environment & environment,
                          long const lineNumber)
         {
 
@@ -178,20 +178,20 @@ namespace arrow {
                     elements.push_back(*itLeft);
                     ++itLeft;
                 }
-                cache.add(var, {TypeDescriptor::List, std::move(elements)});
+                environment.add(var, {TypeDescriptor::List, std::move(elements)});
                 return true;
             }
 
             // More tokens to process in left. We keep looping until we
             // find a match.
-            auto matchType = matches(*itLeft, *itRight, cache, lineNumber);
+            auto matchType = matches(*itLeft, *itRight, environment, lineNumber);
             while(matchType == MatchType::NoMatch) {
                 elements.push_back(*itLeft);
                 ++itLeft;
                 if(itLeft == std::end(left)) {
                     return false;
                 }
-                matchType = matches(*itLeft, *itRight, cache, lineNumber);
+                matchType = matches(*itLeft, *itRight, environment, lineNumber);
             }
 
             ++itLeft;
@@ -201,13 +201,13 @@ namespace arrow {
                 return false;
             }
 */
-            cache.add(var, {TypeDescriptor::List, std::move(elements)});
+            environment.add(var, {TypeDescriptor::List, std::move(elements)});
             return true;
         }
 
         bool listMatch(std::vector<Type> const & left,
                        std::vector<Type> const & right,
-                       Environment & cache,
+                       Environment & environment,
                        long const lineNumber)
         {
 
@@ -241,7 +241,7 @@ namespace arrow {
             while(itLeft != std::end(left) && itRight != std::end(right)) {
 
                 // Discover type of token match
-                auto match = matches(*itLeft, *itRight, cache, lineNumber);
+                auto match = matches(*itLeft, *itRight, environment, lineNumber);
 
                 switch(match) {
                     case MatchType::Exact:
@@ -260,14 +260,14 @@ namespace arrow {
                     }
                     case MatchType::DoubleEq:
                     {
-                        if(handleEqEq(left, right, itLeft, itRight, cache, lineNumber)) {
+                        if(handleEqEq(left, right, itLeft, itRight, environment, lineNumber)) {
                             continue;
                         }
                         return false;
                     }
                     case MatchType::QVar:
                     {
-                        if(handleQVar(left, right, itLeft, itRight, cache,
+                        if(handleQVar(left, right, itLeft, itRight, environment,
                                       lineNumber)) {
                             continue;
                         }
@@ -276,7 +276,7 @@ namespace arrow {
                     }
                     case MatchType::QQVar:
                     {
-                        if(handleQQVar(left, right, itLeft, itRight, cache,
+                        if(handleQQVar(left, right, itLeft, itRight, environment,
                                       lineNumber)) {
                             continue;
                         }
@@ -297,16 +297,16 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type MatchesExpressionEvaluator::evaluate(Environment & cache) const 
+    Type MatchesExpressionEvaluator::evaluate(Environment & environment) const 
     {
         auto const left = m_expression.getLeftExpression();
-        auto const evalLeft = left->getEvaluator()->evaluate(cache);
+        auto const evalLeft = left->getEvaluator()->evaluate(environment);
         if(evalLeft.m_descriptor != TypeDescriptor::List) {
             throw LanguageException("Left expression not a list",
                                     m_expression.getLineNumber());
         }
         auto const right = m_expression.getRightExpression();
-        auto const evalRight = right->getEvaluator()->evaluate(cache);
+        auto const evalRight = right->getEvaluator()->evaluate(environment);
         if(evalRight.m_descriptor != TypeDescriptor::List) {
             throw LanguageException("Right expression not a list",
                                     m_expression.getLineNumber());
@@ -320,7 +320,7 @@ namespace arrow {
             return {TypeDescriptor::Bool, true};
         }
         // Pattern match
-        else if(listMatch(leftList, rightList, cache, m_expression.getLineNumber())) {
+        else if(listMatch(leftList, rightList, environment, m_expression.getLineNumber())) {
             return {TypeDescriptor::Bool, true};
         } 
         // No match

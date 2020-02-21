@@ -18,14 +18,14 @@ namespace arrow {
       : m_receiver(std::move(receiver))
     {
     }
-    void FileReceiverEvaluator::evaluate(Type incoming, Environment & cache) const
+    void FileReceiverEvaluator::evaluate(Type incoming, Environment & environment) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_receiver.getLineNumber();
 
         // Pull out the arguments being passed into the function
         auto const expression = m_receiver.getExpression();
-        auto const fname = expression->getEvaluator()->evaluate(cache);
+        auto const fname = expression->getEvaluator()->evaluate(environment);
         if(fname.m_descriptor != TypeDescriptor::String) {
             throw LanguageException("Expects a string path", callLineNumber);
         }

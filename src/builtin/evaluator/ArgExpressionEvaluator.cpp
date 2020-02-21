@@ -13,14 +13,14 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type ArgExpressionEvaluator::evaluate(Environment & cache) const
+    Type ArgExpressionEvaluator::evaluate(Environment & environment) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
 
         // Pull out the arguments being passed into the function
         auto const expression = m_expression.getExpression();
-        auto const col = expression->getEvaluator()->evaluate(cache);
+        auto const col = expression->getEvaluator()->evaluate(environment);
         auto & expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(expressionCollEval.empty()) {
             throw LanguageException("Expected argument", m_expression.getLineNumber());
@@ -32,7 +32,7 @@ namespace arrow {
 
         auto const index = std::get<int64_t>(t.m_variantType);
         try {
-            return cache.getProgramArgument(index);
+            return environment.getProgramArgument(index);
         } catch (...) {
             throw LanguageException("Error obtaining argument", callLineNumber);
         }

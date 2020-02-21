@@ -103,13 +103,13 @@ namespace arrow {
     {
     }
 
-    Type BooleanExpressionEvaluator::evaluate(Environment & cache) const
+    Type BooleanExpressionEvaluator::evaluate(Environment & environment) const
     {
         auto leftEval = m_expression.getExpressionLeft()->getEvaluator();
         auto rightEval = m_expression.getExpressionRight()->getEvaluator();
         auto op = m_expression.getOperator();
-        auto deducedLeft = leftEval->evaluate(cache);
-        auto deducedRight = rightEval->evaluate(cache);
+        auto deducedLeft = leftEval->evaluate(environment);
+        auto deducedRight = rightEval->evaluate(environment);
         BooleanEvaluator evaluator{op.raw, m_expression.getLineNumber()};
         auto res = std::visit(evaluator, 
                   deducedLeft.m_variantType,

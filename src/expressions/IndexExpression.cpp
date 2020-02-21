@@ -10,10 +10,10 @@ namespace arrow {
     namespace {
 
         template <typename T>
-        Type getElement(Type statementType, std::shared_ptr<Expression> exp, Environment & cache)
+        Type getElement(Type statementType, std::shared_ptr<Expression> exp, Environment & environment)
         {
             auto & container = std::get<std::vector<T>>(statementType.m_variantType);
-            auto index = exp->getEvaluator()->evaluate(cache);
+            auto index = exp->getEvaluator()->evaluate(environment);
 
             if(index.m_descriptor != TypeDescriptor::Int) {
                 throw LanguageException("Expected an integer index", exp->getLineNumber());
@@ -38,10 +38,10 @@ namespace arrow {
             }
         }
 
-        Type getElementFromString(Type statementType, std::shared_ptr<Expression> exp, Environment & cache)
+        Type getElementFromString(Type statementType, std::shared_ptr<Expression> exp, Environment & environment)
         {
             auto & container = std::get<std::string>(statementType.m_variantType);
-            auto index = exp->getEvaluator()->evaluate(cache);
+            auto index = exp->getEvaluator()->evaluate(environment);
             auto deduced = std::get<int64_t>(index.m_variantType);
             if(deduced >= static_cast<int64_t>(container.size())) {
                 throw LanguageException("Index too large", exp->getLineNumber());
@@ -65,18 +65,18 @@ namespace arrow {
             {
             }
 
-            Type evaluate(Environment & cache) const override
+            Type evaluate(Environment & environment) const override
             {
-                auto const & cacheKey = m_tok.raw;
-                if(!cache.has(cacheKey)) {
+                auto const & environmentKey = m_tok.raw;
+                if(!environment.has(environmentKey)) {
                     throw LanguageException("Value for identifier not found", m_expression->getLineNumber());
                 }
 
-                auto type = cache.get(cacheKey);
+                auto type = environment.get(environmentKey);
 
                 // Deduce for map access
                 if(type.m_descriptor == TypeDescriptor::Map) {
-                    auto key = m_expression->getEvaluator()->evaluate(cache);
+                    auto key = m_expression->getEvaluator()->evaluate(environment);
                     if(key.m_descriptor != TypeDescriptor::String &&
                        key.m_descriptor != TypeDescriptor::ListWord) {
                         throw LanguageException("Expected a string key", m_expression->getLineNumber());
@@ -105,22 +105,22 @@ namespace arrow {
 
                 switch (type.m_descriptor) {
                     case TypeDescriptor::Ints:
-                        return getElement<int64_t>(std::move(type), std::move(m_expression), cache);
+                        return getElement<int64_t>(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::Reals:
-                        return getElement<real>(std::move(type), std::move(m_expression), cache);
+                        return getElement<real>(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::Bools:
-                        return getElement<bool>(std::move(type), std::move(m_expression), cache);
+                        return getElement<bool>(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::Strings:
-                        return getElement<std::string>(std::move(type), std::move(m_expression), cache);
+                        return getElement<std::string>(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::Bytes:
-                        return getElement<char>(std::move(type), std::move(m_expression), cache);
+                        return getElement<char>(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::String:
-                        return getElementFromString(std::move(type), std::move(m_expression), cache);
+                        return getElementFromString(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::ListWord:
-                        return getElementFromString(std::move(type), std::move(m_expression), cache);
+                        return getElementFromString(std::move(type), std::move(m_expression), environment);
                     default: break;
                 }
-                return getElement<Type>(std::move(type), std::move(m_expression), cache);
+                return getElement<Type>(std::move(type), std::move(m_expression), environment);
             }
           private:
             Token m_tok;

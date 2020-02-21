@@ -42,12 +42,12 @@ namespace arrow {
             {
             }
 
-           StatementResult evaluate(Environment & cache) const override
+           StatementResult evaluate(Environment & environment) const override
             {
                 auto const bodyStatements = m_statement.getBodyStatements();
-                ThreadManager::create([bodyStatements{std::move(bodyStatements)}, &cache] {
+                ThreadManager::create([bodyStatements{std::move(bodyStatements)}, &environment] {
                     for(auto const & inner : bodyStatements) {
-                        inner->getEvaluator()->evaluate(cache);
+                        inner->getEvaluator()->evaluate(environment);
                     }
                 });
                 return StatementResult::Continue;
