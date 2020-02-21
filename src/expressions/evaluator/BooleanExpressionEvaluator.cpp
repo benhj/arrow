@@ -103,7 +103,7 @@ namespace arrow {
     {
     }
 
-    Type BooleanExpressionEvaluator::evaluate(Cache & cache) const
+    Type BooleanExpressionEvaluator::evaluate(Environment & cache) const
     {
         auto leftEval = m_expression.getExpressionLeft()->getEvaluator();
         auto rightEval = m_expression.getExpressionRight()->getEvaluator();

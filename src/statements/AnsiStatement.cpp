@@ -40,7 +40,7 @@ namespace arrow {
               , m_os(os)
             {
             }
-            StatementResult evaluate(Cache & cache) const override
+            StatementResult evaluate(Environment & cache) const override
             {
                 auto const expression = m_statement.getExpression();
                 auto const type = expression->getEvaluator()->evaluate(cache);

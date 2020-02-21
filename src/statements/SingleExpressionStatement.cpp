@@ -35,7 +35,7 @@ namespace arrow {
             SingleExpressionStatementEvaluator(SingleExpressionStatement statement)
               : m_statement(std::move(statement))
             {}
-            StatementResult evaluate(Cache & cache) const override
+            StatementResult evaluate(Environment & cache) const override
             {
                 auto const expression = m_statement.getExpression();
                 (void)expression->getEvaluator()->evaluate(cache);

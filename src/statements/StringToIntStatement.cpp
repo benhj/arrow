@@ -11,7 +11,7 @@ namespace arrow {
     StringToIntStatement::StringToIntStatement(long const lineNumber,
                                                ArrowStatement arrowStatement,
                                                std::ostream & os)
-    : Statement(lineNumber, os)
+      : Statement(lineNumber, os)
       , m_arrowStatement(std::move(arrowStatement))
     {
     }
@@ -30,7 +30,7 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            StatementResult evaluate(Cache & cache) const override
+            StatementResult evaluate(Environment & cache) const override
             {
                 auto const expression = m_statement.getExpression();
                 auto const type = expression->getEvaluator()->evaluate(cache);

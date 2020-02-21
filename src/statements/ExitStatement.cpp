@@ -37,7 +37,7 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            StatementResult evaluate(Cache & cache) const override
+            StatementResult evaluate(Environment & cache) const override
             {
                 exit(0);
                 return StatementResult::Continue;

@@ -10,7 +10,7 @@ namespace arrow {
       : m_listExpression(std::move(listExpression))
     {
     }
-    Type ListExpressionEvaluator::evaluate(Cache & cache) const 
+    Type ListExpressionEvaluator::evaluate(Environment & cache) const 
     {
         std::vector<Type> elements;
         auto const parts = m_listExpression.getParts();

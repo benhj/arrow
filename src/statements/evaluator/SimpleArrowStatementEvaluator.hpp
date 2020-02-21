@@ -4,7 +4,7 @@
 
 #include "StatementEvaluator.hpp"
 #include "statements/SimpleArrowStatement.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         SimpleArrowStatementEvaluator(SimpleArrowStatement statement);
-        StatementResult evaluate(Cache&) const override;
+        StatementResult evaluate(Environment&) const override;
       private:
         SimpleArrowStatement m_statement;
     };

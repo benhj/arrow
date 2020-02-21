@@ -23,7 +23,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type FolderListRecursiveFunctionExpressionEvaluator::evaluate(Cache & cache) const
+    Type FolderListRecursiveFunctionExpressionEvaluator::evaluate(Environment & cache) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();

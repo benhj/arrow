@@ -32,7 +32,7 @@ namespace arrow {
             {
             }
 
-            Type evaluate(Cache &) const override
+            Type evaluate(Environment &) const override
             {
                 auto const token = m_expression.getQQStringToken();
                 return {TypeDescriptor::QQString, token.raw};

@@ -12,7 +12,7 @@ namespace arrow {
     namespace {
         template <typename T>
         void add(Type container, Type evaluated, 
-                 Cache & cache, TypeDescriptor const desc,
+                 Environment & cache, TypeDescriptor const desc,
                  Token identifier) {
 
             auto vec = std::get<std::vector<T>>(container.m_variantType);
@@ -23,7 +23,7 @@ namespace arrow {
         }
 
         template <typename T>
-        void add(Type evaluated, Cache & cache, TypeDescriptor const desc,
+        void add(Type evaluated, Environment & cache, TypeDescriptor const desc,
                  Token identifier) {
 
             auto deduced = std::get<T>(evaluated.m_variantType);
@@ -38,7 +38,7 @@ namespace arrow {
       : m_statement(std::move(statement))
     {
     }
-    StatementResult SimpleArrowStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult SimpleArrowStatementEvaluator::evaluate(Environment & cache) const
     {
         auto const expression = m_statement.getExpression();
         auto evaluated = expression->getEvaluator()->evaluate(cache);

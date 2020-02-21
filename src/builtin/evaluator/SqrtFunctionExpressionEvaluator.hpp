@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/SqrtFunctionExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class SqrtFunctionExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit SqrtFunctionExpressionEvaluator(SqrtFunctionExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         SqrtFunctionExpression m_expression;
     };

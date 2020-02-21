@@ -21,7 +21,7 @@ namespace arrow {
               : m_tok(std::move(tok))
             {
             }
-            Type evaluate(Cache & cache) const override
+            Type evaluate(Environment & cache) const override
             {
                 // Note, literal string type needs to be converted to ListWord
                 auto type = IdentifierEvaluator(std::move(m_tok)).evaluate(cache);

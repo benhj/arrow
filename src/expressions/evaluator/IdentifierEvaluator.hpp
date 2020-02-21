@@ -4,13 +4,13 @@
 
 #include "ExpressionEvaluator.hpp"
 #include "lexer/Token.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
 
     struct IdentifierEvaluator : public ExpressionEvaluator {
         IdentifierEvaluator(Token tok);
-        Type evaluate(Cache & cache) const override;
+        Type evaluate(Environment & cache) const override;
       private:
         Token m_tok;
     };

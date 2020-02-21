@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/filesystem/FileReadLinesFunctionExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class FileReadLinesFunctionExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit FileReadLinesFunctionExpressionEvaluator(FileReadLinesFunctionExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         FileReadLinesFunctionExpression m_expression;
     };

@@ -4,7 +4,7 @@
 
 #include "StatementEvaluator.hpp"
 #include "statements/RepeatStatement.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit RepeatStatementEvaluator(RepeatStatement statement);
-        StatementResult evaluate(Cache&) const override;
+        StatementResult evaluate(Environment&) const override;
       private:
         RepeatStatement m_statement;
     };

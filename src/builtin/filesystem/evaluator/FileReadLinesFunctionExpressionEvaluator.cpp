@@ -17,7 +17,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type FileReadLinesFunctionExpressionEvaluator::evaluate(Cache & cache) const
+    Type FileReadLinesFunctionExpressionEvaluator::evaluate(Environment & cache) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();

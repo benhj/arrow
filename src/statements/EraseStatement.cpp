@@ -39,7 +39,7 @@ namespace arrow {
               : m_statement(std::move(statement))
             {
             }
-            StatementResult evaluate(Cache & cache) const override
+            StatementResult evaluate(Environment & cache) const override
             {
                 auto casted = dynamic_cast<IndexExpression*>(m_statement.getExpression().get());
                 auto containerIdentifier = casted->getIdentifierToken();

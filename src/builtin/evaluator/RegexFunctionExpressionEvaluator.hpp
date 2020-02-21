@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/RegexFunctionExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class RegexFunctionExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit RegexFunctionExpressionEvaluator(RegexFunctionExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         RegexFunctionExpression m_expression;
     };

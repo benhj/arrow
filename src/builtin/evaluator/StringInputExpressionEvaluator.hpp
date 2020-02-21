@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/StringInputExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class StringInputExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit StringInputExpressionEvaluator(StringInputExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         StringInputExpression m_expression;
     };

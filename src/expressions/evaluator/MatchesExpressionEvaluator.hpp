@@ -5,7 +5,7 @@
 #include "ExpressionEvaluator.hpp"
 #include "expressions/MatchesExpression.hpp"
 #include "representation/Type.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
@@ -14,7 +14,7 @@ namespace arrow {
     {
       public:
         explicit MatchesExpressionEvaluator(MatchesExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         MatchesExpression m_expression;
     };

@@ -9,7 +9,7 @@ namespace arrow {
       : m_statement(std::move(statement))
     {
     }
-    StatementResult FunctionStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult FunctionStatementEvaluator::evaluate(Environment & cache) const
     {
         auto const name = m_statement.getName().raw;
         auto const innerStatement = m_statement.getInnerStatement();

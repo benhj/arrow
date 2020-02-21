@@ -21,7 +21,7 @@ namespace arrow {
             {
             }
 
-            Type evaluate(Cache & cache) const override
+            Type evaluate(Environment & cache) const override
             {
                 auto const & cacheKey = m_tok.raw;
                 if(cacheKey == "true") {

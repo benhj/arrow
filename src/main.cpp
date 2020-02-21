@@ -5,7 +5,7 @@
 #include "parser/ExpressionParser.hpp"
 #include "parser/Parser.hpp"
 #include "parser/LanguageException.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include "statements/evaluator/StatementEvaluator.hpp"
 #include <fstream>
 #include <iostream>
@@ -13,7 +13,7 @@
 
 int main(int argc, char ** argv) {
 
-    arrow::Cache cache;
+    arrow::Environment cache;
     // Load program file when an argument is provided
     if(argc > 1) {
         try {

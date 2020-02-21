@@ -73,7 +73,7 @@ namespace arrow {
     std::vector<Type> Parser::parseProgramArguments()
     {
         std::vector<Type> types;
-        Cache notUsed;
+        Environment notUsed;
 
         while(m_tm.notAtEnd()) {
             auto expression = m_ep.parseExpression();

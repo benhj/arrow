@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/LengthExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class LengthExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit LengthExpressionEvaluator(LengthExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         LengthExpression m_expression;
     };

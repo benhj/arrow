@@ -19,7 +19,7 @@ namespace arrow {
             {
             }
 
-            Type evaluate(Cache &) const override
+            Type evaluate(Environment &) const override
             {
                 return {TypeDescriptor::Real, {std::stold(m_tok.raw)}};
             }

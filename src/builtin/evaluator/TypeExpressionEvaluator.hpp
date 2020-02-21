@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/TypeExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class TypeExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit TypeExpressionEvaluator(TypeExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         TypeExpression m_expression;
     };

@@ -5,7 +5,7 @@
 #include "ExpressionEvaluator.hpp"
 #include "expressions/ListExpression.hpp"
 #include "representation/Type.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
@@ -14,7 +14,7 @@ namespace arrow {
     {
       public:
         explicit ListExpressionEvaluator(ListExpression listExpression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         ListExpression m_listExpression;
     };

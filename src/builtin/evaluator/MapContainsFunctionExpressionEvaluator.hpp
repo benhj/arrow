@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/MapContainsFunctionExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class MapContainsFunctionExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit MapContainsFunctionExpressionEvaluator(MapContainsFunctionExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         MapContainsFunctionExpression m_expression;
     };

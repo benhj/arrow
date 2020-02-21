@@ -17,7 +17,7 @@ namespace arrow {
         evaluateContainerElements(T const & elements,
                                   std::shared_ptr<Statement> innerStatement,
                                   std::vector<Token> indices,
-                                  Cache & cache)
+                                  Environment & cache)
         {
 
             auto evaluated = StatementResult::Continue;
@@ -27,7 +27,7 @@ namespace arrow {
                 if(it >= std::end(elements)) {
                     break;
                 }
-                cache.pushCacheLayer();
+                cache.pushEnvironmentLayer();
                 if constexpr (std::is_same_v<typename T::value_type, Type>) {
                     auto step = 0;
                     for(auto const & index : indices) {
@@ -84,7 +84,7 @@ namespace arrow {
                     }
                 }
                 evaluated = innerStatement->getEvaluator()->evaluate(cache);
-                cache.popCacheLayer();
+                cache.popEnvironmentLayer();
                 if(evaluated != StatementResult::Continue) {
                     return evaluated;
                 }
@@ -98,7 +98,7 @@ namespace arrow {
     {
     }
 
-    StatementResult ForStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult ForStatementEvaluator::evaluate(Environment & cache) const
     {
         auto indices = m_statement.getIndices();
         auto identifier = m_statement.getIdentifier();

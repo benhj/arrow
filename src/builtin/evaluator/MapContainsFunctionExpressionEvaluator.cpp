@@ -12,7 +12,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type MapContainsFunctionExpressionEvaluator::evaluate(Cache & cache) const
+    Type MapContainsFunctionExpressionEvaluator::evaluate(Environment & cache) const
     {
         auto const expression = m_expression.getExpression();
         auto const col = expression->getEvaluator()->evaluate(cache);

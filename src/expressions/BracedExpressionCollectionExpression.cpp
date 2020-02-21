@@ -11,7 +11,7 @@ namespace arrow {
     namespace {
 
         template <typename T>
-        Type add(Cache & cache,
+        Type add(Environment & cache,
                  std::vector<std::shared_ptr<Expression>> expressions,
                  TypeDescriptor const arrayType) {
 
@@ -50,7 +50,7 @@ namespace arrow {
               : m_ece(std::move(ece))
             {
             }
-            Type evaluate(Cache & cache) const override
+            Type evaluate(Environment & cache) const override
             {
                 auto expressions = m_ece.getExpressionCollection();
                 if(expressions.empty()) {

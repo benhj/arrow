@@ -4,13 +4,13 @@
 
 #include "ReceiverEvaluator.hpp"
 #include "lexer/Token.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
 
     struct IdentifierReceiverEvaluator : public ReceiverEvaluator {
         IdentifierReceiverEvaluator(Token tok);
-        void evaluate(Type incoming, Cache & cache) const override;
+        void evaluate(Type incoming, Environment & cache) const override;
       private:
         Token m_tok;
     };

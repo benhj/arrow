@@ -41,7 +41,7 @@ namespace arrow {
             {
             }
 
-            StatementResult evaluate(Cache & cache) const override
+            StatementResult evaluate(Environment & cache) const override
             {
                 auto innerStatement = m_statement.getInnerStatement();
                 return innerStatement->getEvaluator()->evaluate(cache);

@@ -13,7 +13,7 @@ namespace arrow {
     {
     }
 
-    StatementResult IfStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult IfStatementEvaluator::evaluate(Environment & cache) const
     {
         auto ifEval = m_statement.getExpression()->getEvaluator();
         auto ifEvaluated = ifEval->evaluate(cache);
@@ -23,9 +23,9 @@ namespace arrow {
         auto theBool = std::get<bool>(ifEvaluated.m_variantType);
         if(theBool) {
             auto innerStatement = m_statement.getInnerStatement();
-            cache.pushCacheLayer();
+            cache.pushEnvironmentLayer();
             auto res = innerStatement->getEvaluator()->evaluate(cache);
-            cache.popCacheLayer();
+            cache.popEnvironmentLayer();
             return res;
         } else {
             auto elseIfParts = m_statement.getElseIfParts();
@@ -38,18 +38,18 @@ namespace arrow {
                 auto partBool = std::get<bool>(partExpressionEvaluated.m_variantType);
                 if(partBool) {
                     auto innerStatement = part->getInnerStatement();
-                    cache.pushCacheLayer();
+                    cache.pushEnvironmentLayer();
                     auto res = innerStatement->getEvaluator()->evaluate(cache);
-                    cache.popCacheLayer();
+                    cache.popEnvironmentLayer();
                     return res;
                 }
             }
             auto elsePart = m_statement.getElsePart();
             if(elsePart) {
                 auto innerStatement = elsePart->getInnerStatement();
-                cache.pushCacheLayer();
+                cache.pushEnvironmentLayer();
                 auto res = innerStatement->getEvaluator()->evaluate(cache);
-                cache.popCacheLayer();
+                cache.popEnvironmentLayer();
                 return res;
             }
         }

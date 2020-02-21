@@ -83,7 +83,7 @@ namespace arrow {
     {
     }
 
-    Type MathExpressionEvaluator::evaluate(Cache & cache) const
+    Type MathExpressionEvaluator::evaluate(Environment & cache) const
     {
         auto leftEval = m_expression.getExpressionLeft()->getEvaluator();
         auto rightEval = m_expression.getExpressionRight()->getEvaluator();

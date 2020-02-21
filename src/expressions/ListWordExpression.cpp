@@ -20,7 +20,7 @@ namespace arrow {
             {
             }
 
-            Type evaluate(Cache & cache) const override
+            Type evaluate(Environment & cache) const override
             {
                 return {TypeDescriptor::ListWord, m_tok.raw};
             }

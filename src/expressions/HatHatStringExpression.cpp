@@ -21,7 +21,7 @@ namespace arrow {
               : m_tok(std::move(tok))
             {
             }
-            Type evaluate(Cache & cache) const override
+            Type evaluate(Environment & cache) const override
             {
                 auto t = IdentifierEvaluator(std::move(m_tok)).evaluate(cache);
                 if(t.m_descriptor == TypeDescriptor::String) {

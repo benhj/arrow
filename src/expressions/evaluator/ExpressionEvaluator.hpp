@@ -3,13 +3,13 @@
 #pragma once
 
 #include "representation/Type.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
     class ExpressionEvaluator
     {
       public:
-        virtual Type evaluate(Cache&) const = 0;
+        virtual Type evaluate(Environment&) const = 0;
     };
 }

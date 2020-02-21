@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/TokenizeFunctionExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class TokenizeFunctionExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit TokenizeFunctionExpressionEvaluator(TokenizeFunctionExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         TokenizeFunctionExpression m_expression;
     };

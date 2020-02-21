@@ -12,17 +12,17 @@
 
 namespace arrow {
 
-    class Cache
+    class Environment
     {
       public:
-        using CacheMap = std::map<std::string, Type>;
-        Cache();
+        using EnvironmentMap = std::map<std::string, Type>;
+        Environment();
         Type get(std::string identifier) const;
         void add(std::string identifier, Type const type);
         bool has(std::string identifier) const;
         void remove(std::string identifier) const;
-        void pushCacheLayer();
-        void popCacheLayer();
+        void pushEnvironmentLayer();
+        void popEnvironmentLayer();
         void pushProgramArgument(Type arg);
         Type getProgramArgument(int64_t const index) const;
 
@@ -38,11 +38,11 @@ namespace arrow {
         static void pushReturnValue(Type t);
         static Type getAndPopReturnValue();
 
-        CacheMap::iterator findAndRetrieveCached(std::string identifier) const;
+        EnvironmentMap::iterator findAndRetrieveEnvironmentd(std::string identifier) const;
 
       private:
 
-        std::deque<CacheMap> mutable m_cacheStack;
+        std::deque<EnvironmentMap> mutable m_cacheStack;
         std::vector<Type> mutable m_programArguments;
         static std::deque<Type> m_returnStack;
         std::mutex mutable m_mutex;

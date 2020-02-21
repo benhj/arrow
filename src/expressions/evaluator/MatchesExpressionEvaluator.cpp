@@ -12,7 +12,7 @@ namespace arrow {
 
         bool listMatch(std::vector<Type> const & left,
                        std::vector<Type> const & right,
-                       Cache & cache,
+                       Environment & cache,
                        long const lineNumber);
 
         // To describe how list tokens match.
@@ -26,7 +26,7 @@ namespace arrow {
             NoMatch    // [hello], [goodbye]
         };
 
-        MatchType matches(Type left, Type right, Cache & cache, long const lineNumber)
+        MatchType matches(Type left, Type right, Environment & cache, long const lineNumber)
         {   
             if(left == right) {
                 return MatchType::Exact;
@@ -91,7 +91,7 @@ namespace arrow {
                         std::vector<Type> const & right,
                         std::vector<Type>::const_iterator & itLeft,
                         std::vector<Type>::const_iterator & itRight,
-                        Cache & cache,
+                        Environment & cache,
                         long const lineNumber)
         {
             ++itLeft;
@@ -128,7 +128,7 @@ namespace arrow {
                         std::vector<Type> const & right,
                         std::vector<Type>::const_iterator & itLeft,
                         std::vector<Type>::const_iterator & itRight,
-                        Cache & cache,
+                        Environment & cache,
                         long const lineNumber)
         {
 
@@ -155,7 +155,7 @@ namespace arrow {
                          std::vector<Type> const & right,
                          std::vector<Type>::const_iterator & itLeft,
                          std::vector<Type>::const_iterator & itRight,
-                         Cache & cache,
+                         Environment & cache,
                          long const lineNumber)
         {
 
@@ -207,7 +207,7 @@ namespace arrow {
 
         bool listMatch(std::vector<Type> const & left,
                        std::vector<Type> const & right,
-                       Cache & cache,
+                       Environment & cache,
                        long const lineNumber)
         {
 
@@ -297,7 +297,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type MatchesExpressionEvaluator::evaluate(Cache & cache) const 
+    Type MatchesExpressionEvaluator::evaluate(Environment & cache) const 
     {
         auto const left = m_expression.getLeftExpression();
         auto const evalLeft = left->getEvaluator()->evaluate(cache);

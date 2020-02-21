@@ -22,7 +22,7 @@ namespace arrow {
     {
         struct ReturnStatementEvaluator : public StatementEvaluator
         {
-            StatementResult evaluate(Cache &) const override
+            StatementResult evaluate(Environment &) const override
             {
                 return StatementResult::Return;
             }

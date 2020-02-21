@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/filesystem/FileWriteBytesFunctionExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class FileWriteBytesFunctionExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit FileWriteBytesFunctionExpressionEvaluator(FileWriteBytesFunctionExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         FileWriteBytesFunctionExpression m_expression;
     };

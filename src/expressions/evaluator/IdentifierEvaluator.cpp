@@ -11,7 +11,7 @@ namespace arrow {
     {
     }
 
-    Type IdentifierEvaluator::evaluate(Cache & cache) const
+    Type IdentifierEvaluator::evaluate(Environment & cache) const
     {
         auto const & cacheKey = m_tok.raw;
         if(!cache.has(cacheKey)) {

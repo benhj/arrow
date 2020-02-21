@@ -42,7 +42,7 @@ namespace arrow {
             {
             }
 
-           StatementResult evaluate(Cache & cache) const override
+           StatementResult evaluate(Environment & cache) const override
             {
                 auto const bodyStatements = m_statement.getBodyStatements();
                 ThreadManager::create([bodyStatements{std::move(bodyStatements)}, &cache] {

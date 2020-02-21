@@ -11,7 +11,7 @@ namespace arrow {
 
     namespace {
         StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                                     Cache & cache)
+                                     Environment & cache)
         {
             for(auto const & statement : bodyStatements) {
                 auto const result = statement->getEvaluator()->evaluate(cache);
@@ -33,7 +33,7 @@ namespace arrow {
     {
     }
 
-    StatementResult RepeatStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult RepeatStatementEvaluator::evaluate(Environment & cache) const
     {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
         auto resolved = expressionEvaluator->evaluate(cache);
@@ -51,9 +51,9 @@ namespace arrow {
         auto innerStatement = m_statement.getInnerStatement();
         auto evaluated = StatementResult::Continue;
         for(int64_t it = 0; it < val; ++it) {
-            cache.pushCacheLayer();
+            cache.pushEnvironmentLayer();
             evaluated = innerStatement->getEvaluator()->evaluate(cache);
-            cache.popCacheLayer();
+            cache.popEnvironmentLayer();
             if(evaluated == StatementResult::Break) {
                 break;
             } else if(evaluated == StatementResult::Return) {

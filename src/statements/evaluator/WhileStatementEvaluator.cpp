@@ -13,7 +13,7 @@ namespace arrow {
     {
     }
 
-    StatementResult WhileStatementEvaluator::evaluate(Cache & cache) const
+    StatementResult WhileStatementEvaluator::evaluate(Environment & cache) const
     {
         auto expressionEvaluator = m_statement.getExpression()->getEvaluator();
         auto resolved = expressionEvaluator->evaluate(cache);
@@ -24,9 +24,9 @@ namespace arrow {
         auto booleanVal = std::get<bool>(resolved.m_variantType);
         auto innerStatement = m_statement.getInnerStatement();
         while(booleanVal) {
-            cache.pushCacheLayer();
+            cache.pushEnvironmentLayer();
             auto evaluated = innerStatement->getEvaluator()->evaluate(cache);
-            cache.popCacheLayer();
+            cache.popEnvironmentLayer();
             if(evaluated == StatementResult::Break) {
                 break;
             } else if(evaluated == StatementResult::Return) {

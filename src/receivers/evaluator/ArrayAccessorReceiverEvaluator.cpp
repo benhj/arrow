@@ -13,7 +13,7 @@ namespace arrow {
     {
     }
 
-    void ArrayAccessorReceiverEvaluator::evaluate(Type incoming, Cache & cache) const
+    void ArrayAccessorReceiverEvaluator::evaluate(Type incoming, Environment & cache) const
     {
         auto indexEval = m_expression->getEvaluator()->evaluate(cache);
         auto const & cacheKey = m_tok.raw;
@@ -26,7 +26,7 @@ namespace arrow {
             auto mapKey = std::get<std::string>(indexEval.m_variantType);
             // When already exists, insert by reference
             if(cache.has(cacheKey)) {
-                auto item = cache.findAndRetrieveCached(cacheKey);
+                auto item = cache.findAndRetrieveEnvironmentd(cacheKey);
                 // If item already exists and isn't a map, throw
                 if(item->second.m_descriptor != TypeDescriptor::Map) {
                     throw LanguageException("Incompatible type",
@@ -61,7 +61,7 @@ namespace arrow {
             }
 
             // Assumed to exist given above check
-            auto item = cache.findAndRetrieveCached(cacheKey);
+            auto item = cache.findAndRetrieveEnvironmentd(cacheKey);
             if(item->second.m_descriptor == TypeDescriptor::String ||
                 item->second.m_descriptor == TypeDescriptor::ListWord) {
                 auto & str = std::get<std::string>(item->second.m_variantType);

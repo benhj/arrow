@@ -10,7 +10,7 @@ namespace arrow {
     namespace {
 
         template <typename T>
-        Type getElement(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
+        Type getElement(Type statementType, std::shared_ptr<Expression> exp, Environment & cache)
         {
             auto & container = std::get<std::vector<T>>(statementType.m_variantType);
             auto index = exp->getEvaluator()->evaluate(cache);
@@ -38,7 +38,7 @@ namespace arrow {
             }
         }
 
-        Type getElementFromString(Type statementType, std::shared_ptr<Expression> exp, Cache & cache)
+        Type getElementFromString(Type statementType, std::shared_ptr<Expression> exp, Environment & cache)
         {
             auto & container = std::get<std::string>(statementType.m_variantType);
             auto index = exp->getEvaluator()->evaluate(cache);
@@ -65,7 +65,7 @@ namespace arrow {
             {
             }
 
-            Type evaluate(Cache & cache) const override
+            Type evaluate(Environment & cache) const override
             {
                 auto const & cacheKey = m_tok.raw;
                 if(!cache.has(cacheKey)) {

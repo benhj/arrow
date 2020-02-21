@@ -8,33 +8,33 @@ namespace arrow {
 
     namespace {
         template <typename T>
-        void add(Type evaluated, Cache & cache, std::string identifier) {
+        void add(Type evaluated, Environment & cache, std::string identifier) {
             cache.pushBackContainerElement(std::move(identifier), evaluated);
         }
 
-        void addIntToRealVector(Type evaluated, Cache & cache, std::string identifier) {
+        void addIntToRealVector(Type evaluated, Environment & cache, std::string identifier) {
             // This is always assumed to succeed
-            auto found = cache.findAndRetrieveCached(std::move(identifier));
+            auto found = cache.findAndRetrieveEnvironmentd(std::move(identifier));
             auto & vec = std::get<std::vector<real>>(found->second.m_variantType);
             auto deduced = std::get<int64_t>(evaluated.m_variantType);
             vec.push_back(deduced);
         }    
 
-        void addToString(Type evaluated, Cache & cache, std::string identifier) {
+        void addToString(Type evaluated, Environment & cache, std::string identifier) {
 
             // This is always assumed to succeed
-            auto found = cache.findAndRetrieveCached(std::move(identifier));
+            auto found = cache.findAndRetrieveEnvironmentd(std::move(identifier));
             auto & vec = std::get<std::string>(found->second.m_variantType);
             auto deduced = std::get<char>(evaluated.m_variantType);
             vec.push_back(deduced);
         }
 
-        void addToList(Type evaluated, Cache & cache, std::string identifier) {
+        void addToList(Type evaluated, Environment & cache, std::string identifier) {
             cache.pushBackContainerElement(std::move(identifier), evaluated);
         }
 
         template <typename T>
-        void add(Type evaluated, Cache & cache, TypeDescriptor const desc,
+        void add(Type evaluated, Environment & cache, TypeDescriptor const desc,
                  std::string identifier) {
 
             auto deduced = std::get<T>(evaluated.m_variantType);
@@ -49,7 +49,7 @@ namespace arrow {
     {
     }
 
-    void DollarIdentifierReceiverEvaluator::evaluate(Type evaluated, Cache & cache) const
+    void DollarIdentifierReceiverEvaluator::evaluate(Type evaluated, Environment & cache) const
     {
         auto identifier = m_tok.raw;
         if(cache.has(identifier)) {

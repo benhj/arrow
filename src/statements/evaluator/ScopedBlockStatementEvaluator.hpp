@@ -4,7 +4,7 @@
 
 #include "StatementEvaluator.hpp"
 #include "statements/ScopedBlockStatement.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit ScopedBlockStatementEvaluator(ScopedBlockStatement statement);
-        StatementResult evaluate(Cache&) const override;
+        StatementResult evaluate(Environment&) const override;
       private:
         ScopedBlockStatement m_statement;
     };

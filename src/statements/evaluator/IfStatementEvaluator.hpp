@@ -4,7 +4,7 @@
 
 #include "StatementEvaluator.hpp"
 #include "statements/IfStatement.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         explicit IfStatementEvaluator(IfStatement statement);
-        StatementResult evaluate(Cache&) const override;
+        StatementResult evaluate(Environment&) const override;
       private:
         IfStatement m_statement;
     };

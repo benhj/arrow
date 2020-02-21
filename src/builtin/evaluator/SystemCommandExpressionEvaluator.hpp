@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/SystemCommandExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class SystemCommandExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit SystemCommandExpressionEvaluator(SystemCommandExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         SystemCommandExpression m_expression;
     };

@@ -16,7 +16,7 @@ namespace arrow {
     {
         struct SingleEqualEvaluator : public ExpressionEvaluator
         {
-            Type evaluate(Cache & cache) const override
+            Type evaluate(Environment & cache) const override
             {
                 return {TypeDescriptor::SingleEqual, std::string("=")};
             }

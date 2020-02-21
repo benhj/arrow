@@ -12,7 +12,7 @@ namespace arrow {
     {
       public:
         BooleanExpressionEvaluator(BooleanExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         BooleanExpression m_expression;
     };

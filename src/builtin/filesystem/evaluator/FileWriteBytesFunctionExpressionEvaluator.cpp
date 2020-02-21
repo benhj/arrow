@@ -17,7 +17,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type FileWriteBytesFunctionExpressionEvaluator::evaluate(Cache & cache) const
+    Type FileWriteBytesFunctionExpressionEvaluator::evaluate(Environment & cache) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();

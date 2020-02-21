@@ -32,7 +32,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type TrimStringFunctionExpressionEvaluator::evaluate(Cache & cache) const
+    Type TrimStringFunctionExpressionEvaluator::evaluate(Environment & cache) const
     {
         auto const expression = m_expression.getExpression();
         auto const col = expression->getEvaluator()->evaluate(cache);

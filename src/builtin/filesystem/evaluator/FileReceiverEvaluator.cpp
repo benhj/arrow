@@ -18,7 +18,7 @@ namespace arrow {
       : m_receiver(std::move(receiver))
     {
     }
-    void FileReceiverEvaluator::evaluate(Type incoming, Cache & cache) const
+    void FileReceiverEvaluator::evaluate(Type incoming, Environment & cache) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_receiver.getLineNumber();

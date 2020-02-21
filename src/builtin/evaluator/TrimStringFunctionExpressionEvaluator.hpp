@@ -4,14 +4,14 @@
 
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "builtin/TrimStringFunctionExpression.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 
 namespace arrow {
     class TrimStringFunctionExpressionEvaluator : public ExpressionEvaluator
     {
       public:
         explicit TrimStringFunctionExpressionEvaluator(TrimStringFunctionExpression expression);
-        Type evaluate(Cache&) const override;
+        Type evaluate(Environment&) const override;
       private:
         TrimStringFunctionExpression m_expression;
     };

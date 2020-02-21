@@ -3,13 +3,13 @@
 #pragma once
 
 #include "representation/Type.hpp"
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
     class ReceiverEvaluator
     {
       public:
-        virtual void evaluate(Type, Cache&) const = 0;
+        virtual void evaluate(Type, Environment&) const = 0;
     };
 }

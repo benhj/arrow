@@ -16,7 +16,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type FunctionExpressionEvaluator::evaluate(Cache & cache) const
+    Type FunctionExpressionEvaluator::evaluate(Environment & cache) const
     {
         // Pull out the name of the function
         auto const name = m_expression.getName().raw;
@@ -53,7 +53,7 @@ namespace arrow {
         // The function has its own completely
         // isolated, local cache, so need to create
         // a new one here.
-        Cache newCache;
+        Environment newEnvironment;
 
         // Push in parameters into new cache. The function
         // will then access these parameters
@@ -61,14 +61,14 @@ namespace arrow {
         auto param = std::begin(paramCollEval);
         for (auto const & expr : expressionCollEval) {
             auto const raw = std::get<std::string>(param->m_variantType);
-            newCache.add(raw, expr);
+            newEnvironment.add(raw, expr);
             ++param;
         }
 
-        functionStatement->getEvaluator()->evaluate(newCache);
+        functionStatement->getEvaluator()->evaluate(newEnvironment);
         auto const funcReturnIdentifier = functionStatement->getReturnIdentifier();
         if(funcReturnIdentifier.lexeme != Lexeme::NIL) {
-            return newCache.get(funcReturnIdentifier.raw);
+            return newEnvironment.get(funcReturnIdentifier.raw);
         }
         return {TypeDescriptor::Nil, false};
     }

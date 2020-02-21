@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "representation/Cache.hpp"
+#include "representation/Environment.hpp"
 #include <memory>
 
 namespace arrow {
@@ -16,6 +16,6 @@ namespace arrow {
     class StatementEvaluator
     {
       public:
-        virtual StatementResult evaluate(Cache&) const = 0;
+        virtual StatementResult evaluate(Environment&) const = 0;
     };
 }

@@ -1,6 +1,6 @@
 /// (c) Ben Jones 2019 - present
 
-#include "Cache.hpp"
+#include "Environment.hpp"
 #include "parser/LanguageException.hpp"
 
 namespace arrow {
@@ -40,15 +40,15 @@ namespace arrow {
         }
     }
 
-    std::deque<Type> Cache::m_returnStack;
+    std::deque<Type> Environment::m_returnStack;
 
-    Cache::Cache()
+    Environment::Environment()
       : m_cacheStack{}
     {
-        pushCacheLayer();
+        pushEnvironmentLayer();
     }
 
-    Cache::CacheMap::iterator Cache::findAndRetrieveCached(std::string identifier) const
+    Environment::EnvironmentMap::iterator Environment::findAndRetrieveEnvironmentd(std::string identifier) const
     {
         for (auto & layer : m_cacheStack) {
             auto found = layer.find(identifier);
@@ -56,20 +56,20 @@ namespace arrow {
                 return found;
             }
         }
-        return CacheMap::iterator();
+        return EnvironmentMap::iterator();
     }
 
-    Type Cache::get(std::string identifier) const
+    Type Environment::get(std::string identifier) const
     {
-        auto found = findAndRetrieveCached(identifier);
-        if(found == CacheMap::iterator()) { return {TypeDescriptor::None, false}; }
+        auto found = findAndRetrieveEnvironmentd(identifier);
+        if(found == EnvironmentMap::iterator()) { return {TypeDescriptor::None, false}; }
         return found->second;
     }
 
-    void Cache::add(std::string identifier, Type const type)
+    void Environment::add(std::string identifier, Type const type)
     {
-        auto found = findAndRetrieveCached(identifier);
-        if(found != CacheMap::iterator()) {
+        auto found = findAndRetrieveEnvironmentd(identifier);
+        if(found != EnvironmentMap::iterator()) {
             // Remove original instance of value
             found->second.m_variantType.swap(type.m_variantType);
             return;
@@ -77,12 +77,12 @@ namespace arrow {
         // Add brand new instance
         m_cacheStack[0].emplace(identifier, type);
     }
-    bool Cache::has(std::string identifier) const
+    bool Environment::has(std::string identifier) const
     {
-        auto found = findAndRetrieveCached(identifier);
-        return found != CacheMap::iterator();
+        auto found = findAndRetrieveEnvironmentd(identifier);
+        return found != EnvironmentMap::iterator();
     }
-    void Cache::remove(std::string identifier) const
+    void Environment::remove(std::string identifier) const
     {
         for (auto & layer : m_cacheStack) {
             auto found = layer.find(identifier);
@@ -93,9 +93,9 @@ namespace arrow {
         }
     }
 
-    void Cache::pushBackContainerElement(std::string identifier, Type const type)
+    void Environment::pushBackContainerElement(std::string identifier, Type const type)
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveEnvironmentd(identifier);
         
         if(found->second.m_descriptor == TypeDescriptor::Ints) {
             auto & casted = std::get<std::vector<int64_t>>(found->second.m_variantType);
@@ -123,11 +123,11 @@ namespace arrow {
         } 
     }
 
-    void Cache::setElementInContainer(std::string identifier,
+    void Environment::setElementInContainer(std::string identifier,
                                       int const index,
                                       Type const type)
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveEnvironmentd(identifier);
         try {
             if(type.m_descriptor == TypeDescriptor::Int) {
                 updateArray<int64_t>(found->second.m_variantType, type, index);
@@ -152,10 +152,10 @@ namespace arrow {
         updateArray<Type>(found->second.m_variantType, type, index);
     }
 
-    void Cache::eraseElementInContainer(std::string identifier,
+    void Environment::eraseElementInContainer(std::string identifier,
                                         int const index)
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveEnvironmentd(identifier);
         {
             auto result = tryErase<int64_t>(found->second.m_variantType, index);
             if(result.first) {
@@ -201,31 +201,31 @@ namespace arrow {
     }
 
 
-    void Cache::pushCacheLayer()
+    void Environment::pushEnvironmentLayer()
     {
-        m_cacheStack.emplace_front(CacheMap());
+        m_cacheStack.emplace_front(EnvironmentMap());
     }
-    void Cache::popCacheLayer()
+    void Environment::popEnvironmentLayer()
     {
         m_cacheStack.pop_front();
     }
 
-    void Cache::pushReturnValue(Type t)
+    void Environment::pushReturnValue(Type t)
     {
         m_returnStack.push_front(std::move(t));
     }
-    Type Cache::getAndPopReturnValue()
+    Type Environment::getAndPopReturnValue()
     {
         auto t = m_returnStack[0];
         m_returnStack.pop_front();
         return t;
     }
-    void Cache::pushProgramArgument(Type arg)
+    void Environment::pushProgramArgument(Type arg)
     {
         m_programArguments.push_back(std::move(arg));
     }
 
-    Type Cache::getProgramArgument(int64_t const index) const
+    Type Environment::getProgramArgument(int64_t const index) const
     {
         return m_programArguments[index];
     }

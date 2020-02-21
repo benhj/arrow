@@ -18,7 +18,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
-    Type StringInputExpressionEvaluator::evaluate(Cache & cache) const
+    Type StringInputExpressionEvaluator::evaluate(Environment & cache) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
