@@ -6,6 +6,7 @@
 #include "ReceiverParser.hpp"
 #include "TokenManager.hpp"
 #include "lexer/Token.hpp"
+#include "representation/Environment.hpp"
 #include "representation/Type.hpp"
 #include "receivers/Receiver.hpp"
 #include "statements/Statement.hpp"
@@ -21,17 +22,16 @@ namespace arrow {
     {
       public:
         Parser(std::vector<Token> tokens,
-               std::ostream & os);
+               Environment & environment);
         Parser() = delete;
         void parse();
 
         std::shared_ptr<Statement> getStartStatement() const;
         std::vector<std::shared_ptr<Statement>> getStatements() const;
-        static std::shared_ptr<FunctionStatement> getFunction(std::string identifier);
 
         /// Parses the program arguments that were tokenized
         /// by the lexer.
-        std::vector<Type> parseProgramArguments();
+        void parseProgramArguments();
 
       private:
 
@@ -39,8 +39,8 @@ namespace arrow {
         /// collection of tokens used to build the AST.
         TokenManager m_tm;
 
-        /// For outputting program
-        std::ostream & m_os;
+        /// The 'environment' of a program (program stack etc.)
+        Environment & m_environment;
 
         /// Parses expressions
         ExpressionParser m_ep;
@@ -55,9 +55,7 @@ namespace arrow {
         /// Store non-function statements
         std::vector<std::shared_ptr<Statement>> m_statements;
 
-        /// Collection of all function statements providing a lookup
-        /// during function call
-        static std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
+        /// Constructs a program statement
         std::shared_ptr<Statement> buildStatement();
 
         /// Parses statements of the form

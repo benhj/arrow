@@ -28,16 +28,13 @@ int main(int argc, char ** argv) {
                 }
                 in << argv[i];
                 auto argTokens = arrow::Lexer::tokenize(in);
-                arrow::Parser p(argTokens, std::cout);
-                auto progArgs = p.parseProgramArguments();
-                for(auto const & a : progArgs) {
-                    environment.pushProgramArgument(a);
-                }
+                arrow::Parser p(argTokens, environment);
+                p.parseProgramArguments();
             }
 
             // Now parse actual program
             auto tokens = arrow::Lexer::tokenize(in);
-            arrow::Parser p(tokens, std::cout);
+            arrow::Parser p(tokens, environment);
             p.parse();
             auto start = p.getStartStatement();
             if(start) {
@@ -60,7 +57,7 @@ int main(int argc, char ** argv) {
         }
         std::stringstream ss(com);
         auto tokens = arrow::Lexer::tokenize(ss);
-        arrow::Parser parser(tokens, std::cout);
+        arrow::Parser parser(tokens, environment);
         try {
             parser.parse();
             auto statements = parser.getStatements();

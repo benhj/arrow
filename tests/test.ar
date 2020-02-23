@@ -438,6 +438,75 @@ fn types() {
     prn "     (types)";
 }
 
+fn break_command() {
+    0 -> score;
+
+    0 -> i;
+    ;;; break when i is five
+    while(i < 10) {
+        i + 1 -> i;
+        if(i = 5) {
+            break;
+        }
+    }
+    test(5, i, score) -> score;
+
+    0 -> i;
+    0 -> j;
+    ;;; nested break -- should only break on inner
+    while(i < 10) {
+        i + 1 -> i;
+        while(j < 10) {
+            if(j = 5) {
+                break;
+            }
+            j + 1 -> j;
+        }
+    }
+    test(10, i, score) -> score;
+    test(5, j, score) -> score;
+
+    ;;; break with for-loop
+    [one two three four five] -> list;
+    "" -> i;
+    for i in list {
+        if(i = "three") {
+            break;
+        }
+    }
+    test("three", i, score) -> score;
+
+    ;;; break with repeat loop
+    0 -> i;
+    repeat 10 times {
+        i + 1 -> i;
+        if(i = 5) {
+            break;
+        }
+    }
+    test(5, i, score) -> score;
+
+    ;;; nested break statement; only break on inner
+    0 -> i;
+    0 -> j;
+    repeat 10 times {
+        i + 1 -> i;
+        0 -> j;
+        repeat 10 times {
+            j + 1 -> j;
+            if(j = 5) {
+                break;
+            }
+        }
+    }
+    test(10, i, score) -> score;
+    test(5, j, score) -> score;
+
+    print_score(7, score);
+    prn "     (break_command)";
+
+}
+
 start {
     basic();
     int_array();
@@ -452,4 +521,5 @@ start {
     for_loop_multi_element();
     builtin_length();
     types();
+    break_command();
 }

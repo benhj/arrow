@@ -14,10 +14,13 @@ namespace arrow {
         auto const name = m_statement.getName().raw;
         auto const innerStatement = m_statement.getInnerStatement();
         auto const returnIdentifier = m_statement.getReturnIdentifier();
-        (void)innerStatement->getEvaluator()->evaluate(environment);
+        auto res = innerStatement->getEvaluator()->evaluate(environment);
         if(returnIdentifier.lexeme != Lexeme::NIL && !environment.has(returnIdentifier.raw)) {
             throw LanguageException("Can't find return value in function statement",
                                     returnIdentifier.lineNumber);
+        }
+        if(res == StatementResult::Exit) {
+            return res;
         }
         return StatementResult::Continue;
     }

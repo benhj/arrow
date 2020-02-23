@@ -4,8 +4,10 @@
 
 #include "Type.hpp"
 #include "TypeDescriptor.hpp"
+#include "statements/FunctionStatement.hpp"
 #include <deque>
 #include <map>
+#include <memory>
 #include <optional>
 #include <ostream>
 #include <mutex>
@@ -17,11 +19,21 @@ namespace arrow {
     {
       public:
         using EnvironmentMap = std::map<std::string, Type>;
+
         explicit Environment(std::ostream & os);
 
         /// Retrive the output stream used for writing output
         /// (for example, std::out)
         std::ostream & getOutputStream();
+
+        /// Add function table
+        Environment & withFunctions(std::map<std::string, std::shared_ptr<FunctionStatement>>);
+
+        /// Add program argument lookup table
+        Environment & withProgramArgs(std::vector<Type>);
+
+        /// Retrieve program argument table
+        std::vector<Type> getProgramArgs() const;
 
         /// Retrieve a cached type with given identifier
         Type get(std::string identifier) const;
@@ -42,28 +54,61 @@ namespace arrow {
 
         /// Popping an environment layer when exiting a scope.
         void popEnvironmentLayer();
+
+        /// Add a program argument to the program arg container
         void pushProgramArgument(Type arg);
+
+        /// Retrieve a program arg. at given index
         Type getProgramArgument(int64_t const index) const;
 
+        /// Sets an element in a cached container type
         void setElementInContainer(std::string identifier,
                                    int const index,
                                    Type const type);
 
+        /// Erases an element in a cached container type
         void eraseElementInContainer(std::string identifier,
                                      int const index);
 
+        /// Adds an element to the end of a container type
         void pushBackContainerElement(std::string identifier, Type const type);
 
-        static void pushReturnValue(Type t);
-        static Type getAndPopReturnValue();
+        /// Adds a function statement to the function lookup table
+        void addFunctionStatement(std::string identifier,
+                                  std::shared_ptr<FunctionStatement>);
 
+        /// Retrieves a function from the function lookup map
+        std::shared_ptr<FunctionStatement> getFunction(std::string identifier) const;
+
+        /// Retrives the function lookup table
+        std::map<std::string, std::shared_ptr<FunctionStatement>> getFunctions() const;
+
+        /// Returns an iterator to a cached element
         EnvironmentMap::iterator findAndRetrieveCached(std::string identifier) const;
 
+        /// Retrieves exit state (note, set when 'exit' is called from within program)
+        bool getExitState() const;
+
+        /// Sets the program exit state to true
+        void setExitState();
+
       private:
+        /// For outputting program to stream (e.g. std::out, or some gui output stream).
         std::ostream & m_ostream;
+
+        /// A stack of type caches (rename?)
         std::deque<EnvironmentMap> mutable m_environmentStack;
+
+        /// Function lookup table (note, generated during parsing)
+        std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
+
+        /// Program arguments (note, generated from main at program start)
         std::vector<Type> mutable m_programArguments;
-        static std::deque<Type> m_returnStack;
+
+        /// Added when experimenting with async command
         std::mutex mutable m_mutex;
+
+        // When a program is exiting, this boolean will be true
+        bool m_exitState;
     };
 }

@@ -85,7 +85,10 @@ namespace arrow {
                 }
                 evaluated = innerStatement->getEvaluator()->evaluate(environment);
                 environment.popEnvironmentLayer();
-                if(evaluated != StatementResult::Continue) {
+                if(evaluated == StatementResult::Break) {
+                    break;
+                } else if(evaluated == StatementResult::Return ||
+                      evaluated == StatementResult::Exit) {
                     return evaluated;
                 }
             }

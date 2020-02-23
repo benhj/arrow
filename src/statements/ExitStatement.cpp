@@ -38,8 +38,7 @@ namespace arrow {
             }
             StatementResult evaluate(Environment & environment) const override
             {
-                exit(0);
-                return StatementResult::Continue;
+                return StatementResult::Exit;
             }
           private:
             ExitStatement m_statement;

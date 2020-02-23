@@ -45,17 +45,15 @@
 
 namespace arrow {
 
-    std::map<std::string, std::shared_ptr<FunctionStatement>> Parser::m_functions{};
-
-    Parser::Parser(std::vector<Token> tokens, std::ostream & os)
+    Parser::Parser(std::vector<Token> tokens,
+                   Environment & environment)
       : m_tm(std::move(tokens))
-      , m_os(os)
+      , m_environment(environment)
       , m_ep(m_tm)
       , m_rp(m_tm)
       , m_startStatement(nullptr)
       , m_statements()
     {
-        m_functions.clear();
     }
 
     void Parser::parse()
@@ -70,21 +68,19 @@ namespace arrow {
         }
     }
 
-    std::vector<Type> Parser::parseProgramArguments()
+    void Parser::parseProgramArguments()
     {
         std::vector<Type> types;
-        Environment notUsed;
-
         while(m_tm.notAtEnd()) {
             auto expression = m_ep.parseExpression();
             if(!expression) {
                 break;
             }
-            auto const evaluated = expression->getEvaluator()->evaluate(notUsed);
+            auto const evaluated = expression->getEvaluator()->evaluate(m_environment);
             types.push_back(evaluated);
+            m_environment.pushProgramArgument(evaluated);
             m_tm.advanceTokenIterator();
         }
-        return types;
     }
 
     std::shared_ptr<Statement> Parser::getStartStatement() const
@@ -95,21 +91,6 @@ namespace arrow {
     std::vector<std::shared_ptr<Statement>> Parser::getStatements() const
     {
         return m_statements;
-    }
-
-    std::shared_ptr<FunctionStatement> Parser::getFunction(std::string identifier)
-    {
-        auto found = std::find_if(std::begin(m_functions),
-                                  std::end(m_functions),
-                                  [identifier{std::move(identifier)}]
-                                  (auto const & p) {
-            return p.first == identifier;
-        });
-
-        if(found != std::end(m_functions)) {
-            return found->second;
-        }
-        return nullptr;
     }
 
     std::shared_ptr<Statement> Parser::buildStatement()
@@ -155,7 +136,7 @@ namespace arrow {
         }
         m_tm.advanceTokenIterator();
         auto const ln = m_tm.currentToken().lineNumber;
-        auto sbs = std::make_shared<ScopedBlockStatement>(ln, m_os);
+        auto sbs = std::make_shared<ScopedBlockStatement>(ln);
         while(m_tm.currentToken().lexeme != Lexeme::CLOSE_CURLY) {
             auto statement = buildStatement();
             if(statement) {
@@ -173,7 +154,7 @@ namespace arrow {
         if(m_tm.currentToken().raw == "fn") {
             return nullptr;
         }
-        auto arrowStatement = std::make_shared<ArrowStatement>(ln, m_os);
+        auto arrowStatement = std::make_shared<ArrowStatement>(ln);
         arrowStatement->withToken(m_tm.currentToken());
         auto const keyword = m_tm.currentToken().raw;
         m_tm.advanceTokenIterator();
@@ -194,7 +175,7 @@ namespace arrow {
                         if(m_tm.notAtEnd()) {
                             if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
                                 if(keyword == "stoi") {
-                                    return std::make_shared<StringToIntStatement>(ln, *arrowStatement, m_os);
+                                    return std::make_shared<StringToIntStatement>(ln, *arrowStatement);
                                 }
                                 return arrowStatement;
                             }
@@ -209,7 +190,7 @@ namespace arrow {
     std::shared_ptr<Statement> Parser::parseSimpleArrowStatement()
     {
         auto const ln = m_tm.currentToken().lineNumber;
-        auto arrowStatement = std::make_shared<SimpleArrowStatement>(ln, m_os);
+        auto arrowStatement = std::make_shared<SimpleArrowStatement>(ln);
         auto expression = m_ep.parseExpression();
         if(expression) {
             arrowStatement->withExpression(std::move(expression));
@@ -240,7 +221,7 @@ namespace arrow {
     std::shared_ptr<Statement> Parser::parseArrowlessStatement()
     {
         auto const ln = m_tm.currentToken().lineNumber;
-        auto arrowlessStatement = std::make_shared<ArrowlessStatement>(ln, m_os);
+        auto arrowlessStatement = std::make_shared<ArrowlessStatement>(ln);
         arrowlessStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         auto const keyword = arrowlessStatement->getToken().raw;
@@ -252,7 +233,7 @@ namespace arrow {
             arrowlessStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
             if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
-                return std::make_shared<EraseStatement>(ln, std::move(arrowlessStatement), m_os);
+                return std::make_shared<EraseStatement>(ln, std::move(arrowlessStatement));
             }
         } else {
             auto expression = m_ep.parseExpression();
@@ -263,11 +244,11 @@ namespace arrow {
                     if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
                         
                         if(keyword == "prn" || keyword == "pr" || keyword == "say") {
-                            return std::make_shared<EchoStatement>(ln, std::move(arrowlessStatement), m_os);
+                            return std::make_shared<EchoStatement>(ln, std::move(arrowlessStatement));
                         } else if(keyword == "exit") {
-                            return std::make_shared<ExitStatement>(ln, std::move(arrowlessStatement), m_os);
+                            return std::make_shared<ExitStatement>(ln, std::move(arrowlessStatement));
                         } else if(keyword == "ansi_up") {
-                            return std::make_shared<AnsiStatement>(ln, std::move(arrowlessStatement), m_os);
+                            return std::make_shared<AnsiStatement>(ln, std::move(arrowlessStatement));
                         }
                         return arrowlessStatement;
                     }
@@ -283,7 +264,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto releaseStatement = std::make_shared<ReleaseStatement>(ln, m_os);
+        auto releaseStatement = std::make_shared<ReleaseStatement>(ln);
         releaseStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         releaseStatement->withIdentifier(m_tm.currentToken());
@@ -300,7 +281,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto breakStatement = std::make_shared<LoopBreakStatement>(ln, m_os);
+        auto breakStatement = std::make_shared<LoopBreakStatement>(ln);
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
             return breakStatement;
@@ -314,7 +295,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto returnStatement = std::make_shared<ReturnStatement>(ln, m_os);
+        auto returnStatement = std::make_shared<ReturnStatement>(ln);
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
             return returnStatement;
@@ -328,7 +309,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto repeatStatement = std::make_shared<RepeatStatement>(ln, m_os);
+        auto repeatStatement = std::make_shared<RepeatStatement>(ln);
         repeatStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         auto expression = m_ep.parseExpression();
@@ -354,7 +335,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto whileStatement = std::make_shared<WhileStatement>(ln, m_os);
+        auto whileStatement = std::make_shared<WhileStatement>(ln);
         whileStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
@@ -379,7 +360,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto forStatement = std::make_shared<ForStatement>(ln, m_os);
+        auto forStatement = std::make_shared<ForStatement>(ln);
         forStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
@@ -418,7 +399,7 @@ namespace arrow {
             return nullptr;
         }
         auto ln = m_tm.currentToken().lineNumber;
-        auto ifStatement = std::make_shared<IfStatement>(ln, m_os);
+        auto ifStatement = std::make_shared<IfStatement>(ln);
         ifStatement->withToken(m_tm.currentToken());
         if(m_tm.nextToken().lexeme != Lexeme::OPEN_PAREN) {
             return nullptr;
@@ -441,7 +422,7 @@ namespace arrow {
         while(m_tm.nextToken().raw == "elseif") {
             m_tm.advanceTokenIterator();
             ln = m_tm.currentToken().lineNumber;
-            auto elseIfStatement = std::make_shared<ElseIfStatement>(ln, m_os);
+            auto elseIfStatement = std::make_shared<ElseIfStatement>(ln);
             elseIfStatement->withToken(m_tm.currentToken());
             if(m_tm.nextToken().lexeme != Lexeme::OPEN_PAREN) {
                 return nullptr;
@@ -465,7 +446,7 @@ namespace arrow {
         if(m_tm.nextToken().raw == "else") {
             ln = m_tm.currentToken().lineNumber;
             m_tm.advanceTokenIterator();
-            auto elseStatement = std::make_shared<ElseStatement>(ln, m_os);
+            auto elseStatement = std::make_shared<ElseStatement>(ln);
             elseStatement->withToken(m_tm.currentToken());
             m_tm.advanceTokenIterator();
             auto innerStatement = parseScopedBlockStatement();
@@ -484,7 +465,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto startStatement = std::make_shared<StartStatement>(ln, m_os);
+        auto startStatement = std::make_shared<StartStatement>(ln);
         startStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         auto innerStatement = parseScopedBlockStatement();
@@ -502,7 +483,7 @@ namespace arrow {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto asyncStatement = std::make_shared<AsyncStatement>(ln, m_os);
+        auto asyncStatement = std::make_shared<AsyncStatement>(ln);
         asyncStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().lexeme != Lexeme::OPEN_CURLY) {
@@ -524,7 +505,7 @@ namespace arrow {
         if(m_tm.currentToken().raw != "fn") {return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto functionStatement = std::make_shared<FunctionStatement>(ln, m_os);
+        auto functionStatement = std::make_shared<FunctionStatement>(ln);
         functionStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
@@ -555,14 +536,14 @@ namespace arrow {
             return nullptr;
         }
         functionStatement->withInnerStatement(std::move(innerStatement));
-        m_functions.emplace(theName.raw, functionStatement);
+        m_environment.addFunctionStatement(theName.raw, functionStatement);
         return functionStatement;
     }
 
     std::shared_ptr<Statement> Parser::parseSingleExpressionStatement()
     {
         auto const ln = m_tm.currentToken().lineNumber;
-        auto singleExpressionStatement = std::make_shared<SingleExpressionStatement>(ln, m_os);
+        auto singleExpressionStatement = std::make_shared<SingleExpressionStatement>(ln);
         auto const expression = m_ep.parseExpression();
         if(!expression) {
             return nullptr;

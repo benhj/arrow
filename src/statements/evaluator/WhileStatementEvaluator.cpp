@@ -29,7 +29,8 @@ namespace arrow {
             environment.popEnvironmentLayer();
             if(evaluated == StatementResult::Break) {
                 break;
-            } else if(evaluated == StatementResult::Return) {
+            } else if(evaluated == StatementResult::Return ||
+                      evaluated == StatementResult::Exit) {
                 return evaluated;
             }
             resolved = expressionEvaluator->evaluate(environment);

@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "RepeatStatementEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
@@ -10,17 +10,6 @@
 namespace arrow {
 
     namespace {
-        StatementResult evaluateBody(std::vector<std::shared_ptr<Statement>> bodyStatements,
-                                     Environment & environment)
-        {
-            for(auto const & statement : bodyStatements) {
-                auto const result = statement->getEvaluator()->evaluate(environment);
-                if(result != StatementResult::Continue) {
-                    return result;
-                }
-            }
-            return StatementResult::Continue;
-        }
         bool decaysToInt(TypeDescriptor const descriptor)
         {
             return descriptor == TypeDescriptor::Int ||
@@ -56,10 +45,11 @@ namespace arrow {
             environment.popEnvironmentLayer();
             if(evaluated == StatementResult::Break) {
                 break;
-            } else if(evaluated == StatementResult::Return) {
+            } else if(evaluated == StatementResult::Return ||
+                      evaluated == StatementResult::Exit) {
                 return evaluated;
             }
         }
-        return evaluated;
+        return StatementResult::Continue;
     }
 }
