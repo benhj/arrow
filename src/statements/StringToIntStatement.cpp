@@ -9,9 +9,8 @@
 namespace arrow {
     
     StringToIntStatement::StringToIntStatement(long const lineNumber,
-                                               ArrowStatement arrowStatement,
-                                               std::ostream & os)
-      : Statement(lineNumber, os)
+                                               ArrowStatement arrowStatement)
+      : Statement(lineNumber)
       , m_arrowStatement(std::move(arrowStatement))
     {
     }

@@ -11,7 +11,7 @@ namespace arrow {
     class LoopBreakStatement : public Statement
     {
       public:
-        LoopBreakStatement(long const lineNumber, std::ostream&);
+        LoopBreakStatement(long const lineNumber);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
     };

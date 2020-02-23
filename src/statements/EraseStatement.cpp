@@ -10,9 +10,8 @@
 namespace arrow {
 
     EraseStatement::EraseStatement(long const lineNumber,
-                                   std::shared_ptr<ArrowlessStatement> statement,
-                                   std::ostream & os)
-    : Statement(lineNumber, os)
+                                   std::shared_ptr<ArrowlessStatement> statement)
+    : Statement(lineNumber)
     , m_statement(std::move(statement))
     {
 

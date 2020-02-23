@@ -15,7 +15,7 @@ namespace arrow {
     class ElseIfStatement : public Statement
     {
       public:
-        ElseIfStatement(long const lineNumber, std::ostream&);
+        ElseIfStatement(long const lineNumber);
         ElseIfStatement & withToken(Token token);
         ElseIfStatement & withExpression(std::shared_ptr<Expression> expression);
         std::shared_ptr<Expression> getExpression() const;

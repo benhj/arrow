@@ -7,9 +7,8 @@
 
 namespace arrow {
 
-    ReturnStatement::ReturnStatement(long const lineNumber,
-                                     std::ostream & os)
-    : Statement(lineNumber, os)
+    ReturnStatement::ReturnStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
 
     }

@@ -7,9 +7,8 @@
 
 namespace arrow {
 
-    SingleExpressionStatement::SingleExpressionStatement(long const lineNumber,
-                                                         std::ostream & os)
-    : Statement(lineNumber, os)
+    SingleExpressionStatement::SingleExpressionStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     SingleExpressionStatement& 

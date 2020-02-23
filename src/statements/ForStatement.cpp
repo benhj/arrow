@@ -7,8 +7,8 @@
 
 namespace arrow {
 
-    ForStatement::ForStatement(long const lineNumber, std::ostream & os)
-    : Statement(lineNumber, os)
+    ForStatement::ForStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     ForStatement & ForStatement::withToken(Token token)

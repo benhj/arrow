@@ -11,8 +11,7 @@ namespace arrow {
     {
       public:
         EchoStatement(long const lineNumber,
-                      std::shared_ptr<ArrowlessStatement> statement,
-                      std::ostream&);
+                      std::shared_ptr<ArrowlessStatement> statement);
         Token getToken() const;
         std::shared_ptr<Expression> getExpression() const;
         std::string toString() const override;

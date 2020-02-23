@@ -11,7 +11,7 @@ namespace arrow {
     class SingleExpressionStatement : public Statement
     {
       public:
-        SingleExpressionStatement(long const lineNumber, std::ostream&);
+        SingleExpressionStatement(long const lineNumber);
         SingleExpressionStatement & withExpression(std::shared_ptr<Expression> expression);
         std::shared_ptr<Expression> getExpression() const;
         std::string toString() const override;

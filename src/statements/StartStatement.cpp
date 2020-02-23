@@ -5,9 +5,8 @@
 #include <utility>
 
 namespace arrow {
-    StartStatement::StartStatement(long const lineNumber,
-                                   std::ostream & os)
-    : Statement(lineNumber, os)
+    StartStatement::StartStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     StartStatement & StartStatement::withToken(Token token)

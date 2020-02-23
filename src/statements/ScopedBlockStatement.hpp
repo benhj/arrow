@@ -13,7 +13,7 @@ namespace arrow {
     class ScopedBlockStatement : public Statement
     {
       public:
-        ScopedBlockStatement(long const lineNumber, std::ostream&);
+        ScopedBlockStatement(long const lineNumber);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;

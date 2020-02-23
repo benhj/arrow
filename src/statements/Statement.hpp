@@ -4,7 +4,6 @@
 
 #include "parser/Node.hpp"
 #include <memory>
-#include <ostream>
 #include <string>
 
 namespace arrow {
@@ -13,10 +12,9 @@ namespace arrow {
 	class Statement : public Node
 	{
 	  public:
-        Statement(long const lineNumber, std::ostream & os) 
+        Statement(long const lineNumber) 
           : Node()
           , m_lineNumber(lineNumber)
-          , m_os(os)
         {
         }
 
@@ -35,7 +33,6 @@ namespace arrow {
 	  	}
 	  protected:
 	  	long m_lineNumber;
-	  	std::ostream & m_os;
 	};
 
 }

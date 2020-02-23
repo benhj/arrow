@@ -7,9 +7,8 @@
 
 namespace arrow {
 
-    ReleaseStatement::ReleaseStatement(long const lineNumber,
-                                       std::ostream & os)
-    : Statement(lineNumber, os)
+    ReleaseStatement::ReleaseStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
 
     }

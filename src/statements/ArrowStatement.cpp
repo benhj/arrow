@@ -6,9 +6,8 @@
 
 namespace arrow {
     
-    ArrowStatement::ArrowStatement(long const lineNumber,
-                                   std::ostream & os)
-    : Statement(lineNumber, os)
+    ArrowStatement::ArrowStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     ArrowStatement & ArrowStatement::withToken(Token token)

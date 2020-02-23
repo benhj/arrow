@@ -15,7 +15,7 @@ namespace arrow {
     class ElseStatement : public Statement
     {
       public:
-        ElseStatement(long const lineNumber, std::ostream&);
+        ElseStatement(long const lineNumber);
         ElseStatement & withToken(Token token);
         ElseStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;

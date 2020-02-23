@@ -9,9 +9,8 @@
 
 namespace arrow {
 
-    IfStatement::IfStatement(long const lineNumber,
-                             std::ostream & os)
-    : Statement(lineNumber, os)
+    IfStatement::IfStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     IfStatement & IfStatement::withToken(Token token)

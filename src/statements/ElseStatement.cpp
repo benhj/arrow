@@ -6,9 +6,8 @@
 
 namespace arrow {
 
-    ElseStatement::ElseStatement(long const lineNumber,
-                                 std::ostream & os)
-      : Statement(lineNumber, os)
+    ElseStatement::ElseStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     ElseStatement & ElseStatement::withToken(Token token)

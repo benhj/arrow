@@ -13,7 +13,7 @@
 
 int main(int argc, char ** argv) {
 
-    arrow::Environment environment;
+    arrow::Environment environment(std::cout);
     // Load program file when an argument is provided
     if(argc > 1) {
         try {

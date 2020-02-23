@@ -42,10 +42,16 @@ namespace arrow {
 
     std::deque<Type> Environment::m_returnStack;
 
-    Environment::Environment()
-      : m_environmentStack{}
+    Environment::Environment(std::ostream & ostr)
+      : m_ostream(ostr)
+      , m_environmentStack{}
     {
         pushEnvironmentLayer();
+    }
+
+    std::ostream & Environment::getOutputStream()
+    {
+        return m_ostream;
     }
 
     Environment::EnvironmentMap::iterator

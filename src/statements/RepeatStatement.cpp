@@ -7,9 +7,8 @@
 
 namespace arrow {
 
-    RepeatStatement::RepeatStatement(long const lineNumber,
-                                     std::ostream & os)
-    : Statement(lineNumber, os)
+    RepeatStatement::RepeatStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     RepeatStatement & RepeatStatement::withToken(Token token)

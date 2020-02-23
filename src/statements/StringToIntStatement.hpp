@@ -11,7 +11,7 @@ namespace arrow {
     class StringToIntStatement : public Statement
     {
       public:
-        StringToIntStatement(long const lineNumber, ArrowStatement arrowStatement, std::ostream&);
+        StringToIntStatement(long const lineNumber, ArrowStatement arrowStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
         StringToIntStatement const & withToken(Token token) const;

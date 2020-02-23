@@ -7,9 +7,8 @@
 
 namespace arrow {
 
-    WhileStatement::WhileStatement(long const lineNumber,
-                                   std::ostream & os)
-    : Statement(lineNumber, os)
+    WhileStatement::WhileStatement(long const lineNumber)
+    : Statement(lineNumber)
     {
     }
     WhileStatement & WhileStatement::withToken(Token token)

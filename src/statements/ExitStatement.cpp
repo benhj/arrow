@@ -8,9 +8,8 @@
 namespace arrow {
 
     ExitStatement::ExitStatement(long const lineNumber,
-                                 std::shared_ptr<ArrowlessStatement> statement,
-                                 std::ostream & os)
-    : Statement(lineNumber, os)
+                                 std::shared_ptr<ArrowlessStatement> statement)
+    : Statement(lineNumber)
     , m_statement(std::move(statement))
     {
 

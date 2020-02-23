@@ -11,7 +11,7 @@ namespace arrow {
     class ReturnStatement : public Statement
     {
       public:
-        ReturnStatement(long const lineNumber, std::ostream&);
+        ReturnStatement(long const lineNumber);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
     };

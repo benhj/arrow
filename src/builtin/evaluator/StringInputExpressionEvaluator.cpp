@@ -32,7 +32,7 @@ namespace arrow {
             throw LanguageException("Expected argument", m_expression.getLineNumber());
         }
         auto const t = expressionCollEval[0];
-        std::cout<<t.toString();
+        environment.getOutputStream()<<t.toString();
         std::string result;
         std::getline(std::cin, result);
         return {TypeDescriptor::String, result};

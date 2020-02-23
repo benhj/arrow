@@ -8,9 +8,8 @@
 namespace arrow {
 
     EchoStatement::EchoStatement(long const lineNumber,
-                                 std::shared_ptr<ArrowlessStatement> statement,
-                                 std::ostream & os)
-    : Statement(lineNumber, os)
+                                 std::shared_ptr<ArrowlessStatement> statement)
+    : Statement(lineNumber)
     , m_statement(std::move(statement))
     {
 
@@ -32,10 +31,8 @@ namespace arrow {
     {
         struct EchoStatementEvaluator : public StatementEvaluator
         {
-            EchoStatementEvaluator(EchoStatement statement,
-                                   std::ostream & os)
+            explicit EchoStatementEvaluator(EchoStatement statement)
               : m_statement(std::move(statement))
-              , m_os(os)
             {
             }
             StatementResult evaluate(Environment & environment) const override
@@ -44,17 +41,16 @@ namespace arrow {
                 auto const type = expression->getEvaluator()->evaluate(environment);
                 auto const token = m_statement.getToken();
                 if(token.raw == "pr" || token.raw == "say") {
-                    m_os<<type.toString()<<std::flush;
+                    environment.getOutputStream()<<type.toString()<<std::flush;
                 } else {
-                    m_os<<type.toString()<<std::endl;
+                    environment.getOutputStream()<<type.toString()<<std::endl;
                 }
                 return StatementResult::Continue;
             }
           private:
             EchoStatement m_statement;
-            std::ostream & m_os;
         };
 
-        return std::make_shared<EchoStatementEvaluator>(*this, m_os);
+        return std::make_shared<EchoStatementEvaluator>(*this);
     }
 }

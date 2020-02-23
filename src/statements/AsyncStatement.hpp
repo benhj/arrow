@@ -12,7 +12,7 @@ namespace arrow {
     class AsyncStatement : public Statement
     {
       public:
-        AsyncStatement(long const lineNumber, std::ostream&);
+        AsyncStatement(long const lineNumber);
         AsyncStatement & withToken(Token token);
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;

@@ -13,7 +13,7 @@ namespace arrow {
     class WhileStatement : public Statement
     {
       public:
-        WhileStatement(long const lineNumber, std::ostream&);
+        WhileStatement(long const lineNumber);
         WhileStatement & withToken(Token token);
         WhileStatement & withExpression(std::shared_ptr<Expression> expression);
         WhileStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);

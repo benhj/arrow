@@ -13,7 +13,7 @@ namespace arrow {
     class RepeatStatement : public Statement
     {
       public:
-        RepeatStatement(long const lineNumber, std::ostream&);
+        RepeatStatement(long const lineNumber);
         RepeatStatement & withToken(Token token);
         RepeatStatement & withExpression(std::shared_ptr<Expression> expression);
         RepeatStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
