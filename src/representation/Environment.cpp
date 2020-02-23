@@ -44,6 +44,7 @@ namespace arrow {
       : m_ostream(ostr)
       , m_environmentStack{}
       , m_functions()
+      , m_pods()
       , m_programArguments()
       , m_exitState(false)
     {
@@ -59,6 +60,12 @@ namespace arrow {
     Environment::withFunctions(std::map<std::string, std::shared_ptr<FunctionStatement>> funcs)
     {
         m_functions = std::move(funcs);
+        return *this;
+    }
+    Environment &
+    Environment::withPods(std::map<std::string, std::shared_ptr<PodStatement>> pods)
+    {
+        m_pods = std::move(pods);
         return *this;
     }
 
@@ -236,7 +243,6 @@ namespace arrow {
         }
     }
 
-
     void Environment::pushEnvironmentLayer()
     {
         m_environmentStack.emplace_front(EnvironmentMap());
@@ -249,6 +255,11 @@ namespace arrow {
                                            std::shared_ptr<FunctionStatement> func)
     {
         m_functions.emplace(std::move(identifier), std::move(func));
+    }
+    void Environment::addPodStatement(std::string identifier,
+                                      std::shared_ptr<PodStatement> pod)
+    {
+        m_pods.emplace(std::move(identifier), std::move(pod));
     }
 
     std::shared_ptr<FunctionStatement>
@@ -267,10 +278,31 @@ namespace arrow {
         return nullptr;
     }
 
+    std::shared_ptr<PodStatement> Environment::getPod(std::string identifier) const
+    {
+        auto found = std::find_if(std::begin(m_pods),
+                                  std::end(m_pods),
+                                  [identifier{std::move(identifier)}]
+                                  (auto const & p) {
+            return p.first == identifier;
+        });
+
+        if(found != std::end(m_pods)) {
+            return found->second;
+        }
+        return nullptr;
+    }
+
     std::map<std::string, std::shared_ptr<FunctionStatement>>
     Environment::getFunctions() const
     {
         return m_functions;
+    }
+
+    std::map<std::string, std::shared_ptr<PodStatement>>
+    Environment::getPods() const
+    {
+        return m_pods;
     }
 
     void Environment::pushProgramArgument(Type arg)

@@ -5,6 +5,7 @@
 #include "Type.hpp"
 #include "TypeDescriptor.hpp"
 #include "statements/FunctionStatement.hpp"
+#include "statements/PodStatement.hpp"
 #include <deque>
 #include <map>
 #include <memory>
@@ -28,6 +29,9 @@ namespace arrow {
 
         /// Add function table
         Environment & withFunctions(std::map<std::string, std::shared_ptr<FunctionStatement>>);
+
+        /// Add POD (plan old data) table -- note rudimentary OO support
+        Environment & withPods(std::map<std::string, std::shared_ptr<PodStatement>>);
 
         /// Add program argument lookup table
         Environment & withProgramArgs(std::vector<Type>);
@@ -80,8 +84,18 @@ namespace arrow {
         /// Retrieves a function from the function lookup map
         std::shared_ptr<FunctionStatement> getFunction(std::string identifier) const;
 
-        /// Retrives the function lookup table
+        /// Adds a pod statement to the pod lookup table
+        void addPodStatement(std::string identifier,
+                             std::shared_ptr<PodStatement>);
+
+        /// Retrieves a pod from the pod lookup map
+        std::shared_ptr<PodStatement> getPod(std::string identifier) const;
+
+        /// Retrieves the function lookup table
         std::map<std::string, std::shared_ptr<FunctionStatement>> getFunctions() const;
+
+        /// Retrieves the pod lookup table
+        std::map<std::string, std::shared_ptr<PodStatement>> getPods() const;
 
         /// Returns an iterator to a cached element
         EnvironmentMap::iterator findAndRetrieveCached(std::string identifier) const;
@@ -101,6 +115,9 @@ namespace arrow {
 
         /// Function lookup table (note, generated during parsing)
         std::map<std::string, std::shared_ptr<FunctionStatement>> m_functions;
+
+        /// POD lookup table (note, generated during parsing)
+        std::map<std::string, std::shared_ptr<PodStatement>> m_pods;
 
         /// Program arguments (note, generated from main at program start)
         std::vector<Type> mutable m_programArguments;

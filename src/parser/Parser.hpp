@@ -116,6 +116,10 @@ namespace arrow {
         /// }
         std::shared_ptr<Statement> parseFunctionStatement();
 
+        /// Parses a pod statement of the form
+        /// pod identifier(expression1,..,expressionN);
+        std::shared_ptr<Statement> parsePodStatement();
+
         /// Parses a statement of the form
         /// expression;
         /// For example:

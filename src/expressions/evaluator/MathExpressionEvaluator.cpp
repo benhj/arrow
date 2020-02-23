@@ -32,6 +32,18 @@ namespace arrow {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }
 
+
+        real operator()(PodType left,
+                        PodType right) const
+        {
+            throw LanguageException("Bad operator for type pod", m_lineNumber);
+        }
+        real operator()(std::vector<PodType> left,
+                        std::vector<PodType> right) const
+        {
+            throw LanguageException("Bad operator for type pod", m_lineNumber);
+        }
+
         template <class Left, class Right>
         real operator()(Left left, Right right) const
         {

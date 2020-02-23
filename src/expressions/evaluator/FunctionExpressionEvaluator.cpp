@@ -50,10 +50,11 @@ namespace arrow {
         }
 
         // The function has its own completely
-        // isolated, local environment but the function
-        // lookup table and argument maps should be inherited.
+        // isolated, local environment but the function and pod
+        // lookup tables and argument map should be inherited.
         Environment newEnvironment(environment.getOutputStream());
         newEnvironment.withFunctions(environment.getFunctions());
+        newEnvironment.withPods(environment.getPods());
         newEnvironment.withProgramArgs(environment.getProgramArgs());
 
         // Push in parameters into new environment. The function

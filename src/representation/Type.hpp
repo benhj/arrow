@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "PodType.hpp"
 #include "TypeDescriptor.hpp"
 #include "VariantType.hpp"
 #include <string>
@@ -69,6 +70,18 @@ namespace arrow {
                         str.append("\n");
                     }
                     return str;
+                } else if constexpr(std::is_same_v<Var, PodType>) {
+                    auto & data = var.m_namedData;
+                    std::string str;
+                    for (auto const & element : data) {
+                        str.append(element.first).append(": ");
+                        str.append(element.second.toString());
+                        str.append("\n");
+                    }
+                    return str;
+                } else if constexpr(std::is_same_v<Var, std::vector<PodType>>) {
+                    // TODO
+                    return "";
                 } else {
                     return std::to_string(var);
                 }

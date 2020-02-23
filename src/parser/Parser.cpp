@@ -24,6 +24,7 @@
 #include "statements/FunctionStatement.hpp"
 #include "statements/IfStatement.hpp"
 #include "statements/LoopBreakStatement.hpp"
+#include "statements/PodStatement.hpp"
 #include "statements/ReleaseStatement.hpp"
 #include "statements/RepeatStatement.hpp"
 #include "statements/ReturnStatement.hpp"
@@ -105,6 +106,7 @@ namespace arrow {
                 [](Parser* t){return t->parseBreakStatement();},
                 [](Parser* t){return t->parseReturnStatement();},
                 [](Parser* t){return t->parseFunctionStatement();},
+                [](Parser* t){return t->parsePodStatement();},
                 [](Parser* t){return t->parseSimpleArrowStatement();},
                 [](Parser* t){return t->parseArrowStatement();},
                 [](Parser* t){return t->parseReleaseStatement();},
@@ -502,7 +504,8 @@ namespace arrow {
 
     std::shared_ptr<Statement> Parser::parseFunctionStatement()
     {
-        if(m_tm.currentToken().raw != "fn") {return nullptr;
+        if(m_tm.currentToken().raw != "fn") {
+            return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
         auto functionStatement = std::make_shared<FunctionStatement>(ln);
@@ -538,6 +541,34 @@ namespace arrow {
         functionStatement->withInnerStatement(std::move(innerStatement));
         m_environment.addFunctionStatement(theName.raw, functionStatement);
         return functionStatement;
+    }
+
+    std::shared_ptr<Statement> Parser::parsePodStatement()
+    {
+        if(m_tm.currentToken().raw != "pod") {
+            return nullptr;
+        }
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto podStatement = std::make_shared<PodStatement>(ln);
+        podStatement->withToken(m_tm.currentToken());
+        m_tm.advanceTokenIterator();
+        if(m_tm.currentToken().lexeme != Lexeme::GENERIC_STRING) {
+            return nullptr;
+        }
+        auto const theName = m_tm.currentToken();
+        podStatement->withNameToken(theName);
+        m_tm.advanceTokenIterator();
+        auto collection = m_ep.parseExpressionCollectionExpression(true /* ident only */);
+        if(!collection) {
+            return nullptr;
+        }
+        podStatement->withExpressionCollection(std::move(collection));
+        m_tm.advanceTokenIterator();
+        if(m_tm.currentToken().lexeme != Lexeme::SEMICOLON) {
+            return nullptr;
+        }
+        m_environment.addPodStatement(theName.raw, podStatement);
+        return podStatement;
     }
 
     std::shared_ptr<Statement> Parser::parseSingleExpressionStatement()

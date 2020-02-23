@@ -49,6 +49,17 @@ namespace arrow {
             }
         }
 
+        bool operator()(PodType left,
+                        PodType right) const
+        {
+            throw LanguageException("Bad operator for type pod", m_lineNumber);
+        }
+        bool operator()(std::vector<PodType> left,
+                        std::vector<PodType> right) const
+        {
+            throw LanguageException("Bad operator for type pod", m_lineNumber);
+        }
+
         bool operator()(std::map<std::string, Type> left,
                         std::map<std::string, Type> right) const
         {
