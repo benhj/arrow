@@ -83,7 +83,12 @@ namespace arrow {
 
                 add<char>(std::move(evaluated), environment, std::move(identifier));
 
-            } else if(orig.m_descriptor == TypeDescriptor::String &&
+            } else if(orig.m_descriptor == TypeDescriptor::Pods &&
+                evaluated.m_descriptor == TypeDescriptor::Pod) {
+
+                add<PodType>(std::move(evaluated), environment, std::move(identifier));
+
+            }  else if(orig.m_descriptor == TypeDescriptor::String &&
                 evaluated.m_descriptor == TypeDescriptor::Byte) {
 
                 addToString(std::move(evaluated), environment, std::move(identifier));
@@ -121,6 +126,11 @@ namespace arrow {
             add<char>(std::move(evaluated),
                       environment, TypeDescriptor::Bytes,
                       std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Pod) {
+
+            add<PodType>(std::move(evaluated),
+                         environment, TypeDescriptor::Pods,
+                         std::move(identifier));
         }
     }
 }

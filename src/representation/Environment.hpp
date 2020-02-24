@@ -30,7 +30,7 @@ namespace arrow {
         /// Add function table
         Environment & withFunctions(std::map<std::string, std::shared_ptr<FunctionStatement>>);
 
-        /// Add POD (plan old data) table -- note rudimentary OO support
+        /// Add POD (plain old data) table -- note rudimentary OO support
         Environment & withPods(std::map<std::string, std::shared_ptr<PodStatement>>);
 
         /// Add program argument lookup table

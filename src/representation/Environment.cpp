@@ -160,7 +160,11 @@ namespace arrow {
             auto & casted = std::get<std::vector<bool>>(found->second.m_variantType);
             auto tval = std::get<bool>(type.m_variantType);
             casted.push_back(tval);
-        } else if(found->second.m_descriptor == TypeDescriptor::List) {
+        } else if(found->second.m_descriptor == TypeDescriptor::Pods) {
+            auto & casted = std::get<std::vector<PodType>>(found->second.m_variantType);
+            auto tval = std::get<PodType>(type.m_variantType);
+            casted.push_back(tval);
+        }  else if(found->second.m_descriptor == TypeDescriptor::List) {
             auto & casted = std::get<std::vector<Type>>(found->second.m_variantType);
             casted.push_back(type);
         } 
@@ -186,6 +190,9 @@ namespace arrow {
                 return;
             } else if(type.m_descriptor == TypeDescriptor::Bool) {
                 updateArray<bool>(found->second.m_variantType, type, index);
+                return;
+            } else if(type.m_descriptor == TypeDescriptor::Pod) {
+                updateArray<PodType>(found->second.m_variantType, type, index);
                 return;
             } 
         } catch (...) {
@@ -229,6 +236,13 @@ namespace arrow {
         }
         {
             auto result = tryErase<std::string>(found->second.m_variantType, index);
+            if(result.first) {
+                found->second.m_variantType = result.second;
+                return;
+            }
+        }
+        {
+            auto result = tryErase<PodType>(found->second.m_variantType, index);
             if(result.first) {
                 found->second.m_variantType = result.second;
                 return;

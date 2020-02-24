@@ -1,6 +1,7 @@
 /// (c) Ben Jones 2019
 
 #include "ArrayAccessorReceiverEvaluator.hpp"
+#include "expressions/IdentifierExpression.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
@@ -15,11 +16,45 @@ namespace arrow {
 
     void ArrayAccessorReceiverEvaluator::evaluate(Type incoming, Environment & environment) const
     {
-        auto indexEval = m_expression->getEvaluator()->evaluate(environment);
+
         auto const & environmentKey = m_tok.raw;
 
-        // Indexing for map creates a new map if it doesn't
-        // already exist
+        // Pod 'indexing' -- plain member word
+        if(environment.has(environmentKey)) {
+            auto item = environment.findAndRetrieveCached(environmentKey);
+            // If item already exists and isn't a map, throw
+            if(item->second.m_descriptor == TypeDescriptor::Pod) {
+                auto & pod = std::get<PodType>(item->second.m_variantType);
+                auto & data = pod.m_namedData;
+                auto ie = dynamic_cast<IdentifierExpression*>(m_expression.get());
+                if(!ie) {
+                    throw LanguageException("Bad pod accessor", m_expression->getLineNumber());
+                }
+                auto key = ie->getIdentifierToken().raw;
+                auto found = data.find(key);
+                if(found != std::end(data)) {
+                    found->second = incoming;
+                    return;
+                } else {
+                    throw LanguageException("Unknown pod member", m_expression->getLineNumber());
+                }
+            }
+        }
+
+        // For indexing of all other container types,
+        // the index key needs to be evaluated.
+        auto indexEval = m_expression->getEvaluator()->evaluate(environment);
+
+        // Check if item exists (note, a map which is keyed on a string
+        // or list word is allowed to not exist).
+        if(!environment.has(environmentKey) &&
+           (indexEval.m_descriptor != TypeDescriptor::String &&
+            indexEval.m_descriptor  != TypeDescriptor::ListWord)) {
+            throw LanguageException("Type not found", m_expression->getLineNumber());
+        }
+
+        // Indexing for map is always keyed on a string and
+        // creates a new map if it doesn't already exist
         if(indexEval.m_descriptor == TypeDescriptor::String ||
            indexEval.m_descriptor == TypeDescriptor::ListWord) {
 
@@ -55,11 +90,6 @@ namespace arrow {
         }
         auto index = std::get<int64_t>(indexEval.m_variantType);
         try {
-            if(!environment.has(environmentKey)) {
-                throw LanguageException("Array not found",
-                                        m_expression->getLineNumber());
-            }
-
             // Assumed to exist given above check
             auto item = environment.findAndRetrieveCached(environmentKey);
             if(item->second.m_descriptor == TypeDescriptor::String ||
@@ -73,7 +103,6 @@ namespace arrow {
                 str[index] = theChar;
                 return;
             }
-
             environment.setElementInContainer(environmentKey, index, incoming);
         } catch (...) {
             throw LanguageException("Index too big",

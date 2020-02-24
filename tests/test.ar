@@ -414,8 +414,12 @@ fn builtin_length() {
     prn "     (builtin_length)";
 }
 
+pod pod_for_types_test(mema);
+
 fn types() {
     0 -> score;
+    pod_for_types_test(1) -> p;
+
     test("int", type(1), score) -> score;
     test("real", type(3.14), score) -> score;
     test("list", type([one two]), score) -> score;
@@ -426,6 +430,7 @@ fn types() {
     test("bools", type({true, false}), score) -> score;
     test("bytes", type({'a', 'b', 'c'}), score) -> score;
     test("strings", type({"hello", "world"}), score) -> score;
+    test("pod", type(p), score) -> score;
 
     ;;; type not found for identifier, so is identified as 'nil'
     test("nil", type(a), score) -> score;
@@ -434,7 +439,7 @@ fn types() {
     1 -> a;
     test("int", type(a), score) -> score;
 
-    print_score(12, score);
+    print_score(13, score);
     prn "     (types)";
 }
 
@@ -507,6 +512,51 @@ fn break_command() {
 
 }
 
+;;; pods (essentially POD structs)
+pod data(mema, memb, memc);
+
+fn pods() {
+    0 -> score;
+
+    ;;; creation
+    data(1, [one two three], 3.14) -> dat;
+
+    test(1, dat:mema, score) -> score;
+    test([one two three], dat:memb, score) -> score;
+    test(3.14, dat:memc, score) -> score;
+
+    ;;; updating
+    "hello" -> dat:memb;
+    test("hello", dat:memb, score) -> score;
+
+    ;;; an array of pods
+    data(1, [one two three], 3.14) -> dat;
+    data(2, [four five six], 1.23) -> dat_b;
+    {dat, dat_b} -> pods;
+
+    ;;; extract
+    pods:0 -> first;
+    pods:1 -> second;
+
+    ;;; sanity check on pod data
+    test(1.23, second:memc, score) -> score;
+    test([one two three], first:memb, score) -> score;
+
+    ;;; $syntax
+    dat -> $podvec;
+    dat_b -> $podvec;
+
+    ;;; extract
+    podvec:0 -> first;
+    podvec:1 -> second;
+
+    test(1, first:mema, score) -> score;
+    test(1.23, second:memc, score) -> score;
+
+    print_score(8, score);
+    prn "     (pods)";
+}
+
 start {
     basic();
     int_array();
@@ -522,4 +572,5 @@ start {
     builtin_length();
     types();
     break_command();
+    pods();
 }

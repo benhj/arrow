@@ -33,14 +33,23 @@ namespace arrow {
         auto const t = expressionColl->getEvaluator()->evaluate(environment);
         auto const expressionCollEval = std::get<std::vector<Type>>(t.m_variantType);
 
-        // Get the function to evaluate
+        // Get the function to evaluate; if can't find function,
+        // try instead to get a pod.
         auto functionStatement = environment.getFunction(name);
-        if(!functionStatement) {
-            throw LanguageException("Can't find function", callLineNumber);
+        std::shared_ptr<PodStatement> podStatement;
+
+        std::shared_ptr<Expression> paramColl;
+        if(functionStatement) {
+            paramColl = functionStatement->getExpressionCollection();
+        } else {
+            podStatement = environment.getPod(name);
+            if(!podStatement) {
+                throw LanguageException("Can't find function or pod", callLineNumber);
+            }
+            paramColl = podStatement->getExpressionCollection();
         }
 
-        // Get the parameters of the function signature
-        auto const paramColl = functionStatement->getExpressionCollection();
+        // Get the parameters of the function/pod signature
         auto const p = paramColl->getEvaluator()->evaluate(environment);
         auto const paramCollEval = std::get<std::vector<Type>>(p.m_variantType);
 
@@ -57,14 +66,26 @@ namespace arrow {
         newEnvironment.withPods(environment.getPods());
         newEnvironment.withProgramArgs(environment.getProgramArgs());
 
+        PodType podType;
+
         // Push in parameters into new environment. The function
         // will then access these parameters
-        auto const functionLineNumber = functionStatement->getName().lineNumber;
         auto param = std::begin(paramCollEval);
         for (auto const & expr : expressionCollEval) {
             auto const raw = std::get<std::string>(param->m_variantType);
-            newEnvironment.add(raw, expr);
+
+            if(functionStatement) {
+                newEnvironment.add(raw, expr);
+            } 
+            // Must be a pod statement
+            else {
+                podType.add(raw, expr);
+            }
             ++param;
+        }
+
+        if(podStatement) {
+            return {TypeDescriptor::Pod, podType};
         }
 
         auto result = functionStatement->getEvaluator()->evaluate(newEnvironment);
@@ -75,6 +96,7 @@ namespace arrow {
         if(funcReturnIdentifier.lexeme != Lexeme::NIL) {
             return newEnvironment.get(funcReturnIdentifier.raw);
         }
+
         return {TypeDescriptor::Nil, false};
     }
 }

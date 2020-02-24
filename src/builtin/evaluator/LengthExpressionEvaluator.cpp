@@ -40,6 +40,7 @@ namespace arrow {
            t.m_descriptor != TypeDescriptor::Strings &&
            t.m_descriptor != TypeDescriptor::Bools &&
            t.m_descriptor != TypeDescriptor::Bytes &&
+           t.m_descriptor != TypeDescriptor::Pods &&
            t.m_descriptor != TypeDescriptor::String) {
             throw LanguageException("Not a container", m_expression.getLineNumber());
         }
@@ -63,6 +64,9 @@ namespace arrow {
                 break;
             case TypeDescriptor::Bytes:
                 theLength = getLength<char>(t);
+                break;
+            case TypeDescriptor::Pods:
+                theLength = getLength<PodType>(t);
                 break;
             case TypeDescriptor::String: {
                 auto & casted = std::get<std::string>(t.m_variantType);

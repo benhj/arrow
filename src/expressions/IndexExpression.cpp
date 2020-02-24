@@ -1,6 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "IndexExpression.hpp"
+#include "IdentifierExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
@@ -35,6 +36,8 @@ namespace arrow {
                 return {TypeDescriptor::String, container[deduced]};
             } else if constexpr(std::is_same_v<T, char>) {
                 return {TypeDescriptor::Byte, container[deduced]};
+            } else if constexpr(std::is_same_v<T, PodType>) {
+                return {TypeDescriptor::Pod, container[deduced]};
             }
         }
 
@@ -68,6 +71,8 @@ namespace arrow {
             Type evaluate(Environment & environment) const override
             {
                 auto const & environmentKey = m_tok.raw;
+
+                // Note in the following check, for pod member access
                 if(!environment.has(environmentKey)) {
                     throw LanguageException("Value for identifier not found", m_expression->getLineNumber());
                 }
@@ -90,6 +95,26 @@ namespace arrow {
                     throw LanguageException("Entry with key not found", m_expression->getLineNumber());
                 }
 
+                // Deduce for pod access
+                if(type.m_descriptor == TypeDescriptor::Pod) {
+                    auto & pod = std::get<PodType>(type.m_variantType);
+                    auto & data = pod.m_namedData;
+                    // BFH -- big fucking hack. The member should be accessed based on the raw
+                    // string of the identifier expression, rather than trying to access a
+                    // type stored by an identifier.
+                    auto ie = dynamic_cast<IdentifierExpression*>(m_expression.get());
+                    if(!ie) {
+                        throw LanguageException("Bad pod accessor", m_expression->getLineNumber());
+                    }
+
+                    auto key = ie->getIdentifierToken().raw;
+                    auto found = data.find(key);
+                    if(found != std::end(data)) {
+                        return {found->second.m_descriptor, found->second.m_variantType};
+                    }
+                    throw LanguageException("Pod member not found", m_expression->getLineNumber());
+                }
+
                 // Else deduce for array (vector) access
                 if(type.m_descriptor != TypeDescriptor::List &&
                     type.m_descriptor != TypeDescriptor::ExpressionCollection &&
@@ -98,6 +123,7 @@ namespace arrow {
                     type.m_descriptor != TypeDescriptor::Bools &&
                     type.m_descriptor != TypeDescriptor::Strings &&
                     type.m_descriptor != TypeDescriptor::Bytes &&
+                    type.m_descriptor != TypeDescriptor::Pods &&
                     type.m_descriptor != TypeDescriptor::String &&
                     type.m_descriptor != TypeDescriptor::ListWord) {
                     throw LanguageException("Incompatiable type for index", m_expression->getLineNumber());
@@ -114,6 +140,8 @@ namespace arrow {
                         return getElement<std::string>(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::Bytes:
                         return getElement<char>(std::move(type), std::move(m_expression), environment);
+                    case TypeDescriptor::Pods:
+                        return getElement<PodType>(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::String:
                         return getElementFromString(std::move(type), std::move(m_expression), environment);
                     case TypeDescriptor::ListWord:

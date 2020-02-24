@@ -72,7 +72,9 @@ namespace arrow {
                     return add<std::string>(environment, std::move(expressions), TypeDescriptor::Strings);
                 } else if(remType.m_descriptor == TypeDescriptor::Byte) {
                     return add<char>(environment, std::move(expressions), TypeDescriptor::Bytes);
-                } else {
+                } else if(remType.m_descriptor == TypeDescriptor::Pod) {
+                    return add<PodType>(environment, std::move(expressions), TypeDescriptor::Pods);
+                }  else {
                     throw LanguageException("Type mismatch in brace expression", (*expression)->getLineNumber());
                 }
 

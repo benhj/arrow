@@ -12,11 +12,12 @@ A weakly typed interpreted programming language.
 7. [List ^ and ^^ operators](#listops)
 8. [Pattern matcher](#patternmatcher)
 9. [Anonymous objects](#anonobjects)
-10. [Control flow](#control)
-11. [Functions](#functions)
-12. [Program I/O](#io)
-13. [Random number generation](#randomnumbers)
-14. [Interoperability with the operating system](#opinterop)
+10. [Pods (rudimentary objects)](#pods)
+11. [Control flow](#control)
+12. [Functions](#functions)
+13. [Program I/O](#io)
+14. [Random number generation](#randomnumbers)
+15. [Interoperability with the operating system](#opinterop)
 
 
 ## About <a name="about"></a>
@@ -298,6 +299,46 @@ for d in anon {
 }
 ```
 
+## Pods (rudimentary objects) <a name="pods"></a>
+
+Pods are to arrow what Plain Old Datatype structs are to C and C++. As such they allow a user to create structures of data with named member access, e.g.:
+```
+;;; defined 'globally'
+pod data(name, age, gender, id);
+
+;;; a function that creates a pod
+fn foo() {
+    ;;; create a data pod. The individual parts are
+    ;;; stored in their respective named fields.
+    data("barry", 39, "male", 12345) -> d;
+
+    ;;; accessing -- id
+    d:id -> id;
+
+    ;;; accessing -- name
+    d:name -> name;
+
+    ;;; updating -- age
+    40 -> d:age;
+
+    ;;; pods can also be diectly printed:
+    prn d;
+}
+
+start() {
+    foo();
+}
+
+```
+Running the above additionally shows how pods can be directly printed; the output is:
+```
+age: 40
+gender: male
+id: 12345
+name: barry
+
+```
+
 ## Control flow <a name="control"></a>
 
 Arrow has fairly typical control flow mechanisms:
@@ -412,8 +453,8 @@ To get data into a program, from the command line, the `arg` keyword can be used
 
 ```
 start {
-    arg 0 -> a;
-    arg 1 -> b;
+    arg(0) -> a;
+    arg(1) -> b;
     prn a;
     prn b;
 }

@@ -68,6 +68,9 @@ namespace arrow {
                 case TypeDescriptor::Map:
                     theType = "map";
                     break;
+                case TypeDescriptor::Pod:
+                    theType = "pod";
+                    break;
                 default:
                     break;
             }

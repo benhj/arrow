@@ -44,6 +44,6 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> PodStatement::getEvaluator() const
     {
-        return nullptr; //std::make_shared<PodStatementEvaluator>(*this);
+        return std::make_shared<PodStatementEvaluator>(*this);
     }
 }
