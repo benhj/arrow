@@ -74,7 +74,10 @@ namespace arrow {
         } else if(t.m_descriptor == TypeDescriptor::Reals) {
             auto const vec = std::get<std::vector<real>>(t.m_variantType);
             return {TypeDescriptor::Real, vec[getRandomLong(vec.size() - 1)]};
-        }   
+        } else if(t.m_descriptor == TypeDescriptor::Pods) {
+            auto const vec = std::get<std::vector<PodType>>(t.m_variantType);
+            return {TypeDescriptor::Real, vec[getRandomLong(vec.size() - 1)]};
+        }     
 
         else {
             throw LanguageException("Bad type for random", callLineNumber);
