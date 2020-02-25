@@ -7,6 +7,13 @@ fn test(a, b, score) -> score {
     if(a = b) { score + 1 -> score; }
 }
 
+fn test_false(a, b, score) -> score {
+    0 -> pass;
+    if(a /= b) {
+        score + 1 -> score; 
+    }
+}
+
 ;;; a function that 'pretty-prints'
 ;;; the overall test function score
 ;;; and notes the number of passes
@@ -549,11 +556,18 @@ fn pods() {
     ;;; extract
     podvec:0 -> first;
     podvec:1 -> second;
-
     test(1, first:mema, score) -> score;
     test(1.23, second:memc, score) -> score;
 
-    print_score(8, score);
+    ;;; equality
+    data(1, [one two three], 3.14) -> dat;
+    data(2, [one two three], 3.14) -> dat_b;
+    data(2, [four five six], 1.23) -> dat_c;
+
+    test(dat, dat_b, score) -> score;
+    test_false(dat, dat_c, score) -> score;
+
+    print_score(9, score);
     prn "     (pods)";
 }
 

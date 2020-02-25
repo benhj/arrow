@@ -8,6 +8,10 @@ namespace arrow {
     {
         return m_namedData == other.m_namedData;
     }
+    bool PodType::operator!=(PodType const & other) const
+    {
+        return m_namedData != other.m_namedData;
+    }
 
     void PodType::add(std::string identifier, Type t)
     {

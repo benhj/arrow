@@ -21,6 +21,7 @@ namespace arrow {
         /// is the name of the bit of data.
         std::map<std::string, Type> m_namedData;
         bool operator==(PodType const & other) const;
+        bool operator!=(PodType const & other) const;
 
         /// Add a data member
         void add(std::string identifier, Type t);

@@ -18,7 +18,6 @@ namespace arrow {
         bool operator()(std::string left,
                         std::string right) const
         {
-            auto res{false};
             if(m_op == "=") {
                 return left == right;
             } else if(m_op == "<") {
@@ -38,7 +37,6 @@ namespace arrow {
         bool operator()(std::vector<Type> left,
                         std::vector<Type> right) const
         {
-            auto res{false};
             if(m_op == "=") {
                 return left == right;
             } else if(m_op == "/=") {
@@ -52,6 +50,11 @@ namespace arrow {
         bool operator()(PodType left,
                         PodType right) const
         {
+            if(m_op == "=") {
+                return left == right;
+            }else if(m_op == "/=") {
+                return left != right;
+            } 
             throw LanguageException("Bad operator for type pod", m_lineNumber);
         }
         bool operator()(std::vector<PodType> left,
