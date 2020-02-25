@@ -560,14 +560,14 @@ fn pods() {
     test(1.23, second:memc, score) -> score;
 
     ;;; equality
-    data(1, [one two three], 3.14) -> dat;
-    data(2, [one two three], 3.14) -> dat_b;
-    data(2, [four five six], 1.23) -> dat_c;
+    data(1, [one two three], 3.14) -> datx;
+    data(1, [one two three], 3.14) -> daty;
+    data(2, [four five six], 1.23) -> datz;
 
-    test(dat, dat_b, score) -> score;
-    test_false(dat, dat_c, score) -> score;
+    test(datx, daty, score) -> score;
+    test_false(datx, datz, score) -> score;
 
-    print_score(9, score);
+    print_score(10, score);
     prn "     (pods)";
 }
 
