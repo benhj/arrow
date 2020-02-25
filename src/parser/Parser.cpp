@@ -13,7 +13,6 @@
 /// Statements
 #include "statements/AnsiStatement.hpp"
 #include "statements/ArrowlessStatement.hpp"
-#include "statements/ArrowStatement.hpp"
 #include "statements/AsyncStatement.hpp"
 #include "statements/EchoStatement.hpp"
 #include "statements/ElseIfStatement.hpp"
@@ -108,7 +107,6 @@ namespace arrow {
                 [](Parser* t){return t->parseFunctionStatement();},
                 [](Parser* t){return t->parsePodStatement();},
                 [](Parser* t){return t->parseSimpleArrowStatement();},
-                [](Parser* t){return t->parseArrowStatement();},
                 [](Parser* t){return t->parseReleaseStatement();},
                 [](Parser* t){return t->parseSingleExpressionStatement();},
                 [](Parser* t){return t->parseArrowlessStatement();},
@@ -147,46 +145,6 @@ namespace arrow {
             m_tm.advanceTokenIterator();
         }
         return sbs;
-    }
-
-    std::shared_ptr<Statement> Parser::parseArrowStatement()
-    {
-        auto const ln = m_tm.currentToken().lineNumber;
-        // Don't attempt to parse function statements
-        if(m_tm.currentToken().raw == "fn") {
-            return nullptr;
-        }
-        auto arrowStatement = std::make_shared<ArrowStatement>(ln);
-        arrowStatement->withToken(m_tm.currentToken());
-        auto const keyword = m_tm.currentToken().raw;
-        m_tm.advanceTokenIterator();
-        
-        auto expression = m_ep.parseExpression();
-        if(expression) {
-            arrowStatement->withExpression(std::move(expression));
-            m_tm.advanceTokenIterator();
-            if(m_tm.notAtEnd()) {
-                if(m_tm.currentToken().lexeme != Lexeme::ARROW) {
-                    return nullptr;
-                }
-                m_tm.advanceTokenIterator();
-                if(m_tm.notAtEnd()) {
-                    if(m_tm.currentToken().lexeme == Lexeme::GENERIC_STRING) {
-                        arrowStatement->withIdentifier(m_tm.currentToken());
-                        m_tm.advanceTokenIterator();
-                        if(m_tm.notAtEnd()) {
-                            if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
-                                if(keyword == "stoi") {
-                                    return std::make_shared<StringToIntStatement>(ln, *arrowStatement);
-                                }
-                                return arrowStatement;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return nullptr;
     }
 
     std::shared_ptr<Statement> Parser::parseSimpleArrowStatement()

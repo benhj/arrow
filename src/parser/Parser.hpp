@@ -59,12 +59,6 @@ namespace arrow {
         std::shared_ptr<Statement> buildStatement();
 
         /// Parses statements of the form
-        /// keyword expression -> identifier;
-        /// For example
-        /// int 5 -> a;
-        std::shared_ptr<Statement> parseArrowStatement();
-
-        /// Parses statements of the form
         /// expression -> identifier;
         /// For example
         /// 5 -> a;
@@ -106,12 +100,12 @@ namespace arrow {
         /// start { statement * }
         std::shared_ptr<Statement> parseStartStatement();
 
-        /// Parses an async statement:
-        /// start { statement * }
+        /// Parses an async statement (note experimental at best)
+        /// async { statement * }
         std::shared_ptr<Statement> parseAsyncStatement();
 
         /// Parses a function statement of the form
-        /// fn:identifier identifier(expression1,..,expressionN) -> identifier
+        /// fn name(expression1,..,expressionN) -> identifier
         /// {
         /// }
         std::shared_ptr<Statement> parseFunctionStatement();

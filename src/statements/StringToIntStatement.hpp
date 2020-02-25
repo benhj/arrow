@@ -1,8 +1,10 @@
 /// (c) Ben Jones 2019 - present
 
+// TODO: obsolete code (convert to a built-in expression type)
+
+/*
 #pragma once
 
-#include "ArrowStatement.hpp"
 #include "lexer/Token.hpp"
 #include "expressions/Expression.hpp"
 #include <memory>
@@ -20,5 +22,7 @@ namespace arrow {
         Token getIdentifier() const;
       private:
         ArrowStatement mutable m_arrowStatement;
+        
     };
 }
+*/

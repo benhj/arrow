@@ -1,13 +1,14 @@
 /// (c) Ben Jones 2019 - present
 
-#include "StringToIntStatement.hpp"
-#include "expressions/evaluator/ExpressionEvaluator.hpp"
-#include "evaluator/StatementEvaluator.hpp"
-#include "parser/LanguageException.hpp"
-#include <utility>
+//#include "StringToIntStatement.hpp"
+//#include "expressions/evaluator/ExpressionEvaluator.hpp"
+//#include "evaluator/StatementEvaluator.hpp"
+//#include "parser/LanguageException.hpp"
+//#include <utility>
 
 namespace arrow {
-    
+    // TODO: convert to a builtin expression
+    /*    
     StringToIntStatement::StringToIntStatement(long const lineNumber,
                                                ArrowStatement arrowStatement)
       : Statement(lineNumber)
@@ -67,4 +68,5 @@ namespace arrow {
     {
         return m_arrowStatement.getIdentifier();
     }
+    */
 }
