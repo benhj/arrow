@@ -2,6 +2,7 @@
 
 #include "LiteralIntExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
+#include "utility/from_string.hpp"
 #include <utility>
 
 namespace arrow {
@@ -21,7 +22,7 @@ namespace arrow {
 
             Type evaluate(Environment &) const override
             {
-                return {TypeDescriptor::Int, {std::stoll(m_tok.raw)}};
+                return {TypeDescriptor::Int, {from_string<int64_t>(m_tok.raw)}};
             }
           private:
             Token m_tok;
