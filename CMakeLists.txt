@@ -3,6 +3,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (arrow)
 
+find_package (Threads)
+
 # put all source code in one place for convenience
 file(GLOB lexer src/lexer/*.cpp src/lexer/*.hpp)
 file(GLOB parser src/parser/*.cpp src/parser/*.hpp)
@@ -39,7 +41,8 @@ target_link_libraries(arrow
                       representation_lib
                       utility_lib
                       receivers_lib
-                      builtin_lib)
+                      builtin_lib
+                      ${CMAKE_THREAD_LIBS_INIT})
 
 # compile options. Lots of redundancy here. Can prob clean up.
 set(COMP_FLAGS -std=c++17 -O3 -ffast-math -funroll-loops -Wno-ctor-dtor-privacy -fno-pic -fPIE)
