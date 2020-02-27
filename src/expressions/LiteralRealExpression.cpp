@@ -2,6 +2,7 @@
 
 #include "LiteralRealExpression.hpp"
 #include "evaluator/ExpressionEvaluator.hpp"
+#include "utility/from_string.hpp"
 #include <utility>
 
 namespace arrow {
@@ -21,7 +22,7 @@ namespace arrow {
 
             Type evaluate(Environment &) const override
             {
-                return {TypeDescriptor::Real, {std::stold(m_tok.raw)}};
+                return {TypeDescriptor::Real, {from_string<real>(m_tok.raw)}};
             }
           private:
             Token m_tok;
