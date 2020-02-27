@@ -42,7 +42,7 @@ target_link_libraries(arrow
                       builtin_lib)
 
 # compile options. Lots of redundancy here. Can prob clean up.
-set(COMP_FLAGS -std=c++17 -O3 -ffast-math -funroll-loops -Wno-ctor-dtor-privacy -fno-pic)
+set(COMP_FLAGS -std=c++17 -O3 -ffast-math -funroll-loops -Wno-ctor-dtor-privacy -fno-pic -fPIE)
 target_compile_options(parser_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(lexer_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(expressions_lib PUBLIC ${COMP_FLAGS})

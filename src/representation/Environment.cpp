@@ -2,6 +2,7 @@
 
 #include "Environment.hpp"
 #include "parser/LanguageException.hpp"
+#include <algorithm>
 
 namespace arrow {
 
@@ -326,6 +327,6 @@ namespace arrow {
 
     Type Environment::getProgramArgument(int64_t const index) const
     {
-        return m_programArguments[index];
+        return m_programArguments.at(index);
     }
 }
