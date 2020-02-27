@@ -1,6 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "Lexer.hpp"
+#include <algorithm>
 #include <iterator>
 #include <cctype>
 #include <cstdio>
