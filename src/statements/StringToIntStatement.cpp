@@ -4,6 +4,7 @@
 //#include "expressions/evaluator/ExpressionEvaluator.hpp"
 //#include "evaluator/StatementEvaluator.hpp"
 //#include "parser/LanguageException.hpp"
+//#include "utility/from_string.hpp"
 //#include <utility>
 
 namespace arrow {
@@ -37,7 +38,7 @@ namespace arrow {
                 if(type.m_descriptor != TypeDescriptor::String) {
                     throw LanguageException("Not a string", m_statement.getLineNumber());
                 }
-                auto converted = std::stold(std::get<std::string>(type.m_variantType));
+                auto converted = from_string<real>(std::get<std::string>(type.m_variantType));
                 auto identifier = m_statement.getIdentifier();
                 environment.add(identifier.raw, {TypeDescriptor::Int, converted});
                 return StatementResult::Continue;

@@ -1,6 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "Lexeme.hpp"
+#include <algorithm>
 #include <map>
 #include <string>
 #include <vector>

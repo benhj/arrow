@@ -58,7 +58,7 @@ fn wildcard_match(needle, haystack) -> result {
             false -> result;
             return;
         } else {
-            haystack[0] -> head;
+            haystack:0 -> head;
             tail(haystack) -> newHaystack;
             if(head /= i) {
                 false -> result;

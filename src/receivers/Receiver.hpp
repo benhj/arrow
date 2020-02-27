@@ -4,6 +4,7 @@
 
 #include "parser/Node.hpp"
 #include "representation/Type.hpp"
+#include <memory>
 #include <string>
 
 namespace arrow {
