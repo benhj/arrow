@@ -1,6 +1,6 @@
-# Arrow
+# Arrow -> [TRY_IT_OUT;](https://jprendes.github.io/arrow-playground/)
 
-A weakly typed interpreted programming language.
+A weakly typed interpreted programming language. (A huge thanks to Jorge Prendes for putting the [webassembly based demo](https://jprendes.github.io/arrow-playground/) together!).
 
 # Table of Contents
 1. [About](#about)
