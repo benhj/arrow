@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "FolderListRecursiveFunctionExpressionEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
@@ -12,7 +12,6 @@
 #if defined(_HAS_CXX17)
 #include <filesystem>
 #endif
-#include <fstream>
 #include <stdexcept>
 #include <string>
 

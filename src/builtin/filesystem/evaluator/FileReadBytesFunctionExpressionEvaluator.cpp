@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "FileReadBytesFunctionExpressionEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
@@ -39,6 +39,9 @@ namespace arrow {
 
             // open the file:
             std::ifstream file(filename, std::ios::binary);
+            if(!file.is_open()) {
+                throw LanguageException("Problem opening file for reading", callLineNumber);
+            }
 
             // Stop eating new lines in binary mode!!!
             file.unsetf(std::ios::skipws);

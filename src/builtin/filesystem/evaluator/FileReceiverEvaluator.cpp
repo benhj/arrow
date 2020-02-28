@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "FileReceiverEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
@@ -34,9 +34,12 @@ namespace arrow {
         }
 
         try {
-            auto const bytes = std::get<std::vector<char>>(incoming.m_variantType);
+            auto const & bytes = std::get<std::vector<char>>(incoming.m_variantType);
             auto const filename = std::get<std::string>(fname.m_variantType);
             std::ofstream file(filename, std::ios::binary);
+            if(!file.is_open()) {
+                throw LanguageException("Problem opening file for writing", callLineNumber);
+            }
             file.write(reinterpret_cast<char const*>(&bytes.front()), bytes.size());
             file.close();
         } catch (...) {

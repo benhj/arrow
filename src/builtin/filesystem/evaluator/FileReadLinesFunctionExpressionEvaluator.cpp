@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #include "FileReadLinesFunctionExpressionEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
@@ -48,6 +48,9 @@ namespace arrow {
 
             // read the data:
             std::ifstream input(filename);
+            if(!input.is_open()) {
+                throw LanguageException("Problem opening file for reading", callLineNumber);
+            }
             for( std::string line; getline( input, line); ) {
                 if(tok != '\n') {
                     std::stringstream temp;

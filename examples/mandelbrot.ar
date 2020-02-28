@@ -7,22 +7,12 @@
 ;;; quite look as it should do; likely in the
 ;;; arrow interpretor itself.
 
-
-;;; returns the length of a container. In the context
-;;; of this program, a string of characters.
-fn char_length(chars) -> len {
-    0 -> len;
-    for i in chars { 
-        len + 1 -> len; 
-    }
-}
-
 start {
 
     0.0 - 2.0 -> minX;
     2.0 -> maxX;
-    20 -> width;
-    10 -> height;
+    78 -> width;
+    36 -> height;
     2.0 -> aspectRatio;
 
     ;;; The string of chars used for drawing
@@ -30,7 +20,7 @@ start {
     ;;; chars:2 -> a; will extract the char at
     ;;; index 2 and stick inside of a
     " .,-:;i+hHM$*#@ " -> chars;
-    char_length(chars) - 1 -> nchars;
+    length(chars) - 1 -> nchars;
 
     (maxX - minX) * (height * 1.0 / width) * aspectRatio -> yScale;
     0 -> y;
