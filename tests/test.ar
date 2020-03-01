@@ -571,6 +571,19 @@ fn pods() {
     prn "     (pods)";
 }
 
+fn wildcard_eq_builtin() {
+    0 -> score;
+    wildcard_eq("hello.txt", "*.txt") -> res;
+    test(res, true, score) -> score;
+    wildcard_eq("hello.txt", "*.pdf") -> res;
+    test(res, false, score) -> score;
+    wildcard_eq("hello.txt", "*") -> res;
+    test(res, true, score) -> score;
+
+    print_score(3, score);
+    prn "     (wildcard_eq_builtin)";
+}
+
 start {
     basic();
     int_array();
@@ -587,4 +600,5 @@ start {
     types();
     break_command();
     pods();
+    wildcard_eq_builtin();
 }
