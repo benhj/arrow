@@ -27,7 +27,7 @@ int main(int argc, char ** argv) {
                     in << argv[i] << " ";
                 }
                 in << argv[i];
-                auto argTokens = arrow::Lexer::tokenize(in);
+                auto argTokens = arrow::Lexer::tokenizeProgArgs(in);
                 arrow::Parser p(argTokens, environment);
                 p.parseProgramArguments();
             }

@@ -334,6 +334,40 @@ namespace arrow {
         return false;
     }
 
+    /// Used for parsing program args in which we want to treat
+    /// a string as it is without needing to require double quotes.
+    bool checkIfRawStringTreatAsStringToken(char const c,
+                                            std::istream & stream,
+                                            std::vector<Token> & tokens,
+                                            long & lineNumber) {
+        auto next = stream.peek();
+        std::string dat;
+        dat.push_back(c);
+        while (next != EOF && next != ' ') {
+            if(next == '\n') {
+                ++lineNumber;
+                break;
+            } 
+            // new line character handling
+            else if(next == '\\') {
+                stream.get();
+                next = stream.peek();
+                if(isPartOfEscapeCode(next)) {
+                    dat.push_back(getEscapeCode(next));
+                    stream.get();
+                    next = stream.peek();
+                }
+            } else {
+                dat.push_back(next);
+                stream.get();
+                next = stream.peek();
+            }
+        }
+        stream.get();
+        tokens.emplace_back(Lexeme::LITERAL_STRING, std::move(dat), lineNumber);
+        return false;
+    }
+
     bool checkIfLiteralCharToken(char const c,
                                  std::istream & stream,
                                  std::vector<Token> & tokens,
@@ -378,6 +412,19 @@ namespace arrow {
             if(checkIfNumberToken(c, stream, tokens, lineNumber)) { continue; }
             if(checkIfLiteralStringToken(c, stream, tokens, lineNumber)) { continue; }
             if(checkIfLiteralCharToken(c, stream, tokens, lineNumber)) { continue; }
+        }
+        return tokens;
+    }
+
+    std::vector<Token> Lexer::tokenizeProgArgs(std::istream & stream) {
+        std::vector<Token> tokens;
+        long lineNumber{1};
+        char c;
+        while(stream.get(c)) {
+            if(c == ' ') { continue; }
+            if(c == '\n') { ++lineNumber; continue; }
+            if(checkIfNumberToken(c, stream, tokens, lineNumber)) { continue; }
+            if(checkIfRawStringTreatAsStringToken(c, stream, tokens, lineNumber)) { continue; }
         }
         return tokens;
     }

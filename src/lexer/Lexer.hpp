@@ -11,6 +11,7 @@ namespace arrow {
 
       public:
         static std::vector<Token> tokenize(std::istream & stream);
+        static std::vector<Token> tokenizeProgArgs(std::istream & stream);
 
     };
 }
