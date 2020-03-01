@@ -1,9 +1,12 @@
 /// (c) Ben Jones 2020 - present
 
 #include "MapContainsFunctionExpressionEvaluator.hpp"
+#include "WildcardMatch.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
+#include "representation/PodType.hpp"
 #include <math.h>
+#include <algorithm>
 #include <utility>
 
 namespace arrow {
@@ -34,8 +37,15 @@ namespace arrow {
         }
         auto & themap = std::get<std::map<std::string, Type>>(mapEval.m_variantType);
         auto & thekey = std::get<std::string>(keyEval.m_variantType);
-        auto found = themap.find(thekey);
+
+        auto found = std::find_if(std::begin(themap), std::end(themap),
+            [&](std::pair<std::string, Type> const & p) { 
+                return wildcardMatch(thekey.c_str(), p.first.c_str());
+            });
         auto result = (found != std::end(themap));
-        return {TypeDescriptor::Bool, result};
+        PodType p;
+        p.add("eq", {TypeDescriptor::Bool, result});
+        p.add("key", {TypeDescriptor::String, result ? found->first : ""});
+        return {TypeDescriptor::Pod, p};
     }
 }

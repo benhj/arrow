@@ -69,7 +69,9 @@ fn build_representation(L) -> map {
             remove_speech_mark(trim(c)) -> c;
             a + " " + b -> key;
             map_contains(map, key) -> match;
-            if(match = false) {
+            ;;; odd parsing issue means that map access
+            ;;; needs to be in parens -- needs fixing.
+            if((match:eq) = false) {
                 [^c] -> map:key;
             } else {
                 map:key -> orig;
@@ -79,7 +81,7 @@ fn build_representation(L) -> map {
         }
         prn i;
         i + 1 -> i;
-        if(i = 20000) {
+        if(i = 5000) {
             return;
         }
     }
@@ -90,12 +92,16 @@ fn next_words(representation, word1, word2) -> next {
     [] -> next;
 
     if(word1 = "") {
-        "you" -> word1;
+        "*" -> word1;
     }
 
     word1 + " " + word2 -> key;
     map_contains(representation, key) -> res;
-    if(res) {
+    if(res:eq) {
+        ;;; make wildcard matched key the key
+        res:key -> key;
+
+        ;;; pull out from representation
         representation:key -> next;
     }
 }
@@ -204,7 +210,7 @@ fn string_to_list(str) -> words {
 }
 
 start {
-    file_read_lines("/Users/bjones/hobbit.txt", ' ') -> L;
+    file_read_lines("/Users/bjones/jokes.txt", ' ') -> L;
     build_representation(L) -> representation;
 
     ;;; continue to query the user for new input
