@@ -318,6 +318,10 @@ namespace arrow {
                         dat.push_back(getEscapeCode(next));
                         stream.get();
                         next = stream.peek();
+                    } else if(next == '"') {
+                        dat.push_back('"');
+                        stream.get();
+                        next = stream.peek();
                     }
                 } else {
                     dat.push_back(next);
