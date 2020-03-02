@@ -74,16 +74,13 @@ fn build_representation(L) -> map {
             if((match:eq) = false) {
                 [^c] -> map:key;
             } else {
-                map:key -> orig;
+                match:key -> orig;
                 c -> $orig;
                 orig -> map:key;
             }
         }
         prn i;
         i + 1 -> i;
-        if(i = 5000) {
-            return;
-        }
     }
 }
 
@@ -210,7 +207,7 @@ fn string_to_list(str) -> words {
 }
 
 start {
-    file_read_lines("/Users/bjones/jokes.txt", ' ') -> L;
+    file_read_lines(arg(0), ' ') -> L;
     build_representation(L) -> representation;
 
     ;;; continue to query the user for new input

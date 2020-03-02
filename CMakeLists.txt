@@ -1,9 +1,14 @@
-# (c) 2019 Ben Jones
+# (c) 2019-present Ben Jones
 
 cmake_minimum_required (VERSION 2.6)
 project (arrow)
 
 find_package (Threads)
+
+find_package (CURL QUIET)
+if(CURL_FOUND)
+add_definitions(-DWITH_HEAVY)
+endif()
 
 # put all source code in one place for convenience
 file(GLOB lexer src/lexer/*.cpp src/lexer/*.hpp)
@@ -55,6 +60,15 @@ target_compile_options(utility_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(receivers_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(builtin_lib PUBLIC ${COMP_FLAGS})
 target_compile_options(arrow PUBLIC ${COMP_FLAGS})
+
+# optionally build http built-ins if CURL is found
+if(CURL_FOUND)
+message("Found curl! Will try and build the networking builtins")
+file(GLOB_RECURSE heavy src/heavy/*.cpp src/heavy/*.hpp)
+add_library(heavy_lib ${heavy})
+target_link_libraries(arrow heavy_lib ${CURL_LIBRARIES})
+target_compile_options(heavy_lib PUBLIC ${COMP_FLAGS})
+endif()
 
 add_custom_command(TARGET arrow POST_BUILD
     COMMAND arrow ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.ar
