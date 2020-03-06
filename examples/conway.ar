@@ -149,11 +149,9 @@ start {
     arg(0) -> size;
     initialize(size) -> representation;
     print(representation);
-    0 -> it;
     while(true) {
         update(representation, size) -> representation;
         ansi_up size;
         print(representation);
-        it + 1 -> it;
     }
 }
