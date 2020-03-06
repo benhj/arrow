@@ -1,0 +1,81 @@
+
+
+fn get_rule_index(pattern) -> index {
+    7 -> index;
+    if(pattern = "000") {
+        7 -> index;    
+        return;
+    }
+    if(pattern = "001") {
+        6 -> index;
+        return;
+    }
+    if(pattern = "010") {
+        5 -> index;
+        return;
+    }
+    if(pattern = "011") {
+        4 -> index;
+        return;
+    }
+    if(pattern = "100") {
+        3 -> index;
+        return;
+    }
+    if(pattern = "101") {
+        2 -> index;
+        return;
+    }
+    if(pattern = "110") {
+        1 -> index;
+        return;
+    }
+    if(pattern = "111") {
+        0 -> index;
+        return;
+    }
+}
+
+fn get_transition(triplet, rule) -> transition {
+    get_rule_index(triplet) -> index;
+    rule:index -> transition;
+    if (transition = '0') {
+        ' ' -> transition;
+    } else {
+        'X' -> transition;
+    }
+}
+
+start {
+    arg(0) -> rule;
+    "                           X                         " -> str;
+    prn str;
+    0 -> i;
+    while (i < 50) {
+        '0' -> a;
+        '0' -> b;
+        '0' -> c;
+        " " -> new_string;
+        for a,b,c in str {
+            '0' -> a_;
+            '0' -> b_;
+            '0' -> c_;
+            if(a = 'X') {
+                '1' -> a_;
+            }
+            if(b = 'X') {
+                '1' -> b_;
+            }
+            if(c = 'X') {
+                '1' -> c_;
+            }
+            "" + a_ -> triplet;
+            b_ -> $triplet;
+            c_ -> $triplet;
+            get_transition(triplet, rule) -> $new_string;
+        }
+        new_string -> str;
+        prn str;
+        1 + i -> i;
+    }
+}

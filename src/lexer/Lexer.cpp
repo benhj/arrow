@@ -428,6 +428,7 @@ namespace arrow {
             if(c == ' ') { continue; }
             if(c == '\n') { ++lineNumber; continue; }
             if(checkIfNumberToken(c, stream, tokens, lineNumber)) { continue; }
+            if(checkIfLiteralStringToken(c, stream, tokens, lineNumber)) { continue; }
             if(checkIfRawStringTreatAsStringToken(c, stream, tokens, lineNumber)) { continue; }
         }
         return tokens;
