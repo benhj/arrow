@@ -66,7 +66,7 @@ fn update(representation, size) -> representation {
     0 -> r;
     "" -> row;
     representation -> new_rep;
-    for row in representation {
+    while (r < size) {
         0 -> c;
         "" -> new_str;
         ' ' -> column;
@@ -87,7 +87,8 @@ fn update(representation, size) -> representation {
             representation:(r - 1) -> above_row;
         }
 
-        for column in row {
+        representation:r -> row;
+        while(c < size) {
             "" -> neighbours;
             ;;; cell plus one
             if(c < size - 1) {
