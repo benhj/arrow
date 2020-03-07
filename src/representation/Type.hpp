@@ -83,6 +83,9 @@ namespace arrow {
                     // TODO
                     return "";
                 } else {
+                    if constexpr(std::is_same_v<Var, char>) {
+                        return {1, var};
+                    }
                     return std::to_string(var);
                 }
             }

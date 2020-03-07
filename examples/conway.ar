@@ -9,48 +9,31 @@ fn random_x() -> x {
 
 fn initialize(size) -> representation {
 
-    "" -> str;
-    0 -> i;
-    while(i < size) {
-        random_x() -> $str;
-        1 + i -> i;
-    }
-    ;;; initialize the representation array
-    str -> $representation;
-
-    1 -> outer;
+    [] -> row;
+    [] -> representation;
+    0 -> outer;
     while (outer < size) {
-
         0 -> inner;
-        "" -> str;
+        [] -> row;
         while(inner < size) {
-            random_x() -> $str;
+            random_x() -> $row;
             inner + 1 -> inner;
         }
-        str -> $representation;
+        row -> $representation;
         outer + 1 -> outer;
     }
 }
 
 fn print(representation) {
-    for str in representation {
-        for c in str {
-            pr "" + c; pr " ";
-        }
-        prn "";
+    for row in representation {
+        prn row;
     }
 }
 
-;;; takes the current cell value and all neighbours
+;;; takes the current cell value and number of alive
 ;;; and generates what the outcome should be.
-fn transition(current, neighbours) -> result {
-    0 -> alive;
+fn transition(current, alive) -> result {
     ' ' -> result;
-    for n in neighbours {
-        if(n = 'X') {
-            1 + alive -> alive;
-        }
-    }
     if((current = 'X') && alive < 2) {
         ' ' -> result;
     } elseif((current = 'X') && ((alive = 2) || (alive = 3))) {
@@ -64,15 +47,15 @@ fn transition(current, neighbours) -> result {
 
 fn update(representation, size) -> representation {
     0 -> r;
-    "" -> row;
+    [] -> row;
     representation -> new_rep;
-    while (r < size) {
+    for row in representation {
         0 -> c;
-        "" -> new_str;
-        ' ' -> column;
+        [] -> new_row;
+        '' -> column;
 
         ;;; the 'next' or below row
-        "" -> below_row;
+        [] -> below_row;
         if(r >= size - 1) {
             representation:0 -> below_row;
         } else {
@@ -80,67 +63,81 @@ fn update(representation, size) -> representation {
         }
 
         ;;; the 'preceding' or above row
-        "" -> above_row;
+        [] -> above_row;
         if(r = 0) {
             representation:(size - 1) -> above_row;
         } else {
             representation:(r - 1) -> above_row;
         }
 
-        representation:r -> row;
         while(c < size) {
-            "" -> neighbours;
+            0 -> alive;
             ;;; cell plus one
             if(c < size - 1) {
-                row:(c + 1) -> $neighbours;
-            } else {
-                row:0 -> $neighbours;
+                if((row:(c + 1)) = 'X') {
+                    1 + alive -> alive;
+                }
+            } elseif((row:0) = 'X') {
+                1 + alive -> alive;
             }
             ;;; cell minus one
             if(c > 0) {
-                row:(c - 1) -> $neighbours;
-            } else {
-                row:(size - 1) -> $neighbours;
+                if((row:(c - 1)) = 'X') {
+                    1 + alive -> alive;
+                }
+            } elseif((row:(size - 1)) = 'X') {
+                1 + alive -> alive;
             }
             ;;; below
-            below_row:c -> $neighbours;
+            if((below_row:c) = 'X') {
+                1 + alive -> alive;
+            }
 
             ;;; above
-            above_row:c -> $neighbours;
+            if((above_row:c) = 'X') {
+                1 + alive -> alive;
+            }
 
             ;;; below-right
             if(c < size - 1) {
-                below_row:(c + 1) -> $neighbours;
-            } else {
-                below_row:0 -> $neighbours;
+                if((below_row:(c + 1)) = 'X') {
+                    1 + alive -> alive;
+                }
+            } elseif((below_row:0) = 'X') {
+                1 + alive -> alive;
             }
 
             ;;; below-left
             if(c > 0) {
-                below_row:(c - 1) -> $neighbours;
-            } else {
-                below_row:(size - 1) -> $neighbours;
+                if((below_row:(c - 1)) = 'X') {
+                    1 + alive -> alive;
+                }
+            } elseif((below_row:(size - 1)) = 'X') {
+                1 + alive -> alive;
             }
 
             ;;; above-right
             if(c < size - 1) {
-                above_row:(c + 1) -> $neighbours;
-            } else {
-                above_row:0 -> $neighbours;
+                if((above_row:(c + 1)) = 'X') {
+                    1 + alive -> alive;
+                }
+            } elseif((above_row:0) = 'X') { 
+                1 + alive -> alive;
             }
 
             ;;; above-left
             if(c > 0) {
-                above_row:(c - 1) -> $neighbours;
-            } else {
-                above_row:(size - 1) -> $neighbours;
+                if((above_row:(c - 1)) = 'X') {
+                    1 + alive -> alive;
+                }
+            } elseif((above_row:(size - 1)) = 'X') {
+                1 + alive -> alive;
             }
-
             ;;; figure out new state
-            transition(row:c, neighbours) -> $new_str;
+            transition(row:c, alive) -> $new_row;
             c + 1 -> c;
         }
-        new_str -> new_rep:r;
+        new_row -> new_rep:r;
         r + 1 -> r;
     }
     new_rep -> representation;
