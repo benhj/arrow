@@ -19,7 +19,7 @@ namespace arrow {
         auto evaluated = expression->getEvaluator()->evaluate(environment);
         auto receiver = m_statement.getIdentifier();
         auto evaluator = receiver->getEvaluator();
-        evaluator->evaluate(evaluated, environment);
+        evaluator->evaluate(std::move(evaluated), environment);
         return StatementResult::Continue;
     }
 }

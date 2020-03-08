@@ -48,11 +48,10 @@ fn transition(current, alive) -> result {
 fn update(representation, size) -> representation {
     0 -> r;
     [] -> row;
-    representation -> new_rep;
+    [] -> new_rep;
     for row in representation {
         0 -> c;
         [] -> new_row;
-        '' -> column;
 
         ;;; the 'next' or below row
         [] -> below_row;
@@ -137,7 +136,7 @@ fn update(representation, size) -> representation {
             transition(row:c, alive) -> $new_row;
             c + 1 -> c;
         }
-        new_row -> new_rep:r;
+        new_row -> $new_rep;
         r + 1 -> r;
     }
     new_rep -> representation;

@@ -105,7 +105,7 @@ namespace arrow {
 
     Type Environment::get(std::string identifier) const
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveCached(std::move(identifier));
         if(found == EnvironmentMap::iterator()) { return {TypeDescriptor::None, false}; }
         return found->second;
     }
@@ -123,7 +123,7 @@ namespace arrow {
     }
     bool Environment::has(std::string identifier) const
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveCached(std::move(identifier));
         return found != EnvironmentMap::iterator();
     }
     void Environment::remove(std::string identifier) const
@@ -139,7 +139,7 @@ namespace arrow {
 
     void Environment::pushBackContainerElement(std::string identifier, Type const type)
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveCached(std::move(identifier));
         
         if(found->second.m_descriptor == TypeDescriptor::Ints) {
             auto & casted = std::get<std::vector<int64_t>>(found->second.m_variantType);
@@ -175,7 +175,7 @@ namespace arrow {
                                       int const index,
                                       Type const type)
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveCached(std::move(identifier));
         try {
             if(type.m_descriptor == TypeDescriptor::Int) {
                 updateArray<int64_t>(found->second.m_variantType, type, index);
@@ -206,7 +206,7 @@ namespace arrow {
     void Environment::eraseElementInContainer(std::string identifier,
                                         int const index)
     {
-        auto found = findAndRetrieveCached(identifier);
+        auto found = findAndRetrieveCached(std::move(identifier));
         {
             auto result = tryErase<int64_t>(found->second.m_variantType, index);
             if(result.first) {
