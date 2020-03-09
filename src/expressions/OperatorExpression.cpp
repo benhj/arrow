@@ -27,11 +27,11 @@ namespace arrow {
         m_op = std::move(op);
         return *this;
     }
-    std::shared_ptr<Expression> OperatorExpression::getExpressionLeft() const
+    std::shared_ptr<Expression> const & OperatorExpression::getExpressionLeft() const
     {
         return m_expressionLeft;
     }
-    std::shared_ptr<Expression> OperatorExpression::getExpressionRight() const
+    std::shared_ptr<Expression> const & OperatorExpression::getExpressionRight() const
     {
         return m_expressionRight;
     }

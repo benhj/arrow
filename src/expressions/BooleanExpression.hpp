@@ -18,8 +18,8 @@ namespace arrow {
         BooleanExpression & withLeft(std::shared_ptr<Expression> expressionLeft);
         BooleanExpression & withRight(std::shared_ptr<Expression> expressionRight);
         BooleanExpression & withOperator(Token op);
-        std::shared_ptr<Expression> getExpressionLeft() const;
-        std::shared_ptr<Expression> getExpressionRight() const;
+        std::shared_ptr<Expression> const & getExpressionLeft() const;
+        std::shared_ptr<Expression> const & getExpressionRight() const;
         Token const & getOperator() const;
         std::string toString() const override;
 

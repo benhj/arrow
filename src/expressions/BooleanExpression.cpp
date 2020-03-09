@@ -33,11 +33,11 @@ namespace arrow {
         m_operatorExp->withOperator(std::move(op));
         return *this;
     }
-    std::shared_ptr<Expression> BooleanExpression::getExpressionLeft() const
+    std::shared_ptr<Expression> const & BooleanExpression::getExpressionLeft() const
     {
         return m_operatorExp->getExpressionLeft();
     }
-    std::shared_ptr<Expression> BooleanExpression::getExpressionRight() const
+    std::shared_ptr<Expression> const & BooleanExpression::getExpressionRight() const
     {
         return m_operatorExp->getExpressionRight();
     }
