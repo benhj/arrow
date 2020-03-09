@@ -20,8 +20,8 @@ namespace arrow {
         withExpressionCollection(std::shared_ptr<Expression> expression);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        Token getName() const;
-        std::shared_ptr<Expression> getExpressionCollection() const;
+        Token const & getName() const;
+        std::shared_ptr<Expression> const & getExpressionCollection() const;
       private:
         Token m_keywordToken; // pod keyword
         Token m_nameToken;

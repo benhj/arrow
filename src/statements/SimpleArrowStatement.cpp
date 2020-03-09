@@ -30,16 +30,16 @@ namespace arrow {
         return *this;
     }
 
-    std::shared_ptr<Expression> SimpleArrowStatement::getExpression() const
+    std::shared_ptr<Expression> const & SimpleArrowStatement::getExpression() const
     {
         return m_expression;
     }
-    std::shared_ptr<Expression> SimpleArrowStatement::getIndexExpression() const
+    std::shared_ptr<Expression> const & SimpleArrowStatement::getIndexExpression() const
     {
         return m_indexExpression;
     }
 
-    std::shared_ptr<Receiver> SimpleArrowStatement::getIdentifier() const
+    std::shared_ptr<Receiver> const & SimpleArrowStatement::getIdentifier() const
     {
         return m_identifier;
     }

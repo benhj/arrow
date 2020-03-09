@@ -21,10 +21,10 @@ namespace arrow {
         FunctionStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        Token getName() const;
-        std::shared_ptr<Expression> getExpressionCollection() const;
-        Token getReturnIdentifier() const;
-        std::shared_ptr<Statement> getInnerStatement() const;
+        Token const & getName() const;
+        std::shared_ptr<Expression> const & getExpressionCollection() const;
+        Token const & getReturnIdentifier() const;
+        std::shared_ptr<Statement> const & getInnerStatement() const;
       private:
         Token m_keywordToken; // fn keyword
         Token m_typeToken; // return type

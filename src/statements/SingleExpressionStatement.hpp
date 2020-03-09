@@ -13,7 +13,7 @@ namespace arrow {
       public:
         SingleExpressionStatement(long const lineNumber);
         SingleExpressionStatement & withExpression(std::shared_ptr<Expression> expression);
-        std::shared_ptr<Expression> getExpression() const;
+        std::shared_ptr<Expression> const & getExpression() const;
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
       private:

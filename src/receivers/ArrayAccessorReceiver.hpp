@@ -17,7 +17,7 @@ namespace arrow {
         ArrayAccessorReceiver & withIdentifierToken(Token identifier);
         ArrayAccessorReceiver & withExpression(std::shared_ptr<Expression>);
         Token const & getIdentifierToken() const;
-        std::shared_ptr<Expression> getExpression() const;
+        std::shared_ptr<Expression> const & getExpression() const;
         std::string toString() const override;
       private:
         Token m_identifier;

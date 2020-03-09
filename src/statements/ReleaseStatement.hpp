@@ -13,8 +13,8 @@ namespace arrow {
         ReleaseStatement(long const lineNumber);
         ReleaseStatement & withToken(Token token);
         ReleaseStatement & withIdentifier(Token token);
-        Token getToken() const;
-        Token getIdentifier() const;
+        Token const & getToken() const;
+        Token const & getIdentifier() const;
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
       private:

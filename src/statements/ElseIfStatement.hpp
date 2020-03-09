@@ -18,9 +18,9 @@ namespace arrow {
         ElseIfStatement(long const lineNumber);
         ElseIfStatement & withToken(Token token);
         ElseIfStatement & withExpression(std::shared_ptr<Expression> expression);
-        std::shared_ptr<Expression> getExpression() const;
+        std::shared_ptr<Expression> const & getExpression() const;
         ElseIfStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
-        std::shared_ptr<Statement> getInnerStatement() const;
+        std::shared_ptr<Statement> const & getInnerStatement() const;
 
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;

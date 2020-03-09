@@ -175,7 +175,7 @@ namespace arrow {
         return  m_identifier;
     }
 
-    std::shared_ptr<Expression> IndexExpression::getIndexExpression() const
+    std::shared_ptr<Expression> const & IndexExpression::getIndexExpression() const
     {
         return m_indexExpression;
     }

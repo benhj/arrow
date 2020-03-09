@@ -20,9 +20,9 @@ namespace arrow {
         ForStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        std::vector<Token> getIndices() const;
-        Token getIdentifier() const;
-        std::shared_ptr<Statement> getInnerStatement() const;
+        std::vector<Token> const & getIndices() const;
+        Token const & getIdentifier() const;
+        std::shared_ptr<Statement> const & getInnerStatement() const;
       private:
         Token m_keywordToken; // the while keyword
         std::vector<Token> m_indices;

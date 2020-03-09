@@ -19,8 +19,8 @@ namespace arrow {
         RepeatStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        std::shared_ptr<Expression> getExpression() const;
-        std::shared_ptr<Statement> getInnerStatement() const;
+        std::shared_ptr<Expression> const & getExpression() const;
+        std::shared_ptr<Statement> const & getInnerStatement() const;
       private:
         Token m_keywordToken; // the repeat keyword
         std::shared_ptr<Expression> m_expression;

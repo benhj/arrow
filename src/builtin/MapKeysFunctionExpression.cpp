@@ -21,7 +21,7 @@ namespace arrow {
     {
         m_expression = std::move(expression);
     }
-    std::shared_ptr<Expression>
+    std::shared_ptr<Expression> const & 
     MapKeysFunctionExpression::getExpression() const
     {
         return m_expression;

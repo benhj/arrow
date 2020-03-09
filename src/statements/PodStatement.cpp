@@ -28,11 +28,11 @@ namespace arrow {
         return *this;
     }
 
-    Token PodStatement::getName() const
+    Token const & PodStatement::getName() const
     {
         return m_nameToken;
     }
-    std::shared_ptr<Expression> PodStatement::getExpressionCollection() const
+    std::shared_ptr<Expression> const & PodStatement::getExpressionCollection() const
     {
         return m_expressionCollection;
     }

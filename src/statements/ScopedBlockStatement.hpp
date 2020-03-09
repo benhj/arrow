@@ -17,7 +17,7 @@ namespace arrow {
         void addBodyStatement(std::shared_ptr<Statement> bodyStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        std::vector<std::shared_ptr<Statement>> getBodyStatements() const;
+        std::vector<std::shared_ptr<Statement>> const & getBodyStatements() const;
       private:
         std::vector<std::shared_ptr<Statement>> m_bodyStatements;
     };

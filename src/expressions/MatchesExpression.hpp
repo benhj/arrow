@@ -17,8 +17,8 @@ namespace arrow {
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
         MatchesExpression & withLeftExpression(std::shared_ptr<Expression> expression);
         MatchesExpression & withRightExpression(std::shared_ptr<Expression> expression);
-        std::shared_ptr<Expression> getLeftExpression() const;
-        std::shared_ptr<Expression> getRightExpression() const;
+        std::shared_ptr<Expression> const & getLeftExpression() const;
+        std::shared_ptr<Expression> const & getRightExpression() const;
         std::string toString() const override;
 
       private:

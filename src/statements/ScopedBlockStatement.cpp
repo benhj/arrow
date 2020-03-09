@@ -20,7 +20,7 @@ namespace arrow {
     {
         return ""; // TODO
     }
-    std::vector<std::shared_ptr<Statement>>
+    std::vector<std::shared_ptr<Statement>> const & 
     ScopedBlockStatement::getBodyStatements() const
     {
         return m_bodyStatements;

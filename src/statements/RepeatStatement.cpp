@@ -31,11 +31,11 @@ namespace arrow {
     {
         return ""; // TODO
     }
-    std::shared_ptr<Expression> RepeatStatement::getExpression() const
+    std::shared_ptr<Expression> const & RepeatStatement::getExpression() const
     {
         return m_expression;
     }
-    std::shared_ptr<Statement> RepeatStatement::getInnerStatement() const
+    std::shared_ptr<Statement> const & RepeatStatement::getInnerStatement() const
     {
         return m_innerStatement;
     }

@@ -19,7 +19,7 @@ namespace arrow {
     {
         m_expression = std::move(expression);
     }
-    std::shared_ptr<Expression>
+    std::shared_ptr<Expression> const &
     StringInputExpression::getExpression() const
     {
         return m_expression;

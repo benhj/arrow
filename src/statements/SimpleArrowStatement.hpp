@@ -23,9 +23,9 @@ namespace arrow {
         SimpleArrowStatement & withIdentifier(std::shared_ptr<Receiver> identifier);
         SimpleArrowStatement & withIndexExpression(std::shared_ptr<Expression> expression);
 
-        std::shared_ptr<Receiver> getIdentifier() const;
-        std::shared_ptr<Expression> getExpression() const;
-        std::shared_ptr<Expression> getIndexExpression() const;
+        std::shared_ptr<Receiver> const & getIdentifier() const;
+        std::shared_ptr<Expression> const & getExpression() const;
+        std::shared_ptr<Expression> const & getIndexExpression() const;
 
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;

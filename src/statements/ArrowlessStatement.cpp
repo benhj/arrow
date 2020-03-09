@@ -25,7 +25,7 @@ namespace arrow {
     {
         return m_keywordToken;
     }
-    std::shared_ptr<Expression> ArrowlessStatement::getExpression() const
+    std::shared_ptr<Expression> const & ArrowlessStatement::getExpression() const
     {
         return m_expression;
     }

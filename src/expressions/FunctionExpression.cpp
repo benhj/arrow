@@ -26,7 +26,7 @@ namespace arrow {
         m_expressionCollection = std::move(expression);
         return *this;
     }
-    std::shared_ptr<Expression>
+    std::shared_ptr<Expression> const &
     FunctionExpression::getExpressionCollection() const
     {
         return m_expressionCollection;

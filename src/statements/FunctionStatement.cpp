@@ -38,19 +38,19 @@ namespace arrow {
         return *this;
     }
 
-    Token FunctionStatement::getName() const
+    Token const & FunctionStatement::getName() const
     {
         return m_nameToken;
     }
-    std::shared_ptr<Expression> FunctionStatement::getExpressionCollection() const
+    std::shared_ptr<Expression> const & FunctionStatement::getExpressionCollection() const
     {
         return m_expressionCollection;
     }
-    Token FunctionStatement::getReturnIdentifier() const
+    Token const & FunctionStatement::getReturnIdentifier() const
     {
         return m_returnIdentifier;
     }
-    std::shared_ptr<Statement> FunctionStatement::getInnerStatement() const
+    std::shared_ptr<Statement> const & FunctionStatement::getInnerStatement() const
     {
         return m_innerStatement;
     }

@@ -90,7 +90,7 @@ namespace arrow {
         m_expressions.emplace_back(std::move(expression));
     }
 
-    std::vector<std::shared_ptr<Expression>> 
+    std::vector<std::shared_ptr<Expression>> const &
     BracedExpressionCollectionExpression::getExpressionCollection() const
     {
         return m_expressions;

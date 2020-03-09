@@ -24,11 +24,11 @@ namespace arrow {
         m_right = std::move(expression);
         return *this;
     }
-    std::shared_ptr<Expression> MatchesExpression::getLeftExpression() const
+    std::shared_ptr<Expression> const & MatchesExpression::getLeftExpression() const
     {
         return m_left;
     }
-    std::shared_ptr<Expression> MatchesExpression::getRightExpression() const
+    std::shared_ptr<Expression> const & MatchesExpression::getRightExpression() const
     {
         return m_right;
     }

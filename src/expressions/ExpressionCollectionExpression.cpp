@@ -41,7 +41,7 @@ namespace arrow {
         m_expressions.emplace_back(std::move(expression));
     }
 
-    std::vector<std::shared_ptr<Expression>> 
+    std::vector<std::shared_ptr<Expression>> const &
     ExpressionCollectionExpression::getExpressionCollection() const
     {
         return m_expressions;

@@ -16,7 +16,7 @@ namespace arrow {
         ArrowlessStatement & withToken(Token token);
         ArrowlessStatement & withExpression(std::shared_ptr<Expression> expression);
         Token getToken() const;
-        std::shared_ptr<Expression> getExpression() const;
+        std::shared_ptr<Expression> const & getExpression() const;
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
       private:

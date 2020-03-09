@@ -17,7 +17,7 @@ namespace arrow {
 
         GroupedExpression & withExpression(std::shared_ptr<Expression> expression);
         
-        std::shared_ptr<Expression> getExpression() const;
+        std::shared_ptr<Expression> const & getExpression() const;
         std::string toString() const override;
 
       private:

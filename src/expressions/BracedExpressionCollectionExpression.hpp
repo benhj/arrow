@@ -17,7 +17,7 @@ namespace arrow {
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
         void addExpression(std::shared_ptr<Expression> expression);
-        std::vector<std::shared_ptr<Expression>> getExpressionCollection() const;
+        std::vector<std::shared_ptr<Expression>> const & getExpressionCollection() const;
 
         std::string toString() const override;
 

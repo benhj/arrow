@@ -20,7 +20,7 @@ namespace arrow {
         m_bodyStatements.emplace_back(std::move(bodyStatement));
     }
 
-    std::vector<std::shared_ptr<Statement>>
+    std::vector<std::shared_ptr<Statement>> const & 
     AsyncStatement::getBodyStatements() const
     {
         return m_bodyStatements;

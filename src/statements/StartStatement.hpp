@@ -17,7 +17,7 @@ namespace arrow {
         StartStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        std::shared_ptr<Statement> getInnerStatement() const;
+        std::shared_ptr<Statement> const & getInnerStatement() const;
       private:
         Token m_keywordToken; // start keyword
         std::shared_ptr<Statement> m_innerStatement;

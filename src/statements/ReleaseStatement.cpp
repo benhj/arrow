@@ -22,11 +22,11 @@ namespace arrow {
         m_identifier = std::move(token);
         return *this;
     }
-    Token ReleaseStatement::getToken() const
+    Token const & ReleaseStatement::getToken() const
     {
         return m_token;
     }
-    Token ReleaseStatement::getIdentifier() const
+    Token const & ReleaseStatement::getIdentifier() const
     {
         return m_identifier;
     }

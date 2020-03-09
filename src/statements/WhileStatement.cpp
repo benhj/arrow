@@ -26,7 +26,7 @@ namespace arrow {
         m_innerStatement = std::move(innerStatement);
         return *this;
     }
-    std::shared_ptr<Statement> WhileStatement::getInnerStatement() const
+    std::shared_ptr<Statement> const & WhileStatement::getInnerStatement() const
     {
         return m_innerStatement;
     }
@@ -35,7 +35,7 @@ namespace arrow {
     {
         return ""; // TODO
     }
-    std::shared_ptr<Expression> WhileStatement::getExpression() const
+    std::shared_ptr<Expression> const & WhileStatement::getExpression() const
     {
         return m_expression;
     }

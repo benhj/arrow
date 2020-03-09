@@ -31,7 +31,7 @@ namespace arrow {
         m_innerStatement= std::move(innerStatement);
         return *this;
     }
-    std::shared_ptr<Statement> ForStatement::getInnerStatement() const
+    std::shared_ptr<Statement> const & ForStatement::getInnerStatement() const
     {
         return m_innerStatement;
     }
@@ -40,11 +40,11 @@ namespace arrow {
     {
         return ""; // TODO
     }
-    std::vector<Token> ForStatement::getIndices() const
+    std::vector<Token> const & ForStatement::getIndices() const
     {
         return m_indices;
     }
-    Token ForStatement::getIdentifier() const
+    Token const & ForStatement::getIdentifier() const
     {
         return m_identifier;
     }

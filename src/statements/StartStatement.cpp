@@ -20,7 +20,7 @@ namespace arrow {
         return *this;
     }
 
-    std::shared_ptr<Statement> StartStatement::getInnerStatement() const
+    std::shared_ptr<Statement> const & StartStatement::getInnerStatement() const
     {
         return m_innerStatement;
     }

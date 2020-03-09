@@ -20,7 +20,7 @@ namespace arrow {
         m_expression = std::move(expression);
         return *this;
     }
-    std::shared_ptr<Expression> ElseIfStatement::getExpression() const
+    std::shared_ptr<Expression> const & ElseIfStatement::getExpression() const
     {
         return m_expression;
     }
@@ -29,7 +29,7 @@ namespace arrow {
         m_innerStatement = std::move(innerStatement);
         return *this;
     }
-    std::shared_ptr<Statement> ElseIfStatement::getInnerStatement() const
+    std::shared_ptr<Statement> const & ElseIfStatement::getInnerStatement() const
     {
         return m_innerStatement;
     }

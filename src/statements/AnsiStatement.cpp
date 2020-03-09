@@ -19,7 +19,7 @@ namespace arrow {
     {
         return m_statement->getToken();
     }
-    std::shared_ptr<Expression> AnsiStatement::getExpression() const
+    std::shared_ptr<Expression> const & AnsiStatement::getExpression() const
     {
         return m_statement->getExpression();
     }

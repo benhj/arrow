@@ -20,7 +20,7 @@ namespace arrow {
     {
         return m_statement->getToken();
     }
-    std::shared_ptr<Expression> EraseStatement::getExpression() const
+    std::shared_ptr<Expression> const & EraseStatement::getExpression() const
     {
         return m_statement->getExpression();
     }

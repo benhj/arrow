@@ -20,7 +20,7 @@ namespace arrow {
         ElseStatement & withInnerStatement(std::shared_ptr<Statement> innerStatement);
         std::string toString() const override;
         std::shared_ptr<StatementEvaluator> getEvaluator() const override;
-        std::shared_ptr<Statement> getInnerStatement() const;
+        std::shared_ptr<Statement> const & getInnerStatement() const;
       private:
         Token m_keywordToken; // the else keyword
         std::shared_ptr<Statement> m_innerStatement;

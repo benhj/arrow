@@ -18,7 +18,7 @@ namespace arrow {
     {
         return m_statement->getToken();
     }
-    std::shared_ptr<Expression> EchoStatement::getExpression() const
+    std::shared_ptr<Expression> const & EchoStatement::getExpression() const
     {
         return m_statement->getExpression();
     }

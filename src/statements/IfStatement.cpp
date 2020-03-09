@@ -23,7 +23,7 @@ namespace arrow {
         m_expression = std::move(expression);
         return *this;
     }
-    std::shared_ptr<Expression> IfStatement::getExpression() const
+    std::shared_ptr<Expression> const & IfStatement::getExpression() const
     {
         return m_expression;
     }
@@ -41,18 +41,18 @@ namespace arrow {
         m_elsePart = std::move(elsePart);
         return *this;
     }
-    std::shared_ptr<Statement> IfStatement::getInnerStatement() const
+    std::shared_ptr<Statement> const & IfStatement::getInnerStatement() const
     {
         return m_innerStatement;
     }
 
-    std::vector<std::shared_ptr<ElseIfStatement>> 
+    std::vector<std::shared_ptr<ElseIfStatement>> const & 
     IfStatement::getElseIfParts() const
     {
         return m_elseIfParts;
     }
 
-    std::shared_ptr<ElseStatement> IfStatement::getElsePart() const
+    std::shared_ptr<ElseStatement> const & IfStatement::getElsePart() const
     {
         return m_elsePart;
     }

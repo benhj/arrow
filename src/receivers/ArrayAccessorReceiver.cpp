@@ -34,7 +34,7 @@ namespace arrow {
     {
         return m_identifier;
     }
-    std::shared_ptr<Expression> ArrayAccessorReceiver::getExpression() const
+    std::shared_ptr<Expression> const & ArrayAccessorReceiver::getExpression() const
     {
         return m_expression;
     }

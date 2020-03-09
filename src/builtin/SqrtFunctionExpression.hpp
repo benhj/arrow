@@ -16,7 +16,7 @@ namespace arrow {
       public:
         SqrtFunctionExpression(long const lineNumber);
         void setExpression(std::shared_ptr<Expression> expression) override;
-        std::shared_ptr<Expression> getExpression() const;
+        std::shared_ptr<Expression> const & getExpression() const;
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
         std::string toString() const override;
       private:

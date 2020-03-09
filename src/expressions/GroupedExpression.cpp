@@ -21,7 +21,7 @@ namespace arrow {
         return *this;
     }
     
-    std::shared_ptr<Expression> GroupedExpression::getExpression() const
+    std::shared_ptr<Expression> const & GroupedExpression::getExpression() const
     {
         return m_expression;
     }
