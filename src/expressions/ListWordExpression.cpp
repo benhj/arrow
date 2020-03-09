@@ -36,7 +36,7 @@ namespace arrow {
         return *this;
     }
 
-    Token ListWordExpression::getWordToken() const
+    Token const & ListWordExpression::getWordToken() const
     {
         return  m_word;
     }

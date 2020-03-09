@@ -17,7 +17,7 @@ namespace arrow {
 
         LiteralStringExpression & withStringToken(Token stringToken);
 
-        Token getStringToken() const;
+        Token const & getStringToken() const;
 
         std::string toString() const override;
 

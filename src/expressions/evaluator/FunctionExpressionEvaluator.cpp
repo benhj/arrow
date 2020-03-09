@@ -31,7 +31,7 @@ namespace arrow {
         // Pull out the arguments being passed into the function
         auto const expressionColl = m_expression.getExpressionCollection();
         auto const t = expressionColl->getEvaluator()->evaluate(environment);
-        auto const expressionCollEval = std::get<std::vector<Type>>(t.m_variantType);
+        auto const & expressionCollEval = std::get<std::vector<Type>>(t.m_variantType);
 
         // Get the function to evaluate; if can't find function,
         // try instead to get a pod.
@@ -51,7 +51,7 @@ namespace arrow {
 
         // Get the parameters of the function/pod signature
         auto const p = paramColl->getEvaluator()->evaluate(environment);
-        auto const paramCollEval = std::get<std::vector<Type>>(p.m_variantType);
+        auto const & paramCollEval = std::get<std::vector<Type>>(p.m_variantType);
 
         // Throw if signature mismatch
         if(paramCollEval.size() != expressionCollEval.size()) {
@@ -72,7 +72,7 @@ namespace arrow {
         // will then access these parameters
         auto param = std::begin(paramCollEval);
         for (auto const & expr : expressionCollEval) {
-            auto const raw = std::get<std::string>(param->m_variantType);
+            auto const & raw = std::get<std::string>(param->m_variantType);
 
             if(functionStatement) {
                 newEnvironment.add(raw, expr);

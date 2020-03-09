@@ -17,7 +17,7 @@ namespace arrow {
 
         ListWordExpression & withWordToken(Token identifier);
 
-        Token getWordToken() const;
+        Token const & getWordToken() const;
 
         std::string toString() const override;
 

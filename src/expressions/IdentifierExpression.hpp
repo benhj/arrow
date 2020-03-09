@@ -17,7 +17,7 @@ namespace arrow {
 
         IdentifierExpression & withIdentifierToken(Token identifier);
 
-        Token getIdentifierToken() const;
+        Token const & getIdentifierToken() const;
 
         std::string toString() const override;
 

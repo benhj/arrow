@@ -30,13 +30,13 @@ namespace arrow {
         return *this;
     }
 
-    Token ArrayAccessorReceiver::getIdentifierToken() const
+    Token const & ArrayAccessorReceiver::getIdentifierToken() const
     {
-        return  m_identifier;
+        return m_identifier;
     }
     std::shared_ptr<Expression> ArrayAccessorReceiver::getExpression() const
     {
-        return  m_expression;
+        return m_expression;
     }
 
     std::string ArrayAccessorReceiver::toString() const

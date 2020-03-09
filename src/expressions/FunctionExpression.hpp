@@ -19,7 +19,7 @@ namespace arrow {
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
         std::string toString() const override;
         std::shared_ptr<Expression> getExpressionCollection() const;
-        Token getName() const;
+        Token const & getName() const;
       private:
         Token m_nameToken;
         std::shared_ptr<Expression> m_expressionCollection;

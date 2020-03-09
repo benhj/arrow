@@ -76,7 +76,7 @@ namespace arrow {
         return *this;
     }
 
-    std::vector<Type> Environment::getProgramArgs() const
+    std::vector<Type> const & Environment::getProgramArgs() const
     {
         return m_programArguments;
     }
@@ -103,10 +103,9 @@ namespace arrow {
         return EnvironmentMap::iterator();
     }
 
-    Type Environment::get(std::string identifier) const
+    Type & Environment::get(std::string identifier) const
     {
         auto found = findAndRetrieveCached(std::move(identifier));
-        if(found == EnvironmentMap::iterator()) { return {TypeDescriptor::None, false}; }
         return found->second;
     }
 
@@ -308,13 +307,13 @@ namespace arrow {
         return nullptr;
     }
 
-    std::map<std::string, std::shared_ptr<FunctionStatement>>
+    std::map<std::string, std::shared_ptr<FunctionStatement>> const &
     Environment::getFunctions() const
     {
         return m_functions;
     }
 
-    std::map<std::string, std::shared_ptr<PodStatement>>
+    std::map<std::string, std::shared_ptr<PodStatement>> const &
     Environment::getPods() const
     {
         return m_pods;

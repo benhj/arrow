@@ -36,7 +36,7 @@ namespace arrow {
         return *this;
     }
 
-    Token LiteralRealExpression::getRealToken() const
+    Token const & LiteralRealExpression::getRealToken() const
     {
         return m_realToken;
     }

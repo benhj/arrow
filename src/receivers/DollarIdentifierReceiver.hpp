@@ -14,7 +14,7 @@ namespace arrow {
         DollarIdentifierReceiver(long const lineNumber);
         std::shared_ptr<ReceiverEvaluator> getEvaluator() const override;
         DollarIdentifierReceiver & withIdentifierToken(Token identifier);
-        Token getIdentifierToken() const;
+        Token const & getIdentifierToken() const;
         std::string toString() const override;
       private:
         Token m_identifier;

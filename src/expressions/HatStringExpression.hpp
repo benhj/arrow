@@ -17,7 +17,7 @@ namespace arrow {
 
         HatStringExpression & withHatStringToken(Token hatStringToken);
 
-        Token getHatStringToken() const;
+        Token const & getHatStringToken() const;
 
         std::string toString() const override;
 

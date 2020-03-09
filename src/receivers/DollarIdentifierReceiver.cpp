@@ -25,9 +25,9 @@ namespace arrow {
         return *this;
     }
 
-    Token DollarIdentifierReceiver::getIdentifierToken() const
+    Token const & DollarIdentifierReceiver::getIdentifierToken() const
     {
-        return  m_identifier;
+        return m_identifier;
     }
 
     std::string DollarIdentifierReceiver::toString() const

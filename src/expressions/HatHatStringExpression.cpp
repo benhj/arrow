@@ -45,7 +45,7 @@ namespace arrow {
         return *this;
     }
 
-    Token HatHatStringExpression::getHatHatStringToken() const
+    Token const & HatHatStringExpression::getHatHatStringToken() const
     {
         return m_hatHatStringToken;
     }

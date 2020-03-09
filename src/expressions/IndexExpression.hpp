@@ -20,7 +20,7 @@ namespace arrow {
         IndexExpression & withIdentifierToken(Token identifier);
         IndexExpression & withIndexExpression(std::shared_ptr<Expression> identifier);
 
-        Token getIdentifierToken() const;
+        Token const & getIdentifierToken() const;
         std::shared_ptr<Expression> getIndexExpression() const;
 
         std::string toString() const override;

@@ -25,7 +25,7 @@ namespace arrow {
         return *this;
     }
 
-    Token IdentifierReceiver::getIdentifierToken() const
+    Token const & IdentifierReceiver::getIdentifierToken() const
     {
         return  m_identifier;
     }

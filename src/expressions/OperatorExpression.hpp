@@ -18,7 +18,7 @@ namespace arrow {
         OperatorExpression & withOperator(Token op);
         std::shared_ptr<Expression> getExpressionLeft() const;
         std::shared_ptr<Expression> getExpressionRight() const;
-        Token getOperator() const;
+        Token const & getOperator() const;
         std::string toString() const override;
 
       private:

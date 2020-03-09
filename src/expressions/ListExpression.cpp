@@ -26,7 +26,7 @@ namespace arrow {
         return m_parts.size();
     }
 
-    std::vector<std::shared_ptr<Expression>> ListExpression::getParts() const
+    std::vector<std::shared_ptr<Expression>> const & ListExpression::getParts() const
     {
         return m_parts;
     }

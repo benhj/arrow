@@ -17,7 +17,7 @@ namespace arrow {
         return *this;
     }
 
-    Token QQStringExpression::getQQStringToken() const
+    Token const & QQStringExpression::getQQStringToken() const
     {
         return m_qQStringToken;
     }

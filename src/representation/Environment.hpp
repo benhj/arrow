@@ -37,10 +37,10 @@ namespace arrow {
         Environment & withProgramArgs(std::vector<Type>);
 
         /// Retrieve program argument table
-        std::vector<Type> getProgramArgs() const;
+        std::vector<Type> const & getProgramArgs() const;
 
         /// Retrieve a cached type with given identifier
-        Type get(std::string identifier) const;
+        Type & get(std::string identifier) const;
 
         /// Cache a type with given identifier
         void add(std::string identifier, Type const type);
@@ -92,10 +92,10 @@ namespace arrow {
         std::shared_ptr<PodStatement> getPod(std::string identifier) const;
 
         /// Retrieves the function lookup table
-        std::map<std::string, std::shared_ptr<FunctionStatement>> getFunctions() const;
+        std::map<std::string, std::shared_ptr<FunctionStatement>> const & getFunctions() const;
 
         /// Retrieves the pod lookup table
-        std::map<std::string, std::shared_ptr<PodStatement>> getPods() const;
+        std::map<std::string, std::shared_ptr<PodStatement>> const & getPods() const;
 
         /// Returns an iterator to a cached element
         EnvironmentMap::iterator findAndRetrieveCached(std::string identifier) const;

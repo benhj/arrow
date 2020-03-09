@@ -41,7 +41,7 @@ namespace arrow {
     {
         return m_operatorExp->getExpressionRight();
     }
-    Token BooleanExpression::getOperator() const
+    Token const & BooleanExpression::getOperator() const
     {
         return m_operatorExp->getOperator();
     }

@@ -35,7 +35,7 @@ namespace arrow {
     {
         return m_expressionRight;
     }
-    Token OperatorExpression::getOperator() const
+    Token const & OperatorExpression::getOperator() const
     {
         return m_op;
     }

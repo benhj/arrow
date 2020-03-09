@@ -17,7 +17,7 @@ namespace arrow {
 
         LiteralIntExpression & withIntToken(Token intToken);
 
-        Token getIntToken() const;
+        Token const & getIntToken() const;
 
         std::string toString() const override;
 

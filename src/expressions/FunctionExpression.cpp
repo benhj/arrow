@@ -32,7 +32,7 @@ namespace arrow {
         return m_expressionCollection;
     }
 
-    Token FunctionExpression::getName() const
+    Token const & FunctionExpression::getName() const
     {
         return m_nameToken;
     }

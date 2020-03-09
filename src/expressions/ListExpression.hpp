@@ -19,7 +19,7 @@ namespace arrow {
         void addPart(std::shared_ptr<Expression> expression);
         int getPartsCount() const;
 
-        std::vector<std::shared_ptr<Expression>> getParts() const;
+        std::vector<std::shared_ptr<Expression>> const & getParts() const;
 
         std::string toString() const override;
 

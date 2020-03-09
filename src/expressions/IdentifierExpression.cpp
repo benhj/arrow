@@ -45,9 +45,9 @@ namespace arrow {
         return *this;
     }
 
-    Token IdentifierExpression::getIdentifierToken() const
+    Token const & IdentifierExpression::getIdentifierToken() const
     {
-        return  m_identifier;
+        return m_identifier;
     }
 
     std::string IdentifierExpression::toString() const

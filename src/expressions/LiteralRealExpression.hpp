@@ -18,7 +18,7 @@ namespace arrow {
 
         LiteralRealExpression & withRealToken(Token realToken);
 
-        Token getRealToken() const;
+        Token const & getRealToken() const;
 
         std::string toString() const override;
 

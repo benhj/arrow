@@ -36,7 +36,7 @@ namespace arrow {
         return *this;
     }
 
-    Token LiteralIntExpression::getIntToken() const
+    Token const & LiteralIntExpression::getIntToken() const
     {
         return m_intToken;
     }

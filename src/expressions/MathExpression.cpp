@@ -39,7 +39,7 @@ namespace arrow {
     {
         return m_operatorExp->getExpressionRight();
     }
-    Token MathExpression::getOperator() const
+    Token const & MathExpression::getOperator() const
     {
         return m_operatorExp->getOperator();
     }

@@ -15,7 +15,7 @@ namespace arrow {
 
         QStringExpression & withQStringToken(Token qStringToken);
 
-        Token getQStringToken() const;
+        Token const & getQStringToken() const;
 
         std::shared_ptr<ExpressionEvaluator> getEvaluator() const override;
 

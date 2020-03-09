@@ -170,7 +170,7 @@ namespace arrow {
         return *this;
     }
 
-    Token IndexExpression::getIdentifierToken() const
+    Token const & IndexExpression::getIdentifierToken() const
     {
         return  m_identifier;
     }

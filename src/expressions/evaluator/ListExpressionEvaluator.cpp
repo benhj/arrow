@@ -13,7 +13,7 @@ namespace arrow {
     Type ListExpressionEvaluator::evaluate(Environment & environment) const 
     {
         std::vector<Type> elements;
-        auto const parts = m_listExpression.getParts();
+        auto const & parts = m_listExpression.getParts();
         for(auto const & part : parts) {
             auto const evaluated = part->getEvaluator()->evaluate(environment);
             if(evaluated.m_descriptor == TypeDescriptor::BracketlessList) {

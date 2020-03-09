@@ -35,7 +35,7 @@ namespace arrow {
         return *this;
     }
 
-    Token LiteralStringExpression::getStringToken() const
+    Token const & LiteralStringExpression::getStringToken() const
     {
         return m_stringToken;
     }
