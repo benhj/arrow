@@ -61,7 +61,7 @@ namespace arrow {
                         if((it + step) == std::end(elements)) {
                             break;
                         }
-                        environment.add(index.raw, {TypeDescriptor::Bool, *(it + step)});
+                        environment.add(index.raw, {TypeDescriptor::Bool, static_cast<bool>(*(it + step))});
                         ++step;
                     }
                 } else if constexpr (std::is_same_v<typename T::value_type, std::string>) {

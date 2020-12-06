@@ -1,18 +1,18 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #pragma once
 
 #include "ReceiverEvaluator.hpp"
-#include "lexer/Token.hpp"
+#include "expressions/Expression.hpp"
 #include "representation/Environment.hpp"
 
 namespace arrow {
 
     struct DollarIdentifierReceiverEvaluator : public ReceiverEvaluator {
-        DollarIdentifierReceiverEvaluator(Token tok);
+        explicit DollarIdentifierReceiverEvaluator(std::shared_ptr<Expression> expression);
         void evaluate(Type incoming, Environment & environment) const override;
       private:
-        Token m_tok;
+        std::shared_ptr<Expression> m_expression;
     };
 
 }

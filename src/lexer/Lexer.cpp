@@ -109,6 +109,7 @@ namespace arrow {
             case ')': tokens.emplace_back(Lexeme::CLOSE_PAREN, ")", lineNumber); break;
             case ':': tokens.emplace_back(Lexeme::COLON, ":", lineNumber); break;
             case ',': tokens.emplace_back(Lexeme::COMMA, ",", lineNumber); break;
+            case '$': tokens.emplace_back(Lexeme::DOLLAR, "$", lineNumber); break;
             default : return false;
         };
         return true;
@@ -209,17 +210,7 @@ namespace arrow {
                     }
                 }
             }
-        } else if(c == '$') {
-            auto next = stream.peek();
-            if(next != EOF) {
-                // see if $str
-                if(std::isalnum(next)) {
-                    auto dat = getAlphaNumsUntilSpace(stream);
-                    tokens.emplace_back(Lexeme::DOLLAR_STRING, std::move(dat), lineNumber);
-                    return true;
-                }
-            }
-        }  else if(c == ';') {
+        } else if(c == ';') {
             auto next = stream.peek();
             if(next != EOF && next == ';') {
                 stream.get();

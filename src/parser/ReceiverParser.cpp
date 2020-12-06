@@ -55,13 +55,18 @@ namespace arrow {
     }
     std::shared_ptr<Receiver> ReceiverParser::parseDollarIdentifierReceiver()
     {
-        if(m_tm.currentToken().lexeme != Lexeme::DOLLAR_STRING) {
+        if(m_tm.currentToken().lexeme != Lexeme::DOLLAR) {
             return nullptr;
         }
         auto const ln = m_tm.currentToken().lineNumber;
-        auto exp = std::make_shared<DollarIdentifierReceiver>(ln);
-        exp->withIdentifierToken(m_tm.currentToken());
-        return exp;
+        auto rec = std::make_shared<DollarIdentifierReceiver>(ln);
+        m_tm.advanceTokenIterator();
+        auto expr = m_ep.parseExpression();
+        if(!expr) {
+            return nullptr;
+        }
+        rec->withExpression(std::move(expr));
+        return rec;
     }
     std::shared_ptr<Receiver> ReceiverParser::parseArrayAccessorReceiver()
     {

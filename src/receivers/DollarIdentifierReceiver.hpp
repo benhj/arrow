@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Receiver.hpp"
+#include "expressions/Expression.hpp"
 #include "lexer/Token.hpp"
 #include <memory>
 
@@ -13,11 +14,11 @@ namespace arrow {
       public:
         DollarIdentifierReceiver(long const lineNumber);
         std::shared_ptr<ReceiverEvaluator> getEvaluator() const override;
-        DollarIdentifierReceiver & withIdentifierToken(Token identifier);
-        Token const & getIdentifierToken() const;
+        DollarIdentifierReceiver & withExpression(std::shared_ptr<Expression>);
+        std::shared_ptr<Expression> const & getExpression() const;
         std::string toString() const override;
       private:
-        Token m_identifier;
+        std::shared_ptr<Expression> m_expression;
     };
 
 }

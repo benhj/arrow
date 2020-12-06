@@ -1,6 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "DollarIdentifierReceiverEvaluator.hpp"
+#include "expressions/IdentifierExpression.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
 
@@ -44,93 +45,100 @@ namespace arrow {
         }
     }
 
-    DollarIdentifierReceiverEvaluator::DollarIdentifierReceiverEvaluator(Token tok) 
-      : m_tok(std::move(tok))
+    DollarIdentifierReceiverEvaluator::DollarIdentifierReceiverEvaluator(std::shared_ptr<Expression> expression) 
+      : m_expression(std::move(expression))
     {
     }
 
     void DollarIdentifierReceiverEvaluator::evaluate(Type evaluated, Environment & environment) const
     {
-        auto identifier = m_tok.raw;
-        if(environment.has(identifier)) {
-            auto orig = environment.get(identifier);
-            if(orig.m_descriptor == TypeDescriptor::Ints &&
-               evaluated.m_descriptor == TypeDescriptor::Int) {
+        // A bit hacky -- figure out what the exression type is
+        // based on the expression type string.
+        char const * expressionType = m_expression->getTypeString();
+        if(std::strcmp(expressionType, "Identifier") == 0) {
+            auto const identifier = dynamic_cast<IdentifierExpression*>(m_expression.get())->getIdentifierToken().raw;
+            if(environment.has(identifier)) {
+                auto orig = environment.get(identifier);
+                if(orig.m_descriptor == TypeDescriptor::Ints &&
+                   evaluated.m_descriptor == TypeDescriptor::Int) {
 
-                add<int64_t>(std::move(evaluated), environment, std::move(identifier));
+                    add<int64_t>(std::move(evaluated), environment, std::move(identifier));
 
-            } else if(orig.m_descriptor == TypeDescriptor::Reals &&
-                (evaluated.m_descriptor == TypeDescriptor::Real ||
-                 evaluated.m_descriptor == TypeDescriptor::Int)) {
+                } else if(orig.m_descriptor == TypeDescriptor::Reals &&
+                    (evaluated.m_descriptor == TypeDescriptor::Real ||
+                     evaluated.m_descriptor == TypeDescriptor::Int)) {
 
-                if(evaluated.m_descriptor == TypeDescriptor::Int) {
-                    addIntToRealVector(std::move(evaluated), environment, std::move(identifier));
-                } else {
-                    add<real>(std::move(evaluated), environment, std::move(identifier));
+                    if(evaluated.m_descriptor == TypeDescriptor::Int) {
+                        addIntToRealVector(std::move(evaluated), environment, std::move(identifier));
+                    } else {
+                        add<real>(std::move(evaluated), environment, std::move(identifier));
+                    }
+                } else if(orig.m_descriptor == TypeDescriptor::Bools &&
+                    evaluated.m_descriptor == TypeDescriptor::Bool) {
+
+                    add<bool>(std::move(evaluated), environment, std::move(identifier));
+
+                } else if(orig.m_descriptor == TypeDescriptor::Strings &&
+                    evaluated.m_descriptor == TypeDescriptor::String) {
+
+                    add<std::string>(std::move(evaluated), environment, std::move(identifier));
+
+                } else if(orig.m_descriptor == TypeDescriptor::Bytes &&
+                    evaluated.m_descriptor == TypeDescriptor::Byte) {
+
+                    add<char>(std::move(evaluated), environment, std::move(identifier));
+
+                } else if(orig.m_descriptor == TypeDescriptor::Pods &&
+                    evaluated.m_descriptor == TypeDescriptor::Pod) {
+
+                    add<PodType>(std::move(evaluated), environment, std::move(identifier));
+
+                }  else if(orig.m_descriptor == TypeDescriptor::String &&
+                    evaluated.m_descriptor == TypeDescriptor::Byte) {
+
+                    addToString(std::move(evaluated), environment, std::move(identifier));
+
+                }  else if(orig.m_descriptor == TypeDescriptor::List) {
+
+                    addToList(std::move(evaluated), environment, std::move(identifier));
+
                 }
-            } else if(orig.m_descriptor == TypeDescriptor::Bools &&
-                evaluated.m_descriptor == TypeDescriptor::Bool) {
+            } else if(evaluated.m_descriptor == TypeDescriptor::Int) {
 
-                add<bool>(std::move(evaluated), environment, std::move(identifier));
+                add<int64_t>(std::move(evaluated),
+                             environment, TypeDescriptor::Ints,
+                             std::move(identifier));
 
-            } else if(orig.m_descriptor == TypeDescriptor::Strings &&
-                evaluated.m_descriptor == TypeDescriptor::String) {
+            } else if (evaluated.m_descriptor == TypeDescriptor::Real) {
 
-                add<std::string>(std::move(evaluated), environment, std::move(identifier));
+                add<real>(std::move(evaluated),
+                                 environment, TypeDescriptor::Reals,
+                                 std::move(identifier));
 
-            } else if(orig.m_descriptor == TypeDescriptor::Bytes &&
-                evaluated.m_descriptor == TypeDescriptor::Byte) {
+            } else if (evaluated.m_descriptor == TypeDescriptor::Bool) {
 
-                add<char>(std::move(evaluated), environment, std::move(identifier));
+                add<bool>(std::move(evaluated),
+                          environment, TypeDescriptor::Bools,
+                          std::move(identifier));
 
-            } else if(orig.m_descriptor == TypeDescriptor::Pods &&
-                evaluated.m_descriptor == TypeDescriptor::Pod) {
+            } else if (evaluated.m_descriptor == TypeDescriptor::String) {
 
-                add<PodType>(std::move(evaluated), environment, std::move(identifier));
+                add<std::string>(std::move(evaluated),
+                                 environment, TypeDescriptor::Strings,
+                                 std::move(identifier));
+            } else if (evaluated.m_descriptor == TypeDescriptor::Byte) {
 
-            }  else if(orig.m_descriptor == TypeDescriptor::String &&
-                evaluated.m_descriptor == TypeDescriptor::Byte) {
+                add<char>(std::move(evaluated),
+                          environment, TypeDescriptor::Bytes,
+                          std::move(identifier));
+            } else if (evaluated.m_descriptor == TypeDescriptor::Pod) {
 
-                addToString(std::move(evaluated), environment, std::move(identifier));
-
-            }  else if(orig.m_descriptor == TypeDescriptor::List) {
-
-                addToList(std::move(evaluated), environment, std::move(identifier));
-
+                add<PodType>(std::move(evaluated),
+                             environment, TypeDescriptor::Pods,
+                             std::move(identifier));
             }
-        } else if(evaluated.m_descriptor == TypeDescriptor::Int) {
-
-            add<int64_t>(std::move(evaluated),
-                         environment, TypeDescriptor::Ints,
-                         std::move(identifier));
-
-        } else if (evaluated.m_descriptor == TypeDescriptor::Real) {
-
-            add<real>(std::move(evaluated),
-                             environment, TypeDescriptor::Reals,
-                             std::move(identifier));
-
-        } else if (evaluated.m_descriptor == TypeDescriptor::Bool) {
-
-            add<bool>(std::move(evaluated),
-                      environment, TypeDescriptor::Bools,
-                      std::move(identifier));
-
-        } else if (evaluated.m_descriptor == TypeDescriptor::String) {
-
-            add<std::string>(std::move(evaluated),
-                             environment, TypeDescriptor::Strings,
-                             std::move(identifier));
-        } else if (evaluated.m_descriptor == TypeDescriptor::Byte) {
-
-            add<char>(std::move(evaluated),
-                      environment, TypeDescriptor::Bytes,
-                      std::move(identifier));
-        } else if (evaluated.m_descriptor == TypeDescriptor::Pod) {
-
-            add<PodType>(std::move(evaluated),
-                         environment, TypeDescriptor::Pods,
-                         std::move(identifier));
+            return;
         }
+        throw LanguageException("Expression type not compatible", m_expression->getLineNumber());
     }
 }

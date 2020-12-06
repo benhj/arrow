@@ -22,6 +22,9 @@ namespace arrow {
         /// For debugging purposes
         virtual std::string toString() const = 0;
 
+        // A plain char string indicating the 'type of this'
+        virtual char const * getTypeString() const;
+
         long getLineNumber() const;
 
       protected:

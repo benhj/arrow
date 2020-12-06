@@ -31,7 +31,7 @@ namespace arrow {
             } else if constexpr(std::is_same_v<T, real>) {
                 return {TypeDescriptor::Real, container[deduced]};
             } else if constexpr(std::is_same_v<T, bool>) {
-                return {TypeDescriptor::Bool, container[deduced]};
+                return {TypeDescriptor::Bool, static_cast<bool>(container[deduced])};
             } else if constexpr(std::is_same_v<T, std::string>) {
                 return {TypeDescriptor::String, container[deduced]};
             } else if constexpr(std::is_same_v<T, char>) {
@@ -187,5 +187,10 @@ namespace arrow {
         return str.append(m_identifier.raw);
         */
         return "";
+    }
+
+    char const * IndexExpression::getTypeString() const
+    {
+        return "Index";
     }
 }

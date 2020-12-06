@@ -19,4 +19,9 @@ namespace arrow {
     {
         return m_lineNumber;
     }
+
+    char const * Expression::getTypeString() const
+    {
+        return "";
+    }
 }

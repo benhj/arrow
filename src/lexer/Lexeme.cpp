@@ -97,6 +97,7 @@ std::ostream& operator<<(std::ostream& out, arrow::Lexeme const value){
         INSERT_ELEMENT(arrow::Lexeme::LESS);
         INSERT_ELEMENT(arrow::Lexeme::COMMA);
         INSERT_ELEMENT(arrow::Lexeme::PERCENT);
+        INSERT_ELEMENT(arrow::Lexeme::DOLLAR);
 
         INSERT_ELEMENT(arrow::Lexeme::NOT_EQUAL);
         INSERT_ELEMENT(arrow::Lexeme::GREATER_EQUAL);
@@ -115,8 +116,6 @@ std::ostream& operator<<(std::ostream& out, arrow::Lexeme const value){
         INSERT_ELEMENT(arrow::Lexeme::HAT_HAT_STRING);
         INSERT_ELEMENT(arrow::Lexeme::Q_STRING);
         INSERT_ELEMENT(arrow::Lexeme::Q_Q_STRING);
-
-        INSERT_ELEMENT(arrow::Lexeme::DOLLAR_STRING);
 
         INSERT_ELEMENT(arrow::Lexeme::FOR);
         INSERT_ELEMENT(arrow::Lexeme::EACH);

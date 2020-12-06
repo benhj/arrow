@@ -6,11 +6,11 @@
 
 namespace arrow {
     enum class Lexeme {
-        // Single char lexemes
+        // Single char
         PLUS, MINUS, STAR, EQUAL, DIVIDE,
         COLON, SEMICOLON, OPEN_PAREN, CLOSE_PAREN,
         OPEN_SQUARE, CLOSE_SQUARE, OPEN_CURLY, CLOSE_CURLY,
-        GREATER, LESS, COMMA, PERCENT, XOR,
+        GREATER, LESS, COMMA, PERCENT, XOR, DOLLAR,
 
         // Double or tipple char lexemes
         NOT_EQUAL, GREATER_EQUAL, LESS_EQUAL, ARROW, COMMENT,
@@ -20,9 +20,6 @@ namespace arrow {
         GENERIC_STRING, LITERAL_STRING, INTEGER_NUM, REAL_NUM,
         HAT_STRING, HAT_HAT_STRING, Q_STRING, Q_Q_STRING,
         LITERAL_CHAR,
-
-        // Array represetation
-        DOLLAR_STRING,
 
         // Keywords
         FOR, EACH, REPEAT, TIMES, IF, START, FN, BOOL,

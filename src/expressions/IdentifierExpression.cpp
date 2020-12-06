@@ -55,4 +55,9 @@ namespace arrow {
         std::string str("\nIdentifier expression: ");
         return str.append(m_identifier.raw);
     }
+
+    char const * IdentifierExpression::getTypeString() const
+    {
+        return "Identifier";
+    }
 }

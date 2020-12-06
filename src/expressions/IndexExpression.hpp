@@ -9,7 +9,7 @@
 namespace arrow {
     
     /// An expression of the form
-    /// identifier[expression], e.g. a[1]
+    /// identifier:expression, e.g. a:1
     class IndexExpression : public Expression
     {
       public:
@@ -24,6 +24,8 @@ namespace arrow {
         std::shared_ptr<Expression> const & getIndexExpression() const;
 
         std::string toString() const override;
+
+        char const * getTypeString() const override;
 
       private:
         Token m_identifier;

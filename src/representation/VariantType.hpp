@@ -14,14 +14,14 @@ namespace arrow {
     /// Represents the set of built-in types
     class Type;
     class PodType;
-    using VariantType = std::variant<bool, int64_t,
+    using VariantType = std::variant<int64_t,
                                      real, std::string,
                                      uint8_t, std::vector<Type>,
                                      std::vector<bool>,
                                      std::vector<int64_t>,
                                      std::vector<real>,
                                      std::vector<std::string>,
-                                     char,
+                                     char, bool,
                                      std::vector<char>,
                                      std::map<std::string, Type>,
                                      PodType,

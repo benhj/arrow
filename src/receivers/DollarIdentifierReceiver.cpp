@@ -9,30 +9,28 @@ namespace arrow {
 
     DollarIdentifierReceiver::DollarIdentifierReceiver(long const lineNumber) 
       : Receiver(lineNumber)
-      , m_identifier()
     {
     }
 
     std::shared_ptr<ReceiverEvaluator> 
     DollarIdentifierReceiver::getEvaluator() const
     {
-        return std::make_shared<DollarIdentifierReceiverEvaluator>(m_identifier);
+        return std::make_shared<DollarIdentifierReceiverEvaluator>(m_expression);
     }
 
-    DollarIdentifierReceiver & DollarIdentifierReceiver::withIdentifierToken(Token identifier)
+    DollarIdentifierReceiver & DollarIdentifierReceiver::withExpression(std::shared_ptr<Expression> expression)
     {
-        m_identifier = std::move(identifier);
+        m_expression = std::move(expression);
         return *this;
     }
 
-    Token const & DollarIdentifierReceiver::getIdentifierToken() const
+    std::shared_ptr<Expression> const & DollarIdentifierReceiver::getExpression() const
     {
-        return m_identifier;
+        return m_expression;
     }
 
     std::string DollarIdentifierReceiver::toString() const
     {
-        std::string str("\nIdentifier expression: ");
-        return str.append(m_identifier.raw);
+        return ""; // TODO
     }
 }

@@ -21,6 +21,8 @@ namespace arrow {
 
         std::string toString() const override;
 
+        char const * getTypeString() const override;
+
       private:
         Token m_identifier;
     };
