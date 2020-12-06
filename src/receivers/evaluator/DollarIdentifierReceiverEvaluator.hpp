@@ -8,11 +8,17 @@
 
 namespace arrow {
 
+    class IdentifierExpression;
+
     struct DollarIdentifierReceiverEvaluator : public ReceiverEvaluator {
         explicit DollarIdentifierReceiverEvaluator(std::shared_ptr<Expression> expression);
         void evaluate(Type incoming, Environment & environment) const override;
       private:
         std::shared_ptr<Expression> m_expression;
+
+        void handleIdentifierExpression(Type evaluated,
+                                        Environment & environment,
+                                        IdentifierExpression * expr) const;
     };
 
 }
