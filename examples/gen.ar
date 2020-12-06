@@ -68,16 +68,9 @@ fn build_representation(L) -> map {
         if((a /= "") && (b /= "")) {
             remove_speech_mark(trim(c)) -> c;
             a + " " + b -> key;
-            map_contains(map, key) -> match;
-            ;;; odd parsing issue means that map access
-            ;;; needs to be in parens -- needs fixing.
-            if((match:eq) = false) {
-                [^c] -> map:key;
-            } else {
-                match:key -> orig;
-                c -> $orig;
-                orig -> map:key;
-            }
+            ;;; following automatically adds a new element
+            ;;; at map:key if non-existing
+            c -> $map:key;
         }
         prn i;
         i + 1 -> i;

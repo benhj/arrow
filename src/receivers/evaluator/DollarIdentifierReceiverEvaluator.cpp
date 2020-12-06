@@ -2,12 +2,21 @@
 
 #include "DollarIdentifierReceiverEvaluator.hpp"
 #include "expressions/IdentifierExpression.hpp"
+#include "expressions/IndexExpression.hpp"
+#include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
 
     namespace {
+
+        void addToMapListElement(Type evaluated, Environment & environment,
+                                 std::string identifier, std::string key)
+        {
+            environment.addElementToMapElementWhenList(std::move(identifier), std::move(key), std::move(evaluated));
+        }
+
         template <typename T>
         void add(Type evaluated, Environment & environment, std::string identifier) {
             environment.pushBackContainerElement(std::move(identifier), evaluated);
@@ -58,6 +67,11 @@ namespace arrow {
         if(std::strcmp(expressionType, "Identifier") == 0) {
             auto expr = dynamic_cast<IdentifierExpression*>(m_expression.get());
             handleIdentifierExpression(std::move(evaluated), environment, std::move(expr));
+            return;
+        }
+        if(std::strcmp(expressionType, "Index") == 0) {
+            auto expr = dynamic_cast<IndexExpression*>(m_expression.get());
+            handleIndexExpression(std::move(evaluated), environment, std::move(expr));
             return;
         }
         throw LanguageException("Expression type not compatible", m_expression->getLineNumber());
@@ -147,6 +161,23 @@ namespace arrow {
             add<PodType>(std::move(evaluated),
                          environment, TypeDescriptor::Pods,
                          std::move(identifier));
+        }
+    }
+
+    void DollarIdentifierReceiverEvaluator::handleIndexExpression(Type evaluated,
+                                                                  Environment & environment,
+                                                                  IndexExpression * expr) const
+    {
+        auto const identifier = expr->getIdentifierToken().raw;
+        if(environment.has(identifier)) {
+            auto actualIndexExpression = expr->getIndexExpression();
+            auto indexExprEvaluator = actualIndexExpression->getEvaluator();
+            auto indexExprEvaluated = indexExprEvaluator->evaluate(environment);
+            // Figure out map key (e.g. map:key)
+            if(indexExprEvaluated.m_descriptor == TypeDescriptor::String) {
+                auto mapIdent = std::get<std::string>(indexExprEvaluated.m_variantType);
+                addToMapListElement(std::move(evaluated), environment, identifier, mapIdent);
+            }
         }
     }
 

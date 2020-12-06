@@ -170,6 +170,24 @@ namespace arrow {
         } 
     }
 
+    void Environment::addElementToMapElementWhenList(std::string identifier, std::string key, const Type type)
+    {
+        auto found = findAndRetrieveCached(std::move(identifier));
+        if(found->second.m_descriptor == TypeDescriptor::Map) {
+            auto & casted = std::get<std::map<std::string, Type>>(found->second.m_variantType);
+            auto foundInner = casted.find(key);
+            if(foundInner->second.m_descriptor == TypeDescriptor::List) {
+                auto & vec = std::get<std::vector<Type>>(foundInner->second.m_variantType);
+                vec.push_back(type);
+            } else {
+                std::vector<Type> newvec;
+                newvec.emplace_back(type);
+                Type newType{TypeDescriptor::List, newvec};
+                casted.emplace(key, std::move(newType));
+            }
+        }
+    }
+
     void Environment::setElementInContainer(std::string identifier,
                                       int const index,
                                       Type const type)

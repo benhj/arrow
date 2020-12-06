@@ -77,6 +77,11 @@ namespace arrow {
         /// Adds an element to the end of a container type
         void pushBackContainerElement(std::string identifier, Type const type);
 
+        /// Adds an element to a list when keyed element of a map
+        /// is a list. This permits dollar syntax, as in:
+        /// "hello" -> $map:key;
+        void addElementToMapElementWhenList(std::string identifier, std::string key, Type const type);
+
         /// Adds a function statement to the function lookup table
         void addFunctionStatement(std::string identifier,
                                   std::shared_ptr<FunctionStatement>);
