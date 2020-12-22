@@ -44,13 +44,17 @@ fn basic() {
     true -> c;
     false -> d;
     'c' -> e;
+    -5 -> f;
+    -10.8 -> g;
 
     test(1, a, score)      -> score;
     test(1.1, b, score)    -> score;
     test(true, c, score)   -> score;
     test(false, d, score)  -> score;
     test('c', e, score)    -> score;
-    print_score(5, score);
+    test(-1, f, score)     -> score;
+    test(-10.8, g, score)  -> score;
+    print_score(7, score);
     prn "     (basic)";
 }
 
