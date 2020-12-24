@@ -21,6 +21,7 @@
 #include "expressions/LiteralIntExpression.hpp"
 #include "expressions/LiteralRealExpression.hpp"
 #include "expressions/LiteralStringExpression.hpp"
+#include "expressions/NegativeNumberExpression.hpp"
 #include "expressions/MatchesExpression.hpp"
 #include "expressions/MathExpression.hpp"
 #include "expressions/OperatorExpression.hpp"
@@ -481,6 +482,23 @@ namespace arrow {
         return expression;
     }
 
+    std::shared_ptr<Expression>
+    ExpressionParser::parseNegativeNumberExpression()
+    {
+        if(m_tm.currentToken().lexeme != Lexeme::MINUS) {
+            return nullptr;
+        }
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto expression = std::make_shared<NegativeNumberExpression>(ln);
+        m_tm.advanceTokenIterator();
+        std::shared_ptr<Expression> expr = parseExpression();
+        if(!expr) { 
+            return nullptr; 
+        }
+        expression->withExpression(expr);
+        return expression;
+    }
+
     std::shared_ptr<Expression> ExpressionParser::parseListExpressionType()
     {
         static std::vector<std::function<std::shared_ptr<Expression>(ExpressionParser*)>> pvec{
@@ -493,7 +511,7 @@ namespace arrow {
             [](ExpressionParser* t){return t->parseSingleEqualExpression();},
             [](ExpressionParser* t){return t->parseDoubleEqualExpression();},
             [](ExpressionParser* t){return t->parseLiteralIntExpression();},
-            [](ExpressionParser* t){return t->parseLiteralRealExpression();},
+            [](ExpressionParser* t){return t->parseLiteralRealExpression();}
         };
         for(auto const & p : pvec) {
             auto store = m_tm.retrieveIt();
@@ -522,6 +540,7 @@ namespace arrow {
             [](ExpressionParser* t){return t->parseIdentifierExpression();},
             [](ExpressionParser* t){return t->parseLiteralStringExpression();},
             [](ExpressionParser* t){return t->parseLiteralCharExpression();},
+            [](ExpressionParser* t){return t->parseNegativeNumberExpression();}
         };
         for(auto const & p : pvec) {
             auto store = m_tm.retrieveIt();

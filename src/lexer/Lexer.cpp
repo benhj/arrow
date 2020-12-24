@@ -9,12 +9,6 @@
 
 namespace arrow {
 
-    bool checkIfNumberToken(char const c,
-                            std::istream & stream, 
-                            std::vector<Token> & tokens,
-                            long const lineNumber,
-                            bool const minusToken = false);
-
     bool checkIfDoubleCharToken(char const c, 
                                 std::istream & stream, 
                                 std::vector<Token> & tokens,
@@ -23,15 +17,10 @@ namespace arrow {
             case '-':
             {
                 auto next = stream.peek();
-                if(next != EOF) {
-                    if(char(next) == '>') {
+                if(next != EOF && char(next) == '>') {
                         stream.get(); // iterate
                         tokens.emplace_back(Lexeme::ARROW, "->", lineNumber);
                         return true;
-                    } 
-                    if(checkIfNumberToken(next, stream, tokens, lineNumber, true)) {
-                        return true;
-                    }
                 }
                 tokens.emplace_back(Lexeme::MINUS, "-", lineNumber);
                 return true;
@@ -248,14 +237,9 @@ namespace arrow {
     bool checkIfNumberToken(char const c,
                             std::istream & stream, 
                             std::vector<Token> & tokens,
-                            long const lineNumber,
-                            bool const minusToken) {
+                            long const lineNumber) {
         if(std::isdigit(c)) {
             std::string dat;
-            if(minusToken) {
-                dat.push_back('-');
-                stream.get();
-            }
             dat.push_back(c);
             auto next = stream.peek();
             auto stillNeedDot = true;

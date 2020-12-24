@@ -36,6 +36,7 @@ namespace arrow {
         std::shared_ptr<Expression> parseDoubleEqualExpression();
         std::shared_ptr<Expression> parseFunctionExpression();
         std::shared_ptr<Expression> parseMatchesExpression();
+        std::shared_ptr<Expression> parseNegativeNumberExpression();
 
 
         std::shared_ptr<Expression>
