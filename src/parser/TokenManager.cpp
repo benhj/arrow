@@ -1,6 +1,7 @@
 /// (c) Ben Jones 2019 - present
 
 #include "TokenManager.hpp"
+#include "LanguageException.hpp"
 #include <utility>
 
 namespace arrow {
@@ -23,7 +24,7 @@ namespace arrow {
     void TokenManager::advanceTokenIterator()
     {
         if(m_current == m_end) {
-            throw std::runtime_error("Parse error");
+            throw LanguageException("Parse error");
         }
         ++m_current;
         // skip over comments
@@ -34,14 +35,14 @@ namespace arrow {
     Token TokenManager::currentToken() const
     {
         if(m_current == m_end) {
-            throw std::runtime_error("Parse error");
+            throw LanguageException("Parse error");
         }
         return *m_current;
     }
     Token TokenManager::nextToken() const
     {
         if((m_current + 1) == m_end) {
-            throw std::runtime_error("Parse error");
+            throw LanguageException("Parse error");
         }
         return *(m_current + 1);
     }

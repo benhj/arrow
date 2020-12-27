@@ -11,7 +11,7 @@ namespace arrow {
     {
       public:
         LanguageException(std::string errorString,
-                          long const lineNumber)
+                          long const lineNumber = -1)
           : m_errorString(std::move(errorString))
           , m_lineNumber(lineNumber)
         {
