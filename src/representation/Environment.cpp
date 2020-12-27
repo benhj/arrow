@@ -115,6 +115,7 @@ namespace arrow {
         if(found != EnvironmentMap::iterator()) {
             // Remove original instance of value
             found->second.m_variantType.swap(type.m_variantType);
+            found->second.m_descriptor = type.m_descriptor;
             return;
         }
         // Add brand new instance

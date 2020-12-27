@@ -17,21 +17,20 @@ namespace arrow {
         }
 
         real operator()(std::string left,
-                               std::string right) const
+                        std::string right) const
         {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }
         real operator()(std::vector<Type> left,
-                               std::vector<Type> right) const
+                        std::vector<Type> right) const
         {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }
         real operator()(std::map<std::string, Type> left,
-                               std::map<std::string, Type> right) const
+                        std::map<std::string, Type> right) const
         {
             throw LanguageException("Incompatible types on line", m_lineNumber);
         }
-
 
         real operator()(PodType left,
                         PodType right) const
