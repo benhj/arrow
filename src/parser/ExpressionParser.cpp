@@ -327,7 +327,7 @@ namespace arrow {
         exp->withOperator(m_tm.currentToken());
         m_tm.advanceTokenIterator();
 
-        auto rightExpression = parseExpression(thisPrecedence);
+        auto rightExpression = parseExpression(true, thisPrecedence);
         if(!rightExpression) {
             return nullptr;
         }
@@ -491,7 +491,7 @@ namespace arrow {
         auto const ln = m_tm.currentToken().lineNumber;
         auto expression = std::make_shared<NegativeNumberExpression>(ln);
         m_tm.advanceTokenIterator();
-        std::shared_ptr<Expression> expr = parseExpression();
+        std::shared_ptr<Expression> expr = parseExpression(false /* == don't allow binary exp */);
         if(!expr) { 
             return nullptr; 
         }
@@ -525,7 +525,8 @@ namespace arrow {
     }
 
     std::shared_ptr<Expression> 
-    ExpressionParser::parseExpression(std::optional<int> prevPrecedence)
+    ExpressionParser::parseExpression(bool const allowBinaryExpressions,
+                                      std::optional<int> prevPrecedence)
     {
         static std::vector<std::function<std::shared_ptr<Expression>(ExpressionParser*)>> pvec{
             [](ExpressionParser* t){return t->parseGroupedExpression();},
@@ -546,6 +547,9 @@ namespace arrow {
             auto store = m_tm.retrieveIt();
             auto expression = p(this);
             if(expression) {
+                if(!allowBinaryExpressions) {
+                    return expression;
+                }
                 // If more tokens, might be able to match on a
                 // boolean or math expression.
                 if(m_tm.tokenPlusOneNotAtEnd()) {

@@ -17,7 +17,8 @@ namespace arrow {
         ExpressionParser(TokenManager & tm);
         ExpressionParser() = delete;
 
-        std::shared_ptr<Expression> parseExpression(std::optional<int> = std::nullopt);
+        std::shared_ptr<Expression> parseExpression(bool const allowBinaryExpressions = true,
+                                                    std::optional<int> = std::nullopt);
 
         std::shared_ptr<Expression> parseLiteralIntExpression();
         std::shared_ptr<Expression> parseIndexExpression();
