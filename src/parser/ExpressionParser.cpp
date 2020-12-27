@@ -288,7 +288,11 @@ namespace arrow {
         exp->withOperator(m_tm.currentToken());
         m_tm.advanceTokenIterator();
 
-        auto rightExpression = parseExpression();
+        auto rightExpression = parseExpression(true, thisPrecedence);
+        if(!rightExpression) {
+            return nullptr;
+        }
+
         if(!rightExpression) {
             return nullptr;
         }
