@@ -271,42 +271,46 @@ namespace arrow {
     ExpressionParser::parseBooleanExpression(std::shared_ptr<Expression> left,
                                              std::optional<int> previousPrecedence)
     {
-        auto const ln = m_tm.currentToken().lineNumber;
-        auto exp = std::make_shared<BooleanExpression>(ln);
-        exp->withLeft(std::move(left));
-
         if(!isBooleanOperator(m_tm.nextToken().lexeme)) {
             return nullptr;
         }
+
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto exp = std::make_shared<BooleanExpression>(ln);
+        exp->withLeft(std::move(left));
 
         auto const thisPrecedence = precedence(m_tm.nextToken().lexeme);
         if(previousPrecedence && *previousPrecedence >= thisPrecedence) {
             return left;
         }
-
         m_tm.advanceTokenIterator();
         exp->withOperator(m_tm.currentToken());
         m_tm.advanceTokenIterator();
 
-        auto rightExpression = parseExpression(true, thisPrecedence);
+        auto rightExpression = parseUnaryExpression();
         if(!rightExpression) {
             return nullptr;
         }
-
-        if(!rightExpression) {
-            return nullptr;
+        auto moreBoolean = parseBooleanExpression(rightExpression, thisPrecedence);
+        if(moreBoolean) {
+            exp->withRight(std::move(moreBoolean));
+        } else {
+            // Is the RHS a math expression?
+            // Note the expression passed in is the rightExpression which
+            // will be the left-most part of the following math expression,
+            // if indeed it is a math expression.
+            auto mathExpr = parseMathExpression(rightExpression);
+            if(mathExpr) {
+                exp->withRight(std::move(mathExpr));
+            } else {
+                exp->withRight(std::move(rightExpression));
+            }
         }
-        exp->withRight(std::move(rightExpression));
 
-        // More math stuff?
-        if(isMathOperator(m_tm.nextToken().lexeme)) {
-            return parseMathExpression(exp);
-        }
         // More boolean stuff?
         if(isBooleanOperator(m_tm.nextToken().lexeme)) {
             return parseBooleanExpression(exp);
         }
-
         return exp;
     }
 
@@ -314,37 +318,35 @@ namespace arrow {
     ExpressionParser::parseMathExpression(std::shared_ptr<Expression> left,
                                           std::optional<int> previousPrecedence)
     {
-        auto const ln = m_tm.currentToken().lineNumber;
-        auto exp = std::make_shared<MathExpression>(ln);
-        exp->withLeft(std::move(left));
-
         if(!isMathOperator(m_tm.nextToken().lexeme)) {
             return nullptr;
         }
+
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto exp = std::make_shared<MathExpression>(ln);
+        exp->withLeft(std::move(left));
 
         auto const thisPrecedence = precedence(m_tm.nextToken().lexeme);
         if(previousPrecedence && *previousPrecedence >= thisPrecedence) {
             return left;
         }
-
         m_tm.advanceTokenIterator();
         exp->withOperator(m_tm.currentToken());
         m_tm.advanceTokenIterator();
 
-        auto rightExpression = parseExpression(true, thisPrecedence);
+        auto rightExpression = parseUnaryExpression();
         if(!rightExpression) {
             return nullptr;
         }
-
-        exp->withRight(std::move(rightExpression));
-
+        auto moreMath = parseMathExpression(rightExpression, thisPrecedence);
+        if(moreMath) {
+            exp->withRight(std::move(moreMath));
+        } else {
+            exp->withRight(std::move(rightExpression));
+        }
         // More math stuff?
         if(isMathOperator(m_tm.nextToken().lexeme)) {
             return parseMathExpression(exp);
-        }
-        // More boolean stuff?
-        if(isBooleanOperator(m_tm.nextToken().lexeme)) {
-            return parseBooleanExpression(exp);
         }
         return exp;
     }
@@ -532,6 +534,40 @@ namespace arrow {
     ExpressionParser::parseExpression(bool const allowBinaryExpressions,
                                       std::optional<int> prevPrecedence)
     {
+        auto const expression = parseUnaryExpression();
+        if(expression) {
+            if(!allowBinaryExpressions) {
+                return expression;
+            }
+            // If more tokens, might be able to match on a
+            // boolean or math expression.
+            if(m_tm.tokenPlusOneNotAtEnd()) {
+                auto store = m_tm.retrieveIt();
+                auto booleanEval = parseBooleanExpression(expression, prevPrecedence);
+                if(booleanEval) {
+                    return booleanEval;
+                }
+                m_tm.revert(store);
+                store = m_tm.retrieveIt();
+                auto mathEval = parseMathExpression(expression, prevPrecedence);
+                if(mathEval) {
+                    
+                    // See if more boolean?
+                    auto moreBoolean = parseBooleanExpression(mathEval);
+                    if(!moreBoolean) {
+                        return mathEval;
+                    }
+                    return moreBoolean;
+                }
+                m_tm.revert(store);
+            }
+            return expression;
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<Expression> ExpressionParser::parseUnaryExpression()
+    {
         static std::vector<std::function<std::shared_ptr<Expression>(ExpressionParser*)>> pvec{
             [](ExpressionParser* t){return t->parseGroupedExpression();},
             [](ExpressionParser* t){return t->parseExpressionCollectionExpression();},
@@ -551,30 +587,10 @@ namespace arrow {
             auto store = m_tm.retrieveIt();
             auto expression = p(this);
             if(expression) {
-                if(!allowBinaryExpressions) {
-                    return expression;
-                }
-                // If more tokens, might be able to match on a
-                // boolean or math expression.
-                if(m_tm.tokenPlusOneNotAtEnd()) {
-                    store = m_tm.retrieveIt();
-                    auto booleanEval = parseBooleanExpression(expression, prevPrecedence);
-                    if(booleanEval) {
-                        return booleanEval;
-                    }
-                    m_tm.revert(store);
-                    store = m_tm.retrieveIt();
-                    auto mathEval = parseMathExpression(expression, prevPrecedence);
-                    if(mathEval) {
-                        return mathEval;
-                    }
-                    m_tm.revert(store);
-                }
                 return expression;
             }
             m_tm.revert(store);
         }
-        
         return nullptr;
     }
 }

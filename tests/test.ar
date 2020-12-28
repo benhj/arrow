@@ -35,6 +35,42 @@ fn print_score(exp, act) {
     }
 }
 
+;;; tests precendence of operations
+fn precendence() {
+    0 -> score;
+    1 -> a;
+    2 -> b;
+    3 -> c;
+    4 -> d;
+
+    -a * b -> res;
+    test(-2, res, score) -> score;
+
+    a + b + c -> res;
+    test(6, res, score) -> score;
+
+    a + b - c -> res;
+    test(0, res, score) -> score;
+
+    a * b * c -> res;
+    test(6, res, score) -> score;
+
+    a + b * c + d -> res;
+    test(11, res, score) -> score;
+
+    5 > 4 = 3 < 4 -> res;
+    test(true, res, score) -> score;
+
+    5 < 4 /= 3 > 4 -> res;
+    test(false, res, score) -> score;
+
+    3 + 4 * 5 = 3 * 1 + 4 * 5 -> res;
+    test(true, res, score) -> score;
+
+    print_score(8, score);
+    prn "     (precendence)";
+}
+
 ;;; tests basic primitive value creation
 fn basic() {
     0 -> score;
@@ -52,7 +88,7 @@ fn basic() {
     test(true, c, score)   -> score;
     test(false, d, score)  -> score;
     test('c', e, score)    -> score;
-    test(-1, f, score)     -> score;
+    test(-5, f, score)     -> score;
     test(-10.8, g, score)  -> score;
     print_score(7, score);
     prn "     (basic)";
@@ -590,6 +626,7 @@ fn wildcard_eq_builtin() {
 
 start {
     basic();
+    precendence();
     int_array();
     real_array();
     string_array();

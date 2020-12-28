@@ -61,5 +61,7 @@ namespace arrow {
       private:
         TokenManager & m_tm;
         std::shared_ptr<BuiltInFunctionExpressionParser> m_builtinsParser;
+        std::shared_ptr<Expression> parseUnaryExpression();
+
     };
 }
