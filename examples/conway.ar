@@ -2,7 +2,7 @@
 
 fn random_x() -> x {
     ' ' -> x;
-    if(random(1) = 1) {
+    if random(1) = 1 {
         'X' -> x;
     }
 }
@@ -12,10 +12,10 @@ fn initialize(size) -> representation {
     [] -> row;
     [] -> representation;
     0 -> outer;
-    while (outer < size) {
+    while outer < size {
         0 -> inner;
         [] -> row;
-        while(inner < size) {
+        while inner < size {
             random_x() -> $row;
             inner + 1 -> inner;
         }
@@ -34,9 +34,9 @@ fn print(representation) {
 ;;; and generates what the outcome should be.
 fn transition(current, alive) -> result {
     ' ' -> result;
-    if((current = 'X') && alive < 2) {
+    if current = 'X' && alive < 2 {
         ' ' -> result;
-    } elseif((current = 'X') && ((alive = 2) || (alive = 3))) {
+    } elseif (current = 'X') && ((alive = 2) || (alive = 3)) {
         'X' -> result;
     } elseif((current = 'X') && alive > 3) {
         ' ' -> result;
@@ -55,7 +55,7 @@ fn update(representation, size) -> representation {
 
         ;;; the 'next' or below row
         [] -> below_row;
-        if(r >= size - 1) {
+        if r >= size - 1 {
             representation:0 -> below_row;
         } else {
             representation:(r + 1) -> below_row;
@@ -63,32 +63,32 @@ fn update(representation, size) -> representation {
 
         ;;; the 'preceding' or above row
         [] -> above_row;
-        if(r = 0) {
+        if r = 0 {
             representation:(size - 1) -> above_row;
         } else {
             representation:(r - 1) -> above_row;
         }
 
-        while(c < size) {
+        while c < size {
             0 -> alive;
             ;;; cell plus one
-            if(c < size - 1) {
-                if((row:(c + 1)) = 'X') {
+            if c < size - 1 {
+                if (row:(c + 1)) = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif((row:0) = 'X') {
+            } elseif (row:0) = 'X' {
                 1 + alive -> alive;
             }
             ;;; cell minus one
-            if(c > 0) {
-                if((row:(c - 1)) = 'X') {
+            if c > 0 {
+                if (row:(c - 1)) = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif((row:(size - 1)) = 'X') {
+            } elseif (row:(size - 1)) = 'X' {
                 1 + alive -> alive;
             }
             ;;; below
-            if((below_row:c) = 'X') {
+            if (below_row:c) = 'X' {
                 1 + alive -> alive;
             }
 
@@ -98,7 +98,7 @@ fn update(representation, size) -> representation {
             }
 
             ;;; below-right
-            if(c < size - 1) {
+            if c < size - 1 {
                 if((below_row:(c + 1)) = 'X') {
                     1 + alive -> alive;
                 }
@@ -107,25 +107,25 @@ fn update(representation, size) -> representation {
             }
 
             ;;; below-left
-            if(c > 0) {
-                if((below_row:(c - 1)) = 'X') {
+            if c > 0 {
+                if (below_row:(c - 1)) = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif((below_row:(size - 1)) = 'X') {
+            } elseif (below_row:(size - 1)) = 'X' {
                 1 + alive -> alive;
             }
 
             ;;; above-right
-            if(c < size - 1) {
-                if((above_row:(c + 1)) = 'X') {
+            if c < size - 1 {
+                if (above_row:(c + 1)) = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif((above_row:0) = 'X') { 
+            } elseif (above_row:0) = 'X' { 
                 1 + alive -> alive;
             }
 
             ;;; above-left
-            if(c > 0) {
+            if c > 0 {
                 if((above_row:(c - 1)) = 'X') {
                     1 + alive -> alive;
                 }
@@ -146,7 +146,7 @@ start {
     arg(0) -> size;
     initialize(size) -> representation;
     print(representation);
-    while(true) {
+    while true {
         update(representation, size) -> representation;
         ansi_up size;
         print(representation);

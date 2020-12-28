@@ -3,7 +3,7 @@ fn canPlaceQueen(r, c, x) -> yes {
     0 -> i;
     while(i < r) {
         x:i -> tok;
-        if ((tok = c) || ((i - r) = (tok - c)) || (i - r) = (c - tok)) {
+        if (tok = c || (i - r = tok - c) || (i - r = c - tok)) {
             false -> yes;
             return;
         }
@@ -17,8 +17,8 @@ fn printQueens(N, x) {
     0 -> j;
     for tok in x {
         0 -> j;
-        while(j < N) {
-            if (tok = j) {
+        while j < N {
+            if tok = j {
                 pr "Q ";
             } else {
                 pr "* "; 
@@ -31,8 +31,8 @@ fn printQueens(N, x) {
 
  fn placeNQueens(r, n, x) {
     0 -> c;
-    while(c < n) {
-        if (canPlaceQueen(r, c, x)) {
+    while c < n {
+        if canPlaceQueen(r, c, x) {
             c -> x:r;
             printQueens(n,x);
             if (r = n - 1) {

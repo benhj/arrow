@@ -298,10 +298,7 @@ namespace arrow {
         auto whileStatement = std::make_shared<WhileStatement>(ln);
         whileStatement->withToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
-        if(m_tm.currentToken().lexeme != Lexeme::OPEN_PAREN) {
-            return nullptr;
-        }
-        auto expression = m_ep.parseGroupedExpression();
+        auto expression = m_ep.parseExpression();
         if(expression) {
             whileStatement->withExpression(std::move(expression));
             m_tm.advanceTokenIterator();
@@ -361,12 +358,9 @@ namespace arrow {
         auto ln = m_tm.currentToken().lineNumber;
         auto ifStatement = std::make_shared<IfStatement>(ln);
         ifStatement->withToken(m_tm.currentToken());
-        if(m_tm.nextToken().lexeme != Lexeme::OPEN_PAREN) {
-            return nullptr;
-        }
         m_tm.advanceTokenIterator();
         {
-            auto expression = m_ep.parseGroupedExpression();
+            auto expression = m_ep.parseExpression();
             if(!expression) {
                 return nullptr;
             }
@@ -384,12 +378,9 @@ namespace arrow {
             ln = m_tm.currentToken().lineNumber;
             auto elseIfStatement = std::make_shared<ElseIfStatement>(ln);
             elseIfStatement->withToken(m_tm.currentToken());
-            if(m_tm.nextToken().lexeme != Lexeme::OPEN_PAREN) {
-                return nullptr;
-            }
             m_tm.advanceTokenIterator();
             {
-                auto expression = m_ep.parseGroupedExpression();
+                auto expression = m_ep.parseExpression();
                 if(!expression) {
                     return nullptr;
                 }
