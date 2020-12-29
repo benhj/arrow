@@ -76,60 +76,60 @@ fn update(representation, size) -> representation {
                 if (row:(c + 1)) = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif (row:0) = 'X' {
+            } elseif row:0 = 'X' {
                 1 + alive -> alive;
             }
             ;;; cell minus one
             if c > 0 {
-                if (row:(c - 1)) = 'X' {
+                if row:c - 1 = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif (row:(size - 1)) = 'X' {
+            } elseif row:size - 1 = 'X' {
                 1 + alive -> alive;
             }
             ;;; below
-            if (below_row:c) = 'X' {
+            if below_row:c = 'X' {
                 1 + alive -> alive;
             }
 
             ;;; above
-            if((above_row:c) = 'X') {
+            if above_row:c = 'X' {
                 1 + alive -> alive;
             }
 
             ;;; below-right
             if c < size - 1 {
-                if((below_row:(c + 1)) = 'X') {
+                if below_row:c + 1 = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif((below_row:0) = 'X') {
+            } elseif below_row:0 = 'X' {
                 1 + alive -> alive;
             }
 
             ;;; below-left
             if c > 0 {
-                if (below_row:(c - 1)) = 'X' {
+                if below_row:c - 1 = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif (below_row:(size - 1)) = 'X' {
+            } elseif below_row:size - 1 = 'X' {
                 1 + alive -> alive;
             }
 
             ;;; above-right
             if c < size - 1 {
-                if (above_row:(c + 1)) = 'X' {
+                if above_row:c + 1 = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif (above_row:0) = 'X' { 
+            } elseif above_row:0 = 'X' { 
                 1 + alive -> alive;
             }
 
             ;;; above-left
             if c > 0 {
-                if((above_row:(c - 1)) = 'X') {
+                if above_row:c - 1 = 'X' {
                     1 + alive -> alive;
                 }
-            } elseif((above_row:(size - 1)) = 'X') {
+            } elseif above_row:size - 1 = 'X' {
                 1 + alive -> alive;
             }
             ;;; figure out new state

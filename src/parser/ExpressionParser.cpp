@@ -100,11 +100,17 @@ namespace arrow {
         exp->withIdentifierToken(m_tm.currentToken());
         m_tm.advanceTokenIterator();
         m_tm.advanceTokenIterator();
-        auto innerExpression = parseExpression();
+        auto innerExpression = parseUnaryExpression();
         if(!innerExpression) {
             return nullptr;
         }
-        exp->withIndexExpression(std::move(innerExpression));
+        // Try math
+        auto tryMath = parseMathExpression(innerExpression);
+        if(!tryMath) {
+            exp->withIndexExpression(std::move(innerExpression));
+        } else {
+            exp->withIndexExpression(std::move(tryMath));
+        }
         return exp;
     }
 
