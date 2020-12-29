@@ -51,10 +51,21 @@ namespace arrow {
         void add(Type evaluated, Environment & environment, TypeDescriptor const desc,
                  std::string identifier) {
 
-            auto deduced = std::get<T>(evaluated.m_variantType);
-            std::vector<T> vec;
-            vec.push_back(deduced);
-            environment.add(std::move(identifier), {desc, vec});
+            if constexpr(std::is_same_v<T, std::vector<int64_t>> ||
+                         std::is_same_v<T, std::vector<real>> ||
+                         std::is_same_v<T, std::vector<bool>> ||
+                         std::is_same_v<T, std::vector<std::string>> ||
+                         std::is_same_v<T, std::vector<char>> ||
+                         std::is_same_v<T, std::vector<PodType>>) {
+                std::vector<Type> vec;
+                vec.push_back(evaluated);
+                environment.add(std::move(identifier), {TypeDescriptor::Arrays, vec});
+            } else {
+                auto deduced = std::get<T>(evaluated.m_variantType);
+                std::vector<T> vec;
+                vec.push_back(deduced);
+                environment.add(std::move(identifier), {desc, vec});
+            }
         }
     }
 
@@ -167,6 +178,30 @@ namespace arrow {
             add<PodType>(std::move(evaluated),
                          environment, TypeDescriptor::Pods,
                          std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Ints) {
+            add<std::vector<int64_t>>(std::move(evaluated),
+                                      environment, TypeDescriptor::Arrays,
+                                      std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Reals) {
+            add<std::vector<real>>(std::move(evaluated),
+                                      environment, TypeDescriptor::Arrays,
+                                      std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Bytes) {
+            add<std::vector<char>>(std::move(evaluated),
+                                      environment, TypeDescriptor::Arrays,
+                                      std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Strings) {
+            add<std::vector<std::string>>(std::move(evaluated),
+                                      environment, TypeDescriptor::Arrays,
+                                      std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Bools) {
+            add<std::vector<bool>>(std::move(evaluated),
+                                      environment, TypeDescriptor::Arrays,
+                                      std::move(identifier));
+        } else if (evaluated.m_descriptor == TypeDescriptor::Pods) {
+            add<std::vector<PodType>>(std::move(evaluated),
+                                      environment, TypeDescriptor::Arrays,
+                                      std::move(identifier));
         }
     }
 

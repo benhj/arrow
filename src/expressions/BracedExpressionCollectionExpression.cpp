@@ -15,6 +15,8 @@ namespace arrow {
                  std::vector<std::shared_ptr<Expression>> expressions,
                  TypeDescriptor const arrayType) {
 
+            // When have an array of arrays, the type is Arrays,
+            // and can store a combination of any arrays
             if constexpr(std::is_same_v<T, std::vector<int64_t>> ||
                          std::is_same_v<T, std::vector<real>> ||
                          std::is_same_v<T, std::vector<bool>> ||
