@@ -43,6 +43,10 @@ namespace arrow {
             environment.pushBackContainerElement(std::move(identifier), evaluated);
         }
 
+        void addToArrays(Type evaluated, Environment & environment, std::string identifier) {
+            environment.pushBackContainerElement(std::move(identifier), evaluated);
+        }
+
         template <typename T>
         void add(Type evaluated, Environment & environment, TypeDescriptor const desc,
                  std::string identifier) {
@@ -118,15 +122,17 @@ namespace arrow {
 
                 add<PodType>(std::move(evaluated), environment, std::move(identifier));
 
-            }  else if(orig.m_descriptor == TypeDescriptor::String &&
+            } else if(orig.m_descriptor == TypeDescriptor::String &&
                 evaluated.m_descriptor == TypeDescriptor::Byte) {
 
                 addToString(std::move(evaluated), environment, std::move(identifier));
 
-            }  else if(orig.m_descriptor == TypeDescriptor::List) {
+            } else if(orig.m_descriptor == TypeDescriptor::List) {
 
                 addToList(std::move(evaluated), environment, std::move(identifier));
 
+            } else if(orig.m_descriptor == TypeDescriptor::Arrays) {
+                addToArrays(std::move(evaluated), environment, std::move(identifier));
             }
         } else if(evaluated.m_descriptor == TypeDescriptor::Int) {
 

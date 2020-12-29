@@ -165,10 +165,13 @@ namespace arrow {
             auto & casted = std::get<std::vector<PodType>>(found->second.m_variantType);
             auto tval = std::get<PodType>(type.m_variantType);
             casted.push_back(tval);
-        }  else if(found->second.m_descriptor == TypeDescriptor::List) {
+        } else if(found->second.m_descriptor == TypeDescriptor::List) {
             auto & casted = std::get<std::vector<Type>>(found->second.m_variantType);
             casted.push_back(type);
-        } 
+        } else if(found->second.m_descriptor == TypeDescriptor::Arrays) {
+            auto & casted = std::get<std::vector<Type>>(found->second.m_variantType);
+            casted.push_back(type);
+        }  
     }
 
     void Environment::addElementToMapElementWhenList(std::string identifier, std::string key, const Type type)

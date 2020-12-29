@@ -16,7 +16,6 @@ namespace arrow {
 
     void ArrayAccessorReceiverEvaluator::evaluate(Type incoming, Environment & environment) const
     {
-
         auto const & environmentKey = m_tok.raw;
 
         // Pod 'indexing' -- plain member word

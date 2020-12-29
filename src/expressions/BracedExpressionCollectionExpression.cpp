@@ -15,24 +15,35 @@ namespace arrow {
                  std::vector<std::shared_ptr<Expression>> expressions,
                  TypeDescriptor const arrayType) {
 
-            std::vector<T> vecDeduced;
-            auto remType = TypeDescriptor::Nil;
-            for(auto const & expression : expressions) {
-
-                auto evaluated = expression->getEvaluator()->evaluate(environment);
-                if(remType == TypeDescriptor::Nil) {
-                    remType = evaluated.m_descriptor;
-                } 
-                // Incompatible types. All types in a {a, b, c} expression
-                // should be the same
-                else if(evaluated.m_descriptor != remType) {
-                    throw LanguageException("Type mismatch in brace expression", expression->getLineNumber());
+            if constexpr(std::is_same_v<T, std::vector<int64_t>> ||
+                         std::is_same_v<T, std::vector<real>> ||
+                         std::is_same_v<T, std::vector<bool>> ||
+                         std::is_same_v<T, std::vector<std::string>> ||
+                         std::is_same_v<T, std::vector<char>> ||
+                         std::is_same_v<T, std::vector<PodType>>) {
+                std::vector<Type> vecDeduced;
+                for(auto const & expression : expressions) {
+                    vecDeduced.emplace_back(expression->getEvaluator()->evaluate(environment));
                 }
-                auto val = std::get<T>(evaluated.m_variantType);
-                vecDeduced.emplace_back(val);
+                return {arrayType, vecDeduced};
+            } else {
+                std::vector<T> vecDeduced;
+                auto remType = TypeDescriptor::Nil;
+                for(auto const & expression : expressions) {
+                    auto evaluated = expression->getEvaluator()->evaluate(environment);
+                    if(remType == TypeDescriptor::Nil) {
+                        remType = evaluated.m_descriptor;
+                    } 
+                    // Incompatible types. All types in a {a, b, c} expression
+                    // should be the same
+                    else if(evaluated.m_descriptor != remType) {
+                        throw LanguageException("Type mismatch in brace expression", expression->getLineNumber());
+                    }
+                    auto val = std::get<T>(evaluated.m_variantType);
+                    vecDeduced.emplace_back(val);
+                }
+                return {arrayType, vecDeduced};
             }
-
-            return {arrayType, vecDeduced};
         }
     }
 
@@ -74,7 +85,19 @@ namespace arrow {
                     return add<char>(environment, std::move(expressions), TypeDescriptor::Bytes);
                 } else if(remType.m_descriptor == TypeDescriptor::Pod) {
                     return add<PodType>(environment, std::move(expressions), TypeDescriptor::Pods);
-                }  else {
+                } else if(remType.m_descriptor == TypeDescriptor::Ints) {
+                    return add<std::vector<int64_t>>(environment, std::move(expressions), TypeDescriptor::Arrays);
+                } else if(remType.m_descriptor == TypeDescriptor::Reals) {
+                    return add<std::vector<real>>(environment, std::move(expressions), TypeDescriptor::Arrays);
+                } else if(remType.m_descriptor == TypeDescriptor::Bools) {
+                    return add<std::vector<bool>>(environment, std::move(expressions), TypeDescriptor::Arrays);
+                } else if(remType.m_descriptor == TypeDescriptor::Strings) {
+                    return add<std::vector<std::string>>(environment, std::move(expressions), TypeDescriptor::Arrays);
+                } else if(remType.m_descriptor == TypeDescriptor::Bytes) {
+                    return add<std::vector<char>>(environment, std::move(expressions), TypeDescriptor::Arrays);
+                } else if(remType.m_descriptor == TypeDescriptor::Pods) {
+                    return add<std::vector<PodType>>(environment, std::move(expressions), TypeDescriptor::Arrays);
+                } else {
                     throw LanguageException("Type mismatch in brace expression", (*expression)->getLineNumber());
                 }
 
