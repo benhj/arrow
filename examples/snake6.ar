@@ -1,4 +1,5 @@
 ;;; Two walkers; less chaotic movement
+;;; basic HUD overlay
 
 ;;; Initializes a size×size grid filled with spaces (" ")
 fn initialize(size) -> grid {
