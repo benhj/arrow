@@ -1,0 +1,869 @@
+;;; Simulate N walkers with personalities
+;;; basic HUD overlay with trail length, last tile, and step count
+;;; also spawns new items evey 100 steps
+;;; UPDATED: Walkers with personalities ('aggressive' goal-seeking, 'discover' exploring)
+;;; UPDATED: Implemented abs and min functions
+;;; UPDATED: Aggressive walker now truly seeks goals by prioritizing direct alignment and minimizing distance
+;;; UPDATED: Discover walker now has undulatory movement by favoring slight turns
+;;; FIX: Walkers are now visible again (fixed bug in allValidOptions population)
+;;; NEW: Supports N number of walkers, passed as a third argument
+;;; NEW: Draws a box around the grid for better visualization
+;;; NEW: Implemented fading heatmap trail using ANSI True Colors
+;;; FIX: Refactored grid cells to use a pod for character and heat value due to type system constraints
+;;; FIX: Corrected "else if" to "elseif" syntax
+;;; FIX: Implemented proper clearing of walker 'O' from previous position to show heatmap trail
+;;; NEW: Optimized 'print' function to reduce redundant ANSI color escape codes for performance
+
+
+;;; --- Custom Pod for Grid Cells ---
+pod charAndHeatValue(character, heat_value);
+
+;;; --- Utility Functions ---
+
+;;; Returns the absolute value of a number
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> result;
+    }
+}
+
+;;; Returns the minimum of two numbers
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+;;; Returns the maximum of two numbers
+fn max(a, b) -> result {
+    a -> result;
+    if b > a {
+        b -> result;
+    }
+}
+
+;;; Repeats a character 'count' times
+fn repeat(char, count) -> result {
+    "" -> result;
+    0 -> i;
+    while i < count {
+        result + char -> result;
+        i + 1 -> i;
+    }
+    result -> result;
+}
+
+;;; --- Grid and Item Management Functions ---
+
+;;; Initializes a grid with specified width and height filled with spaces (" ")
+fn initialize(gridWidth, gridHeight) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            ;;; Each cell now stores a charAndHeatValue pod
+            charAndHeatValue(" ", 0) -> $row;
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Randomly places goal, slow, and teleport tiles
+fn placeItems(grid, gridWidth, gridHeight) -> grid {
+    0 -> i;
+    while i < 5 {
+        random(gridWidth - 1) -> x;
+        random(gridHeight - 1) -> y;
+        grid:y -> row;
+        row:x -> cellPod;
+        if cellPod:character = " " { ;;; Check the character part of the cell pod
+            charAndHeatValue("G", 0) -> row:x; ;;; Place item, initial heat 0
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 3 {
+        random(gridWidth - 1) -> x;
+        random(gridHeight - 1) -> y;
+        grid:y -> row;
+        row:x -> cellPod;
+        if cellPod:character = " " {
+            charAndHeatValue("S", 0) -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 2 {
+        random(gridWidth - 1) -> x;
+        random(gridHeight - 1) -> y;
+        grid:y -> row;
+        row:x -> cellPod;
+        if cellPod:character = " " {
+            charAndHeatValue("T", 0) -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    grid -> grid;
+}
+
+;;; Periodically place a few new items if space allows
+fn respawnItems(grid, gridWidth, gridHeight) -> grid {
+    0 -> count;
+    while count < 1 {
+        random(2) -> r_idx;
+        "" -> r_char;
+        if r_idx = 0 {
+            "G" -> r_char;
+        } elseif r_idx = 1 {
+            "S" -> r_char;
+        } else {
+            "T" -> r_char;
+        }
+
+        true -> searching;
+        while searching {
+            random(gridWidth - 1) -> x;
+            random(gridHeight - 1) -> y;
+            grid:y -> row;
+            row:x -> cellPod;
+            if cellPod:character = " " {
+                charAndHeatValue(r_char, 0) -> row:x; ;;; Place item, initial heat 0
+                row -> grid:y;
+                count + 1 -> count;
+                false -> searching;
+            }
+        }
+    }
+    grid -> grid;
+}
+
+;;; --- Heatmap Fading Function ---
+fn fadeHeatmap(grid, gridWidth, gridHeight) -> grid {
+    0 -> y;
+    while y < gridHeight {
+        0 -> x;
+        grid:y -> row;
+        [] -> newrow;
+        while x < gridWidth {
+            row:x -> cellPod;
+            cellPod:character -> char;
+            cellPod:heat_value -> heat;
+
+            ;;; Decrease heat, ensuring it doesn't go below 0
+            max(0, heat - 5) -> new_heat; ;;; Adjust fade rate (e.g., 5 units per step)
+
+            charAndHeatValue(char, new_heat) -> $newrow;
+            x + 1 -> x;
+        }
+        newrow -> grid:y;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Maps a heat value (0-255) to an RGB color for the background
+fn map_heat_to_rgb(heat_value) -> rgb_color {
+    ;;; Fades from a vibrant green (high heat) to black (no heat)
+    0 -> red;
+    min(255, heat_value) -> green;
+    0 -> blue;
+
+    {red, green, blue} -> rgb_color;
+}
+
+;;; Gets RGB color components for background and foreground
+;;; Returns a pod {r_bg, g_bg, b_bg, r_fg, g_fg, b_fg}
+fn cellColorCodes(cellPod) -> color_data {
+    cellPod:character -> char;
+    cellPod:heat_value -> heat;
+
+    ;;; Determine background color based on heat
+    map_heat_to_rgb(heat) -> rgb_bg;
+    rgb_bg:0 -> r_bg;
+    rgb_bg:1 -> g_bg;
+    rgb_bg:2 -> b_bg;
+
+    ;;; Determine foreground color
+    {200, 200, 200} -> rgb_fg; ;;; Default light grey
+    if char = "G" { {255, 255, 0} -> rgb_fg; } ;;; Yellow Goal
+    elseif char = "S" { {0, 255, 255} -> rgb_fg; } ;;; Cyan Slow
+    elseif char = "T" { {255, 0, 255} -> rgb_fg; } ;;; Magenta Teleport
+    elseif char = "O" { {255, 255, 255} -> rgb_fg; } ;;; White Walker Head
+
+    rgb_fg:0 -> r_fg;
+    rgb_fg:1 -> g_fg;
+    rgb_fg:2 -> b_fg;
+
+    {r_bg, g_bg, b_bg, r_fg, g_fg, b_fg} -> color_data; ;;; Return all RGB components
+}
+
+;;; Prints the grid row by row with a box border, optimizing ANSI codes
+fn print(grid, gridWidth) {
+    ;;; Top border
+    prn "┌" + repeat("─", gridWidth * 2) + "┐";
+
+    ;;; Grid rows with side borders
+    for row in grid {
+        "" -> row_str;
+
+        ;;; Initialize last colors to impossible values to force initial print
+        ;;; This ensures the first cell in each row always gets its color codes
+        -1 -> last_r_bg;
+        -1 -> last_g_bg;
+        -1 -> last_b_bg;
+        -1 -> last_r_fg;
+        -1 -> last_g_fg;
+        -1 -> last_b_fg;
+
+        for cellPod in row {
+            cellPod:character -> char;
+            cellColorCodes(cellPod) -> currentColors;
+            currentColors:0 -> r_bg;
+            currentColors:1 -> g_bg;
+            currentColors:2 -> b_bg;
+            currentColors:3 -> r_fg;
+            currentColors:4 -> g_fg;
+            currentColors:5 -> b_fg;
+
+            true -> bg_changed;
+            if r_bg = last_r_bg && g_bg = last_g_bg && b_bg = last_b_bg {
+                false -> bg_changed;
+            }
+
+            true -> fg_changed;
+            if r_fg = last_r_fg && g_fg = last_g_fg && b_fg = last_b_fg {
+                false -> fg_changed;
+            }
+
+            if bg_changed || fg_changed {
+                ;;; Only emit new color codes if they've changed from the previous cell's color
+                "\033[48;2;" + r_bg + ";" + g_bg + ";" + b_bg + "m" -> bg_code;
+                "\033[38;2;" + r_fg + ";" + g_fg + ";" + b_fg + "m" -> fg_code;
+                row_str + bg_code + fg_code -> row_str;
+            }
+
+            if char = " " {
+                row_str + "  " -> row_str; ;;; Two spaces for empty cells (to show background color)
+            } else {
+                row_str + char + " " -> row_str; ;;; Character + one space
+            }
+
+            ;;; Update last colors for the next iteration
+            r_bg -> last_r_bg;
+            g_bg -> last_g_bg;
+            b_bg -> last_b_bg;
+            r_fg -> last_r_fg;
+            g_fg -> last_g_fg;
+            b_fg -> last_b_fg;
+        }
+        row_str + "\033[0m" -> row_str; ;;; Always reset color at the end of each row
+        prn "│" + row_str + "│";
+    }
+
+    ;;; Bottom border
+    prn "└" + repeat("─", gridWidth * 2) + "┘";
+}
+
+;;; Calculates Manhattan distance between two points on a toroidal grid
+fn manhattanDistance(pos1, pos2, gridWidth, gridHeight) -> dist {
+    pos1:0 -> x1;
+    pos1:1 -> y1;
+    pos2:0 -> x2;
+    pos2:1 -> y2;
+
+    abs(x1 - x2) -> dx;
+    abs(y1 - y2) -> dy;
+
+    min(dx, gridWidth - dx) -> wrapDx;
+    min(dy, gridHeight - dy) -> wrapDy;
+
+    wrapDx + wrapDy -> dist;
+}
+
+;;; Finds the closest 'G' tile on the grid, returns its position or { -1, -1 } if none found
+fn findClosestGoal(grid, pos, gridWidth, gridHeight) -> goalPos {
+    pos:0 -> startX;
+    pos:1 -> startY;
+    { -1, -1 } -> closestGoal;
+    (gridWidth * gridHeight) + 1 -> minDist; ;;; A very large number for initial minimum distance
+
+    0 -> y;
+    while y < gridHeight {
+        0 -> x;
+        grid:y -> row;
+        while x < gridWidth {
+            row:x -> cellPod;
+            cellPod:character -> cell; ;;; Get the character part
+            if cell = "G" {
+                {x, y} -> currentGoalPos;
+                manhattanDistance(pos, currentGoalPos, gridWidth, gridHeight) -> dist;
+                if dist < minDist {
+                    dist -> minDist;
+                    currentGoalPos -> closestGoal;
+                }
+            }
+            x + 1 -> x;
+        }
+        y + 1 -> y;
+    }
+    closestGoal -> goalPos;
+}
+
+;;; Returns a list of directions that represent 'straight' and 'slight turns' (45 degrees)
+;;; relative to the given previous direction.
+fn getUndulatoryNeighbors(prevdir) -> neighbors {
+    [] -> neighbors;
+    prevdir:0 -> px;
+    prevdir:1 -> py;
+
+    ;;; For initial state {0,0}, include all cardinal/diagonal directions as potential starting undulation
+    if px = 0 && py = 0 {
+        { {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1} } -> allDirs;
+        for d in allDirs {
+            d -> $neighbors;
+        }
+        neighbors -> neighbors;
+        return;
+    }
+
+    ;;; Include straight direction
+    prevdir -> $neighbors;
+
+    ;;; Include 45-degree rotational neighbors
+    if px = 1 && py = 0 { ;;; East {1,0}
+        {1,1} -> $neighbors; ;;; SE
+        {1,-1} -> $neighbors; ;;; NE
+    } elseif px = -1 && py = 0 { ;;; West {-1,0}
+        {-1,1} -> $neighbors; ;;; SW
+        {-1,-1} -> $neighbors; ;;; NW
+    } elseif px = 0 && py = 1 { ;;; South {0,1}
+        {1,1} -> $neighbors; ;;; SE
+        {-1,1} -> $neighbors; ;;; SW
+    } elseif px = 0 && py = -1 { ;;; North {0,-1}
+        {1,-1} -> $neighbors; ;;; NE
+        {-1,-1} -> $neighbors; ;;; NW
+    } elseif px = 1 && py = 1 { ;;; Southeast {1,1}
+        {1,0} -> $neighbors; ;;; E
+        {0,1} -> $neighbors; ;;; S
+    } elseif px = -1 && py = 1 { ;;; Southwest {-1,1}
+        {-1,0} -> $neighbors; ;;; W
+        {0,1} -> $neighbors; ;;; S
+    } elseif px = 1 && py = -1 { ;;; Northeast {1,-1}
+        {1,0} -> $neighbors; ;;; E
+        {0,-1} -> $neighbors; ;;; N
+    } elseif px = -1 && py = -1 { ;;; Northwest {-1,-1}
+        {-1,0} -> $neighbors; ;;; W
+        {0,-1} -> $neighbors; ;;; N
+    }
+    neighbors -> neighbors;
+}
+
+
+;;; GRIDPOS holds the grid, current position, movement status, path, mode, prevdir, lastTile, trailLength, personality, encounterCount, maxEncounters
+pod gridpos(grid, pos, moved, path, mode, prevdir, lastTile, trailLength, personality, encounterCount, maxEncounters);
+
+;;; Moves position by one unit in a direction, avoiding reversals
+;;; Updated for "aggressive" and "discover" personalities
+fn move(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS {
+    GRIDPOS:pos -> pos;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:path -> path;
+    GRIDPOS:mode -> mode;
+    GRIDPOS:prevdir -> prevdir;
+    GRIDPOS:personality -> personality;
+    GRIDPOS:encounterCount -> encounterCount;
+    GRIDPOS:maxEncounters -> maxEncounters;
+
+    pos:0 -> x;
+    pos:1 -> y;
+
+    [] -> allValidOptions; ;;; All possible moves (cardinal, diagonal, non-reversing, into valid cell)
+    [] -> aggressiveOptions; ;;; For aggressive movement
+    [] -> discoverOptions; ;;; For discover movement
+
+    { {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1} } -> directions;
+
+    {0, 0} -> dir; ;;; Default direction, will be overwritten
+
+    ;;; Common filtering for all possible directions: non-reversal and valid cell
+    0 -> i;
+    while i < 8 {
+        directions:i -> currentDirOption;
+        currentDirOption:0 -> dx;
+        currentDirOption:1 -> dy;
+
+        (x + dx + gridWidth) % gridWidth -> nx; ;;; Use gridWidth for X wrap
+        (y + dy + gridHeight) % gridHeight -> ny; ;;; Use gridHeight for Y wrap
+
+        grid:ny -> row;
+        row:nx -> cellPod;
+        cellPod:character -> cell_char; ;;; Get the character part
+
+        -prevdir:0 -> revdx;
+        -prevdir:1 -> revdy;
+        if dx = revdx && dy = revdy {
+            ;;; Do not add reversed direction
+            i + 1 -> i;
+        } else {
+            if cell_char = " " || cell_char = "G" || cell_char = "S" || cell_char = "T" {
+                currentDirOption -> $allValidOptions;
+            }
+            i + 1 -> i;
+        }
+    }
+
+    [] -> dir; ;;; Selected direction, re-initialized
+
+    if personality = "aggressive" {
+        findClosestGoal(grid, pos, gridWidth, gridHeight) -> goalPos;
+        goalPos:0 -> gx;
+        goalPos:1 -> gy;
+
+        if gx != -1 { ;;; If a goal is found
+            [] -> directAlignedOptions; ;;; For moves that directly align with goal axis
+            [] -> distanceMinimizingOptions; ;;; Fallback for any distance reduction
+
+            ;;; Calculate shortest path differences, considering toroidal wrap
+            abs(gx - x) -> rawDx;
+            abs(gy - y) -> rawDy;
+            min(rawDx, gridWidth - rawDx) -> shortestDx; ;;; Use gridWidth for X
+            min(rawDy, gridHeight - rawDy) -> shortestDy; ;;; Use gridHeight for Y
+
+            ;;; Determine desired direction components
+            0 -> desiredXDir;
+            if gx > x {
+                if shortestDx = gx - x { 1 -> desiredXDir; } else { -1 -> desiredXDir; }
+            } elseif gx < x {
+                if shortestDx = x - gx { -1 -> desiredXDir; } else { 1 -> desiredXDir; }
+            }
+
+            0 -> desiredYDir;
+            if gy > y {
+                if shortestDy = gy - y { 1 -> desiredYDir; } else { -1 -> desiredYDir; }
+            } elseif gy < y {
+                if shortestDy = y - gy { -1 -> desiredYDir; } else { 1 -> desiredYDir; }
+            }
+
+            ;;; First pass: Find moves that align directly with goal's axes (e.g., purely horizontal/vertical/diagonal towards goal)
+            for currentDirOption in allValidOptions {
+                currentDirOption:0 -> cdx;
+                currentDirOption:1 -> cdy;
+
+                true -> isAligned;
+                if desiredXDir != 0 && cdx != desiredXDir { false -> isAligned; }
+                if desiredYDir != 0 && cdy != desiredYDir { false -> isAligned; }
+                if desiredXDir = 0 && cdx != 0 { false -> isAligned; } ;;; If no X movement needed, don't move X
+                if desiredYDir = 0 && cdy != 0 { false -> isAligned; } ;;; If no Y movement needed, don't move Y
+
+                if isAligned {
+                    currentDirOption -> $directAlignedOptions;
+                }
+            }
+
+            length(directAlignedOptions) -> dalen;
+            if dalen > 0 {
+                random(dalen - 1) -> i;
+                directAlignedOptions:i -> dir;
+            } else {
+                ;;; Second pass (fallback): Find any move that minimizes Manhattan distance
+                (gridWidth * gridHeight) + 1 -> minimizedNewDist; ;;; Use total grid area
+                for currentDir in allValidOptions {
+                    currentDir:0 -> cdx;
+                    currentDir:1 -> cdy;
+                    (x + cdx + gridWidth) % gridWidth -> cnx;
+                    (y + cdy + gridHeight) % gridHeight -> cny;
+
+                    manhattanDistance({cnx, cny}, goalPos, gridWidth, gridHeight) -> newDist;
+
+                    if newDist < minimizedNewDist {
+                        newDist -> minimizedNewDist;
+                        [] -> distanceMinimizingOptions;
+                        currentDir -> $distanceMinimizingOptions;
+                    } elseif newDist = minimizedNewDist {
+                        currentDir -> $distanceMinimizingOptions;
+                    }
+                }
+                length(distanceMinimizingOptions) -> dmlen;
+                if dmlen > 0 {
+                    random(dmlen - 1) -> i;
+                    distanceMinimizingOptions:i -> dir;
+                }
+            }
+        }
+    } elseif personality = "discover" {
+        length(allValidOptions) -> numValidOptions;
+
+        getUndulatoryNeighbors(prevdir) -> undulatoryCandidates;
+        [] -> undulatoryOptions;
+
+        ;;; Filter undulatory candidates to only include those that are actually valid moves
+        for uDir in undulatoryCandidates {
+            true -> current_uDir_is_valid;
+
+            ;;; Check if uDir is in allValidOptions
+            false -> found_uDir_in_allValidOptions;
+            for aDir in allValidOptions {
+                if uDir:0 = aDir:0 && uDir:1 = aDir:1 {
+                    found_uDir_in_allValidOptions -> true;
+                    break;
+                }
+            }
+            if found_uDir_in_allValidOptions {
+                uDir -> $undulatoryOptions;
+            }
+        }
+
+        0.95 -> undulatoryBias; ;;; 95% chance to pick an undulatory move (straight or slight turn)
+        random(99) -> randChoice;
+        randChoice / 100.0 -> randFloat;
+
+        length(undulatoryOptions) -> un_len;
+
+        if un_len > 0 && randFloat < undulatoryBias {
+            random(un_len - 1) -> i;
+            undulatoryOptions:i -> dir;
+        } else {
+            ;;; Fallback to broader discovery logic if undulatory options failed or random chance decided
+            ;;; Prioritize empty cells for discovery if encounterCount is high
+            if encounterCount >= maxEncounters {
+                for currentDir in allValidOptions {
+                    currentDir:0 -> cdx;
+                    currentDir:1 -> cdy;
+                    (x + cdx + gridWidth) % gridWidth -> cnx;
+                    (y + cdy + gridHeight) % gridHeight -> cny;
+                    grid:cny -> crow;
+                    crow:cnx -> ccellPod;
+                    ccellPod:character -> ccell_char;
+                    if ccell_char = " " {
+                        currentDir -> $discoverOptions;
+                    }
+                }
+
+                length(discoverOptions) -> d_len;
+                if d_len > 0 {
+                    random(d_len - 1) -> i;
+                    discoverOptions:i -> dir;
+                } else {
+                    ;;; If no empty cells, just choose any valid move
+                    if numValidOptions > 0 {
+                        random(numValidOptions - 1) -> i;
+                        allValidOptions:i -> dir;
+                    }
+                }
+            } else { ;;; Continue with normal random movement if not forced to turn for encounter
+                if numValidOptions > 0 {
+                    random(numValidOptions - 1) -> i;
+                    allValidOptions:i -> dir;
+                }
+            }
+        }
+    }
+
+
+    ;;; If no personality-specific direction was chosen, fall back to general valid options
+    ;;; This happens if personality logic didn't set a 'dir' or if allValidOptions was empty
+    if length(dir) = 0 {
+        length(allValidOptions) -> numValidOptions;
+        if numValidOptions > 0 {
+            random(numValidOptions - 1) -> i;
+            allValidOptions:i -> dir;
+        } else {
+            ;;; Backtrack if completely stuck
+            length(path) -> plen;
+            if plen > 0 {
+                path:(plen - 1) -> pos;
+                0 -> i;
+                [] -> newpath;
+                while i < plen - 1 {
+                    path:i -> $newpath;
+                    i + 1 -> i;
+                }
+                newpath -> path;
+                gridpos(grid, pos, true, path, mode, prevdir, GRIDPOS:lastTile, GRIDPOS:trailLength, personality, encounterCount, maxEncounters) -> GRIDPOS;
+                return;
+            }
+            gridpos(grid, pos, false, path, mode, prevdir, GRIDPOS:lastTile, GRIDPOS:trailLength, personality, encounterCount, maxEncounters) -> GRIDPOS;
+            return;
+        }
+    }
+
+    dir:0 -> dx;
+    dir:1 -> dy;
+    (x + dx + gridWidth) % gridWidth -> x; ;;; Use gridWidth for X wrap
+    (y + dy + gridHeight) % gridHeight -> y; ;;; Use gridHeight for Y wrap
+    {x, y} -> pos;
+    pos -> $path;
+
+    dir -> prevdir;
+    gridpos(grid, pos, true, path, mode, prevdir, GRIDPOS:lastTile, GRIDPOS:trailLength, personality, encounterCount, maxEncounters) -> GRIDPOS;
+}
+
+;;; Applies G/S/T tile logic, may modify mode/pos/path, records last tile encountered
+fn applyTileEffect(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS {
+    GRIDPOS:pos -> pos;
+    GRIDPOS:mode -> mode;
+    GRIDPOS:path -> path;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:lastTile -> lastTile;
+    GRIDPOS:personality -> personality;
+    GRIDPOS:encounterCount -> encounterCount;
+
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+    row:x -> cellPod;
+    cellPod:character -> cell_char; ;;; Get the character part
+
+    if cell_char = "G" {
+        charAndHeatValue(" ", 0) -> row:x; ;;; Replace with space, heat 0
+        "hyper" -> mode;
+        "G" -> lastTile;
+        0 -> encounterCount;
+    } elseif cell_char = "S" {
+        charAndHeatValue(" ", 0) -> row:x;
+        "slow" -> mode;
+        "S" -> lastTile;
+        0 -> encounterCount;
+    } elseif cell_char = "T" {
+        charAndHeatValue(" ", 0) -> row:x;
+        row -> grid:y;
+
+        true -> searching;
+        while searching {
+            random(gridWidth - 1) -> tx;
+            random(gridHeight - 1) -> ty;
+            grid:ty -> trow;
+            trow:tx -> tcellPod;
+            tcellPod:character -> tcell_char;
+            if tcell_char = " " {
+                false -> searching;
+                {tx, ty} -> pos;
+                [pos] -> path;
+            }
+        }
+        "T" -> lastTile;
+        0 -> encounterCount;
+    }
+
+    row -> grid:y;
+    gridpos(grid, pos, GRIDPOS:moved, path, mode, GRIDPOS:prevdir, lastTile, GRIDPOS:trailLength, personality, encounterCount, GRIDPOS:maxEncounters) -> GRIDPOS;
+}
+
+;;; Marks the current walker on the grid and increases its heat
+fn markWalkerPosition(grid, pos) -> grid {
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+
+    ;;; Get existing cell pod to preserve character if it's an item, otherwise mark as 'O'
+    row:x -> currentCellPod;
+    currentCellPod:character -> existing_char;
+
+    if existing_char = "G" || existing_char = "S" || existing_char = "T" {
+        ;;; If a walker steps on an item, keep the item character but set max heat
+        charAndHeatValue(existing_char, 255) -> row:x;
+    } else {
+        ;;; Otherwise, mark as 'O' (walker head) with max heat
+        charAndHeatValue("O", 255) -> row:x;
+    }
+
+    row -> grid:y;
+    grid -> grid;
+}
+
+;;; Clears the character at a specific position, but preserves heat for trail
+fn clearWalkerPosition(grid, pos) -> grid {
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+
+    row:x -> currentCellPod;
+    currentCellPod:heat_value -> heat; ;;; Preserve existing heat
+
+    charAndHeatValue(" ", heat) -> row:x; ;;; Set character to space, keep heat
+    row -> grid:y;
+    grid -> grid;
+}
+
+
+;;; Calculate trail length from path
+fn calculateTrailLength(path) -> lengthVal {
+    length(path) -> lengthVal;
+}
+
+;;; Marks current position in grid and updates position, applies fade effect and item logic
+fn update(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS {
+    GRIDPOS:grid -> grid;
+    GRIDPOS:personality -> personality;
+    GRIDPOS:encounterCount -> encounterCount;
+    GRIDPOS:maxEncounters -> maxEncounters;
+
+    ;;; Apply tile effects *before* movement
+    applyTileEffect(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS;
+    GRIDPOS:grid -> grid; ;;; Update grid after applyTileEffect might have changed it
+    GRIDPOS:encounterCount -> encounterCount;
+
+    ;;; Update trail length
+    calculateTrailLength(GRIDPOS:path) -> trailLen;
+
+    ;;; Increment encounter count if not reset by tile effect
+    if GRIDPOS:lastTile = "None" {
+        encounterCount + 1 -> encounterCount;
+    }
+
+    gridpos(grid, GRIDPOS:pos, GRIDPOS:moved, GRIDPOS:path, GRIDPOS:mode, GRIDPOS:prevdir, GRIDPOS:lastTile, trailLen, personality, encounterCount, maxEncounters) -> GRIDPOS;
+    move(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS;
+}
+
+;;; Pads string on the right with spaces to a fixed length
+fn padRight(str, length) -> padded {
+    str -> padded;
+    while length > length(padded) {
+        padded + " " -> padded;
+    }
+    padded -> padded;
+}
+
+;;; Formats position array as "(xx, yy)" with fixed width
+fn formatPos(pos) -> formatted {
+    pos:0 -> x;
+    pos:1 -> y;
+
+    "" + x -> sx;
+    "" + y -> sy;
+
+    if length(sx) < 2 { " " + sx -> sx; }
+    if length(sy) < 2 { " " + sy -> sy; }
+
+    "(" + sx + ", " + sy + ")" -> formatted;
+}
+
+;;; Converts tile code to full name for display
+fn tileName(tile) -> name {
+    "None" -> name;
+    if tile = "G" { "Goal" -> name; }
+    elseif tile = "S" { "Slow" -> name; }
+    elseif tile = "T" { "Teleport" -> name; }
+    else { "None" -> name; }
+}
+
+;;; Prints a neat overlay with info for all walkers
+fn printOverlay(walkers, steps) {
+    prn "\033[34m";
+    prn "┌─────────────┬─────────────┬─────────┬───────────────┬───────────────┬─────────────┬─────────────────┐";
+    prn "│   WALKER    │ Mode        │ Pos     │ Trail Length  │ Last Tile     │ Personality │ Encounter Count │";
+    prn "├─────────────┼─────────────┼─────────┼───────────────┼───────────────┼─────────────┼─────────────────┤";
+
+    0 -> i;
+    while i < length(walkers) {
+        walkers:i -> currentWalker;
+        "" + (i + 1) -> walkerNum;
+        prn "│ Walker " + padRight(walkerNum, 5) + "│ " + padRight(currentWalker:mode, 12) + "│ " + formatPos(currentWalker:pos) + "│ " + padRight("" + currentWalker:trailLength, 14) + "│ " + padRight(tileName(currentWalker:lastTile), 14) + "│ " + padRight(currentWalker:personality, 12) + "│ " + padRight("" + currentWalker:encounterCount, 16) + "│";
+        i + 1 -> i;
+    }
+    prn "└─────────────┴─────────────┴─────────┴───────────────┴───────────────┴─────────────┴─────────────────┘";
+    prn " Steps: " + steps;
+    prn "\033[0m";
+}
+
+;;; Main program loop with N walkers
+start {
+    arg(0) -> gridWidth;
+    arg(1) -> gridHeight;
+    arg(2) -> numWalkers;
+
+    initialize(gridWidth, gridHeight) -> grid;
+    placeItems(grid, gridWidth, gridHeight) -> grid;
+
+    [] -> walkers; ;;; List to hold all walker pods
+    [] -> previousWalkerPositions; ;;; Store previous positions to clear 'O'
+
+    0 -> i;
+    while i < numWalkers {
+        random(gridWidth - 1) -> randX;
+        random(gridHeight - 1) -> randY;
+        {randX, randY} -> currentPos;
+        [currentPos] -> currentPath;
+
+        ;;; Assign personality (alternating for simplicity)
+        "" -> currentPersonality;
+        if i % 2 = 0 {
+            "aggressive" -> currentPersonality;
+        } elseif i % 2 = 1 {
+            "discover" -> currentPersonality;
+        }
+
+        ;;; Create a new walker pod and add to the list
+        gridpos(grid, currentPos, true, currentPath, "normal", {0, 0}, "None", 1, currentPersonality, 0, 5) -> newWalkerPod;
+        newWalkerPod -> $walkers;
+        currentPos -> $previousWalkerPositions; ;;; Store initial position
+
+        i + 1 -> i;
+    }
+
+    0 -> steps;
+
+    while true {
+        steps + 1 -> steps;
+
+        ;;; Fade heatmap for all cells
+        fadeHeatmap(grid, gridWidth, gridHeight) -> grid;
+
+        ;;; Clear 'O' from previous walker positions to show heatmap trail
+        0 -> i;
+        while i < length(previousWalkerPositions) {
+            previousWalkerPositions:i -> prevPos;
+            clearWalkerPosition(grid, prevPos) -> grid;
+            i + 1 -> i;
+        }
+        [] -> previousWalkerPositions; ;;; Reset for next iteration
+
+        ;;; Iterate through all walkers and update them
+        0 -> i;
+        while i < length(walkers) {
+            walkers:i -> currentWalkerPod;
+
+            ;;; Temporarily update walker's grid reference with the current global grid state
+            gridpos(grid, currentWalkerPod:pos, currentWalkerPod:moved, currentWalkerPod:path, currentWalkerPod:mode, currentWalkerPod:prevdir, currentWalkerPod:lastTile, currentWalkerPod:trailLength, currentWalkerPod:personality, currentWalkerPod:encounterCount, currentWalkerPod:maxEncounters) -> currentWalkerPod;
+
+            update(currentWalkerPod, gridWidth, gridHeight) -> updatedWalkerPod;
+            updatedWalkerPod -> walkers:i;
+            updatedWalkerPod:grid -> grid; ;;; Propagate the updated grid from this walker's action
+
+            i + 1 -> i;
+        }
+
+        ;;; After all walkers have moved and updated their positions, mark their *new* positions
+        ;;; This will set their current cell to 'O' and max heat (255)
+        0 -> i;
+        while i < length(walkers) {
+            walkers:i -> currentWalkerPod;
+            markWalkerPosition(grid, currentWalkerPod:pos) -> grid;
+            currentWalkerPod:pos -> $previousWalkerPositions; ;;; Store new position as previous for next loop
+            i + 1 -> i;
+        }
+
+        if steps % 100 = 0 {
+            respawnItems(grid, gridWidth, gridHeight) -> grid;
+        }
+
+        ;;; Adjust ANSI escape sequence for clear screen to accommodate grid borders and HUD
+        10 -> baseUiLength; ;;; Header + static footer lines
+        length(walkers) -> walkerLines;
+        baseUiLength + (walkerLines * 1) + 2 -> uiLength; ;;; Each walker adds 1 line, plus 2 for top/bottom HUD borders
+
+        ansi_up gridHeight + 2 + uiLength; ;;; Total lines to clear: grid height + UI height
+        print(grid, gridWidth);
+        printOverlay(walkers, steps);
+    }
+}
