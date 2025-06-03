@@ -1,0 +1,331 @@
+;;; Initializes a size×size grid filled with spaces (' ')
+fn initialize(size) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < size {
+        0 -> x;
+        [] -> row;
+        while x < size {
+            ' ' -> $row;
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+}
+
+;;; Randomly places goal, slow, and teleport tiles
+fn placeItems(grid, size) -> grid {
+    0 -> i;
+    while i < 5 {
+        random(size - 1) -> x;
+        random(size - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = ' ' {
+            'G' -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 3 {
+        random(size - 1) -> x;
+        random(size - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = ' ' {
+            'S' -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 2 {
+        random(size - 1) -> x;
+        random(size - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = ' ' {
+            'T' -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    grid -> grid;
+}
+
+;;; Prints the grid row by row
+fn print(grid) {
+    for row in grid {
+        prn row;
+    }
+}
+
+;;; GRIDPOS holds the grid, current position, movement status, path, and mode
+pod gridpos(grid, pos, moved, path, mode);
+
+;;; Moves position by one unit in a random unvisited direction, with backtracking
+fn move(GRIDPOS, size) -> GRIDPOS {
+    GRIDPOS:pos -> pos;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:path -> path;
+    GRIDPOS:mode -> mode;
+
+    pos:0 -> x;
+    pos:1 -> y;
+
+    [] -> unexploredOptions;
+    [] -> otherOptions;
+
+    ;;; Right
+    ((x + 1) % size) -> x1;
+    grid:y -> row;
+    row:x1 -> cell;
+    if cell = ' ' { {1, 0} -> $unexploredOptions; }
+    elseif cell = 'G' || cell = 'S' || cell = 'T' { {1, 0} -> $otherOptions; }
+
+    ;;; Left
+    ((x - 1 + size) % size) -> x2;
+    grid:y -> row;
+    row:x2 -> cell;
+    if cell = ' ' { {-1, 0} -> $unexploredOptions; }
+    elseif cell = 'G' || cell = 'S' || cell = 'T' { {-1, 0} -> $otherOptions; }
+
+    ;;; Down
+    ((y + 1) % size) -> y1;
+    grid:y1 -> row;
+    row:x -> cell;
+    if cell = ' ' { {0, 1} -> $unexploredOptions; }
+    elseif cell = 'G' || cell = 'S' || cell = 'T' { {0, 1} -> $otherOptions; }
+
+    ;;; Up
+    ((y - 1 + size) % size) -> y2;
+    grid:y2 -> row;
+    row:x -> cell;
+    if cell = ' ' { {0, -1} -> $unexploredOptions; }
+    elseif cell = 'G' || cell = 'S' || cell = 'T' { {0, -1} -> $otherOptions; }
+
+    [] -> dir;
+    length(unexploredOptions) -> unexploredLength;
+    length(otherOptions) -> otherLength;
+
+    if unexploredLength > 0 {
+        random(unexploredLength - 1) -> i;
+        unexploredOptions:i -> dir;
+    } elseif otherLength > 0 {
+        random(otherLength - 1) -> i;
+        otherOptions:i -> dir;
+    } else {
+        length(path) -> plen;
+        if plen > 0 {
+            path:(plen - 1) -> pos;
+            0 -> i;
+            [] -> newpath;
+            while i < plen - 1 {
+                path:i -> $newpath;
+                i + 1 -> i;
+            }
+            newpath -> path;
+            gridpos(grid, pos, true, path, mode) -> GRIDPOS;
+            return;
+        }
+        gridpos(grid, pos, false, path, mode) -> GRIDPOS;
+        return;
+    }
+
+    dir:0 -> dx;
+    dir:1 -> dy;
+
+    (x + dx + size) % size -> x;
+    (y + dy + size) % size -> y;
+    {x, y} -> pos;
+    pos -> $path;
+    gridpos(grid, pos, true, path, mode) -> GRIDPOS;
+}
+
+;;; Lowers fade level for trail effect for both walkers
+fn fadeTrail(grid, size) -> grid {
+    0 -> y;
+    while y < size {
+        0 -> x;
+        grid:y -> row;
+        [] -> newrow;
+        while x < size {
+            row:x -> cell;
+
+            ;;; Fade walker 1 trail chars (ensure no '*' is produced here)
+            if cell = '@' {
+                '#' -> cell;
+            } elseif cell = '#' {
+                '%' -> cell;
+            } elseif cell = '%' {
+                '&' -> cell;
+            } elseif cell = '&' {
+                '=' -> cell;
+            } elseif cell = '=' {
+                '~' -> cell; ;;; Changed from '*' to '~'
+            } elseif cell = '~' {
+                '-' -> cell;
+            } elseif cell = '-' {
+                ':' -> cell;
+            } elseif cell = ':' {
+                ';' -> cell;
+            } elseif cell = ';' {
+                ',' -> cell;
+            } elseif cell = ',' {
+                '.' -> cell;
+            } elseif cell = '.' {
+                '`' -> cell;
+            } elseif cell = '`' {
+                '!' -> cell;
+            } elseif cell = '!' {
+                ' ' -> cell;
+            }
+
+            ;;; Fade walker 2 trail chars (ensure no '+' is produced here)
+            if cell = '$' {
+                '^' -> cell;
+            } elseif cell = '^' {
+                '?' -> cell; ;;; Changed from '+' to '?'
+            } elseif cell = '?' {
+                '>' -> cell;
+            } elseif cell = '>' {
+                '<' -> cell;
+            } elseif cell = '<' {
+                '/' -> cell;
+            } elseif cell = '/' {
+                '|' -> cell;
+            } elseif cell = '|' {
+                '_' -> cell;
+            } elseif cell = '_' {
+                '"' -> cell;
+            } elseif cell = '"' {
+                '(' -> cell;
+            } elseif cell = '(' {
+                ')' -> cell;
+            } elseif cell = ')' {
+                ' ' -> cell;
+            }
+
+            cell -> $newrow;
+            x + 1 -> x;
+        }
+        newrow -> grid:y;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+
+;;; Marks current position in grid and updates position, applies fade effect and item logic
+fn update(GRIDPOS, size, walkerId) -> GRIDPOS {
+    GRIDPOS:grid -> grid;
+    GRIDPOS:pos -> pos;
+    GRIDPOS:moved -> moved;
+    GRIDPOS:path -> path;
+    GRIDPOS:mode -> mode;
+
+    ;;; Mark old trails ('*' or '+' → '@' or '$' depending on walker)
+    0 -> y;
+    while y < size {
+        0 -> x;
+        grid:y -> row;
+        [] -> newrow;
+        while x < size {
+            row:x -> cell;
+            if cell = '*' {
+                '@' -> cell;
+            } elseif cell = '+' {
+                '$' -> cell;
+            }
+            cell -> $newrow;
+            x + 1 -> x;
+        }
+        newrow -> grid:y;
+        y + 1 -> y;
+    }
+
+    ;;; Mark current position
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+
+    ;;; Handle special tiles
+    row:x -> cell;
+    if cell = 'G' {
+        ' ' -> row:x;
+        "hyper" -> mode;
+    } elseif cell = 'S' {
+        ' ' -> row:x;
+        "slow" -> mode;
+    } elseif cell = 'T' {
+        ' ' -> row:x;
+        row -> grid:y;
+
+        random(size) -> tx;
+        random(size) -> ty;
+        {tx, ty} -> pos;
+        [pos] -> path;
+    }
+
+    ;;; Mark walker position according to walkerId and mode
+    if walkerId = 1 {
+        if mode = "hyper" {
+            '@' -> row:x;
+        } elseif mode = "slow" {
+            '.' -> row:x;
+        } else {
+            '*' -> row:x;
+        }
+    } elseif walkerId = 2 {
+        if mode = "hyper" {
+            '$' -> row:x;
+        } elseif mode = "slow" {
+            '"' -> row:x;
+        } else {
+            '+' -> row:x;
+        }
+    }
+
+    row -> grid:y;
+
+    gridpos(grid, pos, moved, path, mode) -> GRIDPOS;
+    move(GRIDPOS, size) -> GRIDPOS;
+}
+
+
+;;; Main program loop with two walkers
+start {
+    arg(0) -> size;
+    initialize(size) -> grid;
+    placeItems(grid, size) -> grid;
+
+    {size / 2, size / 2} -> pos1;
+    [pos1] -> path1;
+    gridpos(grid, pos1, true, path1, "normal") -> GRIDPOS1;
+
+    {(size / 2) - 1, (size / 2) - 1} -> pos2;
+    [pos2] -> path2;
+    gridpos(grid, pos2, true, path2, "normal") -> GRIDPOS2;
+
+    while true {
+
+        update(GRIDPOS1, size, 1) -> GRIDPOS1;
+        ;;; update shared grid with walker 1’s grid
+        GRIDPOS1:grid -> grid;
+
+        gridpos(grid, GRIDPOS2:pos, GRIDPOS2:moved, GRIDPOS2:path, GRIDPOS2:mode) -> GRIDPOS2;
+        update(GRIDPOS2, size, 2) -> GRIDPOS2;
+
+        ;;; update shared grid with walker 2’s grid
+        GRIDPOS2:grid -> grid;
+
+        fadeTrail(grid, size) -> grid;
+        gridpos(grid, GRIDPOS1:pos, GRIDPOS1:moved, GRIDPOS1:path, GRIDPOS1:mode) -> GRIDPOS1;
+
+        ansi_up size;
+        print(grid);
+    }
+}
+

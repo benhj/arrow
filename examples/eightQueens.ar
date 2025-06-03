@@ -2,8 +2,8 @@ fn canPlaceQueen(r, c, x) -> yes {
     true -> yes;
     0 -> i;
     while(i < r) {
-        x:i -> tok;
-        if (tok = c || (i - r = tok - c) || (i - r = c - tok)) {
+        x:i -> qcol;
+        if qcol = c || (i - r = qcol - c) || (i - r = c - qcol) {
             false -> yes;
             return;
         }
@@ -12,35 +12,31 @@ fn canPlaceQueen(r, c, x) -> yes {
 }
 
 fn printQueens(N, x) {
-
-    0 -> i;
-    0 -> j;
-    for tok in x {
+    for row in x {
         0 -> j;
         while j < N {
-            if tok = j {
+            if row = j {
                 pr "Q ";
             } else {
-                pr "* "; 
+                pr "* ";
             }
             j + 1 -> j;
         }
         say "\n";
     }
- }
+}
 
- fn placeNQueens(r, n, x) {
+fn placeNQueens(r, n, x) {
+    if r = n {
+        printQueens(n, x);
+        exit 1;
+    }
+
     0 -> c;
     while c < n {
         if canPlaceQueen(r, c, x) {
             c -> x:r;
-            printQueens(n,x);
-            if (r = n - 1) {
-                exit 1;
-            } else {
-                ansi_up n;
-                placeNQueens(r + 1, n, x);
-            }
+            placeNQueens(r + 1, n, x);
         }
         c + 1 -> c;
     }
@@ -48,11 +44,10 @@ fn printQueens(N, x) {
 
 start {
     arg(0) -> N;
+    ;;; Initialize x as N-length array of -1 (unset columns)
     [] -> x;
-    0 -> i;
     repeat N times {
-        [^i ^^x] -> x;
-        i + 1 -> i;    
+        -1 -> $x;
     }
-    placeNQueens(0, N, x); 
+    placeNQueens(0, N, x);
 }

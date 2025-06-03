@@ -125,7 +125,8 @@ namespace arrow {
                     type.m_descriptor != TypeDescriptor::Bytes &&
                     type.m_descriptor != TypeDescriptor::Pods &&
                     type.m_descriptor != TypeDescriptor::String &&
-                    type.m_descriptor != TypeDescriptor::ListWord) {
+                    type.m_descriptor != TypeDescriptor::ListWord &&
+                    type.m_descriptor != TypeDescriptor::Arrays) {
                     throw LanguageException("Incompatiable type for index", m_expression->getLineNumber());
                 }
 

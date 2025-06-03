@@ -1,0 +1,167 @@
+fn is_valid(board, row, col, num, N, box_size) -> result {
+    board:row -> current_row;
+    0 -> i;
+    false -> result;
+    while(i < N) {
+        current_row:i -> val;
+        if(val = num) {
+            return;
+        }
+        i + 1 -> i;
+    }
+
+    0 -> i;
+    while(i < N) {
+        board:i -> temp_row;
+        temp_row:col -> val;
+        if(val = num) {
+            return;
+        }
+        i + 1 -> i;
+    }
+
+    (row / box_size) * box_size -> box_row;
+    (col / box_size) * box_size -> box_col;
+
+    0 -> i;
+    while(i < box_size) {
+        0 -> j;
+        while(j < box_size) {
+            box_row + i -> r;
+            box_col + j -> c;
+            board:r -> temp_row;
+            temp_row:c -> val;
+            if(val = num) {
+                return;
+            }
+            j + 1 -> j;
+        }
+        i + 1 -> i;
+    }
+
+    true -> result;
+}
+
+fn find_empty(board, N) -> pos {
+    0 -> row;
+    [] -> pos;
+    while(row < N) {
+        0 -> col;
+        while(col < N) {
+            board:row -> current_row;
+            current_row:col -> val;
+            if(val = 0) {
+                (row, col) -> pos;
+                return;
+            }
+            col + 1 -> col;
+        }
+        row + 1 -> row;
+    }
+}
+
+
+fn to_symbol(n) -> sym {
+    [0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z] -> symbol_list;
+    symbol_list:n -> sym;
+}
+
+fn print_board(board, N, box_size) {
+    0 -> row;
+    while(row < N) {
+        board:row -> current_row;
+        0 -> col;
+        while(col < N) {
+            current_row:col -> val;
+            to_symbol(val) -> sym;
+            pr sym;
+            pr " ";
+            if((col + 1) % box_size = 0 && col < N - 1) {
+                pr "| ";
+            }
+            col + 1 -> col;
+        }
+        prn "";
+        if((row + 1) % box_size = 0 && row < N - 1) {
+            0 -> i;
+            while(i < N + box_size - 1) {
+                pr "- ";
+                i + 1 -> i;
+            }
+            prn "";
+        }
+        row + 1 -> row;
+    }
+}
+
+pod data(solved, callcount);
+
+fn solve(board, call_count, N, box_size) -> result_pod {
+    call_count + 1 -> call_count;
+
+    find_empty(board, N) -> pos;
+    data(true, call_count) -> result_pod;
+
+    if(pos = []) {
+        print_board(board, N, box_size);
+        return;
+    }
+
+    pos:0 -> row;
+    pos:1 -> col;
+
+    1 -> num;
+    while(num <= N) {
+        is_valid(board, row, col, num, N, box_size) -> ok;
+        if(ok) {
+            board:row -> current_row;
+            num -> current_row:col;
+            current_row -> board:row;
+
+            solve(board, call_count, N, box_size) -> sub_result;
+            sub_result:solved -> solved;
+            sub_result:callcount -> new_count;
+
+            if(solved) {
+                data(true, new_count) -> result_pod;
+                return;
+            }
+
+            0 -> current_row:col;
+            current_row -> board:row;
+        }
+        num + 1 -> num;
+    }
+
+    data(false, call_count) -> result_pod;
+}
+
+start {
+    9 -> N;
+    3 -> box_size;
+
+    [
+        [5 3 0 0 7 0 0 0 0]
+        [6 0 0 1 9 5 0 0 0] 
+        [0 9 8 0 0 0 0 6 0] 
+        [8 0 0 0 6 0 0 0 3] 
+        [4 0 0 8 0 3 0 0 1] 
+        [7 0 0 0 2 0 0 0 6] 
+        [0 6 0 0 0 0 2 8 0] 
+        [0 0 0 4 1 9 0 0 5] 
+        [0 0 0 0 8 0 0 7 9]
+    ] -> board;
+
+    solve(board, 0, N, box_size) -> result_pod;
+    result_pod:solved -> solved;
+    result_pod:callcount -> total_calls;
+
+    prn "\nNumber of recursive calls: ";
+    prn total_calls;
+
+    if(solved) {
+        prn "Sudoku solved!";
+    } else {
+        prn "No solution.";
+    }
+}

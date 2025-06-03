@@ -1,0 +1,137 @@
+;;; Initializes a size×size grid filled with spaces (' ')
+fn initialize(size) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < size {
+        0 -> x;
+        [] -> row;
+        while x < size {
+            ' ' -> $row;
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+}
+
+;;; Prints the grid row by row
+fn print(grid) {
+    for row in grid {
+        prn row;
+    }
+}
+
+;;; GRIDPOS holds the grid, current position, movement status, path, and backtracking flag
+pod gridpos(grid, pos, moved, path, backtracking);
+
+;;; Moves position by one unit in a random unvisited direction, with backtracking
+fn move(GRIDPOS, size) -> GRIDPOS {
+    GRIDPOS:pos -> pos;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:path -> path;
+
+    pos:0 -> x;
+    pos:1 -> y;
+
+    [] -> options;
+
+    ;;; Right
+    ((x + 1) % size) -> x1;
+    grid:y -> row;
+    row:x1 -> cell;
+    if cell = ' ' { {1, 0} -> $options; }
+
+    ;;; Left
+    ((x - 1 + size) % size) -> x2;
+    grid:y -> row;
+    row:x2 -> cell;
+    if cell = ' ' { {-1, 0} -> $options; }
+
+    ;;; Down
+    ((y + 1) % size) -> y1;
+    grid:y1 -> row;
+    row:x -> cell;
+    if cell = ' ' { {0, 1} -> $options; }
+
+    ;;; Up
+    ((y - 1 + size) % size) -> y2;
+    grid:y2 -> row;
+    row:x -> cell;
+    if cell = ' ' { {0, -1} -> $options; }
+
+    length(options) -> optionsLength;
+    if optionsLength > 0 {
+        random(optionsLength - 1) -> i;
+        options:i -> dir;
+        dir:0 -> dx;
+        dir:1 -> dy;
+
+        (x + dx + size) % size -> x;
+        (y + dy + size) % size -> y;
+        {x, y} -> pos;
+        pos -> $path; ;;; push current pos to path
+        gridpos(grid, pos, true, path, false) -> GRIDPOS;  ;;; forward move, backtracking=false
+        return;
+    }
+
+    ;;; Backtrack if possible
+    length(path) -> plen;
+    if plen > 0 {
+        path:(plen - 1) -> pos;
+
+        0 -> i;
+        [] -> newpath;
+        while i < plen - 1 {
+            path:i -> $newpath;
+            i + 1 -> i;
+        }
+        newpath -> path;
+
+        gridpos(grid, pos, true, path, true) -> GRIDPOS;  ;;; backtracking move, backtracking=true
+        return;
+    }
+
+    ;;; No options and no path to backtrack — end
+    gridpos(grid, pos, false, path, false) -> GRIDPOS;
+}
+
+;;; Marks current position in grid and updates position
+fn update(GRIDPOS, size) -> GRIDPOS {
+    GRIDPOS:pos -> pos;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:moved -> moved;
+    GRIDPOS:path -> path;
+    GRIDPOS:backtracking -> backtracking;
+
+    if moved {
+        pos:0 -> x;
+        pos:1 -> y;
+        grid:y -> row;
+        if backtracking {
+            '.' -> row:x;  ;;; mark backtracked cells with '.'
+        } else {
+            'O' -> row:x;  ;;; mark forward path cells with '*'
+        }
+        row -> grid:y;
+    }
+
+    gridpos(grid, pos, moved, path, backtracking) -> GRIDPOS;
+    move(GRIDPOS, size) -> GRIDPOS;
+}
+
+;;; Main program loop
+start {
+    arg(0) -> size;
+    initialize(size) -> grid;
+
+    {size / 2, size / 2} -> pos;
+    [pos] -> path; ;;; start path
+    gridpos(grid, pos, true, path, false) -> GRIDPOS;
+
+    while true {
+        update(GRIDPOS, size) -> GRIDPOS;
+        if GRIDPOS:moved = false { break; }
+        ansi_up size;
+        print(GRIDPOS:grid);
+    }
+}

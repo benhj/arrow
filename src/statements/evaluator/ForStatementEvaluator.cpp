@@ -11,7 +11,7 @@
 namespace arrow {
 
     namespace {
-
+ 
         template <typename T>
         StatementResult
         evaluateContainerElements(T const & elements,
@@ -82,6 +82,33 @@ namespace arrow {
                         environment.add(index.raw, {TypeDescriptor::Byte, *(it + step)});
                         ++step;
                     }
+                } else if constexpr (std::is_same_v<typename T::value_type, std::vector<std::vector<int64_t>>>) {
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
+                        environment.add(index.raw, {TypeDescriptor::Ints, *(it + step)});
+                        ++step;
+                    }
+                } else if constexpr (std::is_same_v<typename T::value_type, std::vector<std::vector<double>>>) {
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
+                        environment.add(index.raw, {TypeDescriptor::Reals, *(it + step)});
+                        ++step;
+                    }
+                } else if constexpr (std::is_same_v<typename T::value_type, std::vector<std::vector<bool>>>) {
+                    auto step = 0;
+                    for(auto const & index : indices) {
+                        if((it + step) == std::end(elements)) {
+                            break;
+                        }
+                        environment.add(index.raw, {TypeDescriptor::Bools, *(it + step)});
+                        ++step;
+                    }
                 }
                 evaluated = innerStatement->getEvaluator()->evaluate(environment);
                 environment.popEnvironmentLayer();
@@ -116,7 +143,8 @@ namespace arrow {
            evaled.m_descriptor != TypeDescriptor::Strings &&
            evaled.m_descriptor != TypeDescriptor::String &&
            evaled.m_descriptor != TypeDescriptor::ListWord &&
-           evaled.m_descriptor != TypeDescriptor::Bytes) {
+           evaled.m_descriptor != TypeDescriptor::Bytes &&
+           evaled.m_descriptor != TypeDescriptor::Arrays) {
             throw LanguageException("Bad type descriptor in for statement expression",
                                     identifier.lineNumber);
         }
@@ -146,6 +174,9 @@ namespace arrow {
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         } else if(evaled.m_descriptor == TypeDescriptor::Byte) {
             auto & elements = std::get<std::vector<char>>(evaled.m_variantType);
+            return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
+        } else if(evaled.m_descriptor == TypeDescriptor::Arrays) {
+            auto & elements = std::get<std::vector<Type>>(evaled.m_variantType);
             return evaluateContainerElements(elements, std::move(innerStatement), std::move(indices), environment);
         }
         return StatementResult::Continue;

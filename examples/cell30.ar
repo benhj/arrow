@@ -1,0 +1,71 @@
+fn rule30(left, center, right) -> result {
+    ' ' -> result;
+    if (left = 'X' && center = ' ' && right = ' ') {
+        'X' -> result;
+    } elseif (left = ' ' && center = 'X' && right = ' ') {
+        'X' -> result;
+    } elseif (left = ' ' && center = ' ' && right = 'X') {
+        'X' -> result;
+    } elseif (left = ' ' && center = 'X' && right = 'X') {
+        'X' -> result;
+    }
+}
+
+fn initialize(size) -> state {
+    [] -> state;
+    0 -> i;
+    while i < size {
+        ' ' -> $state;
+        i + 1 -> i;
+    }
+    size / 2 -> mid;
+    'X' -> state:mid;
+}
+
+fn print(state) {
+    prn state;
+}
+
+fn list_length(list) -> length {
+    0 -> length;
+    for i in list {
+        length + 1 -> length;
+    }
+}
+
+fn update(state) -> new_state {
+    [] -> new_state;
+    list_length(state) -> size;
+    0 -> i;
+    while i < size {
+        0 -> left;
+        0 -> right;
+        0 -> center;
+        if i = 0 {
+            state:(size - 1) -> left;
+        } else {
+            state:(i - 1) -> left;
+        }
+        state:i -> center;
+        if i = size - 1 {
+            state:0 -> right;
+        } else {
+            state:(i + 1) -> right;
+        }
+        rule30(left, center, right) -> $new_state;
+        i + 1 -> i;
+    }
+}
+
+start {
+    arg(0) -> size;
+    arg(1) -> steps;
+    initialize(size) -> state;
+    print(state);
+    0 -> i;
+    while i < steps {
+        update(state) -> state;
+        print(state);
+        i + 1 -> i;
+    }
+}
