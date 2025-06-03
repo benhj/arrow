@@ -1,0 +1,315 @@
+;;; Forest Fire Cellular Automaton Model
+;;; Rules:
+;;; 1. Burning cells become ash.
+;;; 2. Tree cells adjacent to a burning cell in wind direction catch fire (guaranteed).
+;;; 3. Tree cells adjacent to a burning cell NOT in wind direction catch fire (probabilistic).
+;;; 4. Tree cells spontaneously catch fire with probability P_lightning.
+;;; 5. Empty cells grow into trees with probability P_tree_growth.
+;;; 6. Ash cells become empty with probability P_ash_decay.
+;;; Using 256-color ANSI for performance.
+;;; UPDATED: Corrected wind direction logic for a strong, visible effect.
+
+;;; --- Utility Functions ---
+
+;;; Returns the absolute value of a number
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> result;
+    }
+}
+
+;;; Returns the minimum of two numbers
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+;;; Returns the maximum of two numbers
+fn max(a, b) -> result {
+    a -> result;
+    if b > a {
+        b -> result;
+    }
+}
+
+;;; Repeats a character 'count' times
+fn repeat(char, count) -> result {
+    "" -> result;
+    0 -> i;
+    while i < count {
+        result + char -> result;
+        i + 1 -> i;
+    }
+    result -> result;
+}
+
+;;; --- Forest Grid Functions ---
+
+;;; Initializes a forest grid with specified width and height
+;;; Fills cells with 'T' (tree) or ' ' (empty) based on P_initial_tree
+fn initialize_forest(gridWidth, gridHeight, P_initial_tree) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            random(1000) -> r;
+            if r / 1000.0 < P_initial_tree {
+                "T" -> $row;
+            } else {
+                " " -> $row;
+            }
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; This function is now a simple check for ANY burning neighbor,
+;;; no longer directly involving wind logic for spreading.
+;;; The primary fire spread logic is now in update_forest.
+fn has_any_burning_neighbor(grid, x, y, gridWidth, gridHeight) -> result {
+    false -> result;
+    { {-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1} } -> directions;
+
+    for dir in directions {
+        dir:0 -> dx;
+        dir:1 -> dy;
+
+        (x + dx + gridWidth) % gridWidth -> nx;
+        (y + dy + gridHeight) % gridHeight -> ny;
+
+        grid:ny -> neighbor_row;
+        neighbor_row:nx -> neighbor_char;
+
+        if neighbor_char = "F" {
+            true -> result;
+            break; ;;; Found a burning neighbor, no need to check further
+        }
+    }
+    result -> result;
+}
+
+
+;;; Updates the forest state based on cellular automaton rules
+fn update_forest(current_grid, gridWidth, gridHeight, P_lightning, P_tree_growth, P_ash_decay, wind_dx, wind_dy, P_spread_against_wind) -> new_grid {
+    0 -> y;
+    [] -> new_grid;
+
+    while y < gridHeight {
+        0 -> x;
+        [] -> new_row;
+        current_grid:y -> current_row;
+
+        while x < gridWidth {
+            current_row:x -> current_char;
+            "" -> next_char;
+
+            if current_char = "F" {
+                "A" -> next_char; ;;; Burning cell becomes ASH
+            } elseif current_char = "T" {
+                false -> will_catch_fire;
+
+                ;;; 1. Check wind-aligned neighbor (strongest spread)
+                (x + wind_dx + gridWidth) % gridWidth -> nx_wind;
+                (y + wind_dy + gridHeight) % gridHeight -> ny_wind;
+                current_grid:ny_wind -> wind_neighbor_row;
+                wind_neighbor_row:nx_wind -> wind_neighbor_char;
+
+                if wind_neighbor_char = "F" {
+                    true -> will_catch_fire; ;;; Definitely catches fire if wind-aligned neighbor is burning
+                } else {
+                    ;;; 2. Check all other 7 neighbors for probabilistic spread (against/sideways to wind)
+                    { {-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1} } -> directions;
+                    for dir in directions {
+                        dir:0 -> dx;
+                        dir:1 -> dy;
+
+                        ;;; Skip the wind direction itself, as it's already handled in the primary check
+                        if dx = wind_dx && dy = wind_dy {
+                            ;;; Do nothing
+                        } else {
+                            (x + dx + gridWidth) % gridWidth -> nx;
+                            (y + dy + gridHeight) % gridHeight -> ny;
+                            current_grid:ny -> neighbor_row;
+                            neighbor_row:nx -> neighbor_char;
+
+                            if neighbor_char = "F" {
+                                ;;; Only spread from non-wind neighbors with P_spread_against_wind
+                                if random(1000) / 1000.0 < P_spread_against_wind {
+                                    true -> will_catch_fire;
+                                    break; ;;; Found a burning non-wind neighbor that triggered spread
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ;;; Final decision for a 'T' cell
+                if will_catch_fire {
+                    "F" -> next_char;
+                } elseif random(100000) / 100000.0 < P_lightning {
+                    "F" -> next_char; ;;; Tree catches fire due to lightning (last resort)
+                } else {
+                    "T" -> next_char; ;;; Tree remains a tree
+                }
+            } elseif current_char = "A" {
+                if random(1000) / 1000.0 < P_ash_decay {
+                    " " -> next_char;
+                } else {
+                    "A" -> next_char;
+                }
+            } elseif current_char = " " {
+                if random(1000) / 1000.0 < P_tree_growth {
+                    "T" -> next_char;
+                } else {
+                    " " -> next_char;
+                }
+            }
+            next_char -> $new_row;
+            x + 1 -> x;
+        }
+        new_row -> $new_grid;
+        y + 1 -> y;
+    }
+    new_grid -> new_grid;
+}
+
+;;; Gets ANSI 256-color background code with a white foreground for visibility
+fn cellColorCode(char) -> color_code {
+    "\033[48;5;232m" -> color_code; ;;; Default: Dark Grey Background (empty)
+    "\033[38;5;255m" -> fg_code; ;;; Default: White Foreground for visibility
+
+    if char = "T" {
+        "\033[48;5;22m" -> color_code; ;;; Dark Green Background for Tree
+    } elseif char = "F" {
+        "\033[48;5;196m" -> color_code; ;;; Bright Red Background for Fire
+    } elseif char = "A" {
+        "\033[48;5;236m" -> color_code; ;;; Darker grey for Ash (almost black)
+    }
+    color_code + fg_code -> color_code; ;;; Combine BG and FG
+    color_code -> color_code;
+}
+
+;;; Prints the forest grid row by row with a box border, optimized for 256-colors
+fn print_forest(grid, gridWidth) {
+    ;;; Top border
+    prn "┌" + repeat("─", gridWidth * 2) + "┐";
+
+    ;;; Grid rows with side borders
+    for row in grid {
+        "" -> row_str;
+        "" -> last_color_code; ;;; Store the last color code to optimize printing
+
+        for char in row {
+            cellColorCode(char) -> current_color_code;
+            row_str + current_color_code -> row_str;
+            if char = " " {
+                row_str + "  " -> row_str; ;;; Two spaces for empty cells (background only)
+            } else {
+                row_str + char + " " -> row_str; ;;; Character + one space (character visible with background)
+            }
+        }
+        row_str + "\033[0m" -> row_str; ;;; Reset color at the end of each row
+        prn "│" + row_str + "│";
+    }
+
+    ;;; Bottom border
+    prn "└" + repeat("─", gridWidth * 2) + "┘";
+}
+
+;;; Counts current trees, fires, and ash
+fn count_states(grid) -> counts {
+    0 -> trees;
+    0 -> fires;
+    0 -> ash;
+    for row in grid {
+        for char in row {
+            if char = "T" { trees + 1 -> trees; }
+            elseif char = "F" { fires + 1 -> fires; }
+            elseif char = "A" { ash + 1 -> ash; }
+        }
+    }
+    {trees, fires, ash} -> counts;
+}
+
+;;; Prints a neat overlay with forest stats
+fn print_overlay(counts, steps) {
+    prn "\033[34m"; ;;; Blue foreground for HUD
+    prn "┌───────────────────┬───────────────┐";
+    prn "│       STAT        │      VALUE    │";
+    prn "├───────────────────┼───────────────┤";
+    prn "│ Steps             │ " + padRight("" + steps, 13) + " │";
+    prn "│ Trees (T)         │ " + padRight("" + counts:0, 13) + " │";
+    prn "│ Fires (F)         │ " + padRight("" + counts:1, 13) + " │";
+    prn "│ Ash (A)           │ " + padRight("" + counts:2, 13) + " │";
+    prn "└───────────────────┴───────────────┘";
+    prn "\033[0m"; ;;; Reset color
+}
+
+;;; Pads string on the right with spaces to a fixed length
+fn padRight(str, length) -> padded {
+    str -> padded;
+    while length > length(padded) {
+        padded + " " -> padded;
+    }
+    padded -> padded;
+}
+
+;;; Main program loop
+;;; Main program loop
+start {
+    arg(0) -> gridWidth;
+    arg(1) -> gridHeight;
+
+    ;;; Default parameters for the forest fire
+    0.1 -> P_tree_growth;
+    0.0005 -> P_lightning;
+    0.7 -> P_initial_tree_density;
+    0.05 -> P_ash_decay;
+
+    ;;; PARAMETER FOR WIND IMPACT:
+    ;;; Set to 1.0 to disable wind impact (fire spreads uniformly from all neighbors).
+    ;;; Set to a value < 1.0 (e.g., 0.2) to enable wind impact (fire spreads easier with wind, harder against).
+    1.0 -> P_spread_against_wind; ;;; <--- CHANGE THIS VALUE TO CONTROL WIND IMPACT
+
+    ;;; Wind Direction (dx, dy) - These only determine the PREFERRED direction if P_spread_against_wind < 1.0
+    1 -> wind_dx; ;;; Prevailing East wind
+    0 -> wind_dy;
+
+    initialize_forest(gridWidth, gridHeight, P_initial_tree_density) -> current_grid;
+
+    ;;; Start a fire initially to get things going
+    random(gridWidth - 1) -> initial_fire_x;
+    random(gridHeight - 1) -> initial_fire_y;
+    current_grid:initial_fire_y -> initial_fire_row;
+    "F" -> initial_fire_row:initial_fire_x;
+    initial_fire_row -> current_grid:initial_fire_y;
+
+    0 -> steps;
+
+    while true {
+        steps + 1 -> steps;
+
+        ;;; Update the forest state, passing P_spread_against_wind
+        update_forest(current_grid, gridWidth, gridHeight, P_lightning, P_tree_growth, P_ash_decay, wind_dx, wind_dy, P_spread_against_wind) -> next_grid;
+        next_grid -> current_grid;
+
+        count_states(current_grid) -> forest_counts;
+
+        ;;; Adjust ANSI escape sequence for clear screen
+        gridHeight + 12 -> total_display_lines;
+
+        ;;; Clear the screen
+        ansi_up total_display_lines;
+        
+        print_forest(current_grid, gridWidth);
+        print_overlay(forest_counts, steps);
+    }
+}
