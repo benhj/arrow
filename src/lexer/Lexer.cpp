@@ -285,6 +285,8 @@ namespace arrow {
             return '\t';
         } else if(c == 'v') {
             return '\v';
+        } else if(c == char(27)) {
+            return '\033';
         } 
         return '\\';
     }
@@ -305,7 +307,19 @@ namespace arrow {
                 else if(next == '\\') {
                     stream.get();
                     next = stream.peek();
-                    if(isPartOfEscapeCode(next)) {
+                    if(next == '0') {
+                        stream.get();
+                        next = stream.peek();
+                        if(next == '3') {
+                            stream.get();
+                            next = stream.peek();
+                            if(next == '3') {
+                                dat.push_back('\033');
+                                stream.get();
+                                next = stream.peek();
+                            }
+                        }
+                    } else if(isPartOfEscapeCode(next)) {
                         dat.push_back(getEscapeCode(next));
                         stream.get();
                         next = stream.peek();

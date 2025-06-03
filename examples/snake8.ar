@@ -1,0 +1,728 @@
+;;; Simulate N walkers with personalities
+;;; basic HUD overlay with trail length, last tile, and step count
+;;; also spawns new items evey 100 steps
+;;; UPDATED: Walkers with personalities ('aggressive' goal-seeking, 'discover' exploring)
+;;; UPDATED: Implemented abs and min functions
+;;; UPDATED: Aggressive walker now truly seeks goals by prioritizing direct alignment and minimizing distance
+;;; UPDATED: Discover walker now has undulatory movement by favoring slight turns
+;;; FIX: Walkers are now visible again (fixed bug in allValidOptions population)
+;;; NEW: Supports N number of walkers, passed as a second argument (e.g., `run your_code.ty 20 5` for size 20, 5 walkers)
+
+;;; --- Utility Functions ---
+
+;;; Returns the absolute value of a number
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> result;
+    }
+}
+
+;;; Returns the minimum of two numbers
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+;;; --- Grid and Item Management Functions ---
+
+;;; Initializes a size×size grid filled with spaces (" ")
+fn initialize(size) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < size {
+        0 -> x;
+        [] -> row;
+        while x < size {
+            " " -> $row;
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Randomly places goal, slow, and teleport tiles
+fn placeItems(grid, size) -> grid {
+    0 -> i;
+    while i < 5 {
+        random(size - 1) -> x;
+        random(size - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = " " {
+            "G" -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 3 {
+        random(size - 1) -> x;
+        random(size - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = " " {
+            "S" -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 2 {
+        random(size - 1) -> x;
+        random(size - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = " " {
+            "T" -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    grid -> grid;
+}
+
+;;; Periodically place a few new items if space allows
+fn respawnItems(grid, size) -> grid {
+    0 -> count;
+    while count < 1 {  ;;; spawn 1 new item per respawn, adjust as you want
+        random(2) -> r_idx;
+        "" -> r_char;
+        if r_idx = 0 {
+            "G" -> r_char;
+        } elseif r_idx = 1 {
+            "S" -> r_char;
+        } else {
+            "T" -> r_char;
+        }
+        
+        true -> searching;
+        while searching {
+            random(size - 1) -> x;
+            random(size - 1) -> y;
+            grid:y -> row;
+            row:x -> cell;
+            if cell = " " {
+                r_char -> row:x;
+                row -> grid:y;
+                count + 1 -> count;
+                false -> searching;
+            }
+        }
+    }
+    grid -> grid;
+}
+
+;;; Prints the grid row by row
+fn print(grid) {
+    for row in grid {
+        prn row;
+    }
+}
+
+;;; Calculates Manhattan distance between two points on a toroidal grid
+fn manhattanDistance(pos1, pos2, size) -> dist {
+    pos1:0 -> x1;
+    pos1:1 -> y1;
+    pos2:0 -> x2;
+    pos2:1 -> y2;
+
+    abs(x1 - x2) -> dx;
+    abs(y1 - y2) -> dy;
+
+    min(dx, size - dx) -> wrapDx;
+    min(dy, size - dy) -> wrapDy;
+
+    wrapDx + wrapDy -> dist;
+}
+
+;;; Finds the closest 'G' tile on the grid, returns its position or { -1, -1 } if none found
+fn findClosestGoal(grid, pos, size) -> goalPos {
+    pos:0 -> startX;
+    pos:1 -> startY;
+    { -1, -1 } -> closestGoal;
+    size * size + 1 -> minDist; ;;; A very large number for initial minimum distance
+
+    0 -> y;
+    while y < size {
+        0 -> x;
+        grid:y -> row;
+        while x < size {
+            row:x -> cell;
+            if cell = "G" {
+                {x, y} -> currentGoalPos;
+                manhattanDistance(pos, currentGoalPos, size) -> dist;
+                if dist < minDist {
+                    dist -> minDist;
+                    currentGoalPos -> closestGoal;
+                }
+            }
+            x + 1 -> x;
+        }
+        y + 1 -> y;
+    }
+    closestGoal -> goalPos;
+}
+
+;;; Returns a list of directions that represent 'straight' and 'slight turns' (45 degrees)
+;;; relative to the given previous direction.
+fn getUndulatoryNeighbors(prevdir) -> neighbors {
+    [] -> neighbors;
+    prevdir:0 -> px;
+    prevdir:1 -> py;
+
+    ;;; For initial state {0,0}, include all cardinal/diagonal directions as potential starting undulation
+    if px = 0 && py = 0 {
+        { {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1} } -> allDirs;
+        for d in allDirs {
+            d -> $neighbors;
+        }
+        neighbors -> neighbors;
+        return;
+    }
+
+    ;;; Include straight direction
+    prevdir -> $neighbors;
+
+    ;;; Include 45-degree rotational neighbors
+    if px = 1 && py = 0 { ;;; East {1,0}
+        {1,1} -> $neighbors; ;;; SE
+        {1,-1} -> $neighbors; ;;; NE
+    } elseif px = -1 && py = 0 { ;;; West {-1,0}
+        {-1,1} -> $neighbors; ;;; SW
+        {-1,-1} -> $neighbors; ;;; NW
+    } elseif px = 0 && py = 1 { ;;; South {0,1}
+        {1,1} -> $neighbors; ;;; SE
+        {-1,1} -> $neighbors; ;;; SW
+    } elseif px = 0 && py = -1 { ;;; North {0,-1}
+        {1,-1} -> $neighbors; ;;; NE
+        {-1,-1} -> $neighbors; ;;; NW
+    } elseif px = 1 && py = 1 { ;;; Southeast {1,1}
+        {1,0} -> $neighbors; ;;; E
+        {0,1} -> $neighbors; ;;; S
+    } elseif px = -1 && py = 1 { ;;; Southwest {-1,1}
+        {-1,0} -> $neighbors; ;;; W
+        {0,1} -> $neighbors; ;;; S
+    } elseif px = 1 && py = -1 { ;;; Northeast {1,-1}
+        {1,0} -> $neighbors; ;;; E
+        {0,-1} -> $neighbors; ;;; N
+    } elseif px = -1 && py = -1 { ;;; Northwest {-1,-1}
+        {-1,0} -> $neighbors; ;;; W
+        {0,-1} -> $neighbors; ;;; N
+    }
+    neighbors -> neighbors;
+}
+
+
+;;; GRIDPOS holds the grid, current position, movement status, path, mode, prevdir, lastTile, trailLength, personality, encounterCount, maxEncounters
+pod gridpos(grid, pos, moved, path, mode, prevdir, lastTile, trailLength, personality, encounterCount, maxEncounters);
+
+;;; Moves position by one unit in a direction, avoiding reversals
+;;; Updated for "aggressive" and "discover" personalities
+fn move(GRIDPOS, size) -> GRIDPOS {
+    GRIDPOS:pos -> pos;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:path -> path;
+    GRIDPOS:mode -> mode;
+    GRIDPOS:prevdir -> prevdir;
+    GRIDPOS:personality -> personality;
+    GRIDPOS:encounterCount -> encounterCount;
+    GRIDPOS:maxEncounters -> maxEncounters;
+
+    pos:0 -> x;
+    pos:1 -> y;
+
+    [] -> allValidOptions; ;;; All possible moves (cardinal, diagonal, non-reversing, into valid cell)
+    [] -> aggressiveOptions; ;;; For aggressive movement
+    [] -> discoverOptions; ;;; For discover movement
+
+    { {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1} } -> directions;
+
+    {0, 0} -> dir; ;;; Default direction, will be overwritten
+
+    ;;; Common filtering for all possible directions: non-reversal and valid cell
+    0 -> i;
+    while i < 8 {
+        directions:i -> currentDirOption;
+        currentDirOption:0 -> dx;
+        currentDirOption:1 -> dy;
+
+        (x + dx + size) % size -> nx;
+        (y + dy + size) % size -> ny;
+
+        grid:ny -> row;
+        row:nx -> cell;
+
+        -prevdir:0 -> revdx;
+        -prevdir:1 -> revdy;
+        if dx = revdx && dy = revdy {
+            ;;; Do not add reversed direction
+            i + 1 -> i;
+        } else {
+            if cell = " " || cell = "G" || cell = "S" || cell = "T" {
+                currentDirOption -> $allValidOptions;
+            }
+            i + 1 -> i;
+        }
+    }
+
+    [] -> dir; ;;; Selected direction, re-initialized
+
+    if personality = "aggressive" {
+        findClosestGoal(grid, pos, size) -> goalPos;
+        goalPos:0 -> gx;
+        goalPos:1 -> gy;
+
+        if gx != -1 { ;;; If a goal is found
+            [] -> directAlignedOptions; ;;; For moves that directly align with goal axis
+            [] -> distanceMinimizingOptions; ;;; Fallback for any distance reduction
+
+            ;;; Calculate shortest path differences, considering toroidal wrap
+            abs(gx - x) -> rawDx;
+            abs(gy - y) -> rawDy;
+            min(rawDx, size - rawDx) -> shortestDx;
+            min(rawDy, size - rawDy) -> shortestDy;
+
+            ;;; Determine desired direction components
+            0 -> desiredXDir;
+            if gx > x {
+                if shortestDx = gx - x { 1 -> desiredXDir; } else { -1 -> desiredXDir; }
+            } elseif gx < x {
+                if shortestDx = x - gx { -1 -> desiredXDir; } else { 1 -> desiredXDir; }
+            }
+
+            0 -> desiredYDir;
+            if gy > y {
+                if shortestDy = gy - y { 1 -> desiredYDir; } else { -1 -> desiredYDir; }
+            } elseif gy < y {
+                if shortestDy = y - gy { -1 -> desiredYDir; } else { 1 -> desiredYDir; }
+            }
+
+            ;;; First pass: Find moves that align directly with goal's axes (e.g., purely horizontal/vertical/diagonal towards goal)
+            for currentDirOption in allValidOptions {
+                currentDirOption:0 -> cdx;
+                currentDirOption:1 -> cdy;
+
+                true -> isAligned;
+                if desiredXDir != 0 && cdx != desiredXDir { false -> isAligned; }
+                if desiredYDir != 0 && cdy != desiredYDir { false -> isAligned; }
+                if desiredXDir = 0 && cdx != 0 { false -> isAligned; } ;;; If no X movement needed, don't move X
+                if desiredYDir = 0 && cdy != 0 { false -> isAligned; } ;;; If no Y movement needed, don't move Y
+
+                if isAligned {
+                    currentDirOption -> $directAlignedOptions;
+                }
+            }
+
+            length(directAlignedOptions) -> dalen;
+            if dalen > 0 {
+                random(dalen - 1) -> i;
+                directAlignedOptions:i -> dir;
+            } else {
+                ;;; Second pass (fallback): Find any move that minimizes Manhattan distance
+                size * size + 1 -> minimizedNewDist;
+                for currentDir in allValidOptions {
+                    currentDir:0 -> cdx;
+                    currentDir:1 -> cdy;
+                    (x + cdx + size) % size -> cnx;
+                    (y + cdy + size) % size -> cny;
+
+                    manhattanDistance({cnx, cny}, goalPos, size) -> newDist;
+
+                    if newDist < minimizedNewDist {
+                        newDist -> minimizedNewDist;
+                        [] -> distanceMinimizingOptions;
+                        currentDir -> $distanceMinimizingOptions;
+                    } elseif newDist = minimizedNewDist {
+                        currentDir -> $distanceMinimizingOptions;
+                    }
+                }
+                length(distanceMinimizingOptions) -> dmlen;
+                if dmlen > 0 {
+                    random(dmlen - 1) -> i;
+                    distanceMinimizingOptions:i -> dir;
+                }
+            }
+        }
+    } elseif personality = "discover" {
+        length(allValidOptions) -> numValidOptions;
+
+        getUndulatoryNeighbors(prevdir) -> undulatoryCandidates;
+        [] -> undulatoryOptions;
+        
+        ;;; Filter undulatory candidates to only include those that are actually valid moves
+        for uDir in undulatoryCandidates {
+            true -> found_in_all_valid; ;;; Assume it's valid until proven otherwise
+            true -> current_uDir_is_valid;
+            
+            ;;; Check if uDir is in allValidOptions
+            false -> found_uDir_in_allValidOptions;
+            for aDir in allValidOptions {
+                if uDir:0 = aDir:0 && uDir:1 = aDir:1 {
+                    found_uDir_in_allValidOptions -> true;
+                    break;
+                }
+            }
+            if found_uDir_in_allValidOptions {
+                uDir -> $undulatoryOptions;
+            }
+        }
+
+        0.95 -> undulatoryBias; ;;; 80% chance to pick an undulatory move (straight or slight turn)
+        random(99) -> randChoice;
+        randChoice / 100.0 -> randFloat;
+
+        length(undulatoryOptions) -> un_len;
+
+        if un_len > 0 && randFloat < undulatoryBias {
+            random(un_len - 1) -> i;
+            undulatoryOptions:i -> dir;
+        } else {
+            ;;; Fallback to broader discovery logic if undulatory options failed or random chance decided
+            ;;; Prioritize empty cells for discovery if encounterCount is high
+            if encounterCount >= maxEncounters {
+                for currentDir in allValidOptions {
+                    currentDir:0 -> cdx;
+                    currentDir:1 -> cdy;
+                    (x + cdx + size) % size -> cnx;
+                    (y + cdy + size) % size -> cny;
+                    grid:cny -> crow;
+                    crow:cnx -> ccell;
+                    if ccell = " " {
+                        currentDir -> $discoverOptions;
+                    }
+                }
+
+                length(discoverOptions) -> d_len;
+                if d_len > 0 {
+                    random(d_len - 1) -> i;
+                    discoverOptions:i -> dir;
+                } else {
+                    ;;; If no empty cells, just choose any valid move
+                    if numValidOptions > 0 {
+                        random(numValidOptions - 1) -> i;
+                        allValidOptions:i -> dir;
+                    }
+                }
+            } else { ;;; Continue with normal random movement if not forced to turn for encounter
+                if numValidOptions > 0 {
+                    random(numValidOptions - 1) -> i;
+                    allValidOptions:i -> dir;
+                }
+            }
+        }
+    }
+
+
+    ;;; If no personality-specific direction was chosen, fall back to general valid options
+    ;;; This happens if personality logic didn't set a 'dir' or if allValidOptions was empty
+    if length(dir) = 0 {
+        length(allValidOptions) -> numValidOptions;
+        if numValidOptions > 0 {
+            random(numValidOptions - 1) -> i;
+            allValidOptions:i -> dir;
+        } else {
+            ;;; Backtrack if completely stuck
+            length(path) -> plen;
+            if plen > 0 {
+                path:(plen - 1) -> pos;
+                0 -> i;
+                [] -> newpath;
+                while i < plen - 1 {
+                    path:i -> $newpath;
+                    i + 1 -> i;
+                }
+                newpath -> path;
+                gridpos(grid, pos, true, path, mode, prevdir, GRIDPOS:lastTile, GRIDPOS:trailLength, personality, encounterCount, maxEncounters) -> GRIDPOS;
+                return;
+            }
+            gridpos(grid, pos, false, path, mode, prevdir, GRIDPOS:lastTile, GRIDPOS:trailLength, personality, encounterCount, maxEncounters) -> GRIDPOS;
+            return;
+        }
+    }
+
+    dir:0 -> dx;
+    dir:1 -> dy;
+    (x + dx + size) % size -> x;
+    (y + dy + size) % size -> y;
+    {x, y} -> pos;
+    pos -> $path;
+
+    dir -> prevdir;
+    gridpos(grid, pos, true, path, mode, prevdir, GRIDPOS:lastTile, GRIDPOS:trailLength, personality, encounterCount, maxEncounters) -> GRIDPOS;
+}
+
+;;; Lowers fade level for trail effect for all walkers
+fn fadeTrail(grid, size) -> grid {
+    0 -> y;
+    while y < size {
+        0 -> x;
+        grid:y -> row;
+        [] -> newrow;
+        while x < size {
+            row:x -> cell;
+
+            ;;; Unified fade sequence for all trails
+            if cell = "#" { "%" -> cell; }
+            elseif cell = "%" { "&" -> cell; }
+            elseif cell = "&" { "=" -> cell; }
+            elseif cell = "=" { "~" -> cell; }
+            elseif cell = "~" { "-" -> cell; }
+            elseif cell = "-" { ":" -> cell; }
+            elseif cell = ":" { ";" -> cell; }
+            elseif cell = ";" { "," -> cell; }
+            elseif cell = "," { "." -> cell; }
+            elseif cell = "." { "`" -> cell; }
+            elseif cell = "`" { "!" -> cell; }
+            elseif cell = "!" { " " -> cell; }
+
+            cell -> $newrow;
+            x + 1 -> x;
+        }
+        newrow -> grid:y;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Marks old walker positions to start the fading sequence
+fn markOldTrails(grid, size) -> grid {
+    0 -> y;
+    while y < size {
+        0 -> x;
+        grid:y -> row;
+        [] -> newrow;
+        while x < size {
+            row:x -> cell;
+            ;;; Only convert active walker positions to the start of the trail fade
+            if cell >= "1" && cell <= "9" { ;;; Assuming walker IDs are '1' through '9'
+                "#" -> cell;
+            }
+            cell -> $newrow;
+            x + 1 -> x;
+        }
+        newrow -> grid:y;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Applies G/S/T tile logic, may modify mode/pos/path, records last tile encountered
+fn applyTileEffect(GRIDPOS, size) -> GRIDPOS {
+    GRIDPOS:pos -> pos;
+    GRIDPOS:mode -> mode;
+    GRIDPOS:path -> path;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:lastTile -> lastTile;
+    GRIDPOS:personality -> personality;
+    GRIDPOS:encounterCount -> encounterCount;
+
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+    row:x -> cell;
+
+    if cell = "G" {
+        " " -> row:x;
+        "hyper" -> mode;
+        "G" -> lastTile;
+        0 -> encounterCount;
+    } elseif cell = "S" {
+        " " -> row:x;
+        "slow" -> mode;
+        "S" -> lastTile;
+        0 -> encounterCount;
+    } elseif cell = "T" {
+        " " -> row:x;
+        row -> grid:y;
+
+        true -> searching;
+        while searching {
+            random(size) -> tx;
+            random(size) -> ty;
+            grid:ty -> trow;
+            trow:tx -> tcell;
+            if tcell = " " {
+                false -> searching;
+                {tx, ty} -> pos;
+                [pos] -> path;
+            }
+        }
+        "T" -> lastTile;
+        0 -> encounterCount;
+    }
+
+    row -> grid:y;
+    gridpos(grid, pos, GRIDPOS:moved, path, mode, GRIDPOS:prevdir, lastTile, GRIDPOS:trailLength, personality, encounterCount, GRIDPOS:maxEncounters) -> GRIDPOS;
+}
+
+;;; Marks the current walker on the grid with its ID
+fn markWalkerPosition(grid, pos, walkerId, mode) -> grid {
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+
+    ;;; Convert walkerId (integer) to character
+    "" + walkerId -> walkerChar;
+
+    walkerChar -> row:x;
+    row -> grid:y;
+    grid -> grid;
+}
+
+;;; Calculate trail length from path
+fn calculateTrailLength(path) -> lengthVal {
+    length(path) -> lengthVal;
+}
+
+;;; Marks current position in grid and updates position, applies fade effect and item logic
+fn update(GRIDPOS, size, walkerId) -> GRIDPOS {
+    GRIDPOS:grid -> grid;
+    GRIDPOS:personality -> personality;
+    GRIDPOS:encounterCount -> encounterCount;
+    GRIDPOS:maxEncounters -> maxEncounters;
+
+    ;;; markOldTrails is now called once per frame in the main loop before any walker updates
+
+    applyTileEffect(GRIDPOS, size) -> GRIDPOS;
+    GRIDPOS:grid -> grid;
+    GRIDPOS:encounterCount -> encounterCount;
+    markWalkerPosition(grid, GRIDPOS:pos, walkerId, GRIDPOS:mode) -> grid;
+
+    ;;; Update trail length
+    calculateTrailLength(GRIDPOS:path) -> trailLen;
+
+    ;;; Increment encounter count if not reset by tile effect
+    if GRIDPOS:lastTile = "None" {
+        encounterCount + 1 -> encounterCount;
+    }
+
+    gridpos(grid, GRIDPOS:pos, GRIDPOS:moved, GRIDPOS:path, GRIDPOS:mode, GRIDPOS:prevdir, GRIDPOS:lastTile, trailLen, personality, encounterCount, maxEncounters) -> GRIDPOS;
+    move(GRIDPOS, size) -> GRIDPOS;
+}
+
+;;; Pads string on the right with spaces to a fixed length
+fn padRight(str, length) -> padded {
+    str -> padded;
+    while length > length(padded) {
+        padded + " " -> padded;
+    }
+    padded -> padded;
+}
+
+;;; Formats position array as "(xx, yy)" with fixed width
+fn formatPos(pos) -> formatted {
+    pos:0 -> x;
+    pos:1 -> y;
+
+    "" + x -> sx;
+    "" + y -> sy;
+
+    if length(sx) < 2 { " " + sx -> sx; }
+    if length(sy) < 2 { " " + sy -> sy; }
+
+    "(" + sx + ", " + sy + ")" -> formatted;
+}
+
+;;; Converts tile code to full name for display
+fn tileName(tile) -> name {
+    "None" -> name;
+    if tile = "G" { "Goal" -> name; }
+    elseif tile = "S" { "Slow" -> name; }
+    elseif tile = "T" { "Teleport" -> name; }
+    else { "None" -> name; }
+}
+
+;;; Prints a neat overlay with info for all walkers
+fn printOverlay(walkers, steps) {
+    prn "";
+    prn "┌─────────────┬─────────────┬─────────┬───────────────┬───────────────┬─────────────┬─────────────────┐";
+    prn "│    WALKER   │ Mode        │ Pos     │ Trail Length  │ Last Tile     │ Personality │ Encounter Count │";
+    prn "├─────────────┼─────────────┼─────────┼───────────────┼───────────────┼─────────────┼─────────────────┤";
+
+    0 -> i;
+    while i < length(walkers) {
+        walkers:i -> currentWalker;
+        "" + (i + 1) -> walkerNum;
+        prn "│ Walker " + padRight(walkerNum, 5) + "│ " + padRight(currentWalker:mode, 12) + "│ " + formatPos(currentWalker:pos) + "│ " + padRight("" + currentWalker:trailLength, 14) + "│ " + padRight(tileName(currentWalker:lastTile), 14) + "│ " + padRight(currentWalker:personality, 12) + "│ " + padRight("" + currentWalker:encounterCount, 16) + "│";
+        i + 1 -> i;
+    }
+    prn "└─────────────┴─────────────┴─────────┴───────────────┴───────────────┴─────────────┴─────────────────┘";
+    prn " Steps: " + steps;
+    prn "";
+}
+
+;;; Main program loop with N walkers
+start {
+    arg(0) -> size;
+    arg(1) -> numWalkers; ;;; New argument for number of walkers
+
+    initialize(size) -> grid;
+    placeItems(grid, size) -> grid;
+
+    [] -> walkers; ;;; List to hold all walker pods
+
+    0 -> i;
+    while i < numWalkers {
+        random(size - 1) -> randX;
+        random(size - 1) -> randY;
+        {randX, randY} -> currentPos;
+        [currentPos] -> currentPath;
+        
+        ;;; Assign personality (alternating for simplicity)
+        "" -> currentPersonality;
+        if i % 2 = 0 {
+            "aggressive" -> currentPersonality;
+        } else {
+            "discover" -> currentPersonality;
+        }
+        
+        ;;; Create a new walker pod and add to the list
+        gridpos(grid, currentPos, true, currentPath, "normal", {0, 0}, "None", 1, currentPersonality, 0, 5) -> newWalkerPod;
+        newWalkerPod -> $walkers;
+        
+        i + 1 -> i;
+    }
+
+    0 -> steps;
+
+    while true {
+        steps + 1 -> steps;
+
+        markOldTrails(grid, size) -> grid; ;;; Mark all existing active walkers for fading before any move
+
+        ;;; Iterate through all walkers and update them
+        0 -> i;
+        while i < length(walkers) {
+            walkers:i -> currentWalkerPod;
+            
+            ;;; Temporarily update walker's grid reference with the current global grid state
+            gridpos(grid, currentWalkerPod:pos, currentWalkerPod:moved, currentWalkerPod:path, currentWalkerPod:mode, currentWalkerPod:prevdir, currentWalkerPod:lastTile, currentWalkerPod:trailLength, currentWalkerPod:personality, currentWalkerPod:encounterCount, currentWalkerPod:maxEncounters) -> currentWalkerPod;
+
+            update(currentWalkerPod, size, i + 1) -> updatedWalkerPod; ;;; Pass walker ID (1-indexed)
+            updatedWalkerPod -> walkers:i; ;;; Store the updated pod back into the list
+            updatedWalkerPod:grid -> grid; ;;; Propagate the updated grid from this walker's action
+            
+            i + 1 -> i;
+        }
+
+        fadeTrail(grid, size) -> grid; ;;; Fade the trails after all walkers have moved
+
+        if steps % 100 = 0 {
+            respawnItems(grid, size) -> grid;
+        }
+        
+        ;;; Adjust UI height dynamically based on the number of walkers
+        10 -> baseUiLength;
+        length(walkers) -> walkerLines;
+        baseUiLength + (walkerLines * 1) + 2 -> uiLength; ;;; Each walker adds 1 line, plus 2 for borders
+
+        ansi_up size + uiLength;
+        print(grid);
+        printOverlay(walkers, steps); ;;; Pass the entire list of walkers
+    }
+}
