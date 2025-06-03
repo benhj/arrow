@@ -1,6 +1,6 @@
 # (c) 2019-present Ben Jones
 
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.6)
 project (arrow)
 
 find_package (Threads)

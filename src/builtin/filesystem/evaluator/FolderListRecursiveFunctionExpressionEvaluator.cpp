@@ -5,10 +5,6 @@
 #include "parser/LanguageException.hpp"
 #include <utility>
 
-#if __has_include(<yvals_core.h>)
-#include <yvals_core.h>
-#endif
-
 #if defined(_HAS_CXX17)
 #include <filesystem>
 #endif
