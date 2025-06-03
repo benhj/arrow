@@ -485,7 +485,8 @@ fn move(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS {
 
 fn cellColor(cell) -> color {
     "\033[0m" -> color;
-    if cell = "#" { "\033[1m\033[38;2;0;255;0m" -> color; }
+    if cell = "O" { "\033[1m\033[38;2;255;255;100m" -> color; } ;;; Bright white for the walker's head
+    elseif cell = "#" { "\033[1m\033[38;2;0;255;0m" -> color; }
     elseif cell = "%" { "\033[1m\033[38;2;0;245;0m" -> color; }
     elseif cell = "&" { "\033[1m\033[38;2;0;235;0m" -> color; }
     elseif cell = "=" { "\033[1m\033[38;2;0;225;0m" -> color; }
@@ -502,15 +503,19 @@ fn cellColor(cell) -> color {
 ;;; Lowers fade level for trail effect for all walkers
 fn fadeTrail(grid, gridWidth, gridHeight) -> grid {
     0 -> y;
-    while y < gridHeight { ;;; Use gridHeight
+    while y < gridHeight {
         0 -> x;
         grid:y -> row;
         [] -> newrow;
-        while x < gridWidth { ;;; Use gridWidth
+        while x < gridWidth {
             row:x -> cell;
 
+            ;;; IMPORTANT: Convert the previous frame's walker head ('O') to the start of the trail ('#')
+            if cell = "O" {
+                "#" -> cell;
+            }
             ;;; Unified fade sequence for all trails
-            if cell = "#" { "%" -> cell; }
+            elseif cell = "#" { "%" -> cell; }
             elseif cell = "%" { "&" -> cell; }
             elseif cell = "&" { "=" -> cell; }
             elseif cell = "=" { "~" -> cell; }
@@ -611,11 +616,7 @@ fn markWalkerPosition(grid, pos, walkerId, mode) -> grid {
     pos:0 -> x;
     pos:1 -> y;
     grid:y -> row;
-
-    ;;; Convert walkerId (integer) to character
-    "" + walkerId -> walkerChar;
-
-    walkerChar -> row:x;
+    "O" -> row:x;
     row -> grid:y;
     grid -> grid;
 }
@@ -626,7 +627,7 @@ fn calculateTrailLength(path) -> lengthVal {
 }
 
 ;;; Marks current position in grid and updates position, applies fade effect and item logic
-fn update(GRIDPOS, gridWidth, gridHeight, walkerId) -> GRIDPOS {
+fn update(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS {
     GRIDPOS:grid -> grid;
     GRIDPOS:personality -> personality;
     GRIDPOS:encounterCount -> encounterCount;
@@ -637,7 +638,6 @@ fn update(GRIDPOS, gridWidth, gridHeight, walkerId) -> GRIDPOS {
     applyTileEffect(GRIDPOS, gridWidth, gridHeight) -> GRIDPOS;
     GRIDPOS:grid -> grid;
     GRIDPOS:encounterCount -> encounterCount;
-    markWalkerPosition(grid, GRIDPOS:pos, walkerId, GRIDPOS:mode) -> grid;
 
     ;;; Update trail length
     calculateTrailLength(GRIDPOS:path) -> trailLen;
@@ -703,6 +703,7 @@ fn printOverlay(walkers, steps) {
 }
 
 ;;; Main program loop with N walkers
+;;; Main program loop with N walkers
 start {
     arg(0) -> gridWidth;  ;;; New argument for grid width
     arg(1) -> gridHeight; ;;; New argument for grid height
@@ -740,7 +741,8 @@ start {
     while true {
         steps + 1 -> steps;
 
-        markOldTrails(grid, gridWidth, gridHeight) -> grid; ;;; Mark all existing active walkers for fading before any move
+        ;;; NEW: Call fadeTrail *first* to process the previous frame's 'O's into '#'
+        fadeTrail(grid, gridWidth, gridHeight) -> grid; 
 
         ;;; Iterate through all walkers and update them
         0 -> i;
@@ -750,14 +752,21 @@ start {
             ;;; Temporarily update walker's grid reference with the current global grid state
             gridpos(grid, currentWalkerPod:pos, currentWalkerPod:moved, currentWalkerPod:path, currentWalkerPod:mode, currentWalkerPod:prevdir, currentWalkerPod:lastTile, currentWalkerPod:trailLength, currentWalkerPod:personality, currentWalkerPod:encounterCount, currentWalkerPod:maxEncounters) -> currentWalkerPod;
 
-            update(currentWalkerPod, gridWidth, gridHeight, i + 1) -> updatedWalkerPod; ;;; Pass grid dimensions and walker ID (1-indexed)
+            ;;; No need to pass walkerId to update, as markWalkerPosition is now global
+            update(currentWalkerPod, gridWidth, gridHeight) -> updatedWalkerPod; ;;; Pass grid dimensions
             updatedWalkerPod -> walkers:i; ;;; Store the updated pod back into the list
             updatedWalkerPod:grid -> grid; ;;; Propagate the updated grid from this walker's action
             
             i + 1 -> i;
         }
 
-        fadeTrail(grid, gridWidth, gridHeight) -> grid; ;;; Fade the trails after all walkers have moved
+        ;;; NEW: After all walkers have moved and updated their positions, mark their *new* positions
+        0 -> i;
+        while i < length(walkers) {
+            walkers:i -> currentWalkerPod;
+            markWalkerPosition(grid, currentWalkerPod:pos, i + 1, currentWalkerPod:mode) -> grid; ;;; Mark with 'O'
+            i + 1 -> i;
+        }
 
         if steps % 100 = 0 {
             respawnItems(grid, gridWidth, gridHeight) -> grid;
