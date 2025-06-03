@@ -1,0 +1,267 @@
+;;; Forest Fire Cellular Automaton Model
+;;; Rules:
+;;; 1. Burning cells become ash.
+;;; 2. Tree cells adjacent to a burning cell catch fire.
+;;; 3. Tree cells spontaneously catch fire with probability P_lightning.
+;;; 4. Empty cells grow into trees with probability P_tree_growth.
+;;; 5. Ash cells become empty with probability P_ash_decay.
+;;; Using 256-color ANSI for performance.
+;;; UPDATED: Added an 'Ash' state and adjusted rules/display.
+
+;;; --- Utility Functions ---
+
+;;; Returns the absolute value of a number
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> result;
+    }
+}
+
+;;; Returns the minimum of two numbers
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+;;; Returns the maximum of two numbers
+fn max(a, b) -> result {
+    a -> result;
+    if b > a {
+        b -> result;
+    }
+}
+
+;;; Repeats a character 'count' times
+fn repeat(char, count) -> result {
+    "" -> result;
+    0 -> i;
+    while i < count {
+        result + char -> result;
+        i + 1 -> i;
+    }
+    result -> result;
+}
+
+;;; --- Forest Grid Functions ---
+
+;;; Initializes a forest grid with specified width and height
+;;; Fills cells with 'T' (tree) or ' ' (empty) based on P_initial_tree
+fn initialize_forest(gridWidth, gridHeight, P_initial_tree) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            random(1000) -> r;
+            if r / 1000.0 < P_initial_tree {
+                "T" -> $row;
+            } else {
+                " " -> $row;
+            }
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Counts burning neighbors for a cell (including diagonals)
+fn count_burning_neighbors(grid, x, y, gridWidth, gridHeight) -> is_burning_neighbor {
+    false -> is_burning_neighbor;
+    { {-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1} } -> directions;
+
+    for dir in directions {
+        dir:0 -> dx;
+        dir:1 -> dy;
+
+        (x + dx + gridWidth) % gridWidth -> nx;
+        (y + dy + gridHeight) % gridHeight -> ny;
+
+        grid:ny -> neighbor_row;
+        neighbor_row:nx -> neighbor_char;
+
+        if neighbor_char = "F" {
+            true -> is_burning_neighbor;
+            break; ;;; Found a burning neighbor, no need to check further
+        }
+    }
+    is_burning_neighbor -> is_burning_neighbor;
+}
+
+;;; Updates the forest state based on cellular automaton rules
+fn update_forest(current_grid, gridWidth, gridHeight, P_lightning, P_tree_growth, P_ash_decay) -> new_grid {
+    0 -> y;
+    [] -> new_grid;
+
+    while y < gridHeight {
+        0 -> x;
+        [] -> new_row;
+        current_grid:y -> current_row;
+
+        while x < gridWidth {
+            current_row:x -> current_char;
+            "" -> next_char;
+
+            if current_char = "F" {
+                "A" -> next_char; ;;; Burning cell becomes ASH
+            } elseif current_char = "T" {
+                if count_burning_neighbors(current_grid, x, y, gridWidth, gridHeight) {
+                    "F" -> next_char; ;;; Tree catches fire from neighbor
+                } elseif random(100000) / 100000.0 < P_lightning {
+                    "F" -> next_char; ;;; Tree catches fire due to lightning
+                } else {
+                    "T" -> next_char; ;;; Tree remains a tree
+                }
+            } elseif current_char = "A" { ;;; NEW RULE: Ash decay
+                if random(1000) / 1000.0 < P_ash_decay {
+                    " " -> next_char; ;;; Ash decays to empty
+                } else {
+                    "A" -> next_char; ;;; Ash remains ash
+                }
+            } elseif current_char = " " {
+                if random(1000) / 1000.0 < P_tree_growth {
+                    "T" -> next_char; ;;; Empty cell grows a tree
+                } else {
+                    " " -> next_char; ;;; Empty cell remains empty
+                }
+            }
+            next_char -> $new_row;
+            x + 1 -> x;
+        }
+        new_row -> $new_grid;
+        y + 1 -> y;
+    }
+    new_grid -> new_grid;
+}
+
+;;; Gets ANSI 256-color background code with a white foreground for visibility
+fn cellColorCode(char) -> color_code {
+    "\033[48;5;232m" -> color_code; ;;; Default: Dark Grey Background (empty)
+    "\033[38;5;255m" -> fg_code; ;;; Default: White Foreground for visibility
+
+    if char = "T" {
+        "\033[48;5;22m" -> color_code; ;;; Dark Green Background for Tree
+    } elseif char = "F" {
+        "\033[48;5;196m" -> color_code; ;;; Bright Red Background for Fire
+    } elseif char = "A" { ;;; NEW COLOR FOR ASH
+        "\033[48;5;236m" -> color_code; ;;; Darker grey for Ash (almost black)
+    }
+    color_code + fg_code -> color_code; ;;; Combine BG and FG
+    color_code -> color_code;
+}
+
+;;; Prints the forest grid row by row with a box border, optimized for 256-colors
+fn print_forest(grid, gridWidth) {
+    ;;; Top border
+    prn "┌" + repeat("─", gridWidth * 2) + "┐";
+
+    ;;; Grid rows with side borders
+    for row in grid {
+        "" -> row_str;
+        "" -> last_color_code; ;;; Store the last color code to optimize printing
+
+        for char in row {
+            cellColorCode(char) -> current_color_code;
+            row_str + current_color_code -> row_str;
+            if char = " " {
+                row_str + "  " -> row_str; ;;; Two spaces for empty cells (background only)
+            } else {
+                row_str + char + " " -> row_str; ;;; Character + one space (character visible with background)
+            }
+        }
+        row_str + "\033[0m" -> row_str; ;;; Reset color at the end of each row
+        prn "│" + row_str + "│";
+    }
+
+    ;;; Bottom border
+    prn "└" + repeat("─", gridWidth * 2) + "┘";
+}
+
+;;; Counts current trees, fires, and ash
+fn count_states(grid) -> counts {
+    0 -> trees;
+    0 -> fires;
+    0 -> ash; ;;; NEW ASH COUNTER
+    for row in grid {
+        for char in row {
+            if char = "T" { trees + 1 -> trees; }
+            elseif char = "F" { fires + 1 -> fires; }
+            elseif char = "A" { ash + 1 -> ash; } ;;; COUNT ASH
+        }
+    }
+    {trees, fires, ash} -> counts; ;;; RETURN ASH COUNT
+}
+
+;;; Prints a neat overlay with forest stats
+fn print_overlay(counts, steps) {
+    prn "\033[34m"; ;;; Blue foreground for HUD
+    prn "┌───────────────────┬───────────────┐";
+    prn "│       STAT        │      VALUE    │";
+    prn "├───────────────────┼───────────────┤";
+    prn "│ Steps             │ " + padRight("" + steps, 13) + " │";
+    prn "│ Trees (T)         │ " + padRight("" + counts:0, 13) + " │";
+    prn "│ Fires (F)         │ " + padRight("" + counts:1, 13) + " │";
+    prn "│ Ash (A)           │ " + padRight("" + counts:2, 13) + " │"; ;;; DISPLAY ASH COUNT
+    prn "└───────────────────┴───────────────┘";
+    prn "\033[0m"; ;;; Reset color
+}
+
+;;; Pads string on the right with spaces to a fixed length
+fn padRight(str, length) -> padded {
+    str -> padded;
+    while length > length(padded) {
+        padded + " " -> padded;
+    }
+    padded -> padded;
+}
+
+;;; Main program loop
+start {
+    arg(0) -> gridWidth;
+    arg(1) -> gridHeight;
+
+    ;;; Default parameters for the forest fire
+    0.1 -> P_tree_growth;    ;;; 10% chance for empty cell to grow a tree
+    0.005 -> P_lightning;    ;;; 0.5% chance for a tree to spontaneously ignite
+    0.7 -> P_initial_tree_density; ;;; 70% initial tree density
+    0.2 -> P_ash_decay;     ;;; NEW: 20% chance for ash to disappear per step (adjust this for faster/slower decay)
+
+    initialize_forest(gridWidth, gridHeight, P_initial_tree_density) -> current_grid;
+
+    ;;; Start a fire initially to get things going
+    random(gridWidth - 1) -> initial_fire_x;
+    random(gridHeight - 1) -> initial_fire_y;
+    current_grid:initial_fire_y -> initial_fire_row;
+    "F" -> initial_fire_row:initial_fire_x;
+    initial_fire_row -> current_grid:initial_fire_y;
+
+    0 -> steps;
+
+    while true {
+        steps + 1 -> steps;
+
+        ;;; Update the forest state
+        update_forest(current_grid, gridWidth, gridHeight, P_lightning, P_tree_growth, P_ash_decay) -> next_grid; ;;; Pass P_ash_decay
+        next_grid -> current_grid; ;;; Current grid for next iteration
+
+        count_states(current_grid) -> forest_counts;
+
+        ;;; Adjust ANSI escape sequence for clear screen to accommodate grid borders and HUD
+        ;;; Increased by 1 for the new Ash line in HUD
+        gridHeight + 12 -> total_display_lines; 
+
+        ;;; Clear the screen
+        ansi_up total_display_lines;
+
+        ;;; Note: Sleep function is not supported, so updates will be as fast as possible.
+        ;;; This might lead to flicker depending on your terminal.
+        
+        print_forest(current_grid, gridWidth);
+        print_overlay(forest_counts, steps);
+    }
+}
