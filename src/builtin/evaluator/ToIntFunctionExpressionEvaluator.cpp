@@ -1,6 +1,6 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2025 - present
 
-#include "SqrtFunctionExpressionEvaluator.hpp"
+#include "ToIntFunctionExpressionEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include <math.h>
@@ -8,11 +8,11 @@
 
 namespace arrow {
 
-    SqrtFunctionExpressionEvaluator::SqrtFunctionExpressionEvaluator(SqrtFunctionExpression expression)
+    ToIntFunctionExpressionEvaluator::ToIntFunctionExpressionEvaluator(ToIntFunctionExpression expression)
       : m_expression(std::move(expression))
     {
     }
-    Type SqrtFunctionExpressionEvaluator::evaluate(Environment & environment) const
+    Type ToIntFunctionExpressionEvaluator::evaluate(Environment & environment) const
     {
         auto const expression = m_expression.getExpression();
         auto const col = expression->getEvaluator()->evaluate(environment);
@@ -23,14 +23,13 @@ namespace arrow {
         auto const eval = expressionCollEval[0];
         if(eval.m_descriptor == TypeDescriptor::Int) {
             auto casted = std::get<int64_t>(eval.m_variantType);
-            auto val = static_cast<int64_t>(sqrt(casted));
-            return {TypeDescriptor::Int, val};
+            return {TypeDescriptor::Int, casted};
         } else if(eval.m_descriptor == TypeDescriptor::Real) {
             auto casted = std::get<real>(eval.m_variantType);
-            auto val = static_cast<real>(sqrt(casted));
-            return {TypeDescriptor::Real, val};
+            auto val = static_cast<int64_t>(casted);
+            return {TypeDescriptor::Int, val};
         } else {
-            throw LanguageException("Bad type for sqrt", m_expression.getLineNumber());
+            throw LanguageException("Bad type for to_int", m_expression.getLineNumber());
         }
     }
 }

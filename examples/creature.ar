@@ -1,0 +1,608 @@
+;;; --- UNDULATORY CREATURE SIMULATION ---
+;;; Phase 12: Proper Floating-Point Arithmetic for Physics Calculations
+;;; Objective: Use floating-point numbers where division and multiplication require fractional precision.
+
+;;; --- Configuration Pod ---
+pod simConfig(
+    scaleFactor,
+    timeStep,
+    kStructural, kFlexion,
+    cDamping,
+    restLengthStructural, restLengthFlexion,
+    particleMass,
+    bounceDamping,
+    particleChar, emptyChar, borderChar,
+    undulationMagnitude,
+    undulationFrequency,
+    phaseShiftPerSegment,
+    undulationWaveLengthSegments
+);
+
+;;; --- Utility Functions ---
+
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> n;
+    }
+    n -> result;
+}
+
+;;; Assuming a `to_int` function for explicit float-to-int conversion
+;;; If your language doesn't have `to_int`, you might need `floor()`, `round()`, or it might implicitly truncate.
+;;; For this code, we'll assume `to_int` performs a reasonable conversion (e.g., truncation or round-to-nearest).
+fn to_int(n_flt) -> result {
+    n_flt -> result; ;;; Placeholder. Replace with actual `to_int` if available, or just assign for implicit truncation.
+}
+
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+fn repeat(char, count) -> result {
+    "" -> result;
+    0 -> i;
+    while i < count {
+        result + char -> result;
+        i + 1 -> i;
+    }
+    result -> result;
+}
+
+;;; --- integerSqrt FUNCTION REMOVED (using native 'sqrt') ---
+
+
+;;; Calculates squared distance, returns (real_distance^2 * scaleFactor^2)
+;;; CORRECTED: p1y - p2y for dy calculation
+fn distSq(p1x, p1y, p2x, p2y) -> result {
+    (p1x - p2x) -> dx;
+    (p1y - p2y) -> dy; ;;; CORRECTED LINE!
+    (dx * dx + dy * dy) -> result;
+}
+
+
+;;; Simple oscillating value for undulation (approximating a sine wave)
+;;; Returns a value from -1000 to 1000 (like a scaled percentage, e.g. 1.0 -> 1000)
+fn getOscillationFactor(step, frequency, phaseShift, periodSteps) -> result {
+    (step * frequency + phaseShift) -> currentPhase;
+    (currentPhase % periodSteps) -> phaseInPeriod;
+
+    0 -> val;
+    (periodSteps / 4) -> quarterPeriod;
+    (1000) -> peakFactor;
+
+    if phaseInPeriod < quarterPeriod {
+        (phaseInPeriod * peakFactor) / quarterPeriod -> val;
+    } elseif phaseInPeriod < (quarterPeriod * 2) {
+        ((quarterPeriod * 2 - phaseInPeriod) * peakFactor) / quarterPeriod -> val;
+    } elseif phaseInPeriod < (quarterPeriod * 3) {
+        (0 - (((phaseInPeriod - (quarterPeriod * 2)) * peakFactor) / quarterPeriod)) -> val;
+    } else {
+        (0 - (((periodSteps - phaseInPeriod) * peakFactor) / quarterPeriod)) -> val;
+    }
+    val -> result;
+}
+
+
+;;; --- Grid Management Functions ---
+
+fn initializeGrid(gridWidth, gridHeight, emptyChar) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            emptyChar -> $row;
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+fn cellColor(cell) -> color {
+    "\033[0m" -> color;
+    if cell = "O" { "\033[1m\033[38;2;255;150;50m" -> color; }
+    if cell = "█" { "\033[1m\033[38;2;200;100;0m" -> color; }
+}
+
+
+;;; Prints the grid with a box border, takes borderChar as parameter
+fn printGrid(grid, gridWidth, borderChar) {
+    prn borderChar + repeat("─", gridWidth) + borderChar;
+    for row in grid {
+        "" -> row_str;
+        for char in row {
+            cellColor(char) -> color;
+            row_str + color -> row_str;
+            row_str + char -> row_str;
+            row_str + "\033[0m" -> row_str;
+        }
+        prn "│" + row_str + "│";
+    }
+    prn borderChar + repeat("─", gridWidth) + borderChar;
+}
+
+;;; --- Particle and Spring Pod Definitions ---
+pod particle(
+    id,             ;;; int: Unique identifier
+    x, y,           ;;; int: Current position (scaled by SCALE_FACTOR)
+    vx, vy,         ;;; int: Velocity (scaled by SCALE_FACTOR)
+    mass,           ;;; int: Mass of the particle (scaled by SCALE_FACTOR)
+    fixed           ;;; bool: true if particle is fixed (e.g., boundary), false otherwise
+);
+
+pod spring(
+    p1Id, p2Id,     ;;; IDs of connected particles
+    type            ;;; "structural", "shear", "flexion"
+);
+
+;;; --- Particle and Spring Lookup ---
+
+;;; Gets index of particle by ID
+fn findParticleIndexById(particlesList, targetId) -> index {
+    0 -> i;
+    -1 -> index; ;;; Not found
+    while i < length(particlesList) {
+        particlesList:i -> p;
+        if p:id = targetId {
+            i -> index;
+            return;
+        }
+        i + 1 -> i;
+    }
+}
+
+
+;;; --- Core Physics Functions ---
+
+;;; Applies spring forces between two particles
+;;; Returns the {fx, fy} force applied to p1 (p2 gets -fx, -fy)
+fn calculateSpringForce(
+    p1x, p1y, p1vx, p1vy,
+    p2x, p2y, p2vx, p2vy,
+    restLength, k, c, scaleFactor
+) -> resultForce {
+    (p1x - p2x) -> dx;
+    (p1y - p2y) -> dy;
+    {0, 0} -> resultForce;
+
+    distSq(p1x, p1y, p2x, p2y) -> trueSquaredDistScaled_int;
+    ;;; ;;; prn "DEBUG: distSq: " + trueSquaredDistScaled_int;
+
+    if trueSquaredDistScaled_int = 0 {
+        ;;; ;;; prn "DEBUG: trueSquaredDistScaled is 0, returning 0 force";
+        {0, 0} -> resultForce;
+        return;
+    }
+
+    sqrt(trueSquaredDistScaled_int) -> currentDistScaled_int; ;;; Assuming sqrt returns integer
+    ;;; ;;; prn "DEBUG: currentDistScaled (sqrt): " + currentDistScaled_int;
+
+    if currentDistScaled_int = 0 {
+        ;;; ;;; prn "DEBUG: currentDistScaled is 0, returning 0 force";
+        {0, 0} -> resultForce;
+        return;
+    }
+
+    (currentDistScaled_int - restLength) -> displacementScaled;
+    ;;; ;;; prn "DEBUG: displacementScaled: " + displacementScaled;
+
+    ;;; Ensure all force calculations use floats
+    (k * 1.0 * displacementScaled) / (scaleFactor * 1.0) -> springMagnitude_flt;
+    ;;; ;;; prn "DEBUG: springMagnitude_flt: " + springMagnitude_flt;
+
+    (p1vx - p2vx) -> dvx;
+    (p1vy - p2vy) -> dvy;
+
+    ;;; Convert necessary integer values to floats for accurate calculations
+    (dx * 1.0) -> dx_flt;
+    (dy * 1.0) -> dy_flt;
+    (currentDistScaled_int * 1.0) -> currentDistScaled_flt;
+    (c * 1.0) -> c_flt;
+    (scaleFactor * 1.0) -> scaleFactor_flt;
+
+    ;;; Calculate relative velocity projection along the spring direction (requires floats)
+    ((dvx * 1.0 * dx_flt) + (dvy * 1.0 * dy_flt)) / currentDistScaled_flt -> relativeVelocity_flt;
+    ;;; ;;; prn "DEBUG: relativeVelocity_flt: " + relativeVelocity_flt;
+
+    (c_flt * relativeVelocity_flt) / scaleFactor_flt -> dampingMagnitude_flt;
+    ;;; ;;; prn "DEBUG: dampingMagnitude_flt: " + dampingMagnitude_flt;
+
+    ;;; Calculate directional components using float division
+    (dx_flt / currentDistScaled_flt) -> dx_ratio_flt;
+    (dy_flt / currentDistScaled_flt) -> dy_ratio_flt;
+    ;;; ;;; prn "DEBUG: dx_ratio_flt: " + dx_ratio_flt + ", dy_ratio_flt: " + dy_ratio_flt;
+
+    ;;; Calculate final force components (still floats)
+    (springMagnitude_flt * dx_ratio_flt) -> springFxComponent_flt;
+    (springMagnitude_flt * dy_ratio_flt) -> springFyComponent_flt;
+    ;;; ;;; prn "DEBUG: springFxComponent_flt: " + springFxComponent_flt + ", springFyComponent_flt: " + springFyComponent_flt;
+
+    (dampingMagnitude_flt * dx_ratio_flt) -> dampingFxComponent_flt;
+    (dampingMagnitude_flt * dy_ratio_flt) -> dampingFyComponent_flt;
+    ;;; ;;; prn "DEBUG: dampingFxComponent_flt: " + dampingFxComponent_flt + ", dampingFyComponent_flt: " + dampingFyComponent_flt;
+
+    ;;; Sum and convert back to integers for final result (assuming the language has a to_int() or similar)
+    0 -> totalFx; 0 -> totalFy; ;;; Ensure these are declared for assignment
+    to_int(springFxComponent_flt + dampingFxComponent_flt) -> totalFx;
+    to_int(springFyComponent_flt + dampingFyComponent_flt) -> totalFy;
+
+    ;;; ;;; prn "DEBUG: TOTAL Spring Force: {Fx:" + totalFx + ", Fy:" + totalFy + "}";
+
+    {totalFx, totalFy} -> resultForce;
+}
+
+
+;;; --- Undulation Force ---
+
+fn applyUndulationToSpring(
+    currentSpring, particleIdInChain, totalSegments, steps, config,
+    baseRestLengthFlexion
+) -> newRestLength {
+    baseRestLengthFlexion -> newRestLength;
+
+    config:undulationMagnitude -> undulationMagnitude;
+    config:undulationFrequency -> undulationFrequency;
+    config:phaseShiftPerSegment -> phaseShiftPerSegment;
+    config:undulationWaveLengthSegments -> undulationWaveLengthSegments;
+    config:scaleFactor -> scaleFactor;
+
+    ;;; Only apply undulation to flexion springs
+    if currentSpring:type = "flexion" {
+        (undulationWaveLengthSegments * 100) -> periodForOscillation;
+
+        (particleIdInChain * config:phaseShiftPerSegment) -> segmentPhaseOffset;
+
+        getOscillationFactor(steps, config:undulationFrequency, segmentPhaseOffset, periodForOscillation) -> oscillationFactor;
+
+        (undulationMagnitude * oscillationFactor) / 1000 -> restLengthModification;
+
+        (baseRestLengthFlexion + restLengthModification) -> newRestLength;
+    }
+
+    newRestLength -> newRestLength;
+}
+
+
+;;; Updates particle positions based on forces and applies boundary conditions
+;;; Updates particle positions based on forces and applies boundary conditions
+fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, steps) -> newParticlesState {
+    config:scaleFactor -> scaleFactor;
+    config:timeStep -> timeStep;
+    config:bounceDamping -> bounceDamping;
+
+    config:kStructural -> kStructural;
+    config:kFlexion -> kFlexion;
+    config:cDamping -> cDamping;
+    config:restLengthStructural -> restLengthStructural;
+    config:restLengthFlexion -> restLengthFlexion;
+
+    [] -> updatedParticles;
+    [] -> particleForcesAcc;
+
+    ;;; Initialize force accumulators for each particle to zero
+    0 -> i;
+    while i < length(allParticles) {
+        {0, 0} -> $particleForcesAcc;
+        i + 1 -> i;
+    }
+
+    ;;; Step 1: Accumulate forces from all springs (rest of this section is unchanged)
+    0 -> s_idx;
+    while s_idx < length(allSprings) {
+        allSprings:s_idx -> currentSpring;
+        currentSpring:p1Id -> p1_id;
+        currentSpring:p2Id -> p2_id;
+        currentSpring:type -> springType;
+
+        findParticleIndexById(allParticles, p1_id) -> p1_idx;
+        findParticleIndexById(allParticles, p2_id) -> p2_idx;
+
+        if p1_idx = -1 || p2_idx = -1 {
+            s_idx + 1 -> s_idx;
+            continue;
+        }
+
+        allParticles:p1_idx -> p1;
+        allParticles:p2_idx -> p2;
+
+        ;;; Determine rest length and k based on spring type
+        0 -> restL;
+        0 -> k_val;
+        if springType = "structural" {
+            restLengthStructural -> restL;
+            kStructural -> k_val;
+        } elseif springType = "flexion" {
+            applyUndulationToSpring(
+                currentSpring, p1_id, length(allParticles), steps, config,
+                restLengthFlexion
+            ) -> restL;
+            kFlexion -> k_val;
+        }
+
+        calculateSpringForce(
+            p1:x, p1:y, p1:vx, p1:vy,
+            p2:x, p2:y, p2:vx, p2:vy,
+            restL, k_val, cDamping, scaleFactor
+        ) -> forceOnP1;
+
+        forceOnP1:0 -> fx_p1;
+        forceOnP1:1 -> fy_p1;
+
+        ;;; Add force to p1's accumulator
+        particleForcesAcc:p1_idx -> p1_acc_forces;
+        ((p1_acc_forces:0) + fx_p1) -> p1_acc_forces:0;
+        ((p1_acc_forces:1) + fy_p1) -> p1_acc_forces:1;
+        p1_acc_forces -> particleForcesAcc:p1_idx;
+
+        ;;; Add opposite force to p2's accumulator
+        particleForcesAcc:p2_idx -> p2_acc_forces;
+        ((p2_acc_forces:0) - fx_p1) -> p2_acc_forces:0;
+        ((p2_acc_forces:1) - fy_p1) -> p2_acc_forces:1;
+        p2_acc_forces -> particleForcesAcc:p2_idx;
+
+        s_idx + 1 -> s_idx;
+    }
+
+    ;;; Step 2: Apply accumulated forces and update positions
+    0 -> p_idx;
+    while p_idx < length(allParticles) {
+        allParticles:p_idx -> p;
+
+        p:id -> id;
+        p:x -> x;
+        p:y -> y;
+        p:vx -> vx;
+        p:vy -> vy;
+        p:mass -> mass;
+        p:fixed -> fixed;
+
+        if fixed {
+            p -> $updatedParticles;
+            p_idx + 1 -> p_idx;
+            continue;
+        }
+
+        particleForcesAcc:p_idx -> currentForces;
+        currentForces:0 -> fx_total;
+        currentForces:1 -> fy_total;
+
+        ;;; prn "DEBUG (Particle " + id + "): Accumulated Fx: " + fx_total + ", Fy: " + fy_total;
+
+        ;;; Convert all relevant integer variables to floats for accurate calculations
+        (fx_total * 1.0) -> fx_total_flt;
+        (fy_total * 1.0) -> fy_total_flt;
+        (p:mass * 1.0) -> mass_flt;
+        (p:vx * 1.0) -> vx_flt;
+        (p:vy * 1.0) -> vy_flt;
+        (p:x * 1.0) -> x_flt;
+        (p:y * 1.0) -> y_flt;
+        (timeStep * 1.0) -> timeStep_flt;
+        (scaleFactor * 1.0) -> scaleFactor_flt;
+        (bounceDamping * 1.0) -> bounceDamping_flt;
+
+
+        ;;; Calculate acceleration (a = F/m)
+        0.0 -> ax_flt; 0.0 -> ay_flt;
+        if mass_flt = 0.0 {
+            0.0 -> ax_flt;
+            0.0 -> ay_flt;
+        } else {
+            ;;; fx_total_flt is N, mass_flt is kg, scaleFactor_flt is sm/m.
+            ;;; Resulting ax_flt should be sm/s^2.
+            (fx_total_flt * scaleFactor_flt) / mass_flt -> ax_flt;
+            (fy_total_flt * scaleFactor_flt) / mass_flt -> ay_flt;
+        }
+        ;;; prn "DEBUG (Particle " + id + "): Accel Ax: " + ax_flt + ", Ay: " + ay_flt;
+
+        ;;; Update velocity (v = v + a*dt)
+        ;;; vx_flt is sm/s, ax_flt is sm/s^2, timeStep_flt is s.
+        ;;; Resulting new_vx_flt should be sm/s.
+        (vx_flt + (ax_flt * timeStep_flt)) -> new_vx_flt; ;;; --- REMOVED / scaleFactor_flt ---
+        (vy_flt + (ay_flt * timeStep_flt)) -> new_vy_flt; ;;; --- REMOVED / scaleFactor_flt ---
+        ;;; prn "DEBUG (Particle " + id + "): New Vx: " + new_vx_flt + ", New Vy: " + new_vy_flt;
+
+        ;;; Calculate new position (x = x + v*dt)
+        ;;; x_flt is sm, new_vx_flt is sm/s, timeStep_flt is s.
+        ;;; Resulting potentialNewX_flt should be sm.
+        (x_flt + (new_vx_flt * timeStep_flt)) -> potentialNewX_flt; ;;; --- REMOVED / scaleFactor_flt ---
+        (y_flt + (new_vy_flt * timeStep_flt)) -> potentialNewY_flt; ;;; --- REMOVED / scaleFactor_flt ---
+        ;;; prn "DEBUG (Particle " + id + "): Potential New X: " + potentialNewX_flt + ", Y: " + potentialNewY_flt;
+
+        potentialNewX_flt -> finalX_flt;
+        potentialNewY_flt -> finalY_flt;
+        new_vx_flt -> finalVx_flt;
+        new_vy_flt -> finalVy_flt;
+
+        ;;; --- Boundary Collision (with simplified bounce) --- (unchanged)
+        ((gridHeight * scaleFactor * 1.0) - (1 * scaleFactor * 1.0)) -> floorY_flt;
+        if finalY_flt >= floorY_flt {
+            floorY_flt -> finalY_flt;
+            0.0 - (finalVy_flt * bounceDamping_flt) / 100.0 -> finalVy_flt;
+            if abs(to_int(finalVy_flt)) < to_int((50.0 * scaleFactor_flt) / 1000.0) { ;;; abs needs int
+                0.0 -> finalVy_flt;
+            }
+        }
+
+        (0.0 + (0.0 * scaleFactor_flt)) -> leftWallX_flt;
+        if finalX_flt < leftWallX_flt {
+            leftWallX_flt -> finalX_flt;
+            0.0 - (finalVx_flt * bounceDamping_flt) / 100.0 -> finalVx_flt;
+            if abs(to_int(finalVx_flt)) < to_int((50.0 * scaleFactor_flt) / 1000.0) { ;;; abs needs int
+                0.0 -> finalVx_flt;
+            }
+        }
+
+        ((gridWidth * scaleFactor * 1.0) - (1 * scaleFactor * 1.0)) -> rightWallX_flt;
+        if finalX_flt >= rightWallX_flt {
+            rightWallX_flt -> finalX_flt;
+            0.0 - (finalVx_flt * bounceDamping_flt) / 100.0 -> finalVx_flt;
+            if abs(to_int(finalVx_flt)) < to_int((50.0 * scaleFactor_flt) / 1000.0) { ;;; abs needs int
+                0.0 -> finalVx_flt;
+            }
+        }
+
+        (0.0 + (0.0 * scaleFactor_flt)) -> topWallY_flt;
+        if finalY_flt < topWallY_flt {
+            topWallY_flt -> finalY_flt;
+            0.0 - (finalVy_flt * bounceDamping_flt) / 100.0 -> finalVy_flt;
+            if abs(to_int(finalVy_flt)) < to_int((50.0 * scaleFactor_flt) / 1000.0) { ;;; abs needs int
+                0.0 -> finalVy_flt;
+            }
+        }
+
+        ;;; Convert back to integers for storing and rendering
+        0 -> finalX; 0 -> finalY; 0 -> finalVx; 0 -> finalVy; ;;; Ensure these are declared for assignment
+        to_int(finalX_flt) -> finalX;
+        to_int(finalY_flt) -> finalY;
+        to_int(finalVx_flt) -> finalVx;
+        to_int(finalVy_flt) -> finalVy;
+
+        ;;; prn "DEBUG (Particle " + id + "): Final X: " + finalX + ", Y: " + finalY + ", Vx: " + finalVx + ", Vy: " + finalVy;
+
+        ;;; Store updated particle
+        particle(id, finalX, finalY, finalVx, finalVy, mass, fixed) -> $updatedParticles;
+        p_idx + 1 -> p_idx;
+    }
+    updatedParticles -> newParticlesState;
+}
+
+;;; Renders particles onto the grid
+fn renderParticles(grid, particles, scaleFactor, particleChar) -> grid {
+    0 -> i;
+    while i < length(particles) {
+        particles:i -> p;
+        ;;; Ensure rendering calculations also handle floats if necessary, then convert to int
+        0 -> displayX; 0 -> displayY; ;;; Ensure these are declared for assignment
+        to_int(((p:x * 1.0) + (scaleFactor * 1.0 / 2.0)) / (scaleFactor * 1.0)) -> displayX;
+        to_int(((p:y * 1.0) + (scaleFactor * 1.0 / 2.0)) / (scaleFactor * 1.0)) -> displayY;
+
+        if displayX >= 0 && displayX < length(grid:0) {
+            if displayY >= 0 && displayY < length(grid) {
+                grid:displayY -> row;
+                particleChar -> row:displayX;
+                row -> grid:displayY;
+            }
+        }
+        i + 1 -> i;
+    }
+    grid -> grid;
+}
+
+;;; Main program loop for undulatory creature simulation
+start {
+    arg(0) -> gridWidth;
+    arg(1) -> gridHeight;
+    arg(2) -> numSegments;
+
+    ;;; --- Configuration (tuned for movement) ---
+    100 -> scaleFactor;
+    0.01 -> timeStep; ;;; VERY SMALL timeStep, might need to go even lower!
+
+    ;;; Spring Constants:
+    ;;; Go dramatically lower as accelerations will be 100x stronger per timestep
+    10 -> kStructural; ;;; Was 50 (if you reduced it), now 10
+    1 -> kFlexion;    ;;; Was 5 (if you reduced it), now 1
+
+    1000 -> cDamping; ;;; High damping is good to start
+    (1 * scaleFactor) -> restLengthStructural;
+    (2 * scaleFactor) -> restLengthFlexion;
+
+    (1 * scaleFactor) -> particleMass;
+    50 -> bounceDamping;
+
+    ;;; Undulation parameters
+    (80 * scaleFactor) / 100 -> undulationMagnitude;
+    15 -> undulationFrequency;
+    20 -> phaseShiftPerSegment;
+    5 -> undulationWaveLengthSegments;
+
+    "O" -> particleChar;
+    " " -> emptyChar;
+    "#" -> borderChar;
+
+    simConfig(
+        scaleFactor, timeStep,
+        kStructural, kFlexion,
+        cDamping,
+        restLengthStructural, restLengthFlexion,
+        particleMass,
+        bounceDamping,
+        particleChar, emptyChar, borderChar,
+        undulationMagnitude,
+        undulationFrequency,
+        phaseShiftPerSegment,
+        undulationWaveLengthSegments
+    ) -> myConfig;
+
+    initializeGrid(gridWidth, gridHeight, myConfig:emptyChar) -> grid;
+
+    [] -> allParticles;
+    [] -> allSprings;
+
+    0 -> particleIdCounter;
+
+    ;;; --- Creature Generation (Reverted to original chain) ---
+    (gridWidth / 2 - (numSegments / 2)) -> startX_grid;
+    (gridHeight / 2) -> startY_grid;
+
+    0 -> i;
+    while i < numSegments {
+        (startX_grid + i) -> currentX_grid;
+        (startY_grid) -> currentY_grid;
+
+        (currentX_grid * myConfig:scaleFactor) -> startX_scaled;
+        (currentY_grid * myConfig:scaleFactor) -> startY_scaled;
+
+        ;;; Adding a larger random initial Y-offset to ensure initial displacement
+        random(myConfig:scaleFactor / 3) -> initialRandYOffset; ;;; e.g., +/- 33 scaled units
+        if i % 2 = 0 { 0 - initialRandYOffset -> initialRandYOffset; } ;;; Alternate offset direction
+
+        particle(particleIdCounter, startX_scaled, startY_scaled + initialRandYOffset, 0, 0, myConfig:particleMass, false) -> newParticle;
+        newParticle -> $allParticles;
+        particleIdCounter + 1 -> particleIdCounter;
+        i + 1 -> i;
+    }
+
+    ;;; Create springs for the creature
+    0 -> i;
+    while i < numSegments {
+        ;;; Structural springs (segment i to i+1) - CRUCIAL FOR HOLDING SHAPE
+        if i + 1 < numSegments {
+            spring(i, i + 1, "structural") -> $allSprings;
+        }
+        ;;; Flexion springs (segment i to i+2) - FOR BENDING/UNDULATION
+        if i + 2 < numSegments {
+            spring(i, i + 2, "flexion") -> $allSprings;
+        }
+        i + 1 -> i;
+    }
+
+    0 -> steps;
+
+    while true {
+        steps + 1 -> steps;
+
+        ;;; 1. Clear the grid for the new frame
+        initializeGrid(gridWidth, gridHeight, myConfig:emptyChar) -> currentGrid;
+
+        ;;; 2. Update particle positions and velocities (includes all forces)
+        updateParticles(allParticles, allSprings, myConfig, gridWidth, gridHeight, steps) -> allParticles;
+
+        ;;; 3. Render particles to the grid
+        renderParticles(currentGrid, allParticles, myConfig:scaleFactor, myConfig:particleChar) -> currentGrid;
+
+        ;;; 4. Display
+        ansi_up gridHeight + 2 + 2;
+        printGrid(currentGrid, gridWidth, myConfig:borderChar);
+        prn " Steps: " + steps;
+
+        ;;;delay(50);
+    }
+}

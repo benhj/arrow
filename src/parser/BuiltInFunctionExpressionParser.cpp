@@ -12,6 +12,7 @@
 #include "builtin/StringInputExpression.hpp"
 #include "builtin/SystemCommandExpression.hpp"
 #include "builtin/TrimStringFunctionExpression.hpp"
+#include "builtin/ToIntFunctionExpression.hpp"
 #include "builtin/TokenizeFunctionExpression.hpp"
 #include "builtin/WildcardEqExpression.hpp"
 #include "builtin/TypeExpression.hpp"
@@ -49,6 +50,7 @@ namespace arrow {
             m_builtins.emplace_back(std::make_shared<StringInputExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<SystemCommandExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<TokenizeFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<ToIntFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<TrimStringFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<TypeExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<WildcardEqExpressionBuilder>());

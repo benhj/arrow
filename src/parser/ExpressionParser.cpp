@@ -103,13 +103,8 @@ namespace arrow {
         auto innerExpression = parseUnaryExpression();
         if(!innerExpression) {
             return nullptr;
-        }
-        // Try math
-        auto tryMath = parseMathExpression(innerExpression);
-        if(!tryMath) {
-            exp->withIndexExpression(std::move(innerExpression));
         } else {
-            exp->withIndexExpression(std::move(tryMath));
+            exp->withIndexExpression(std::move(innerExpression));
         }
         return exp;
     }
