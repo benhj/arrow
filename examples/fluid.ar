@@ -1,0 +1,372 @@
+;;; Fluid Simulation Model (Falling/Spreading in a Container)
+;;; Cells have density. Fluid falls due to gravity and spreads horizontally on impact.
+;;; The grid edges act as container walls (no toroidal wrapping).
+
+;;; --- Utility Functions ---
+
+;;; Returns the absolute value of a number
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> result;
+    }
+}
+
+;;; Returns the minimum of two numbers
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+;;; Returns the maximum of two numbers
+fn max(a, b) -> result {
+    a -> result;
+    if b > a {
+        b -> result;
+    }
+}
+
+;;; Repeats a character 'count' times
+fn repeat(char, count) -> result {
+    "" -> result;
+    0 -> i;
+    while i < count {
+        result + char -> result;
+        i + 1 -> i;
+    }
+    result -> result;
+}
+
+;;; --- Fluid Grid Functions ---
+
+;;; Initializes a fluid grid with specified width and height, all cells empty.
+fn initialize_fluid_grid(gridWidth, gridHeight) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            0 -> $row; ;;; All cells start with 0 density (empty)
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Updates the fluid density based on falling and spreading rules
+fn update_fluid(current_grid, gridWidth, gridHeight, source_points, source_density, decay_rate, fall_threshold, spread_factor) -> new_grid {
+    ;;; Create a new_grid, initialized to all zeros, to accumulate next state
+    0 -> y_init;
+    [] -> new_grid_rows;
+    while y_init < gridHeight {
+        0 -> x_init;
+        [] -> new_row_init;
+        while x_init < gridWidth {
+            0 -> $new_row_init;
+            x_init + 1 -> x_init;
+        }
+        new_row_init -> $new_grid_rows;
+        y_init + 1 -> y_init;
+    }
+    new_grid_rows -> new_grid;
+
+    ;;; --- PRE-PASS: Apply sources to CURRENT_GRID ---
+    ;;; This ensures fluid is present at source points before movement calculations.
+    0 -> y_src;
+    while y_src < gridHeight {
+        0 -> x_src;
+        while x_src < gridWidth {
+            false -> is_source_cell;
+            for source_pos in source_points {
+                if x_src = source_pos:0 && y_src = source_pos:1 {
+                    true -> is_source_cell;
+                    break;
+                }
+            }
+            if is_source_cell {
+                current_grid:y_src -> source_row;
+                source_density -> source_row:x_src; ;;; Top up density at source location
+                source_row -> current_grid:y_src;
+            }
+            x_src + 1 -> x_src;
+        }
+        y_src + 1 -> y_src;
+    }
+
+    ;;; Pass 1: Determine where fluid wants to go (fall or spread)
+    ;;; Iterate from top to bottom (y=0 to gridHeight-1)
+    0 -> y;
+    while y < gridHeight {
+        0 -> x;
+        current_grid:y -> current_row;
+        while x < gridWidth {
+            current_row:x -> current_d;
+
+            if current_d > 0 { ;;; If there's fluid in this cell
+                0 -> target_y;
+                y + 1 -> target_y; ;;; Attempt to fall one step down
+
+                false -> fell_this_step;
+
+                ;;; Check if fluid can fall straight down
+                if target_y < gridHeight { ;;; If not at the very bottom row
+                    current_grid:target_y -> cell_below_row;
+                    cell_below_row:x -> cell_below_d;
+
+                    ;;; If cell below is "empty enough" (less than fall_threshold density), fluid falls
+                    if cell_below_d < fall_threshold {
+                        new_grid:target_y -> target_row;
+                        (target_row:x) + current_d -> target_row:x; ;;; Accumulate density in the cell below
+                        target_row -> new_grid:target_y; ;;; Update the row in new_grid
+                        fell_this_step -> true;
+                    }
+                }
+
+                ;;; If fluid couldn't fall straight down (hit floor or another fluid), redistribute horizontally
+                if fell_this_step = false {
+                    0 -> total_density_to_redistribute;
+                    current_d -> total_density_to_redistribute; ;;; This is the full amount of fluid we are trying to move from (x,y)
+
+                    0 -> num_receivers;
+                    [] -> receiver_coords_x;
+
+                    ;;; Identify valid horizontal spread recipients based on "emptiness"
+                    0 -> nx_left;
+                    x - 1 -> nx_left;
+                    if nx_left >= 0 { ;;; Within left boundary
+                        current_grid:y -> cell_left_row;
+                        cell_left_row:nx_left -> cell_left_d;
+                        ;;; CHANGED CONDITION: if cell to left is "empty enough" (less than fall_threshold)
+                        if cell_left_d < fall_threshold { 
+                            num_receivers + 1 -> num_receivers;
+                            nx_left -> $receiver_coords_x;
+                        }
+                    }
+
+                    0 -> nx_right;
+                    x + 1 -> nx_right;
+                    if nx_right < gridWidth { ;;; Within right boundary
+                        current_grid:y -> cell_right_row;
+                        cell_right_row:nx_right -> cell_right_d;
+                        ;;; CHANGED CONDITION: if cell to right is "empty enough" (less than fall_threshold)
+                        if cell_right_d < fall_threshold { 
+                            num_receivers + 1 -> num_receivers;
+                            nx_right -> $receiver_coords_x;
+                        }
+                    }
+
+                    0 -> density_to_stay;
+                    0 -> density_to_spread_per_receiver;
+
+                    if num_receivers > 0 {
+                        ;;; Calculate amount to stay in current cell (x,y)
+                        (total_density_to_redistribute * (100 - spread_factor)) / 100 -> density_to_stay;
+                        
+                        ;;; Calculate total amount to spread horizontally
+                        (total_density_to_redistribute * spread_factor) / 100 -> density_to_spread_total;
+                        
+                        ;;; Divide total spread amount among valid receivers
+                        density_to_spread_total / num_receivers -> density_to_spread_per_receiver;
+                    } else {
+                        density_to_stay -> total_density_to_redistribute; ;;; All stays if nowhere to spread
+                    }
+
+                    new_grid:y -> target_row_redistribute;
+
+                    ;;; Current cell (x,y) receives its calculated portion
+                    (target_row_redistribute:x)  + density_to_stay -> target_row_redistribute:x;
+
+                    ;;; Spread to valid horizontal neighbors
+                    for rx in receiver_coords_x {
+                        (target_row_redistribute:rx) + density_to_spread_per_receiver -> target_row_redistribute:rx;
+                    }
+                    target_row_redistribute -> new_grid:y; ;;; Update the row in new_grid with all changes
+                }
+            }
+            x + 1 -> x;
+        }
+        y + 1 -> y;
+    }
+
+    ;;; Pass 2: Apply global decay and clamp densities (only affects new_grid)
+    0 -> y_decay;
+    while y_decay < gridHeight {
+        0 -> x_decay;
+        new_grid:y_decay -> current_row_for_decay;
+        while x_decay < gridWidth {
+            current_row_for_decay:x_decay -> current_d_after_moves;
+            max(0, current_d_after_moves - decay_rate) -> current_row_for_decay:x_decay;
+            
+            ;;; Clamp density between 0 and 255 (to prevent overflow or underflow)
+            min(255, max(0, current_row_for_decay:x_decay)) -> current_row_for_decay:x_decay;
+
+            x_decay + 1 -> x_decay;
+        }
+        y_decay + 1 -> y_decay;
+    }
+
+    new_grid -> new_grid;
+}
+
+;;; Maps a density value (0-255) to a grayscale 256-color ANSI background code
+fn map_density_to_color(density) -> color_code {
+    ;;; Map 0-255 density to grayscale range 232-255 (dark to light)
+    ;;; 232 is darkest grey, 255 is white. There are 24 shades.
+    ;;; (density * 23) / 255 -> index within 0-23 range
+    ;;; Add 232 to get the actual ANSI code.
+
+    0 -> gray_index;
+    if density > 0 {
+        (density * 23) / 255 -> gray_index; ;;; Scale density to 0-23
+    }
+    min(23, max(0, gray_index)) -> gray_index; ;;; Clamp to valid index range
+
+    (232 + gray_index) -> ansi_color_num;
+
+    "\033[48;5;" + ansi_color_num + "m" -> bg_code; ;;; Background color
+    "\033[38;5;255m" -> fg_code; ;;; White foreground for visibility (though we print spaces)
+
+    bg_code + fg_code -> color_code;
+    color_code -> color_code;
+}
+
+;;; Prints the fluid grid row by row with a box border
+fn print_fluid_grid(grid, gridWidth) {
+    ;;; Top border
+    prn "┌" + repeat("─", gridWidth * 2) + "┐";
+
+    ;;; Grid rows with side borders
+    for row in grid {
+        "" -> row_str;
+        for density in row {
+            map_density_to_color(density) -> current_color_code;
+            row_str + current_color_code -> row_str;
+            ;;; Always print two spaces to form a solid colored block
+            row_str + "  " -> row_str;
+        }
+        row_str + "\033[0m" -> row_str; ;;; Reset color at the end of each row
+        prn "│" + row_str + "│";
+    }
+
+    ;;; Bottom border
+    prn "└" + repeat("─", gridWidth * 2) + "┘";
+}
+
+;;; Counts average density (simple sum / count)
+fn calculate_average_density(grid, gridWidth, gridHeight) -> avg_density {
+    0 -> total_density;
+    0 -> cell_count;
+    0 -> y;
+    while y < gridHeight {
+        0 -> x;
+        grid:y -> row;
+        while x < gridWidth {
+            row:x -> density_val;
+            total_density + density_val -> total_density;
+            cell_count + 1 -> cell_count;
+            x + 1 -> x;
+        }
+        y + 1 -> y;
+    }
+    0 -> avg_density;
+    if cell_count > 0 {
+        total_density / cell_count -> avg_density;
+    }
+    avg_density -> avg_density;
+}
+
+;;; Prints a neat overlay with fluid stats
+fn print_overlay(avg_density, steps) {
+    prn "\033[34m"; ;;; Blue foreground for HUD
+    prn "┌───────────────────┬───────────────┐";
+    prn "│       STAT        │      VALUE    │";
+    prn "├───────────────────┼───────────────┤";
+    prn "│ Steps             │ " + padRight("" + steps, 13) + " │";
+    prn "│ Avg. Density      │ " + padRight("" + avg_density, 13) + " │";
+    prn "└───────────────────┴───────────────┘";
+    prn "\033[0m"; ;;; Reset color
+}
+
+;;; Pads string on the right with spaces to a fixed length
+fn padRight(str, length) -> padded {
+    str -> padded;
+    while length > length(padded) {
+        padded + " " -> padded;
+    }
+    padded -> padded;
+}
+
+;;; Main program loop
+;;; Main program loop
+start {
+    arg(0) -> gridWidth;
+    arg(1) -> gridHeight;
+
+    ;;; Fluid simulation parameters for pouring/splashing effect
+;;; Main program loop
+start {
+    arg(0) -> gridWidth;
+    arg(1) -> gridHeight;
+
+    ;;; Fluid simulation parameters for a more impactful pouring/splashing effect
+    150 -> source_density;  ;;; INCREASED: More fluid in the trickle
+    1   -> decay_rate;      ;;; DECREASED: Fluid persists longer
+    220 -> fall_threshold;  ;;; KEPT HIGH/ADJUSTED: Fluid falls until cells below are very dense
+    90  -> spread_factor;   ;;; KEPT HIGH: For wide splashing
+    ;;; Define source points (fixed locations where fluid is injected)
+    [] -> source_points;
+    ;;; Place a source at the top center to visualize "pouring"
+    {gridWidth / 2, 0} -> $source_points; ;;; Top-center source
+
+    ;;; ... rest of the start function remains the same ...
+    initialize_fluid_grid(gridWidth, gridHeight) -> current_grid;
+
+    0 -> steps;
+
+    while true {
+        steps + 1 -> steps;
+
+        update_fluid(current_grid, gridWidth, gridHeight, source_points, source_density, decay_rate, fall_threshold, spread_factor) -> next_grid;
+        next_grid -> current_grid;
+
+        calculate_average_density(current_grid, gridWidth, gridHeight) -> avg_density;
+
+        gridHeight + 2 + 8 -> total_display_lines;
+        ansi_up total_display_lines;
+        
+        print_fluid_grid(current_grid, gridWidth);
+        print_overlay(avg_density, steps);
+    }
+}
+
+    ;;; Define source points (fixed locations where fluid is injected)
+    [] -> source_points;
+    ;;; Place a source at the top center to visualize "pouring"
+    {gridWidth / 2, 0} -> $source_points; ;;; Top-center source
+
+    ;;; ... rest of the start function remains the same ...
+    initialize_fluid_grid(gridWidth, gridHeight) -> current_grid;
+
+    0 -> steps;
+
+    while true {
+        steps + 1 -> steps;
+
+        update_fluid(current_grid, gridWidth, gridHeight, source_points, source_density, decay_rate, fall_threshold, spread_factor) -> next_grid;
+        next_grid -> current_grid;
+
+        calculate_average_density(current_grid, gridWidth, gridHeight) -> avg_density;
+
+        gridHeight + 2 + 8 -> total_display_lines;
+        ansi_up total_display_lines;
+        
+        print_fluid_grid(current_grid, gridWidth);
+        print_overlay(avg_density, steps);
+    }
+}
+

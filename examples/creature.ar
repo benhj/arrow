@@ -28,13 +28,6 @@ fn abs(n) -> result {
     n -> result;
 }
 
-;;; Assuming a `to_int` function for explicit float-to-int conversion
-;;; If your language doesn't have `to_int`, you might need `floor()`, `round()`, or it might implicitly truncate.
-;;; For this code, we'll assume `to_int` performs a reasonable conversion (e.g., truncation or round-to-nearest).
-fn to_int(n_flt) -> result {
-    n_flt -> result; ;;; Placeholder. Replace with actual `to_int` if available, or just assign for implicit truncation.
-}
-
 fn min(a, b) -> result {
     b -> result;
     if a < b {
@@ -51,9 +44,6 @@ fn repeat(char, count) -> result {
     }
     result -> result;
 }
-
-;;; --- integerSqrt FUNCTION REMOVED (using native 'sqrt') ---
-
 
 ;;; Calculates squared distance, returns (real_distance^2 * scaleFactor^2)
 ;;; CORRECTED: p1y - p2y for dy calculation
@@ -173,29 +163,29 @@ fn calculateSpringForce(
     {0, 0} -> resultForce;
 
     distSq(p1x, p1y, p2x, p2y) -> trueSquaredDistScaled_int;
-    ;;; ;;; prn "DEBUG: distSq: " + trueSquaredDistScaled_int;
+    ;;; prn "DEBUG: distSq: " + trueSquaredDistScaled_int;
 
     if trueSquaredDistScaled_int = 0 {
-        ;;; ;;; prn "DEBUG: trueSquaredDistScaled is 0, returning 0 force";
+        ;;; prn "DEBUG: trueSquaredDistScaled is 0, returning 0 force";
         {0, 0} -> resultForce;
         return;
     }
 
     sqrt(trueSquaredDistScaled_int) -> currentDistScaled_int; ;;; Assuming sqrt returns integer
-    ;;; ;;; prn "DEBUG: currentDistScaled (sqrt): " + currentDistScaled_int;
+    ;;; prn "DEBUG: currentDistScaled (sqrt): " + currentDistScaled_int;
 
     if currentDistScaled_int = 0 {
-        ;;; ;;; prn "DEBUG: currentDistScaled is 0, returning 0 force";
+        ;;; prn "DEBUG: currentDistScaled is 0, returning 0 force";
         {0, 0} -> resultForce;
         return;
     }
 
     (currentDistScaled_int - restLength) -> displacementScaled;
-    ;;; ;;; prn "DEBUG: displacementScaled: " + displacementScaled;
+    ;;; prn "DEBUG: displacementScaled: " + displacementScaled;
 
     ;;; Ensure all force calculations use floats
     (k * 1.0 * displacementScaled) / (scaleFactor * 1.0) -> springMagnitude_flt;
-    ;;; ;;; prn "DEBUG: springMagnitude_flt: " + springMagnitude_flt;
+    ;;; prn "DEBUG: springMagnitude_flt: " + springMagnitude_flt;
 
     (p1vx - p2vx) -> dvx;
     (p1vy - p2vy) -> dvy;
@@ -209,31 +199,31 @@ fn calculateSpringForce(
 
     ;;; Calculate relative velocity projection along the spring direction (requires floats)
     ((dvx * 1.0 * dx_flt) + (dvy * 1.0 * dy_flt)) / currentDistScaled_flt -> relativeVelocity_flt;
-    ;;; ;;; prn "DEBUG: relativeVelocity_flt: " + relativeVelocity_flt;
+    ;;; prn "DEBUG: relativeVelocity_flt: " + relativeVelocity_flt;
 
     (c_flt * relativeVelocity_flt) / scaleFactor_flt -> dampingMagnitude_flt;
-    ;;; ;;; prn "DEBUG: dampingMagnitude_flt: " + dampingMagnitude_flt;
+    ;;; prn "DEBUG: dampingMagnitude_flt: " + dampingMagnitude_flt;
 
     ;;; Calculate directional components using float division
     (dx_flt / currentDistScaled_flt) -> dx_ratio_flt;
     (dy_flt / currentDistScaled_flt) -> dy_ratio_flt;
-    ;;; ;;; prn "DEBUG: dx_ratio_flt: " + dx_ratio_flt + ", dy_ratio_flt: " + dy_ratio_flt;
+    ;;; prn "DEBUG: dx_ratio_flt: " + dx_ratio_flt + ", dy_ratio_flt: " + dy_ratio_flt;
 
     ;;; Calculate final force components (still floats)
     (springMagnitude_flt * dx_ratio_flt) -> springFxComponent_flt;
     (springMagnitude_flt * dy_ratio_flt) -> springFyComponent_flt;
-    ;;; ;;; prn "DEBUG: springFxComponent_flt: " + springFxComponent_flt + ", springFyComponent_flt: " + springFyComponent_flt;
+    ;;; prn "DEBUG: springFxComponent_flt: " + springFxComponent_flt + ", springFyComponent_flt: " + springFyComponent_flt;
 
     (dampingMagnitude_flt * dx_ratio_flt) -> dampingFxComponent_flt;
     (dampingMagnitude_flt * dy_ratio_flt) -> dampingFyComponent_flt;
-    ;;; ;;; prn "DEBUG: dampingFxComponent_flt: " + dampingFxComponent_flt + ", dampingFyComponent_flt: " + dampingFyComponent_flt;
+    ;;; prn "DEBUG: dampingFxComponent_flt: " + dampingFxComponent_flt + ", dampingFyComponent_flt: " + dampingFyComponent_flt;
 
     ;;; Sum and convert back to integers for final result (assuming the language has a to_int() or similar)
     0 -> totalFx; 0 -> totalFy; ;;; Ensure these are declared for assignment
     to_int(springFxComponent_flt + dampingFxComponent_flt) -> totalFx;
     to_int(springFyComponent_flt + dampingFyComponent_flt) -> totalFy;
 
-    ;;; ;;; prn "DEBUG: TOTAL Spring Force: {Fx:" + totalFx + ", Fy:" + totalFy + "}";
+    ;;; prn "DEBUG: TOTAL Spring Force: {Fx:" + totalFx + ", Fy:" + totalFy + "}";
 
     {totalFx, totalFy} -> resultForce;
 }
@@ -271,7 +261,6 @@ fn applyUndulationToSpring(
 
 
 ;;; Updates particle positions based on forces and applies boundary conditions
-;;; Updates particle positions based on forces and applies boundary conditions
 fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, steps) -> newParticlesState {
     config:scaleFactor -> scaleFactor;
     config:timeStep -> timeStep;
@@ -293,7 +282,7 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, step
         i + 1 -> i;
     }
 
-    ;;; Step 1: Accumulate forces from all springs (rest of this section is unchanged)
+    ;;; Step 1: Accumulate forces from all springs
     0 -> s_idx;
     while s_idx < length(allSprings) {
         allSprings:s_idx -> currentSpring;
@@ -395,7 +384,7 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, step
             0.0 -> ay_flt;
         } else {
             ;;; fx_total_flt is N, mass_flt is kg, scaleFactor_flt is sm/m.
-            ;;; Resulting ax_flt should be sm/s^2.
+            ;;; Resulting ax_flt is in scaled_meters per second squared (sm/s^2).
             (fx_total_flt * scaleFactor_flt) / mass_flt -> ax_flt;
             (fy_total_flt * scaleFactor_flt) / mass_flt -> ay_flt;
         }
@@ -403,14 +392,14 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, step
 
         ;;; Update velocity (v = v + a*dt)
         ;;; vx_flt is sm/s, ax_flt is sm/s^2, timeStep_flt is s.
-        ;;; Resulting new_vx_flt should be sm/s.
+        ;;; Resulting new_vx_flt is in scaled_meters per second (sm/s).
         (vx_flt + (ax_flt * timeStep_flt)) -> new_vx_flt; ;;; --- REMOVED / scaleFactor_flt ---
         (vy_flt + (ay_flt * timeStep_flt)) -> new_vy_flt; ;;; --- REMOVED / scaleFactor_flt ---
         ;;; prn "DEBUG (Particle " + id + "): New Vx: " + new_vx_flt + ", New Vy: " + new_vy_flt;
 
         ;;; Calculate new position (x = x + v*dt)
         ;;; x_flt is sm, new_vx_flt is sm/s, timeStep_flt is s.
-        ;;; Resulting potentialNewX_flt should be sm.
+        ;;; Resulting potentialNewX_flt is in scaled_meters (sm).
         (x_flt + (new_vx_flt * timeStep_flt)) -> potentialNewX_flt; ;;; --- REMOVED / scaleFactor_flt ---
         (y_flt + (new_vy_flt * timeStep_flt)) -> potentialNewY_flt; ;;; --- REMOVED / scaleFactor_flt ---
         ;;; prn "DEBUG (Particle " + id + "): Potential New X: " + potentialNewX_flt + ", Y: " + potentialNewY_flt;
@@ -420,7 +409,7 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, step
         new_vx_flt -> finalVx_flt;
         new_vy_flt -> finalVy_flt;
 
-        ;;; --- Boundary Collision (with simplified bounce) --- (unchanged)
+        ;;; --- Boundary Collision (with simplified bounce) ---
         ((gridHeight * scaleFactor * 1.0) - (1 * scaleFactor * 1.0)) -> floorY_flt;
         if finalY_flt >= floorY_flt {
             floorY_flt -> finalY_flt;
@@ -503,14 +492,15 @@ start {
 
     ;;; --- Configuration (tuned for movement) ---
     100 -> scaleFactor;
-    0.01 -> timeStep; ;;; VERY SMALL timeStep, might need to go even lower!
+    0.1 -> timeStep; ;;; VERY SMALL timeStep for stability testing
 
     ;;; Spring Constants:
-    ;;; Go dramatically lower as accelerations will be 100x stronger per timestep
-    10 -> kStructural; ;;; Was 50 (if you reduced it), now 10
-    1 -> kFlexion;    ;;; Was 5 (if you reduced it), now 1
+    ;;; Set k values EXTREMELY LOW for initial stability test
+    1 -> kStructural;
+    0.1 -> kFlexion;
 
-    1000 -> cDamping; ;;; High damping is good to start
+    5000 -> cDamping; ;;; EXTREMELY HIGH damping for initial stability test
+
     (1 * scaleFactor) -> restLengthStructural;
     (2 * scaleFactor) -> restLengthFlexion;
 
@@ -518,7 +508,7 @@ start {
     50 -> bounceDamping;
 
     ;;; Undulation parameters
-    (80 * scaleFactor) / 100 -> undulationMagnitude;
+    0 -> undulationMagnitude; ;;; Temporarily set to 0 to remove this variable for stability testing
     15 -> undulationFrequency;
     20 -> phaseShiftPerSegment;
     5 -> undulationWaveLengthSegments;
@@ -560,9 +550,8 @@ start {
         (currentX_grid * myConfig:scaleFactor) -> startX_scaled;
         (currentY_grid * myConfig:scaleFactor) -> startY_scaled;
 
-        ;;; Adding a larger random initial Y-offset to ensure initial displacement
-        random(myConfig:scaleFactor / 3) -> initialRandYOffset; ;;; e.g., +/- 33 scaled units
-        if i % 2 = 0 { 0 - initialRandYOffset -> initialRandYOffset; } ;;; Alternate offset direction
+        ;;; Initial Y-offset set to 0 for stability testing
+        0 -> initialRandYOffset; ;;; SET TO ZERO FOR DEBUGGING STABILITY
 
         particle(particleIdCounter, startX_scaled, startY_scaled + initialRandYOffset, 0, 0, myConfig:particleMass, false) -> newParticle;
         newParticle -> $allParticles;
