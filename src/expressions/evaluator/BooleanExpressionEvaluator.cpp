@@ -72,6 +72,22 @@ namespace arrow {
         template <class Left, class Right>
         bool operator()(Left left, Right right) const
         {
+            if constexpr(std::is_same_v<Left, Right> ||
+                         (std::is_same_v<Left, int64_t> &&
+                         std::is_same_v<Right, real> ) ||
+                         (std::is_same_v<Left, real> &&
+                         std::is_same_v<Right, int64_t> )) {
+                if(m_op == "<") {
+                    return left < right;
+                } else if(m_op == "<=") {
+                    return left <= right;
+                } else if(m_op == ">") {
+                    return left > right;
+                } else if(m_op == ">=") {
+                    return left >= right;
+                }
+            }
+
             if constexpr(std::is_same_v<Left, Right>) {
                 if(m_op == "=") {
                     return left == right;
