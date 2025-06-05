@@ -16,6 +16,11 @@ pod simConfig(
     particleChar, emptyChar, borderChar
 );
 
+;;; --- Barrier Pod Definition ---
+pod barrier(
+    x, y, width, height
+);
+
 ;;; --- Utility Functions ---
 
 fn abs(n) -> result {
@@ -29,13 +34,6 @@ fn min(a, b) -> result {
     b -> result;
     if a < b {
         a -> result;
-    }
-}
-
-fn max(a, b) -> result {
-    a -> result;
-    if b > a {
-        b -> result;
     }
 }
 
@@ -74,66 +72,6 @@ fn distSq(p1x, p1y, p2x, p2y) -> result {
     (dx * dx + dy * dy) -> result;
 }
 
-;;; --- NEW UTILITY FUNCTIONS FOR TILTED BARRIER ---
-
-;;; Calculates the squared length of a vector (dx, dy)
-fn vectorLengthSq(dx, dy) -> result {
-    (dx * dx + dy * dy) -> result;
-}
-
-;;; Calculates the dot product of two vectors (v1x, v1y) and (v2x, v2y)
-fn dotProduct(v1x, v1y, v2x, v2y) -> result {
-    (v1x * v2x + v1y * v2y) -> result;
-}
-
-;;; Normalize a vector (dx, dy) to get its unit vector.
-;;; Returns {unit_dx, unit_dy}, scaled by scaleFactor for fixed-point.
-;;; Avoids division by zero.
-fn normalizeVector(dx, dy, scaleFactor) -> unitVector {
-    vectorLengthSq(dx, dy) -> lengthSq;
-    {0, 0} -> unitVector;
-
-    if lengthSq = 0 {
-        return; ;;; Can't normalize zero vector
-    }
-
-    integerSqrt(lengthSq) -> length;
-    if length = 0 {
-        return; ;;; Should not happen if lengthSq != 0, but safety
-    }
-
-    ;;; Scale factors are important here:
-    ;;; We want (dx / length) * scaleFactor
-    ((dx * scaleFactor) / length) -> unit_dx_scaled;
-    ((dy * scaleFactor) / length) -> unit_dy_scaled;
-
-    {unit_dx_scaled, unit_dy_scaled} -> unitVector;
-}
-
-;;; Projects vector 'v' onto vector 'n'. Returns {proj_x, proj_y}
-;;; (v . n) / |n|^2 * n
-;;; Given n is a unit vector (already scaled by scaleFactor)
-;;; projection = ( (vx * nx_scaled / SF + vy * ny_scaled / SF) / SF ) * (nx_scaled, ny_scaled) / SF
-;;; This simplifies to: (dot(v, n) / SF^2) * n / SF.
-;;; We need (real_proj_x * scaleFactor, real_proj_y * scaleFactor)
-fn projectVector(vx, vy, nx_scaled, ny_scaled, scaleFactor) -> projectedVector {
-    ;;; dot_product is (real_v . real_n) * scaleFactor^2
-    dotProduct(vx, vy, nx_scaled, ny_scaled) -> dot_val;
-
-    ;;; To get real_scalar_projection = (real_v . real_n) * scaleFactor
-    (dot_val / scaleFactor) -> scalar_proj;
-
-    ;;; Now scale scalar_proj by nx_scaled/SF and ny_scaled/SF
-    ;;; We want (real_scalar_proj * real_nx, real_scalar_proj * real_ny) * scaleFactor
-    ;;; = (scalar_proj * nx_scaled / SF, scalar_proj * ny_scaled / SF) * SF
-    ;;; This means: (scalar_proj * nx_scaled / SF) and (scalar_proj * ny_scaled / SF)
-    ((scalar_proj * nx_scaled) / scaleFactor) -> proj_x;
-    ((scalar_proj * ny_scaled) / scaleFactor) -> proj_y;
-
-    {proj_x, proj_y} -> projectedVector;
-}
-
-
 ;;; --- Grid Management Functions ---
 
 fn initializeGrid(gridWidth, gridHeight, emptyChar) -> grid {
@@ -154,8 +92,8 @@ fn initializeGrid(gridWidth, gridHeight, emptyChar) -> grid {
 
 fn cellColor(cell) -> color {
     "\033[0m" -> color;
-    if cell = "O" { "\033[1m\033[38;2;100;100;255m" -> color; } ;;; Bright blue for bouncy balls
-    if cell = "X" { "\033[1m\033[38;2;200;100;0m" -> color; } ;;; Orange for barrier
+    if cell = "⬤" { "\033[1m\033[38;2;100;100;255m" -> color; } ;;; Bright blue for bouncy balls
+    if cell = "█" { "\033[1m\033[38;2;200;100;0m" -> color; } ;;; Orange for barrier
 }
 
 
@@ -269,7 +207,7 @@ fn calculateSpringForce(
     ;;; We want `(real_Fs * real_dx / real_dist) * SF`
     ;;; Formula: `(Magnitude_scaled * Ratio_scaled) / scaleFactor`
     ;;; Trace: ((real_Fs * SF) * (real_dx / real_dist * SF)) / SF
-    ;;;         = (real_Fs * real_dx / real_dist) * SF
+    ;;;        = (real_Fs * real_dx / real_dist) * SF
     (springMagnitudeScaled * dx_ratio_scaled) / scaleFactor -> springFxComponent;
     (springMagnitudeScaled * dy_ratio_scaled) / scaleFactor -> springFyComponent;
 
@@ -283,119 +221,8 @@ fn calculateSpringForce(
     {totalFx, totalFy} -> resultForce;
 }
 
-;;; Function to handle collision with a tilted line segment barrier
-;;; This is a simplified approach, not a full continuous collision detection.
-;;; It assumes particles are "points" for collision and then reflects them.
-;;; The "tilt" effect for rolling will be added to gravity's influence
-;;; or as a continuous force when a particle is 'resting' on the barrier.
-fn handleTiltedBarrierCollision(
-    px, py, pvx, pvy,
-    pRadiusScaled, ;;; Assuming particle has a radius
-    barrierP1X, barrierP1Y, barrierP2X, barrierP2Y,
-    bounceDamping, scaleFactor
-) -> result {
-    {px, py, pvx, pvy} -> result; ;;; Assume no collision initially
-
-    ;;; Calculate the vector representing the barrier line segment
-    (barrierP2X - barrierP1X) -> barrier_dx;
-    (barrierP2Y - barrierP1Y) -> barrier_dy;
-
-    ;;; Calculate the normal vector to the barrier line segment, pointing "upwards"
-    (barrierP2Y - barrierP1Y) -> normal_dx;
-    (0 - (barrierP2X - barrierP1X)) -> normal_dy;
-    
-    normalizeVector(normal_dx, normal_dy, scaleFactor) -> barrier_normal_scaled;
-    barrier_normal_scaled:0 -> nx_scaled;
-    barrier_normal_scaled:1 -> ny_scaled;
-
-    ;;; Calculate vector from P1 to particle
-    (px - barrierP1X) -> vec_p1_px;
-    (py - barrierP1Y) -> vec_p1_py;
-
-    ;;; Project P1P onto the barrier direction to find where the perpendicular drops
-    ;;; (vector from P1 to particle) . (barrier direction)
-    dotProduct(vec_p1_px, vec_p1_py, barrier_dx, barrier_dy) -> projection_scalar_numerator;
-    vectorLengthSq(barrier_dx, barrier_dy) -> barrier_length_sq;
-
-    if barrier_length_sq = 0 { ;;; Barrier is a point, ignore
-        return;
-    }
-
-    ;;; t is the projection along the segment, from 0 to 1
-    ;;; t = (P1P . AB) / |AB|^2
-    (projection_scalar_numerator * scaleFactor) / barrier_length_sq -> t_scaled; ;;; Scaled by SF
-
-    ;;; Clamp t to be within the segment [0, 1]
-    0 -> t_clamped;
-    if t_scaled < 0 { 0 -> t_clamped; }
-    if t_scaled > scaleFactor { scaleFactor -> t_clamped; }
-    if t_scaled >= 0 && t_scaled <= scaleFactor { t_scaled -> t_clamped; }
-
-    ;;; Find the closest point on the barrier segment to the particle
-    ;;; closest_x = barrierP1X + t * barrier_dx / scaleFactor
-    ;;; closest_y = barrierP1Y + t * barrier_dy / scaleFactor
-    (barrierP1X + (t_clamped * barrier_dx) / scaleFactor) -> closestPx;
-    (barrierP1Y + (t_clamped * barrier_dy) / scaleFactor) -> closestPy;
-
-    ;;; Calculate distance squared from particle to closest point on barrier
-    distSq(px, py, closestPx, closestPy) -> dist_sq_to_barrier;
-    (pRadiusScaled * pRadiusScaled) -> radius_sq;
-
-    ;;; Collision detected if distance is less than particle radius
-    if dist_sq_to_barrier < radius_sq {
-        ;;; Particle is colliding with the barrier
-        integerSqrt(dist_sq_to_barrier) -> current_dist;
-
-        ;;; Calculate penetration depth
-        (pRadiusScaled - current_dist) -> penetration;
-
-        ;;; Normalize the vector from closest point to particle (this is our contact normal)
-        (px - closestPx) -> contact_dx;
-        (py - closestPy) -> contact_dy;
-
-        nx_scaled -> contact_nx; ;;; Use the barrier's calculated normal
-        ny_scaled -> contact_ny;
-
-        ;;; If current_dist is 0 (direct overlap, very rare), pick a default normal
-        if current_dist = 0 {
-            nx_scaled -> contact_nx; ;;; Use the barrier's calculated normal
-            ny_scaled -> contact_ny;
-        } else {
-            normalizeVector(contact_dx, contact_dy, scaleFactor) -> contact_normal_scaled;
-            contact_normal_scaled:0 -> contact_nx;
-            contact_normal_scaled:1 -> contact_ny;
-        }
-
-        ;;; Push particle out
-        (px + (contact_nx * penetration) / scaleFactor) -> new_px;
-        (py + (contact_ny * penetration) / scaleFactor) -> new_py;
-
-        ;;; Reflect velocity
-        ;;; v_normal = project(v, contact_normal)
-        projectVector(pvx, pvy, contact_nx, contact_ny, scaleFactor) -> v_normal_comp;
-        v_normal_comp:0 -> vnx;
-        v_normal_comp:1 -> vny;
-
-        ;;; v_tangent = v - v_normal
-        (pvx - vnx) -> vtx;
-        (pvy - vny) -> vty;
-
-        ;;; New normal velocity is -v_normal * bounceDamping
-        (0 - (vnx * bounceDamping) / 100) -> new_vnx;
-        (0 - (vny * bounceDamping) / 100) -> new_vny;
-
-        ;;; New velocity = new_v_normal + v_tangent (assuming no tangential friction here for simplicity)
-        (new_vnx + vtx) -> new_pvx;
-        (new_vny + vty) -> new_pvy;
-
-        {new_px, new_py, new_pvx, new_pvy} -> result;
-    }
-}
-
-;;; --- Simulation Update Functions ---
-
 ;;; Updates particle positions based on forces and applies boundary conditions
-fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barrierP1X, barrierP1Y, barrierP2X, barrierP2Y) -> newParticlesState {
+fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, allBarriers, barrierChar) -> newParticlesState {
     config:scaleFactor -> scaleFactor;
     config:timeStep -> timeStep;
     config:gravity -> gravity;
@@ -412,13 +239,6 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barr
     [] -> updatedParticles;
     [] -> particleForcesAcc; ;;; Accumulator for forces for each particle: {fx, fy}
 
-    ;;; Assuming particle character 'O' means a radius of 0.5 grid units
-    ;;; Scaled radius = 0.5 * scaleFactor
-    (5 * scaleFactor) / 10 -> particleRadiusScaled; ;;; 0.5 * scaleFactor
-
-    ;;; Define a small threshold for "resting" velocity to prevent jitter
-    (10 * scaleFactor) / 1000 -> resting_vel_threshold; ;;; e.g., 0.01 scaled
-
     ;;; Initialize force accumulators for each particle to zero
     0 -> i;
     while i < length(allParticles) {
@@ -426,7 +246,7 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barr
         i + 1 -> i;
     }
 
-    ;;; Step 1: Accumulate forces from all springs (this part remains largely the same, but 'allSprings' is empty for bouncy balls)
+    ;;; Step 1: Accumulate forces from all springs
     0 -> s_idx;
     while s_idx < length(allSprings) {
         allSprings:s_idx -> currentSpring;
@@ -445,6 +265,7 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barr
         allParticles:p1_idx -> p1;
         allParticles:p2_idx -> p2;
 
+        ;;; Determine rest length and k based on spring type
         0 -> restL;
         0 -> k_val;
         if springType = "structural" {
@@ -452,7 +273,6 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barr
             kStructural -> k_val;
         } elseif springType = "shear" {
             restLengthShear -> restL;
-            kShear -> k_val;
         } elseif springType = "flexion" {
             restLengthFlexion -> restL;
             kFlexion -> k_val;
@@ -467,11 +287,13 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barr
         forceOnP1:0 -> fx_p1;
         forceOnP1:1 -> fy_p1;
 
+        ;;; Add force to p1's accumulator
         particleForcesAcc:p1_idx -> p1_acc_forces;
         ((p1_acc_forces:0) + fx_p1) -> p1_acc_forces:0;
         ((p1_acc_forces:1) + fy_p1) -> p1_acc_forces:1;
         p1_acc_forces -> particleForcesAcc:p1_idx;
 
+        ;;; Add opposite force to p2's accumulator
         particleForcesAcc:p2_idx -> p2_acc_forces;
         ((p2_acc_forces:0) - fx_p1) -> p2_acc_forces:0;
         ((p2_acc_forces:1) - fy_p1) -> p2_acc_forces:1;
@@ -530,116 +352,58 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barr
         new_vx -> finalVx;
         new_vy -> finalVy;
 
-        ;;; --- Tilted Barrier Collision Detection and Response ---
-        ;;; Pass the barrier line segment points to the function
-        handleTiltedBarrierCollision(
-            potentialNewX, potentialNewY, new_vx, new_vy,
-            particleRadiusScaled,
-            barrierP1X, barrierP1Y, barrierP2X, barrierP2Y,
-            bounceDamping, scaleFactor
-        ) -> barrierCollisionResult;
+        ;;; --- Barrier Collision Detection and Response (for all barriers) ---
+        0 -> b_idx;
+        while b_idx < length(allBarriers) {
+            allBarriers:b_idx -> currentBarrier;
 
-        barrierCollisionResult:0 -> finalX;
-        barrierCollisionResult:1 -> finalY;
-        barrierCollisionResult:2 -> finalVx;
-        barrierCollisionResult:3 -> finalVy;
+            ;;; Convert barrier coordinates to scaled values for comparison
+            (currentBarrier:x * scaleFactor) -> scaledBarrierX;
+            (currentBarrier:y * scaleFactor) -> scaledBarrierY;
+            ((currentBarrier:x + currentBarrier:width) * scaleFactor) -> scaledBarrierRightX;
+            ((currentBarrier:y + currentBarrier:height) * scaleFactor) -> scaledBarrierBottomY;
 
+            ;;; Check if the potential new position would be inside the barrier
+            if potentialNewX >= scaledBarrierX && potentialNewX < scaledBarrierRightX &&
+               potentialNewY >= scaledBarrierY && potentialNewY < scaledBarrierBottomY {
+                ;;; Collision with barrier detected - particle entered the barrier
 
-        ;;; --- Rolling/Sliding off Tilted Barrier ---
-        ;;; After potential collision response, check if particle is "on" the barrier
-        ;;; Calculate the vector representing the barrier line segment (used for tangent)
-        (barrierP2X - barrierP1X) -> barrier_dx;
-        (barrierP2Y - barrierP1Y) -> barrier_dy;
+                ;;; The particle is "inside" the barrier. Push it back out
+                ;;; and reverse its velocity based on which axis it most likely crossed.
 
-        ;;; Calculate the normal vector to the barrier line segment, pointing "upwards"
-        (barrierP2Y - barrierP1Y) -> barrier_normal_x_unnormalized;
-        (0 - (barrierP2X - barrierP1X)) -> barrier_normal_y_unnormalized;
+                ;;; Calculate overlap distances (how far into the barrier it went)
+                (potentialNewX - scaledBarrierX) -> overlapLeft;
+                (scaledBarrierRightX - potentialNewX) -> overlapRight;
+                (potentialNewY - scaledBarrierY) -> overlapTop;
+                (scaledBarrierBottomY - potentialNewY) -> overlapBottom;
 
-        normalizeVector(barrier_normal_x_unnormalized, barrier_normal_y_unnormalized, scaleFactor) -> barrier_normal_vec;
-        barrier_normal_vec:0 -> normal_nx_scaled;
-        barrier_normal_vec:1 -> normal_ny_scaled;
+                ;;; Find the minimum overlap
+                min(overlapLeft, overlapRight) -> minXOverlap;
+                min(overlapTop, overlapBottom) -> minYOverlap;
 
-        ;;; Calculate the distance from the particle to the closest point on the barrier
-        ;;; (This logic is slightly duplicated from handleTiltedBarrierCollision but necessary here)
-        (finalX - barrierP1X) -> vec_p1_px;
-        (finalY - barrierP1Y) -> vec_p1_py;
-        dotProduct(vec_p1_px, vec_p1_py, barrier_dx, barrier_dy) -> projection_scalar_numerator_check;
-        vectorLengthSq(barrier_dx, barrier_dy) -> barrier_length_sq_check;
-
-        0 -> t_clamped_check;
-        if barrier_length_sq_check != 0 {
-            (projection_scalar_numerator_check * scaleFactor) / barrier_length_sq_check -> t_scaled_check;
-            if t_scaled_check < 0 { 0 -> t_clamped_check; }
-            if t_scaled_check > scaleFactor { scaleFactor -> t_clamped_check; }
-            if t_scaled_check >= 0 && t_scaled_check <= scaleFactor { t_scaled_check -> t_clamped_check; }
-        }
-
-        (barrierP1X + (t_clamped_check * barrier_dx) / scaleFactor) -> closestPx_check;
-        (barrierP1Y + (t_clamped_check * barrier_dy) / scaleFactor) -> closestPy_check;
-
-        distSq(finalX, finalY, closestPx_check, closestPy_check) -> current_dist_sq_to_barrier;
-        integerSqrt(current_dist_sq_to_barrier) -> current_dist_to_barrier;
-
-
-        ;;; Check if the particle is "on" or very close to the barrier AND has low normal velocity
-        ;;; Use a slightly larger tolerance than particleRadiusScaled to catch 'resting' state
-        (particleRadiusScaled + (1 * scaleFactor) / 100) -> on_barrier_tolerance; ;;; Radius + 0.01 scaled
-
-        if current_dist_to_barrier < on_barrier_tolerance {
-            ;;; The particle is "on" the barrier. Now, apply a component of gravity along the slope.
-            ;;; Gravity vector is {0, gravity} (scaled)
-            ;;; Normal vector is {normal_nx_scaled, normal_ny_scaled}
-            ;;; Tangent vector (along slope) is {normal_ny_scaled, -normal_nx_scaled} if normal is left-of-slope
-            ;;; OR { -normal_ny_scaled, normal_nx_scaled } if normal is right-of-slope
-            ;;; Let's use the actual barrier direction: barrier_dx, barrier_dy as the tangent
-
-            normalizeVector(barrier_dx, barrier_dy, scaleFactor) -> barrier_tangent_vec;
-            barrier_tangent_vec:0 -> tangent_tx_scaled;
-            barrier_tangent_vec:1 -> tangent_ty_scaled;
-
-            ;;; Project gravity onto the tangent vector
-            ;;; We want (real_gravity_along_slope * scaleFactor)
-            ;;; current gravity is already scaled (fy_total has gravity component)
-            ;;; We're adding an *additional* force
-            ;;; Real gravity: {0, g}. Real tangent: {tx, ty}.
-            ;;; Dot product: (0 * tx + g * ty) = g * ty
-            ;;; Force component along slope = (g * ty) * scaleFactor (for fixed point)
-            
-            ;;; The current 'gravity' variable is already (real_gravity * scaleFactor)
-            ;;; So (gravity * tangent_ty_scaled) / scaleFactor would give real_gravity_along_slope * scaleFactor
-            ((gravity * tangent_ty_scaled) / scaleFactor) -> rolling_force_magnitude;
-
-            ;;; Apply this force along the tangent
-            (fx_total + (rolling_force_magnitude * tangent_tx_scaled) / scaleFactor) -> fx_total;
-            (fy_total + (rolling_force_magnitude * tangent_ty_scaled) / scaleFactor) -> fy_total;
-
-            ;;; Re-calculate acceleration and velocity with this new force
-            if mass = 0 {
-                0 -> ax;
-                0 -> ay;
-            } else {
-                (fx_total * scaleFactor) / mass -> ax;
-                (fy_total * scaleFactor) / mass -> ay;
+                if minXOverlap < minYOverlap { ;;; Collision was primarily horizontal
+                    if overlapLeft < overlapRight { ;;; Came from left, push to left edge
+                        scaledBarrierX - 1 -> finalX; ;;; Push slightly outside
+                        0 - (finalVx * bounceDamping) / 100 -> finalVx;
+                    } else { ;;; Came from right, push to right edge
+                        scaledBarrierRightX + 1 -> finalX; ;;; Push slightly outside
+                        0 - (finalVx * bounceDamping) / 100 -> finalVx;
+                    }
+                    if abs(finalVx) < (50 * scaleFactor) / 1000 { 0 -> finalVx; }
+                } else { ;;; Collision was primarily vertical
+                    if overlapTop < overlapBottom { ;;; Came from top, push to top edge
+                        scaledBarrierY - 1 -> finalY; ;;; Push slightly outside
+                        0 - (finalVy * bounceDamping) / 100 -> finalVy;
+                    } else { ;;; Came from bottom, push to bottom edge
+                        scaledBarrierBottomY + 1 -> finalY; ;;; Push slightly outside
+                        0 - (finalVy * bounceDamping) / 100 -> finalVy;
+                    }
+                    if abs(finalVy) < (50 * scaleFactor) / 1000 { 0 -> finalVy; }
+                }
             }
-
-            (vx + (ax * timeStep)) -> finalVx;
-            (vy + (ay * timeStep)) -> finalVy;
-            
-            ;;; Also apply a small amount of "friction" to slow down perpendicular motion
-            ;;; if the ball is basically sitting on the slope.
-            ;;; Project current velocity onto the normal to find perpendicular velocity
-            projectVector(finalVx, finalVy, normal_nx_scaled, normal_ny_scaled, scaleFactor) -> normal_vel_comp;
-            normal_vel_comp:0 -> normal_vx;
-            normal_vel_comp:1 -> normal_vy;
-
-            ;;; If normal velocity is very small, damp it completely
-            if abs(normal_vx) < resting_vel_threshold && abs(normal_vy) < resting_vel_threshold {
-                (finalVx - normal_vx) -> finalVx; ;;; Subtract normal component to keep only tangent
-                (finalVy - normal_vy) -> finalVy;
-            }
+            b_idx + 1 -> b_idx;
         }
-        ;;; --- End Rolling/Sliding Logic ---
-
+        ;;; --- End Barrier Collision ---
 
         ;;; --- Boundary Collision (simple, non-toroidal for water) ---
         ;;; Floor collision
@@ -686,102 +450,28 @@ fn updateParticles(allParticles, allSprings, config, gridWidth, gridHeight, barr
     }
     updatedParticles -> newParticlesState;
 }
-
 ;;; Renders the barrier onto the grid
-;;; This function draws a line of 'X's between two given grid points.
-fn renderBarrier(grid, barrierP1X_grid, barrierP1Y_grid, barrierP2X_grid, barrierP2Y_grid, barrierChar) -> grid {
-    ;;; Use the given grid coordinates directly
-    barrierP1X_grid -> gP1X;
-    barrierP1Y_grid -> gP1Y;
-    barrierP2X_grid -> gP2X;
-    barrierP2Y_grid -> gP2Y;
+fn renderBarrier(grid, barrierX, barrierY, barrierWidth, barrierHeight, barrierChar) -> grid {
+    0 -> y_offset;
+    while y_offset < barrierHeight {
+        0 -> x_offset;
+        while x_offset < barrierWidth {
+            (barrierY + y_offset) -> displayY;
+            (barrierX + x_offset) -> displayX;
 
-    ;;; Determine direction for iteration
-    (gP2X - gP1X) -> dx_total;
-    (gP2Y - gP1Y) -> dy_total;
-
-    (abs(dx_total)) -> abs_dx;
-    (abs(dy_total)) -> abs_dy;
-
-    if abs_dx = 0 && abs_dy = 0 {
-        ;;; Single point barrier
-        if gP1X >= 0 && gP1X < length(grid:0) {
-            if gP1Y >= 0 && gP1Y < length(grid) {
-                grid:gP1Y -> row;
-                barrierChar -> row:gP1X;
-                row -> grid:gP1Y;
-            }
-        }
-        return;
-    }
-
-    if abs_dx > abs_dy { ;;; Iterate along X
-        prn "hello";
-        (min(gP1X, gP2X)) -> startX;
-        (max(gP1X, gP2X)) -> endX;
-        
-        (gP1Y * 1000) -> currentY_fixed_point; ;;; Use fixed point for Y interpolation
-        (gP1X * 1000) -> currentX_fixed_point;
-
-        (dy_total * 1000) -> dy_total_fp;
-        (dx_total * 1000) -> dx_total_fp;
-
-        0 -> i;
-        while i <= abs_dx {
-            (startX + i) -> plotX;
-
-            ;;; Calculate interpolated Y using fixed-point arithmetic
-            ;;; y = y1 + (x - x1) * (y2 - y1) / (x2 - x1)
-            (plotX - gP1X) -> deltaX;
-            (deltaX * dy_total_fp) / dx_total_fp -> y_offset_fp;
-            (gP1Y * 1000 + y_offset_fp) -> interpolatedY_fp;
-
-            (interpolatedY_fp + 500) / 1000 -> plotY; ;;; Round to nearest integer (add 0.5 and truncate)
-
-            if plotX >= 0 && plotX < length(grid:0) {
-                if plotY >= 0 && plotY < length(grid) {
-                    grid:plotY -> row;
-                    barrierChar -> row:plotX;
-                    row -> grid:plotY;
+            if displayX >= 0 && displayX < length(grid:0) {
+                if displayY >= 0 && displayY < length(grid) {
+                    grid:displayY -> row;
+                    barrierChar -> row:displayX;
+                    row -> grid:displayY;
                 }
             }
-            i + 1 -> i;
+            x_offset + 1 -> x_offset;
         }
-    } else { ;;; Iterate along Y
-        (min(gP1Y, gP2Y)) -> startY;
-        (max(gP1Y, gP2Y)) -> endY;
-
-        (gP1X * 1000) -> currentX_fixed_point;
-        (gP1Y * 1000) -> currentY_fixed_point;
-
-        (dx_total * 1000) -> dx_total_fp;
-        (dy_total * 1000) -> dy_total_fp;
-
-        0 -> i;
-        while i <= abs_dy {
-            (startY + i) -> plotY;
-
-            ;;; Calculate interpolated X using fixed-point arithmetic
-            ;;; x = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
-            (plotY - gP1Y) -> deltaY;
-            (deltaY * dx_total_fp) / dy_total_fp -> x_offset_fp;
-            (gP1X * 1000 + x_offset_fp) -> interpolatedX_fp;
-
-            (interpolatedX_fp + 500) / 1000 -> plotX; ;;; Round to nearest integer
-
-            if plotX >= 0 && plotX < length(grid:0) {
-                if plotY >= 0 && plotY < length(grid) {
-                    grid:plotY -> row;
-                    barrierChar -> row:plotX;
-                    row -> grid:plotY;
-                }
-            }
-            i + 1 -> i;
-        }
+        y_offset + 1 -> y_offset;
     }
     grid -> grid;
 }
-
 
 ;;; Renders particles onto the grid
 fn renderParticles(grid, particles, scaleFactor, particleChar) -> grid {
@@ -808,25 +498,17 @@ fn renderParticles(grid, particles, scaleFactor, particleChar) -> grid {
 start {
     arg(0) -> gridWidth;
     arg(1) -> gridHeight;
-    arg(2) -> numParticlesX; ;;; We'll use these as arguments to determine total particles
-    arg(3) -> numParticlesY; ;;; The total number of particles will be numParticlesX * numParticlesY
+    arg(2) -> numParticles; ;;; We'll use these as arguments to determine total particles
 
-    ;;; --- Barrier Configuration ---
-    ;;; Define barrier by two points (grid coordinates, will be converted to scaled for physics)
-    ;;; Example: from (10, 20) to (90, 15) in grid units.
-    ;;; This creates a barrier from bottom-left to top-right on the screen.
-    10 -> barrierP1X_grid;
-    20 -> barrierP1Y_grid;
-    90 -> barrierP2X_grid;
-    15 -> barrierP2Y_grid;
-    "X" -> barrierChar;
-
-    ;;; To make it tilt the other way (top-left to bottom-right):
-    ;;; 10 -> barrierP1X_grid;
-    ;;; 15 -> barrierP1Y_grid;
-    ;;; 90 -> barrierP2X_grid;
-    ;;; 20 -> barrierP2Y_grid;
-
+    ;;; --- Barrier Configuration (now for random generation) ---
+    7 -> minBarriers;
+    10 -> maxBarriers; ;;; Generate between 1 and 3 barriers
+    5 -> minBarrierWidth;
+    20 -> maxBarrierWidth;
+    2 -> minBarrierHeight;
+    3 -> maxBarrierHeight;
+    "█" -> barrierChar;
+    [] -> allBarriers; ;;; List to store all barrier pods
 
     ;;; --- Initialize Configuration ---
     1000 -> scaleFactor;
@@ -837,7 +519,7 @@ start {
     150 -> kShear;
     100 -> kFlexion;
 
-    25 -> cDamping;
+    50 -> cDamping;
     (100 * scaleFactor) / 1000 -> restLengthStructural;
     (141 * scaleFactor) / 1000 -> restLengthShear;
     (200 * scaleFactor) / 1000 -> restLengthFlexion;
@@ -845,7 +527,7 @@ start {
     (1 * scaleFactor) -> particleMass;
     75 -> bounceDamping;
 
-    "O" -> particleChar;
+    "⬤" -> particleChar;
     " " -> emptyChar;
     "#" -> borderChar;
 
@@ -866,34 +548,69 @@ start {
 
     0 -> particleIdCounter;
     ;;; --- Random Placement of Particles ---
-    (numParticlesX * numParticlesY) -> totalParticlesToSpawn;
+    numParticles -> totalParticlesToSpawn;
     0 -> p_count;
 
+    ;;; Define the top spawn area (in unscaled grid coordinates)
+    ;;; Make sure `maxInt` for `random` is large enough to cover these ranges.
+    ;;; Adjust buffer to prevent spawning directly on grid edges.
     (gridWidth - 1) -> spawnMaxX_grid;
+    ;;; Spawn in the top quarter of the grid, ensuring not to spawn at Y=0
     (gridHeight / 4) -> spawnMaxY_grid;
+    ;;; Ensure a minimum Y for spawning to prevent balls starting off-screen at the very top.
+    ;;; This means the top-most row a ball can spawn in is 1.
     1 -> spawnMinY_grid;
 
     ;;; Random mass setup (optional, from previous suggestion)
-    (500 * myConfig:scaleFactor) / 1000 -> minRandomMass; ;;; 0.5 scaled
-    (5000 * myConfig:scaleFactor) / 1000 -> maxRandomMass; ;;; 5.0 scaled
+    (8000 * myConfig:scaleFactor) / 1000 -> minRandomMass; ;;; 0.5 scaled
+    (10000 * myConfig:scaleFactor) / 1000 -> maxRandomMass; ;;; 5.0 scaled
     (maxRandomMass - minRandomMass) -> massRange;
 
-
     while p_count < totalParticlesToSpawn {
+        ;;; Generate random unscaled coordinates using random(maxInt)
+        ;;; For X: between 0 and (gridWidth - 1)
         random(spawnMaxX_grid) -> randomGridX;
+        ;;; For Y: between spawnMinY_grid and spawnMaxY_grid
         random(spawnMaxY_grid - spawnMinY_grid) + spawnMinY_grid -> randomGridY;
 
+
+        ;;; Convert to scaled coordinates
         (randomGridX * myConfig:scaleFactor) -> startX;
         (randomGridY * myConfig:scaleFactor) -> startY;
 
         ;;; Get random mass
         random(massRange) + minRandomMass -> currentParticleMass;
 
-        particle(particleIdCounter, startX, startY, 0, 0, currentParticleMass, false) -> newParticle;
+        random(5000) -> initialXVel;
+
+        particle(particleIdCounter, startX, startY, initialXVel, 0, currentParticleMass, false) -> newParticle;
         newParticle -> $allParticles;
         particleIdCounter + 1 -> particleIdCounter;
         p_count + 1 -> p_count;
     }
+
+    ;;; --- Generate Random Barriers ---
+    random(maxBarriers - minBarriers + 1) + minBarriers -> numBarriersToGenerate;
+    0 -> b_gen_count;
+    while b_gen_count < numBarriersToGenerate {
+        random(maxBarrierWidth - minBarrierWidth + 1) + minBarrierWidth -> currentBarrierWidth;
+        random(maxBarrierHeight - minBarrierHeight + 1) + minBarrierHeight -> currentBarrierHeight;
+
+        ;;; Ensure barrier is placed fully within the grid
+        random(gridWidth - currentBarrierWidth) -> currentBarrierX;
+        random(gridHeight - currentBarrierHeight) -> currentBarrierY;
+
+        barrier(currentBarrierX, currentBarrierY, currentBarrierWidth, currentBarrierHeight) -> newBarrier;
+        newBarrier -> $allBarriers;
+        b_gen_count + 1 -> b_gen_count;
+    }
+
+    ;;; --- Spring Connections ---
+    ;;; As discussed, with random initial placement, the grid-based spring logic
+    ;;; is generally unsuitable for simulating inter-particle repulsion for "bouncy balls".
+    ;;; Particles will pass through each other unless a separate collision detection
+    ;;; and response system (like AABB or circle collision) is implemented.
+    ;;; The `allSprings` list will remain empty, meaning no spring forces between particles.
 
     0 -> steps;
 
@@ -903,21 +620,19 @@ start {
         ;;; 1. Clear the grid for the new frame
         initializeGrid(gridWidth, gridHeight, myConfig:emptyChar) -> currentGrid;
 
-        ;;; 1.5. Render the barrier (before particles)
-        ;;; Now pass the unscaled grid coordinates directly
-        renderBarrier(currentGrid, barrierP1X_grid, barrierP1Y_grid, barrierP2X_grid, barrierP2Y_grid, barrierChar) -> currentGrid;
+        ;;; 1.5. Render all barriers (before particles)
+        0 -> b_render_idx;
+        while b_render_idx < length(allBarriers) {
+            allBarriers:b_render_idx -> b;
+            renderBarrier(currentGrid, b:x, b:y, b:width, b:height, barrierChar) -> currentGrid;
+            b_render_idx + 1 -> b_render_idx;
+        }
         
-        ;;; Convert grid coordinates to scaled for physics
-        (barrierP1X_grid * scaleFactor) -> barrierP1X_scaled;
-        (barrierP1Y_grid * scaleFactor) -> barrierP1Y_scaled;
-        (barrierP2X_grid * scaleFactor) -> barrierP2X_scaled;
-        (barrierP2Y_grid * scaleFactor) -> barrierP2Y_scaled;
-
         ;;; 2. Update particle positions and velocities
-        ;;; Pass scaled barrier points for physics
-        updateParticles(allParticles, allSprings, myConfig, gridWidth, gridHeight, barrierP1X_scaled, barrierP1Y_scaled, barrierP2X_scaled, barrierP2Y_scaled) -> allParticles;
+        ;;; `allSprings` is empty, so particles only affected by gravity and boundary forces.
+        updateParticles(allParticles, allSprings, myConfig, gridWidth, gridHeight, allBarriers, barrierChar) -> allParticles;
 
-        ;;; 3. Render particles to the grid
+        ;;; 3. Render particles to the grid (particles will draw on top of barrier if occupying same cell)
         renderParticles(currentGrid, allParticles, myConfig:scaleFactor, myConfig:particleChar) -> currentGrid;
 
         ;;; 4. Display

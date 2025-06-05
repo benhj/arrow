@@ -494,8 +494,8 @@ start {
     arg(3) -> numParticlesY; ;;; The total number of particles will be numParticlesX * numParticlesY
 
     ;;; --- Barrier Configuration ---
-    75 -> barrierWidth;
-    5 -> barrierHeight;
+    40 -> barrierWidth;
+    4 -> barrierHeight;
     (gridWidth / 2 - (barrierWidth / 2)) -> barrierX;
     (gridHeight / 2) -> barrierY;
     "█" -> barrierChar;
@@ -552,8 +552,8 @@ start {
     1 -> spawnMinY_grid;
 
     ;;; Random mass setup (optional, from previous suggestion)
-    (500 * myConfig:scaleFactor) / 1000 -> minRandomMass; ;;; 0.5 scaled
-    (5000 * myConfig:scaleFactor) / 1000 -> maxRandomMass; ;;; 5.0 scaled
+    (5000 * myConfig:scaleFactor) / 1000 -> minRandomMass; ;;; 0.5 scaled
+    (10000 * myConfig:scaleFactor) / 1000 -> maxRandomMass; ;;; 5.0 scaled
     (maxRandomMass - minRandomMass) -> massRange;
 
     while p_count < totalParticlesToSpawn {

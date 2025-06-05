@@ -1,0 +1,337 @@
+;;; Procedural Terrain Generation Model - Evolving Noise
+;;; Using a simplified Perlin-noise-like approach with linear interpolation,
+;;; and dynamically changing the underlying noise values.
+
+;;; --- Utility Functions (from forest fire model, adapted) ---
+
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> result;
+    }
+}
+
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+fn max(a, b) -> result {
+    a -> result;
+    if b > a {
+        b -> result;
+    }
+}
+
+fn repeat(char, count) -> result {
+    "" -> result;
+    0 -> i;
+    while i < count {
+        result + char -> result;
+        i + 1 -> i;
+    }
+    result -> result;
+}
+
+;;; --- Noise Generation Functions ---
+
+;;; Initializes a grid of 'gradient' values (random numbers)
+;;; We'll use these to simulate gradients for our simplified noise.
+;;; Each point (x, y) in the noise grid will have a random value.
+fn initialize_noise_grid(gridWidth, gridHeight) -> noise_grid {
+    0 -> y;
+    [] -> noise_grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            ;;; Store a random float between -1.0 and 1.0
+            (random(2000) / 1000.0) - 1.0 -> r;
+            r -> $row;
+            x + 1 -> x;
+        }
+        row -> $noise_grid;
+        y + 1 -> y;
+    }
+    noise_grid -> noise_grid;
+}
+
+;;; Linear interpolation (Lerp)
+fn lerp(a, b, t) -> result {
+    a + (b - a) * t -> result;
+}
+
+;;; Smootherstep function (6t^5 - 15t^4 + 10t^3) for smoother interpolation
+;;; This function takes a 't' value (0 to 1) and returns a smoothed 't' value.
+;;; Note: This requires floating point arithmetic, which your language supports.
+fn smootherstep(t) -> result {
+    t * t * t * (t * (t * 6.0 - 15.0) + 10.0) -> result;
+}
+
+;;; UPDATED: get_noise_value now takes noise_grid_width and noise_grid_height
+;;; Gets a noise value at a given (x, y) coordinate
+;;; This is the core of our simplified Perlin noise.
+;;; It interpolates values from the surrounding 'gradient' points.
+;;; scale_factor controls the "zoom" of the noise.
+fn get_noise_value(noise_grid, x, y, noise_grid_width, noise_grid_height, scale_factor) -> value {
+    ;;; Convert grid coordinates to noise grid coordinates
+    x / scale_factor -> scaled_x;
+    y / scale_factor -> scaled_y;
+
+    ;;; Determine the corners of the cell in the noise grid
+    ;;; IMPORTANT: Use noise_grid_width/height for clamping and modulo here
+    min(max(0, floor(scaled_x)), noise_grid_width - 1) -> x0;
+    min(max(0, floor(scaled_x + 1.0)), noise_grid_width - 1) -> x1;
+    min(max(0, floor(scaled_y)), noise_grid_height - 1) -> y0;
+    min(max(0, floor(scaled_y + 1.0)), noise_grid_height - 1) -> y1;
+
+    ;;; Fractional part within the cell
+    scaled_x - x0 -> fx;
+    scaled_y - y0 -> fy;
+
+    ;;; Smooth the fractional parts
+    smootherstep(fx) -> u;
+    smootherstep(fy) -> v;
+
+    ;;; Get gradient values from the noise grid (using modulo for wrapping, like your forest fire)
+    ;;; IMPORTANT: Use noise_grid_width/height for modulo here
+    noise_grid:((y0 + noise_grid_height) % noise_grid_height) -> row_y0;
+    noise_grid:((y1 + noise_grid_height) % noise_grid_height) -> row_y1;
+
+    row_y0:((x0 + noise_grid_width) % noise_grid_width) -> n00;
+    row_y0:((x1 + noise_grid_width) % noise_grid_width) -> n10;
+    row_y1:((x0 + noise_grid_width) % noise_grid_width) -> n01;
+    row_y1:((x1 + noise_grid_width) % noise_grid_width) -> n11;
+
+    ;;; Interpolate horizontally
+    lerp(n00, n10, u) -> ix0;
+    lerp(n01, n11, u) -> ix1;
+
+    ;;; Interpolate vertically
+    lerp(ix0, ix1, v) -> value;
+    value -> value;
+}
+
+;;; A simplified floor function (integer part)
+fn floor(n) -> result {
+    to_int(n) -> result;
+}
+
+;;; Modifies the noise_grid itself by adding small random perturbations
+;;; Clamps values to stay within -1.0 and 1.0.
+;;; REVISED: Now creates a new noise_grid and populates it.
+fn update_noise_grid(iteration, old_noise_grid, noise_grid_width, noise_grid_height, perturbation_strength) -> new_noise_grid {
+    0 -> y;
+    [] -> new_noise_grid; ;;; Start with an empty new grid
+    while y < noise_grid_height {
+        0 -> x;
+        [] -> new_row; ;;; Start with an empty new row
+        old_noise_grid:y -> current_old_row; ;;; Get reference to the old row
+
+        while x < noise_grid_width {
+            current_old_row:x -> current_noise_value;
+
+            ;;; Generate a small random perturbation between -perturbation_strength and +perturbation_strength
+            (random(2000) / 1000.0 - 1.0) * perturbation_strength -> perturbation;
+
+            current_noise_value + perturbation -> new_noise_value_unclamped;
+
+            ;;; Clamp the value to ensure it stays within the valid noise range [-1.0, 1.0]
+            max(-1.0, min(1.0, new_noise_value_unclamped)) -> clamped_noise_value;
+
+            ;;; DEBUG PRINT: Monitor a specific noise grid cell (e.g., (0,0))
+            ;;;if x = 0 && y = 0 {
+            ;;;    prn "DEBUG-NOISE: Iteration " + iteration + " - Noise(0,0) Old: " + current_noise_value + ", Perturb: " + perturbation + ", New Unclamped: " + new_noise_value_unclamped + ", New Clamped: " + clamped_noise_value;
+            ;;;}
+
+            clamped_noise_value -> $new_row; ;;; Add value to the new row
+            x + 1 -> x;
+        }
+        new_row -> $new_noise_grid; ;;; Add the new row to the new grid
+        y + 1 -> y;
+    }
+    new_noise_grid -> new_noise_grid; ;;; Return the freshly constructed grid
+}
+
+;;; --- Terrain Grid Functions ---
+
+;;; UPDATED: generate_terrain now takes noise_grid_width and noise_grid_height
+;;; Generates the terrain grid based on noise values
+fn generate_terrain(iteration, gridWidth, gridHeight, noise_grid, noise_grid_width, noise_grid_height, scale_factor, P_water, P_sand, P_grass, P_forest) -> terrain_grid {
+    0 -> y;
+    [] -> terrain_grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            ;;; IMPORTANT: Pass noise_grid_width and noise_grid_height to get_noise_value
+            get_noise_value(noise_grid, x, y, noise_grid_width, noise_grid_height, scale_factor) -> height;
+
+            ;;; Map noise value to terrain type
+            ;;; Normalize height from [-1, 1] to [0, 1]
+            (height + 1.0) / 2.0 -> normalized_height;
+
+            "" -> cell_char;
+            if normalized_height < P_water {
+                "W" -> cell_char; ;;; Water
+            } elseif normalized_height < P_sand {
+                "S" -> cell_char; ;;; Sand
+            } elseif normalized_height < P_grass {
+                "G" -> cell_char; ;;; Grassland
+            } elseif normalized_height < P_forest {
+                "F" -> cell_char; ;;; Forest
+            } else {
+                "M" -> cell_char; ;;; Mountain
+            }
+
+            ;;; DEBUG PRINT: Monitor a specific display grid cell (e.g., (0,0))
+            ;;; This will print once per iteration for the cell at (0,0) of the displayed terrain.
+            ;;; if x = 0 && y = 0 {
+            ;;;    prn "DEBUG-TERRAIN: Iteration " + iteration + " - Display(0,0) Height: " + height + ", Norm Height: " + normalized_height + ", Char: " + cell_char;
+            ;;;}
+
+            cell_char -> $row;
+            x + 1 -> x;
+        }
+        row -> $terrain_grid;
+        y + 1 -> y;
+    }
+    terrain_grid -> terrain_grid;
+}
+
+;;; Gets ANSI 256-color background code with a black foreground for visibility
+fn cellColorCode(char) -> color_code {
+    "\033[48;5;232m" -> color_code; ;;; Default: Dark Grey Background (shouldn't be seen)
+    "\033[38;5;232m" -> fg_code; ;;; Default: Black Foreground
+
+    if char = "W" {
+        "\033[48;5;27m" -> color_code; ;;; Deep Blue for Water
+    } elseif char = "S" {
+        "\033[48;5;222m" -> color_code; ;;; Sandy Yellow for Sand
+    } elseif char = "G" {
+        "\033[48;5;70m" -> color_code; ;;; Bright Green for Grass
+    } elseif char = "F" {
+        "\033[48;5;22m" -> color_code; ;;; Dark Green for Forest
+    } elseif char = "M" {
+        "\033[48;5;246m" -> color_code; ;;; Grey for Mountains
+    }
+    color_code + fg_code -> color_code; ;;; Combine BG and FG
+    color_code -> color_code;
+}
+
+;;; Prints the terrain grid row by row with a box border, optimized for 256-colors
+fn print_terrain(grid, gridWidth) {
+    ;;; Top border
+    prn "┌" + repeat("─", gridWidth * 2) + "┐";
+
+    ;;; Grid rows with side borders
+    for row in grid {
+        "" -> row_str;
+        for char in row {
+            cellColorCode(char) -> current_color_code;
+            row_str + current_color_code -> row_str;
+            row_str + char + " " -> row_str; ;;; Character + one space
+        }
+        row_str + "\033[0m" -> row_str; ;;; Reset color at the end of each row
+        prn "│" + row_str + "│";
+    }
+
+    ;;; Bottom border
+    prn "└" + repeat("─", gridWidth * 2) + "┘";
+}
+
+;;; Counts terrain types
+fn count_terrain_types(grid) -> counts {
+    0 -> water;
+    0 -> sand;
+    0 -> grass;
+    0 -> forest;
+    0 -> mountain;
+    for row in grid {
+        for char in row {
+            if char = "W" { water + 1 -> water; }
+            elseif char = "S" { sand + 1 -> sand; }
+            elseif char = "G" { grass + 1 -> grass; }
+            elseif char = "F" { forest + 1 -> forest; }
+            elseif char = "M" { mountain + 1 -> mountain; }
+        }
+    }
+    {water, sand, grass, forest, mountain} -> counts;
+}
+
+;;; Prints a neat overlay with terrain stats
+fn print_overlay(counts, iteration) {
+    pr "\033[34m"; ;;; Blue foreground for HUD
+    prn "┌───────────────────┬───────────────┐";
+    prn "│       STAT        │      VALUE    │";
+    prn "├───────────────────┼───────────────┤";
+    prn "│ Iteration         │ " + padRight("" + iteration, 13) + " │";
+    prn "│ Water (W)         │ " + padRight("" + counts:0, 13) + " │";
+    prn "│ Sand (S)          │ " + padRight("" + counts:1, 13) + " │";
+    prn "│ Grass (G)         │ " + padRight("" + counts:2, 13) + " │";
+    prn "│ Forest (F)        │ " + padRight("" + counts:3, 13) + " │";
+    prn "│ Mountain (M)      │ " + padRight("" + counts:4, 13) + " │";
+    prn "└───────────────────┴───────────────┘";
+    pr "\033[0m"; ;;; Reset color
+}
+
+;;; Pads string on the right with spaces to a fixed length
+fn padRight(str, length) -> padded {
+    str -> padded;
+    while length > length(padded) {
+        padded + " " -> padded;
+    }
+    padded -> padded;
+}
+
+;;; Main program loop
+start {
+    arg(0) -> gridWidth;
+    arg(1) -> gridHeight;
+
+    ;;; Default parameters for terrain generation
+    0.3 -> P_water;    ;;; Anything below this is water
+    0.4 -> P_sand;     ;;; Anything between P_water and this is sand
+    0.6 -> P_grass;    ;;; Anything between P_sand and this is grass
+    0.8 -> P_forest;   ;;; Anything between P_grass and this is forest
+    ;;; Above P_forest is mountain
+
+    ;;; Scale factor for noise (controls "zoom" or feature size)
+    ;;; Smaller values mean larger, smoother features. Larger values mean more chaotic.
+    10.0 -> noise_scale;
+
+    ;;; How much the noise values perturb each step
+    ;;; Set to a higher value for debugging to make changes more obvious
+    0.05 -> noise_perturbation_strength; ;;; Increased for more visible effect
+
+    ;;; Initialize the underlying noise grid (slightly larger than display grid for robust wrapping)
+    gridWidth + 1 -> noise_grid_width;
+    gridHeight + 1 -> noise_grid_height;
+    initialize_noise_grid(noise_grid_width, noise_grid_height) -> base_noise_grid;
+
+    0 -> iteration;
+
+    while true {
+        iteration + 1 -> iteration;
+
+        ;;; Update the underlying noise grid each step
+        update_noise_grid(iteration, base_noise_grid, noise_grid_width, noise_grid_height, noise_perturbation_strength) -> base_noise_grid;
+
+        ;;; Generate the terrain based on the now-evolved noise grid
+        generate_terrain(iteration, gridWidth, gridHeight, base_noise_grid, noise_grid_width, noise_grid_height, noise_scale, P_water, P_sand, P_grass, P_forest) -> current_terrain_grid;
+
+        count_terrain_types(current_terrain_grid) -> terrain_counts;
+
+        ;;; Adjust ANSI escape sequence for clear screen
+        ;;; Added 2 extra lines to total_display_lines for the debug output.
+        gridHeight + 12 + 2 -> total_display_lines; 
+
+        ;;; Clear the screen
+        ansi_up total_display_lines;
+        
+        print_terrain(current_terrain_grid, gridWidth);
+        print_overlay(terrain_counts, iteration);
+    }
+}
