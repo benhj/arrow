@@ -851,9 +851,9 @@ fn tileName(tile_code) -> name_str {
 ;;; UPDATED: Added Last Goal Encounter to display
 fn printOverlay(numWalkersTotal, walkers_list, steps_count) {
     pr "\033[34m";
-    prn "┌─────────────┬─────────────┬───────────┬───────────────┬───────────────┬─────────────┬─────────────────┬─────────┬─────────┬───────────────┐";
-    prn "│   WALKER    │ Mode        │ Pos       │ Trail Length  │ Last Tile     │ Personality │ Encounter Count │ Energy  │ Age     │ Last Goal Enc.│";
-    prn "├─────────────┼─────────────┼───────────┼───────────────┼───────────────┼─────────────┼─────────────────┼─────────┼─────────┼───────────────┤";
+    prn "┌─────────────┬─────────────┬───────────┬───────────────┬───────────────┬─────────────┬─────────────────┬─────────┬───────────┬───────────────┐";
+    prn "│   WALKER    │ Mode        │ Pos       │ Trail Length  │ Last Tile     │ Personality │ Encounter Count │ Energy  │ Age       │ Last Goal Enc.│";
+    prn "├─────────────┼─────────────┼───────────┼───────────────┼───────────────┼─────────────┼─────────────────┼─────────┼───────────┼───────────────┤";
 
     0 -> i_overlay;
     while i_overlay < length(walkers_list) {
@@ -861,15 +861,15 @@ fn printOverlay(numWalkersTotal, walkers_list, steps_count) {
         "" + currentWalker_overlay:walkerId -> walkerNum_overlay;
         "" + currentWalker_overlay:energy + "/" + currentWalker_overlay:maxEnergy -> energyStr_overlay;
         "" + currentWalker_overlay:age + "/" + currentWalker_overlay:maxAge -> ageStr_overlay;
-        prn "│ Walker " + padRight(walkerNum_overlay, 5) + "│ " + padRight(currentWalker_overlay:mode, 12) + "│ " + formatPos(currentWalker_overlay:pos) + "│ " + padRight("" + currentWalker_overlay:trailLength, 14) + "│ " + padRight(currentWalker_overlay:lastTile, 14) + "│ " + padRight(currentWalker_overlay:personality, 12) + "│ " + padRight("" + currentWalker_overlay:encounterCount, 16) + "│ " + padRight(energyStr_overlay, 8) + "│ " + padRight(ageStr_overlay, 8) + "│ " + padRight("" + currentWalker_overlay:lastGoalEncounter, 14) + "│";
+        prn "│ Walker " + padRight(walkerNum_overlay, 5) + "│ " + padRight(currentWalker_overlay:mode, 12) + "│ " + formatPos(currentWalker_overlay:pos) + "│ " + padRight("" + currentWalker_overlay:trailLength, 14) + "│ " + padRight(currentWalker_overlay:lastTile, 14) + "│ " + padRight(currentWalker_overlay:personality, 12) + "│ " + padRight("" + currentWalker_overlay:encounterCount, 16) + "│ " + padRight(energyStr_overlay, 8) + "│ " + padRight(ageStr_overlay, 10) + "│ " + padRight("" + currentWalker_overlay:lastGoalEncounter, 14) + "│";
         i_overlay + 1 -> i_overlay;
     }
     while i_overlay < numWalkersTotal  { ;;; For displaying DEAD walkers if numWalkersTotal was the initial count
-        prn "│ DEAD        │             │           │               │               │             │                           │         │         │               │";
+        prn "│ DEAD        │             │           │               │               │             │                 │         │           │               │";
         i_overlay + 1 -> i_overlay;
     }
 
-    prn "└─────────────┴─────────────┴───────────┴───────────────┴───────────────┴─────────────┴─────────────────┴─────────┴─────────┴───────────────┘";
+    prn "└─────────────┴─────────────┴───────────┴───────────────┴───────────────┴─────────────┴─────────────────┴─────────┴───────────┴───────────────┘";
     prn " Steps: " + steps_count + " | Alive Walkers: " + length(walkers_list);
     pr "\033[0m";
 }
@@ -893,15 +893,15 @@ start {
         [currentPos_main] -> currentPath_main;
 
         "" -> currentPersonality_main;
-        if i_main_init % 3 = 0 {
+        if i_main_init % 2 = 0 {
             "learner" -> currentPersonality_main;
-        } elseif i_main_init % 3 = 1 {
-            "learner" -> currentPersonality_main;
+        ;;;} elseif i_main_init % 2 = 1 {
+        ;;;    "learner" -> currentPersonality_main;
         } else {
-            "learner" -> currentPersonality_main;
+            "discover" -> currentPersonality_main;
         }
 
-        2000 -> initialMaxEnergy_main;
+        500 -> initialMaxEnergy_main;
         initialMaxEnergy_main -> initialEnergy_main;
         5000 -> initialMaxAge_main;
         0 -> initialAge_main;
