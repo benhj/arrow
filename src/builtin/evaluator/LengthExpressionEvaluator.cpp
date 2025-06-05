@@ -41,7 +41,8 @@ namespace arrow {
            t.m_descriptor != TypeDescriptor::Bools &&
            t.m_descriptor != TypeDescriptor::Bytes &&
            t.m_descriptor != TypeDescriptor::Pods &&
-           t.m_descriptor != TypeDescriptor::String) {
+           t.m_descriptor != TypeDescriptor::String &&
+           t.m_descriptor != TypeDescriptor::Arrays) {
             throw LanguageException("Not a container", m_expression.getLineNumber());
         }
 

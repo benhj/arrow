@@ -1,0 +1,994 @@
+;;; Simulate N walkers with personalities
+;;; basic HUD overlay with trail length, last tile, and step count
+;;; also spawns new items evey 100 steps
+;;; UPDATED: Walkers with personalities ('aggressive' goal-seeking, 'discover' exploring, 'learner' Hebbian)
+;;; UPDATED: Implemented abs and min functions
+;;; UPDATED: Aggressive walker now truly seeks goals by prioritizing direct alignment and minimizing distance
+;;; UPDATED: Discover walker now has undulatory movement by favoring slight turns
+;;; FIX: Walkers are now visible again (fixed bug in allValidOptions population)
+;;; NEW: Supports N number of walkers, passed as a third argument
+;;; NEW: Draws a box around the grid for better visualization
+;;; NEW: Accepts separate gridWidth and gridHeight parameters for aspect ratio tuning
+
+;;; --- Utility Functions ---
+
+;;; Returns the absolute value of a number
+fn abs(n) -> result {
+    n -> result;
+    if n < 0 {
+        0 - n -> result;
+    }
+}
+
+;;; Returns the minimum of two numbers
+fn min(a, b) -> result {
+    b -> result;
+    if a < b {
+        a -> result;
+    }
+}
+
+;;; Repeats a character 'count' times
+fn repeat(char, count) -> result {
+    "" -> result;
+    0 -> i;
+    while i < count {
+        result + char -> result;
+        i + 1 -> i;
+    }
+    result -> result;
+}
+
+;;; --- Grid and Item Management Functions ---
+
+;;; Initializes a grid with specified width and height filled with spaces (" ")
+fn initialize(gridWidth, gridHeight) -> grid {
+    0 -> y;
+    [] -> grid;
+    while y < gridHeight {
+        0 -> x;
+        [] -> row;
+        while x < gridWidth {
+            " " -> $row;
+            x + 1 -> x;
+        }
+        row -> $grid;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Randomly places goal, slow, and teleport tiles
+fn placeItems(grid, gridWidth, gridHeight) -> grid {
+    0 -> i;
+    while i < 20 {
+        random(gridWidth - 1) -> x;
+        random(gridHeight - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = " " {
+            "◍" -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 3 {
+        random(gridWidth - 1) -> x;
+        random(gridHeight - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = " " {
+            "S" -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    0 -> i;
+    while i < 2 {
+        random(gridWidth - 1) -> x;
+        random(gridHeight - 1) -> y;
+        grid:y -> row;
+        row:x -> cell;
+        if cell = " " {
+            "T" -> row:x;
+            row -> grid:y;
+            i + 1 -> i;
+        }
+    }
+    grid -> grid;
+}
+
+;;; Periodically place a few new items if space allows
+fn respawnItems(grid, gridWidth, gridHeight) -> grid {
+    0 -> count;
+    while count < 1 { ;;; spawn 1 new item per respawn, adjust as you want
+        random(2) -> r_idx;
+        "" -> r_char;
+        if r_idx = 0 {
+            "◍" -> r_char;
+        } elseif r_idx = 1 {
+            "S" -> r_char;
+        } else {
+            "T" -> r_char;
+        }
+
+        true -> searching;
+        while searching {
+            random(gridWidth - 1) -> x;
+            random(gridHeight - 1) -> y;
+            grid:y -> row;
+            row:x -> cell;
+            if cell = " " {
+                r_char -> row:x;
+                row -> grid:y;
+                count + 1 -> count;
+                false -> searching;
+            }
+        }
+    }
+    grid -> grid;
+}
+
+;;; Prints the grid row by row with a box border
+fn print(grid, gridWidth) {
+    ;;; Top border
+    prn "┌" + repeat("─", gridWidth) + "┐";
+
+    ;;; Grid rows with side borders
+    for row in grid {
+        "" -> row_str;
+        for char in row {
+            cellColor(char) -> theColor;
+            row_str + theColor -> row_str;
+            row_str + char -> row_str;
+            row_str + "\033[0m" -> row_str;
+        }
+        prn "│" + row_str + "│";
+    }
+
+    ;;; Bottom border
+    prn "└" + repeat("─", gridWidth) + "┘";
+}
+
+;;; Calculates Manhattan distance between two points on a toroidal grid
+fn manhattanDistance(pos1, pos2, gridWidth, gridHeight) -> dist {
+    pos1:0 -> x1;
+    pos1:1 -> y1;
+    pos2:0 -> x2;
+    pos2:1 -> y2;
+
+    abs(x1 - x2) -> dx;
+    abs(y1 - y2) -> dy;
+    min(dx, gridWidth - dx) -> wrapDx;
+    min(dy, gridHeight - dy) -> wrapDy;
+
+    wrapDx + wrapDy -> dist;
+}
+
+;;; Finds the closest 'G' tile on the grid, returns its position or { -1, -1 } if none found
+fn findClosestGoal(grid, pos, gridWidth, gridHeight) -> goalPos {
+    pos:0 -> startX;
+    pos:1 -> startY;
+    { -1, -1 } -> closestGoal;
+    (gridWidth * gridHeight) + 1 -> minDist; ;;; A very large number for initial minimum distance
+
+    0 -> y;
+    while y < gridHeight {
+        0 -> x;
+        grid:y -> row;
+        while x < gridWidth {
+            row:x -> cell;
+            if cell = "◍" {
+                {x, y} -> currentGoalPos;
+                manhattanDistance(pos, currentGoalPos, gridWidth, gridHeight) -> dist;
+                if dist < minDist {
+                    dist -> minDist;
+                    currentGoalPos -> closestGoal;
+                }
+            }
+            x + 1 -> x;
+        }
+        y + 1 -> y;
+    }
+    closestGoal -> goalPos;
+}
+
+;;; Returns a list of directions that represent 'straight' and 'slight turns' (45 degrees)
+;;; relative to the given previous direction.
+fn getUndulatoryNeighbors(prevdir) -> neighbors {
+    [] -> neighbors;
+    prevdir:0 -> px;
+    prevdir:1 -> py;
+
+    ;;; For initial state {0,0}, include all cardinal/diagonal directions as potential starting undulation
+    if px = 0 && py = 0 {
+        { {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1} } -> allDirs;
+        for d in allDirs {
+            d -> $neighbors;
+        }
+        neighbors -> neighbors;
+        return;
+    }
+
+    ;;; Include straight direction
+    prevdir -> $neighbors;
+
+    ;;; Include 45-degree rotational neighbors
+    if px = 1 && py = 0 { ;;; East {1,0}
+        {1,1} -> $neighbors; ;;; SE
+        {1,-1} -> $neighbors; ;;; NE
+    } elseif px = -1 && py = 0 { ;;; West {-1,0}
+        {-1,1} -> $neighbors; ;;; SW
+        {-1,-1} -> $neighbors; ;;; NW
+    } elseif px = 0 && py = 1 { ;;; South {0,1}
+        {1,1} -> $neighbors; ;;; SE
+        {-1,1} -> $neighbors; ;;; SW
+    } elseif px = 0 && py = -1 { ;;; North {0,-1}
+        {1,-1} -> $neighbors; ;;; NE
+        {-1,-1} -> $neighbors; ;;; NW
+    } elseif px = 1 && py = 1 { ;;; Southeast {1,1}
+        {1,0} -> $neighbors; ;;; E
+        {0,1} -> $neighbors; ;;; S
+    } elseif px = -1 && py = 1 { ;;; Southwest {-1,1}
+        {-1,0} -> $neighbors; ;;; W
+        {0,1} -> $neighbors; ;;; S
+    } elseif px = 1 && py = -1 { ;;; Northeast {1,-1}
+        {1,0} -> $neighbors; ;;; E
+        {0,-1} -> $neighbors; ;;; N
+    } elseif px = -1 && py = -1 { ;;; Northwest {-1,-1}
+        {-1,0} -> $neighbors; ;;; W
+        {0,-1} -> $neighbors; ;;; N
+    }
+    neighbors -> neighbors;
+}
+
+;;; UPDATED: Added new attributes for artificial life simulation and Hebbian learning
+;;; UPDATED: Added lastGoalEncounter for 'learner' personality
+pod gridpos(grid, pos, moved, path, mode, prevdir, lastTile, trailLength, personality, encounterCount, maxEncounters, energy, maxEnergy, age, maxAge, isAlive, walkerId, lastGoalEncounter, movementWeights, lastChosenDirIndex, energyBeforeMove);
+;;; Moves position by one unit in a direction, avoiding reversals
+;;; Updated for "aggressive", "discover", and "learner" personalities
+;;; UPDATED: Now includes 'learner' personality logic with Hebbian movement choice
+fn move(GRIDPOS_Input, gridWidth, gridHeight) -> GRIDPOS_Output {
+
+    GRIDPOS_Input -> GRIDPOS_Output; ;;; ensure we always have a return value (possible bug here)
+
+    GRIDPOS_Input:pos -> pos;
+    GRIDPOS_Input:grid -> grid;
+    GRIDPOS_Input:path -> path;
+    GRIDPOS_Input:mode -> mode;
+    GRIDPOS_Input:prevdir -> prevdir;
+    GRIDPOS_Input:personality -> personality;
+    GRIDPOS_Input:encounterCount -> encounterCount;
+    GRIDPOS_Input:maxEncounters -> maxEncounters;
+    GRIDPOS_Input:energy -> energy;
+    GRIDPOS_Input:maxEnergy -> maxEnergy;
+    GRIDPOS_Input:age -> age;
+    GRIDPOS_Input:maxAge -> maxAge;
+    GRIDPOS_Input:isAlive -> isAlive;
+    GRIDPOS_Input:walkerId -> walkerId;
+    GRIDPOS_Input:lastTile -> lastTile;
+    GRIDPOS_Input:lastGoalEncounter -> lastGoalEncounter;
+    GRIDPOS_Input:movementWeights -> movementWeights;       ;;; NEW: Get Hebbian learning attributes
+    GRIDPOS_Input:lastChosenDirIndex -> lastChosenDirIndex; ;;; NEW
+    GRIDPOS_Input:energy -> energyBeforeMoveDecision;       ;;; NEW: Capture energy before move for Hebbian delta calculation
+
+    pos:0 -> x;
+    pos:1 -> y;
+    [] -> allValidOptions;
+    [] -> aggressiveOptions;
+    [] -> discoverOptions;
+
+    { {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1} } -> directions;
+    ;;; E, W, S, N, NW, NE, SW, SE
+    {0, 0} -> dir_selected; ;;; Default direction, will be overwritten
+
+    ;;; Common filtering for all possible directions: non-reversal and valid cell
+    0 -> i;
+    while i < 8 {
+        directions:i -> currentDirOption;
+        currentDirOption:0 -> dx;
+        currentDirOption:1 -> dy;
+
+        (x + dx + gridWidth) % gridWidth -> nx;
+        (y + dy + gridHeight) % gridHeight -> ny;
+
+        grid:ny -> row;
+        row:nx -> cell;
+        -prevdir:0 -> revdx;
+        -prevdir:1 -> revdy;
+        if dx = revdx && dy = revdy {
+            i + 1 -> i;
+        } else {
+            if cell = " " ||
+            cell = "◍" || cell = "S" || cell = "T" {
+                currentDirOption -> $allValidOptions;
+            }
+            i + 1 -> i;
+        }
+    }
+
+    [] -> dir_selected; ;;; Re-initialize selected direction
+
+    -1 -> chosen_dir_idx_for_output; ;;; For learners, this will store the chosen weight index
+
+    if personality = "aggressive" {
+        findClosestGoal(grid, pos, gridWidth, gridHeight) -> goalPos;
+        goalPos:0 -> gx;
+        goalPos:1 -> gy;
+
+        if gx /= -1 { ;;;
+            [] -> directAlignedOptions;
+            [] -> distanceMinimizingOptions;
+            abs(gx - x) -> rawDx;
+            abs(gy - y) -> rawDy;
+            min(rawDx, gridWidth - rawDx) -> shortestDx;
+            min(rawDy, gridHeight - rawDy) -> shortestDy;
+
+            0 -> desiredXDir;
+            if gx > x {
+                if shortestDx = gx - x { 1 -> desiredXDir;
+                } else { -1 -> desiredXDir; }
+            } elseif gx < x {
+                if shortestDx = x - gx { -1 -> desiredXDir;
+                } else { 1 -> desiredXDir; }
+            }
+
+            0 -> desiredYDir;
+            if gy > y {
+                if shortestDy = gy - y { 1 -> desiredYDir;
+                } else { -1 -> desiredYDir; }
+            } elseif gy < y {
+                if shortestDy = y - gy { -1 -> desiredYDir;
+                } else { 1 -> desiredYDir; }
+            }
+
+            for currentDirOption in allValidOptions {
+                currentDirOption:0 -> cdx;
+                currentDirOption:1 -> cdy;
+
+                true -> isAligned;
+                if desiredXDir /= 0 && cdx /= desiredXDir { false -> isAligned;
+                }
+                if desiredYDir /= 0 && cdy /= desiredYDir { false -> isAligned;
+                }
+                if desiredXDir = 0 && cdx /= 0 { false -> isAligned;
+                }
+                if desiredYDir = 0 && cdy /= 0 { false -> isAligned;
+                }
+
+                if isAligned {
+                    currentDirOption -> $directAlignedOptions;
+                }
+            }
+
+            length(directAlignedOptions) -> dalen;
+            if dalen > 0 {
+                random(dalen - 1) -> i_agg;
+                directAlignedOptions:i_agg -> dir_selected;
+            } else {
+                (gridWidth * gridHeight) + 1 -> minimizedNewDist;
+                for currentDir_agg in allValidOptions {
+                    currentDir_agg:0 -> cdx_agg;
+                    currentDir_agg:1 -> cdy_agg;
+                    (x + cdx_agg + gridWidth) % gridWidth -> cnx_agg;
+                    (y + cdy_agg + gridHeight) % gridHeight -> cny_agg;
+
+                    manhattanDistance({cnx_agg, cny_agg}, goalPos, gridWidth, gridHeight) -> newDist_agg;
+                    if newDist_agg < minimizedNewDist {
+                        newDist_agg -> minimizedNewDist;
+                        [] -> distanceMinimizingOptions;
+                        currentDir_agg -> $distanceMinimizingOptions;
+                    } elseif newDist_agg = minimizedNewDist {
+                        currentDir_agg -> $distanceMinimizingOptions;
+                    }
+                }
+                length(distanceMinimizingOptions) -> dmlen;
+                if dmlen > 0 {
+                    random(dmlen - 1) -> i_agg_fallback;
+                    distanceMinimizingOptions:i_agg_fallback -> dir_selected;
+                }
+            }
+        }
+    } elseif personality = "discover" {
+        length(allValidOptions) -> numValidOptions_disc;
+        getUndulatoryNeighbors(prevdir) -> undulatoryCandidates;
+        [] -> undulatoryOptions;
+
+        for uDir in undulatoryCandidates {
+            false -> found_uDir_in_allValidOptions;
+            for aDir_disc in allValidOptions {
+                if uDir:0 = aDir_disc:0 && uDir:1 = aDir_disc:1 {
+                    true -> found_uDir_in_allValidOptions;
+                    break;
+                }
+            }
+            if found_uDir_in_allValidOptions {
+                uDir -> $undulatoryOptions;
+            }
+        }
+
+        0.95 -> undulatoryBias;
+        random(99) -> randChoice_disc;
+        randChoice_disc / 100.0 -> randFloat_disc;
+
+        length(undulatoryOptions) -> un_len_disc;
+        if un_len_disc > 0 && randFloat_disc < undulatoryBias {
+            random(un_len_disc - 1) -> i_disc;
+            undulatoryOptions:i_disc -> dir_selected;
+        } else {
+            if encounterCount >= maxEncounters {
+                for currentDir_disc_empty in allValidOptions {
+                    currentDir_disc_empty:0 -> cdx_disc_empty;
+                    currentDir_disc_empty:1 -> cdy_disc_empty;
+                    (x + cdx_disc_empty + gridWidth) % gridWidth -> cnx_disc_empty;
+                    (y + cdy_disc_empty + gridHeight) % gridHeight -> cny_disc_empty;
+                    grid:cny_disc_empty -> crow_disc_empty;
+                    crow_disc_empty:cnx_disc_empty -> ccell_disc_empty;
+                    if ccell_disc_empty = " " {
+                        currentDir_disc_empty -> $discoverOptions;
+                    }
+                }
+
+                length(discoverOptions) -> d_len_disc_empty;
+                if d_len_disc_empty > 0 {
+                    random(d_len_disc_empty - 1) -> i_disc_empty;
+                    discoverOptions:i_disc_empty -> dir_selected;
+                } else {
+                    if numValidOptions_disc > 0 {
+                        random(numValidOptions_disc - 1) -> i_disc_fallback;
+                        allValidOptions:i_disc_fallback -> dir_selected;
+                    }
+                }
+            } else {
+                if numValidOptions_disc > 0 {
+                    random(numValidOptions_disc - 1) -> i_disc_normal;
+                    allValidOptions:i_disc_normal -> dir_selected;
+                }
+            }
+        }
+    } elseif personality = "learner" {
+        ;;; --- Hebbian Learning Movement Choice for Learner ---
+        0.0 -> totalWeight;
+        [] -> selectionPoolWeights; ;;; Store actual weights for valid options for selection
+        [] -> selectionPoolDirIndices;
+        ;;; Store original direction indices for valid options
+
+        0 -> current_dir_idx;
+        while current_dir_idx < length(directions) {
+            directions:current_dir_idx -> potential_dir_learner;
+            false -> is_valid_option_learner;
+            for valid_opt_learner in allValidOptions {
+                if valid_opt_learner:0 = potential_dir_learner:0 && valid_opt_learner:1 = potential_dir_learner:1 {
+                    true -> is_valid_option_learner;
+                    break;
+                }
+            }
+
+            if is_valid_option_learner {
+                movementWeights:current_dir_idx -> weight_for_option;
+                if weight_for_option < 0.01 { 0.01 -> weight_for_option; } ;;; Apply floor
+                weight_for_option -> $selectionPoolWeights;
+                current_dir_idx -> $selectionPoolDirIndices;
+                totalWeight + weight_for_option -> totalWeight;
+            }
+            current_dir_idx + 1 -> current_dir_idx;
+        }
+
+        if totalWeight > 0.0 && length(selectionPoolWeights) > 0 {
+            random(9999) -> rand_val_learner_scaled;
+            rand_val_learner_scaled / 10000.0 -> rand_pick_learner;
+            rand_pick_learner * totalWeight -> pick_threshold_learner;
+
+            0.0 -> cumulativeWeight_learner;
+            0 -> pool_idx;
+            while pool_idx < length(selectionPoolWeights) {
+                selectionPoolWeights:pool_idx -> current_pool_weight;
+                cumulativeWeight_learner + current_pool_weight -> cumulativeWeight_learner;
+                if cumulativeWeight_learner >= pick_threshold_learner {
+                    selectionPoolDirIndices:pool_idx -> chosen_dir_idx_for_output;
+                    directions:chosen_dir_idx_for_output -> dir_selected;
+                    break;
+                }
+                pool_idx + 1 -> pool_idx;
+            }
+            ;;; Fallback if loop finishes due to precision (should be rare with floor)
+            if length(dir_selected) = 0 && length(selectionPoolDirIndices) > 0 {
+                 random(length(selectionPoolDirIndices) -1) -> fallback_pool_idx;
+                 selectionPoolDirIndices:fallback_pool_idx -> chosen_dir_idx_for_output;
+                 directions:chosen_dir_idx_for_output -> dir_selected;
+            }
+
+        } elseif length(allValidOptions) > 0 { ;;; Fallback to random if no weights or all weights are zero after flooring
+            random(length(allValidOptions) - 1) -> i_learner_fallback;
+            allValidOptions:i_learner_fallback -> dir_selected;
+            ;;; Find the original index for chosen_dir_idx_for_output
+            0 -> k_learner_fallback;
+            while k_learner_fallback < length(directions) {
+                if directions:k_learner_fallback:0 = dir_selected:0 && directions:k_learner_fallback:1 = dir_selected:1 {
+                    k_learner_fallback -> chosen_dir_idx_for_output;
+                    break;
+                }
+                k_learner_fallback + 1 -> k_learner_fallback;
+            }
+        } else {
+            {0,0} -> dir_selected;
+            ;;; No valid moves
+            -1 -> chosen_dir_idx_for_output;
+        }
+    }
+
+    ;;; If no personality-specific direction was chosen, fall back to general valid options
+    if length(dir_selected) = 0 {
+        length(allValidOptions) -> numValidOptions_fallback;
+        if numValidOptions_fallback > 0 {
+            random(numValidOptions_fallback - 1) -> i_fallback_general;
+            allValidOptions:i_fallback_general -> dir_selected;
+            if personality = "learner" { ;;; Also set chosen_dir_idx if learner falls here
+                0 -> k_learner_general_fallback;
+                while k_learner_general_fallback < length(directions) {
+                    if directions:k_learner_general_fallback:0 = dir_selected:0 && directions:k_learner_general_fallback:1 = dir_selected:1 {
+                        k_learner_general_fallback -> chosen_dir_idx_for_output;
+                        break;
+                    }
+                    k_learner_general_fallback + 1 -> k_learner_general_fallback;
+                }
+            }
+        } else {
+            length(path) -> plen;
+            if plen > 0 {
+                path:(plen - 1) -> pos;
+                0 -> i_backtrack;
+                [] -> newpath;
+                while i_backtrack < plen - 1 {
+                    path:i_backtrack -> $newpath;
+                    i_backtrack + 1 -> i_backtrack;
+                }
+                newpath -> path;
+                gridpos(grid, pos, true, path, mode, prevdir, lastTile, GRIDPOS_Input:trailLength, personality, encounterCount, maxEncounters, energy, maxEnergy, age, maxAge, isAlive, walkerId, lastGoalEncounter, movementWeights, chosen_dir_idx_for_output, energyBeforeMoveDecision) -> GRIDPOS_Output;
+                return;
+            }
+            gridpos(grid, pos, false, path, mode, prevdir, lastTile, GRIDPOS_Input:trailLength, personality, encounterCount, maxEncounters, energy, maxEnergy, age, maxAge, isAlive, walkerId, lastGoalEncounter, movementWeights, chosen_dir_idx_for_output, energyBeforeMoveDecision) -> GRIDPOS_Output;
+            return;
+        }
+    }
+
+    dir_selected:0 -> dx_final;
+    dir_selected:1 -> dy_final;
+    (x + dx_final + gridWidth) % gridWidth -> x;
+    (y + dy_final + gridHeight) % gridHeight -> y;
+    {x, y} -> pos;
+    pos -> $path;
+
+    dir_selected -> prevdir;
+    gridpos(grid, pos, true, path, mode, prevdir, lastTile, GRIDPOS_Input:trailLength, personality, encounterCount, maxEncounters, energy, maxEnergy, age, maxAge, isAlive, walkerId, lastGoalEncounter, movementWeights, chosen_dir_idx_for_output, energyBeforeMoveDecision) -> GRIDPOS_Output;
+}
+
+fn cellColor(cell) -> color {
+    "\033[0m" -> color;
+    if cell = "O" { "\033[1m\033[38;2;255;255;100m" -> color;
+    }
+    elseif cell = "#" { "\033[1m\033[38;2;0;255;0m" -> color;
+    }
+    elseif cell = "%" { "\033[1m\033[38;2;0;245;0m" -> color;
+    }
+    elseif cell = "&" { "\033[1m\033[38;2;0;235;0m" -> color;
+    }
+    elseif cell = "=" { "\033[1m\033[38;2;0;225;0m" -> color;
+    }
+    elseif cell = "~" { "\033[1m\033[38;2;0;215;0m" -> color;
+    }
+    elseif cell = "-" { "\033[1m\033[38;2;0;205;0m" -> color;
+    }
+    elseif cell = ":" { "\033[1m\033[38;2;0;195;0m" -> color; }
+    elseif cell = ";" {
+    "\033[1m\033[38;2;0;185;0m" -> color; }
+    elseif cell = "," { "\033[1m\033[38;2;0;175;0m" -> color;
+    }
+    elseif cell = "." { "\033[1m\033[38;2;0;165;0m" -> color;
+    }
+    elseif cell = "`" { "\033[1m\033[38;2;0;155;0m" -> color; }
+    elseif cell = "!" {
+    "\033[1m\033[38;2;0;145;0m" -> color; }
+    elseif cell = "◍" { "\033[1m\033[38;2;255;0;0m" -> color;
+    }
+    elseif cell = "S" { "\033[1m\033[38;2;100;100;255m" -> color;
+    }
+    elseif cell = "T" { "\033[1m\033[38;2;255;255;0m" -> color; }
+}
+
+;;; Lowers fade level for trail effect for all walkers
+fn fadeTrail(grid, gridWidth, gridHeight) -> grid {
+    0 -> y;
+    while y < gridHeight {
+        0 -> x;
+        grid:y -> row;
+        [] -> newrow;
+        while x < gridWidth {
+            row:x -> cell;
+            if cell = "O" {
+                "#" -> cell;
+            }
+            elseif cell = "#" { "%" -> cell; }
+            elseif cell = "%" { "&" -> cell;
+            }
+            elseif cell = "&" { "=" -> cell; }
+            elseif cell = "=" { "~" -> cell;
+            }
+            elseif cell = "~" { "-" -> cell; }
+            elseif cell = "-" { ":" -> cell; } ;;; Corrected this line to fade from '-' to ':'
+            elseif cell = ":" { ";" -> cell; }
+            elseif cell = ";" { "," -> cell;
+            }
+            elseif cell = "," { "." -> cell; }
+            elseif cell = "." { "`" -> cell;
+            }
+            elseif cell = "`" { "!" -> cell; }
+            elseif cell = "!" { " " -> cell; }
+
+            cell -> $newrow;
+            x + 1 -> x;
+        }
+        newrow -> grid:y;
+        y + 1 -> y;
+    }
+    grid -> grid;
+}
+
+;;; Marks the current walker on the grid with its ID
+fn markWalkerPosition(grid, pos, walkerId, mode) -> grid {
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+    "O" -> row:x;
+    row -> grid:y;
+    grid -> grid;
+}
+
+;;; Applies G/S/T tile logic, may modify mode/pos/path, records last tile encountered
+;;; UPDATED: Modified to only set lastTile if an item is consumed.
+;;; UPDATED: Resets lastGoalEncounter if '◍' (Goal) is consumed.
+fn applyTileEffect(GRIDPOS_Input, gridWidth, gridHeight) -> GRIDPOS_Output {
+    GRIDPOS_Input:pos -> pos;
+    GRIDPOS_Input:mode -> mode;
+    GRIDPOS_Input:path -> path;
+    GRIDPOS_Input:grid -> grid;
+    GRIDPOS_Input:personality -> personality;
+    GRIDPOS_Input:encounterCount -> encounterCount;
+    GRIDPOS_Input:energy -> energy;
+    GRIDPOS_Input:maxEnergy -> maxEnergy;
+    GRIDPOS_Input:age -> age;
+    GRIDPOS_Input:maxAge -> maxAge;
+    GRIDPOS_Input:isAlive -> isAlive;
+    GRIDPOS_Input:walkerId -> walkerId;
+    GRIDPOS_Input:lastGoalEncounter -> lastGoalEncounter;
+    GRIDPOS_Input:movementWeights -> movementWeights;         ;;; NEW: Pass through Hebbian attributes
+    GRIDPOS_Input:lastChosenDirIndex -> lastChosenDirIndex;   ;;; NEW
+    GRIDPOS_Input:energyBeforeMove -> energyBeforeMove;       ;;; NEW
+
+    pos:0 -> x;
+    pos:1 -> y;
+    grid:y -> row;
+    row:x -> cell;
+
+    "" -> tile_consumed;
+    if cell = "◍" {
+        " " -> row:x;
+        energy + 100 -> energy;
+        if energy > maxEnergy { maxEnergy -> energy; }
+        "hyper" -> mode;
+        "◍" -> tile_consumed;
+        0 -> encounterCount;
+        0 -> lastGoalEncounter;
+    } elseif cell = "S" {
+        " " -> row:x;
+        energy - 2 -> energy;
+        "slow" -> mode;
+        "S" -> tile_consumed;
+        0 -> encounterCount;
+    } elseif cell = "T" {
+        " " -> row:x;
+        row -> grid:y;
+        energy - 5 -> energy;
+
+        true -> searching_teleport;
+        while searching_teleport {
+            random(gridWidth - 1) -> tx;
+            random(gridHeight - 1) -> ty;
+            grid:ty -> trow;
+            trow:tx -> tcell;
+            if tcell = " " {
+                false -> searching_teleport;
+                {tx, ty} -> pos;
+                [pos] -> path;
+            }
+        }
+        "T" -> tile_consumed;
+        0 -> encounterCount;
+    }
+
+    row -> grid:y;
+    gridpos(grid, pos, GRIDPOS_Input:moved, path, mode, GRIDPOS_Input:prevdir, tile_consumed, GRIDPOS_Input:trailLength, personality, encounterCount, GRIDPOS_Input:maxEncounters, energy, maxEnergy, age, maxAge, isAlive, walkerId, lastGoalEncounter, movementWeights, lastChosenDirIndex, energyBeforeMove) -> GRIDPOS_Output;
+}
+
+;;; Calculate trail length from path
+fn calculateTrailLength(path) -> lengthVal {
+    length(path) -> lengthVal;
+}
+
+;;; Marks current position in grid and updates position, applies fade effect and item logic
+;;; UPDATED: Incorporates energy and age mechanics, and refined lastTile/encounterCount logic
+;;; UPDATED: Increments lastGoalEncounter for 'learner' personality.
+;;; UPDATED: Implements Hebbian learning weight updates for 'learner'.
+fn update(GRIDPOS_At_Turn_Start, gridWidth, gridHeight) -> GRIDPOS_Final_For_Turn {
+
+    GRIDPOS_At_Turn_Start -> GRIDPOS_Final_For_Turn; ;;; ensure always have return value. Possible bug.
+
+    ;;; Move the walker (this will set energyBeforeMove on GRIDPOS_AfterMove for learners)
+    move(GRIDPOS_At_Turn_Start, gridWidth, gridHeight) -> GRIDPOS_AfterMove;
+
+    ;;; Apply tiling effect -- increase / decrease in energy, etc
+    applyTileEffect(GRIDPOS_AfterMove, gridWidth, gridHeight) -> GRIDPOS_AfterTileEffect;
+    GRIDPOS_AfterTileEffect:grid -> grid_after_tile_effect; ;;; Capture grid after tile consumption
+    GRIDPOS_AfterTileEffect:personality -> personality_current;
+    GRIDPOS_AfterTileEffect:encounterCount -> encounterCount_current;
+    GRIDPOS_AfterTileEffect:maxEncounters -> maxEncounters_current;
+    GRIDPOS_AfterTileEffect:lastTile -> consumedTileType_current;
+    GRIDPOS_AfterTileEffect:lastGoalEncounter -> lastGoalEncounter_current;
+    GRIDPOS_AfterTileEffect:movementWeights -> movementWeights_current;
+    GRIDPOS_AfterTileEffect:lastChosenDirIndex -> lastChosenDirIndex_current;
+    GRIDPOS_AfterTileEffect:energyBeforeMove -> energyBeforeMove_for_delta;
+    GRIDPOS_AfterTileEffect:energy -> energy_current;
+    GRIDPOS_AfterTileEffect:maxEnergy -> maxEnergy_current;
+    GRIDPOS_AfterTileEffect:age -> age_current;
+    GRIDPOS_AfterTileEffect:maxAge -> maxAge_current;
+    GRIDPOS_AfterTileEffect:isAlive -> isAlive_current;
+    GRIDPOS_AfterTileEffect:walkerId -> walkerId_current;
+    "" -> lastTileForHUD_current;
+    if consumedTileType_current = "◍" { "Goal" -> lastTileForHUD_current; }
+    elseif consumedTileType_current = "S" { "Slow" -> lastTileForHUD_current;
+    }
+    elseif consumedTileType_current = "T" { "Teleport" -> lastTileForHUD_current; }
+    else { GRIDPOS_At_Turn_Start:lastTile -> lastTileForHUD_current;}
+
+    encounterCount_current + 1 -> encounterCount_current;
+    calculateTrailLength(GRIDPOS_AfterTileEffect:path) -> trailLen_current;
+
+    if isAlive_current {
+        energy_current - 1 -> energy_current;
+        if energy_current <= 0 {
+            false -> isAlive_current;
+        }
+    }
+
+    if isAlive_current {
+        age_current + 1 -> age_current;
+        if age_current >= maxAge_current {
+            false -> isAlive_current;
+        }
+    }
+
+    if personality_current = "learner" && consumedTileType_current /= "◍" {
+        lastGoalEncounter_current + 1 -> lastGoalEncounter_current;
+    }
+
+    ;;; --- Apply Hebbian Learning for 'learner' personality ---
+    if personality_current = "learner" && lastChosenDirIndex_current /= -1 && isAlive_current {
+        energy_current - energyBeforeMove_for_delta -> delta_energy;
+        ;;; energy_current is after tile AND step cost
+        ;;; energyBeforeMove_for_delta is before move & tile effects
+        0.05 -> learning_rate_hebbian;
+        if delta_energy > 0 {
+            movementWeights_current:lastChosenDirIndex_current + learning_rate_hebbian -> movementWeights_current:lastChosenDirIndex_current;
+        } elseif delta_energy < 0 {
+            movementWeights_current:lastChosenDirIndex_current - learning_rate_hebbian -> movementWeights_current:lastChosenDirIndex_current;
+            if movementWeights_current:lastChosenDirIndex_current < 0.01 { 0.01 -> movementWeights_current:lastChosenDirIndex_current; }
+        }
+        ;;; Optional: Normalize movementWeights_current here
+    }
+
+    if isAlive_current = false {
+        gridpos(grid_after_tile_effect, GRIDPOS_AfterTileEffect:pos,
+                false, GRIDPOS_AfterTileEffect:path,
+                GRIDPOS_AfterTileEffect:mode, GRIDPOS_AfterTileEffect:prevdir,
+                "None", trailLen_current, personality_current,
+                encounterCount_current, maxEncounters_current, energy_current, maxEnergy_current, age_current, maxAge_current,
+                isAlive_current, walkerId_current, lastGoalEncounter_current,
+                movementWeights_current, lastChosenDirIndex_current, energyBeforeMove_for_delta) -> GRIDPOS_Final_For_Turn;
+        return;
+    }
+
+    GRIDPOS_AfterTileEffect:pos -> pos_final;
+    GRIDPOS_AfterTileEffect:moved -> moved_final;
+    GRIDPOS_AfterTileEffect:path -> path_final;
+    GRIDPOS_AfterTileEffect:mode -> mode_final;
+    GRIDPOS_AfterTileEffect:prevdir -> prevdir_final;
+    markWalkerPosition(grid_after_tile_effect, pos_final, walkerId_current, mode_final) -> grid_final_for_step;
+    gridpos(grid_final_for_step, pos_final, moved_final, path_final, mode_final, prevdir_final, lastTileForHUD_current, trailLen_current, personality_current, encounterCount_current, maxEncounters_current, energy_current, maxEnergy_current, age_current, maxAge_current, isAlive_current, walkerId_current, lastGoalEncounter_current, movementWeights_current, lastChosenDirIndex_current, energyBeforeMove_for_delta) -> GRIDPOS_Final_For_Turn;
+}
+
+;;; Pads string on the right with spaces to a fixed length
+fn padRight(str, length) -> padded {
+    str -> padded;
+    while length > length(padded) {
+        padded + " " -> padded;
+    }
+    padded -> padded;
+}
+
+;;; Formats position array as "(xx, yy)" with fixed width
+fn formatPos(pos) -> formatted {
+    pos:0 -> x_fmt;
+    pos:1 -> y_fmt;
+
+    "" + x_fmt -> sx_fmt;
+    "" + y_fmt -> sy_fmt;
+    while length(sx_fmt) < 3 {
+        " " + sx_fmt -> sx_fmt;
+    }
+    while length(sy_fmt) < 3 {
+        " " + sy_fmt -> sy_fmt;
+    }
+
+    "(" + sx_fmt + ", " + sy_fmt + ")" -> formatted;
+    while length(formatted) < 10 {
+        " " + formatted -> formatted;
+     }
+}
+
+;;; Converts tile code to full name for display
+fn tileName(tile_code) -> name_str {
+    "None" -> name_str;
+    if tile_code = "◍" { "Goal" -> name_str; }
+    elseif tile_code = "S" { "Slow" -> name_str;
+    }
+    elseif tile_code = "T" { "Teleport" -> name_str; }
+    else { "None" -> name_str; }
+}
+
+;;; Prints a neat overlay with info for all walkers
+;;; UPDATED: Added Energy, Age, and Walker ID to display
+;;; UPDATED: Added Last Goal Encounter to display
+fn printOverlay(numWalkersTotal, walkers_list, steps_count) {
+    pr "\033[34m";
+    prn "┌─────────────┬─────────────┬───────────┬───────────────┬───────────────┬─────────────┬─────────────────┬─────────┬─────────┬───────────────┐";
+    prn "│   WALKER    │ Mode        │ Pos       │ Trail Length  │ Last Tile     │ Personality │ Encounter Count │ Energy  │ Age     │ Last Goal Enc.│";
+    prn "├─────────────┼─────────────┼───────────┼───────────────┼───────────────┼─────────────┼─────────────────┼─────────┼─────────┼───────────────┤";
+
+    0 -> i_overlay;
+    while i_overlay < length(walkers_list) {
+        walkers_list:i_overlay -> currentWalker_overlay;
+        "" + currentWalker_overlay:walkerId -> walkerNum_overlay;
+        "" + currentWalker_overlay:energy + "/" + currentWalker_overlay:maxEnergy -> energyStr_overlay;
+        "" + currentWalker_overlay:age + "/" + currentWalker_overlay:maxAge -> ageStr_overlay;
+        prn "│ Walker " + padRight(walkerNum_overlay, 5) + "│ " + padRight(currentWalker_overlay:mode, 12) + "│ " + formatPos(currentWalker_overlay:pos) + "│ " + padRight("" + currentWalker_overlay:trailLength, 14) + "│ " + padRight(currentWalker_overlay:lastTile, 14) + "│ " + padRight(currentWalker_overlay:personality, 12) + "│ " + padRight("" + currentWalker_overlay:encounterCount, 16) + "│ " + padRight(energyStr_overlay, 8) + "│ " + padRight(ageStr_overlay, 8) + "│ " + padRight("" + currentWalker_overlay:lastGoalEncounter, 14) + "│";
+        i_overlay + 1 -> i_overlay;
+    }
+    while i_overlay < numWalkersTotal  { ;;; For displaying DEAD walkers if numWalkersTotal was the initial count
+        prn "│ DEAD        │             │           │               │               │             │                           │         │         │               │";
+        i_overlay + 1 -> i_overlay;
+    }
+
+    prn "└─────────────┴─────────────┴───────────┴───────────────┴───────────────┴─────────────┴─────────────────┴─────────┴─────────┴───────────────┘";
+    prn " Steps: " + steps_count + " | Alive Walkers: " + length(walkers_list);
+    pr "\033[0m";
+}
+
+;;; Main program loop with N walkers
+start {
+    arg(0) -> gridWidth_main;
+    arg(1) -> gridHeight_main;
+    arg(2) -> numWalkers_main;
+
+    initialize(gridWidth_main, gridHeight_main) -> grid_main;
+    placeItems(grid_main, gridWidth_main, gridHeight_main) -> grid_main;
+
+    [] -> walkers_main;
+
+    0 -> i_main_init;
+    while i_main_init < numWalkers_main {
+        random(gridWidth_main - 1) -> randX_main;
+        random(gridHeight_main - 1) -> randY_main;
+        {randX_main, randY_main} -> currentPos_main;
+        [currentPos_main] -> currentPath_main;
+
+        "" -> currentPersonality_main;
+        if i_main_init % 3 = 0 {
+            "learner" -> currentPersonality_main;
+        } elseif i_main_init % 3 = 1 {
+            "learner" -> currentPersonality_main;
+        } else {
+            "learner" -> currentPersonality_main;
+        }
+
+        2000 -> initialMaxEnergy_main;
+        initialMaxEnergy_main -> initialEnergy_main;
+        5000 -> initialMaxAge_main;
+        0 -> initialAge_main;
+        true -> initialIsAlive_main;
+        i_main_init + 1 -> currentWalkerId_main;
+        0 -> initialLastGoalEncounter_main;
+        [] -> initialMovementWeights_main;         ;;; NEW: Init Hebbian attributes
+        -1 -> initialLastChosenDirIndex_main;      ;;; NEW
+        initialEnergy_main -> initialEnergyBeforeMove_main; ;;; NEW: Set initial energy before any move
+
+        if currentPersonality_main = "learner" {
+            0 -> j_weights;
+            while j_weights < 8 { ;;; Assuming 8 directions from 'directions' list
+                1.0 -> $initialMovementWeights_main;
+                ;;; Start with equal positive weights
+                j_weights + 1 -> j_weights;
+            }
+        }
+
+        gridpos(grid_main, currentPos_main,
+            true, currentPath_main,
+            "normal", {0, 0},
+            "None", 1, currentPersonality_main,
+            0, 5, initialEnergy_main, initialMaxEnergy_main,
+            initialAge_main, initialMaxAge_main,
+            initialIsAlive_main, currentWalkerId_main, initialLastGoalEncounter_main,
+            initialMovementWeights_main, initialLastChosenDirIndex_main, initialEnergyBeforeMove_main) -> newWalkerPod_main;
+        newWalkerPod_main -> $walkers_main;
+
+        i_main_init + 1 -> i_main_init;
+    }
+
+    0 -> steps_main;
+    while true {
+        steps_main + 1 -> steps_main;
+
+        fadeTrail(grid_main, gridWidth_main, gridHeight_main) -> grid_main;
+        [] -> livingWalkersThisFrame_main;
+
+        0 -> i_main_loop;
+        while i_main_loop < length(walkers_main) {
+            walkers_main:i_main_loop -> currentWalkerPod_main_loop;
+            if currentWalkerPod_main_loop:isAlive {
+
+                gridpos(grid_main, currentWalkerPod_main_loop:pos,
+                        currentWalkerPod_main_loop:moved, currentWalkerPod_main_loop:path,
+                        currentWalkerPod_main_loop:mode, currentWalkerPod_main_loop:prevdir,
+                        currentWalkerPod_main_loop:lastTile, currentWalkerPod_main_loop:trailLength,
+                        currentWalkerPod_main_loop:personality, currentWalkerPod_main_loop:encounterCount,
+                        currentWalkerPod_main_loop:maxEncounters, currentWalkerPod_main_loop:energy,
+                        currentWalkerPod_main_loop:maxEnergy, currentWalkerPod_main_loop:age,
+                        currentWalkerPod_main_loop:maxAge, currentWalkerPod_main_loop:isAlive,
+                        currentWalkerPod_main_loop:walkerId, currentWalkerPod_main_loop:lastGoalEncounter,
+                        currentWalkerPod_main_loop:movementWeights, currentWalkerPod_main_loop:lastChosenDirIndex,
+                        currentWalkerPod_main_loop:energyBeforeMove) -> currentWalkerPodForUpdate_main;
+
+                update(currentWalkerPodForUpdate_main, gridWidth_main, gridHeight_main) -> updatedWalkerPod_main;
+                if updatedWalkerPod_main:isAlive {
+                    updatedWalkerPod_main -> $livingWalkersThisFrame_main;
+                    updatedWalkerPod_main:grid -> grid_main;
+                } else {
+                    updatedWalkerPod_main:pos -> position_to_clear;
+                    position_to_clear:0 -> dx_clear;
+                    position_to_clear:1 -> dy_clear;
+                    grid_main:dy_clear -> row_to_clear_main;
+                    " " -> row_to_clear_main:dx_clear;
+                    row_to_clear_main -> grid_main:dy_clear;
+                }
+            }
+
+            i_main_loop + 1 -> i_main_loop;
+        }
+        livingWalkersThisFrame_main -> walkers_main;
+        if length(walkers_main) = 0 {
+            prn "All walkers have perished!";
+            return;
+        }
+
+        if steps_main % 10 = 0 {
+            respawnItems(grid_main, gridWidth_main, gridHeight_main) -> grid_main;
+        }
+
+        10 -> baseUiLength_main;
+        length(walkers_main) -> walkerLines_main;
+        baseUiLength_main + (walkerLines_main * 1) + 2 -> uiLength_main;
+        ansi_up gridHeight_main + 2 + uiLength_main;
+        print(grid_main, gridWidth_main);
+        printOverlay(numWalkers_main, walkers_main, steps_main);
+    }
+}
