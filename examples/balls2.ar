@@ -585,9 +585,11 @@ start {
         random(massRange) + minRandomMass -> currentParticleMass;
 
         random(5000) -> initialXVel;
-        random(5000) -> initialYVel;
+        if random(1.0) < 0.5 {
+            -initialXVel -> initialXVel;
+        }
 
-        particle(particleIdCounter, startX, startY, initialXVel, initialYVel, currentParticleMass, false) -> newParticle;
+        particle(particleIdCounter, startX, startY, initialXVel, 0, currentParticleMass, false) -> newParticle;
         newParticle -> $allParticles;
         particleIdCounter + 1 -> particleIdCounter;
         p_count + 1 -> p_count;
@@ -644,12 +646,15 @@ start {
         printGrid(currentGrid, gridWidth, myConfig:borderChar);
         prn " Steps: " + steps;
 
+        ;;; When the r key is pressed, random velocity is applied to each particle
         get_key_press() -> key;
         [] -> newParticles;
         if key:available = true && key:key = 'r' {
-            ;;; apply random velocity when key r is pressed
             for particle in allParticles {
-                random(5000) + particle:vx -> initialXVel;
+                random(5000) -> initialXVel;
+                if random(1.0) < 0.5 {
+                    -initialXVel -> initialXVel;
+                }
                 random(5000) + particle:vy -> initialYVel;
 
                 particle(particle:id, particle:x, particle:y,
