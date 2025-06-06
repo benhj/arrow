@@ -6,6 +6,7 @@
 #include "TypeDescriptor.hpp"
 #include "statements/FunctionStatement.hpp"
 #include "statements/PodStatement.hpp"
+#include "utility/KeyHandler.hpp"
 #include <deque>
 #include <map>
 #include <memory>
@@ -41,6 +42,9 @@ namespace arrow {
 
         /// Retrieve a cached type with given identifier
         Type & get(std::string identifier) const;
+
+        /// Initializes a keyboard handler to intercept key-presses
+        void initializeKeyHandler();
 
         /// Cache a type with given identifier
         void add(std::string identifier, Type const type);
@@ -111,6 +115,10 @@ namespace arrow {
         /// Sets the program exit state to true
         void setExitState();
 
+        /// Returns key press as an optional; empty when
+        /// no key was pressed
+        std::optional<char> retrieveKeyPress();
+
       private:
         /// For outputting program to stream (e.g. std::out, or some gui output stream).
         std::ostream & m_ostream;
@@ -129,6 +137,9 @@ namespace arrow {
 
         /// Added when experimenting with async command
         std::mutex mutable m_mutex;
+
+        /// KeyHandler in case we are using it
+        std::shared_ptr<KeyHandler> m_keyHandler;
 
         // When a program is exiting, this boolean will be true
         bool m_exitState;

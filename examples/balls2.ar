@@ -500,6 +500,9 @@ start {
     arg(1) -> gridHeight;
     arg(2) -> numParticles; ;;; We'll use these as arguments to determine total particles
 
+    ;;; initialize a key board handler to detect when spacebar is pressed
+    init_key_handler() -> keyHandlerInitResult; 
+
     ;;; --- Barrier Configuration (now for random generation) ---
     7 -> minBarriers;
     10 -> maxBarriers; ;;; Generate between 1 and 3 barriers
@@ -582,8 +585,9 @@ start {
         random(massRange) + minRandomMass -> currentParticleMass;
 
         random(5000) -> initialXVel;
+        random(5000) -> initialYVel;
 
-        particle(particleIdCounter, startX, startY, initialXVel, 0, currentParticleMass, false) -> newParticle;
+        particle(particleIdCounter, startX, startY, initialXVel, initialYVel, currentParticleMass, false) -> newParticle;
         newParticle -> $allParticles;
         particleIdCounter + 1 -> particleIdCounter;
         p_count + 1 -> p_count;
@@ -639,6 +643,20 @@ start {
         ansi_up gridHeight + 2 + 2;
         printGrid(currentGrid, gridWidth, myConfig:borderChar);
         prn " Steps: " + steps;
+
+        get_key_press() -> key;
+        [] -> newParticles;
+        if key:available = true && key:key = 'r' {
+            ;;; apply random velocity when key r is pressed
+            for particle in allParticles {
+                random(5000) + particle:vx -> initialXVel;
+                random(5000) + particle:vy -> initialYVel;
+
+                particle(particle:id, particle:x, particle:y,
+                         initialXVel, initialYVel, particle:mass, particle:fixed) -> $newParticles;
+            }
+            newParticles -> allParticles;
+        }
 
         ;;; delay(50);
     }

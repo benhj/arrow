@@ -48,6 +48,7 @@ namespace arrow {
       , m_pods()
       , m_programArguments()
       , m_exitState(false)
+      , m_keyHandler(nullptr)
     {
         pushEnvironmentLayer();
     }
@@ -74,6 +75,11 @@ namespace arrow {
     {
         m_programArguments = std::move(progArgs);
         return *this;
+    }
+
+    void Environment::initializeKeyHandler()
+    {
+        m_keyHandler = std::make_shared<KeyHandler>();
     }
 
     std::vector<Type> const & Environment::getProgramArgs() const
@@ -350,4 +356,15 @@ namespace arrow {
     {
         return m_programArguments.at(index);
     }
+
+    std::optional<char> Environment::retrieveKeyPress()
+    {
+        if(m_keyHandler) {
+            if(m_keyHandler->was_any_key_pressed()) {
+                return m_keyHandler->get_last_key();
+            }
+        }
+        return std::nullopt;
+    }
+
 }
