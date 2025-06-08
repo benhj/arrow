@@ -123,6 +123,9 @@ namespace arrow {
         /// break;
         std::shared_ptr<Statement> parseBreakStatement();
 
+        /// continue;
+        std::shared_ptr<Statement> parseContinueStatement();
+
         /// return;
         std::shared_ptr<Statement> parseReturnStatement();
 

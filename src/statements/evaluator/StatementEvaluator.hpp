@@ -1,4 +1,4 @@
-/// (c) Ben Jones 2019
+/// (c) Ben Jones 2019 - present
 
 #pragma once
 
@@ -11,6 +11,7 @@ namespace arrow {
         Break,
         Return,
         Continue,
+        LoopContinue, // Since Continue is used to mark end of successful eval
         Exit
     };
 

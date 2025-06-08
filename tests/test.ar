@@ -559,6 +559,47 @@ fn break_command() {
 
 }
 
+fn continue_command()
+{
+    0 -> score;
+    0 -> i;
+    0 -> j;
+    while (i < 10) {
+        if i = 5 {
+            i + 1 -> i;
+            continue;
+        }
+        j + 1 -> j;
+        i + 1 -> i;
+    }
+
+    test(10, i, score) -> score;
+    test(9, j, score) -> score;
+
+    [one two three four five] -> list;
+    "" -> x;
+    0 -> j;
+    for x in list {
+        if(x = "three") {
+            continue;
+        }
+        1 + j -> j;
+    }
+    test(4, j, score) -> score;
+
+    0 -> i;
+    repeat 10 times {
+        if i = 5 {
+            continue;
+        }
+        1 + i -> i;
+    }
+    test(5, i, score) -> score;
+
+    print_score(4, score);
+    prn "     (continue_command)";
+}
+
 ;;; pods (essentially POD structs)
 pod data(mema, memb, memc);
 
@@ -661,6 +702,7 @@ start {
     builtin_length();
     types();
     break_command();
+    continue_command();
     pods();
     wildcard_eq_builtin();
 }

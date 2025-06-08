@@ -45,6 +45,8 @@ namespace arrow {
             environment.popEnvironmentLayer();
             if(evaluated == StatementResult::Break) {
                 break;
+            } else if(evaluated == StatementResult::LoopContinue) {
+                continue;
             } else if(evaluated == StatementResult::Return ||
                       evaluated == StatementResult::Exit) {
                 return evaluated;

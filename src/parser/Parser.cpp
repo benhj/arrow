@@ -23,6 +23,7 @@
 #include "statements/FunctionStatement.hpp"
 #include "statements/IfStatement.hpp"
 #include "statements/LoopBreakStatement.hpp"
+#include "statements/LoopContinueStatement.hpp"
 #include "statements/PodStatement.hpp"
 #include "statements/ReleaseStatement.hpp"
 #include "statements/RepeatStatement.hpp"
@@ -103,6 +104,7 @@ namespace arrow {
         if(m_tm.tokenPlusOneNotAtEnd()) {
             static std::vector<std::function<std::shared_ptr<Statement>(Parser*)>> pvec{
                 [](Parser* t){return t->parseBreakStatement();},
+                [](Parser* t){return t->parseContinueStatement();},
                 [](Parser* t){return t->parseReturnStatement();},
                 [](Parser* t){return t->parseFunctionStatement();},
                 [](Parser* t){return t->parsePodStatement();},
@@ -245,6 +247,20 @@ namespace arrow {
         m_tm.advanceTokenIterator();
         if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
             return breakStatement;
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<Statement> Parser::parseContinueStatement()
+    {
+        if(m_tm.currentToken().raw != "continue") {
+            return nullptr;
+        }
+        auto const ln = m_tm.currentToken().lineNumber;
+        auto continueStatement = std::make_shared<LoopContinueStatement>(ln);
+        m_tm.advanceTokenIterator();
+        if(m_tm.currentToken().lexeme == Lexeme::SEMICOLON) {
+            return continueStatement;
         }
         return nullptr;
     }

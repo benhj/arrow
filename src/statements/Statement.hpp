@@ -7,11 +7,11 @@
 #include <string>
 
 namespace arrow {
-	
-    class StatementEvaluator;
-	class Statement : public Node
-	{
-	  public:
+  
+  class StatementEvaluator;
+  class Statement : public Node
+  {
+    public:
         Statement(long const lineNumber) 
           : Node()
           , m_lineNumber(lineNumber)
@@ -25,14 +25,14 @@ namespace arrow {
         }
 
         /// For debugging purposes
-	  	virtual std::string toString() const = 0;
+      virtual std::string toString() const = 0;
 
-	  	long getLineNumber() const
-	  	{
-	  		return m_lineNumber;
-	  	}
-	  protected:
-	  	long m_lineNumber;
-	};
+      long getLineNumber() const
+      {
+        return m_lineNumber;
+      }
+    protected:
+      long m_lineNumber;
+  };
 
 }
