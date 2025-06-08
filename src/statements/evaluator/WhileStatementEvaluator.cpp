@@ -27,6 +27,8 @@ namespace arrow {
             environment.pushEnvironmentLayer();
             auto evaluated = innerStatement->getEvaluator()->evaluate(environment);
             environment.popEnvironmentLayer();
+            resolved = expressionEvaluator->evaluate(environment);
+            booleanVal = std::get<bool>(resolved.m_variantType);
             if(evaluated == StatementResult::Break) {
                 break;
             } else if(evaluated == StatementResult::LoopContinue) {
@@ -35,8 +37,6 @@ namespace arrow {
                       evaluated == StatementResult::Exit) {
                 return evaluated;
             }
-            resolved = expressionEvaluator->evaluate(environment);
-            booleanVal = std::get<bool>(resolved.m_variantType);
         }
         return StatementResult::Continue;
     }

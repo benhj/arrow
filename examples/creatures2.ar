@@ -297,14 +297,12 @@ fn move(GRIDPOS_Input, gridWidth, gridHeight) -> GRIDPOS_Output {
         row:nx -> cell;
         -prevdir:0 -> revdx;
         -prevdir:1 -> revdy;
+        i + 1 -> i;
         if dx = revdx && dy = revdy {
-            i + 1 -> i;
-        } else {
-            if cell = " " ||
-            cell = "◍" || cell = "S" || cell = "T" {
-                currentDirOption -> $allValidOptions;
-            }
-            i + 1 -> i;
+            continue;
+        }
+        if cell = " " || cell = "◍" || cell = "S" || cell = "T" {
+            currentDirOption -> $allValidOptions;
         }
     }
 
