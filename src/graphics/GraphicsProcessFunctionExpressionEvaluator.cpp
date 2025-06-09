@@ -1,19 +1,19 @@
 /// (c) Ben Jones 2025 - present
 
-
+#include "GraphicsCanvas.hpp"
+#include "GraphicsProcessFunctionExpressionEvaluator.hpp"
 #include "expressions/evaluator/ExpressionEvaluator.hpp"
 #include "parser/LanguageException.hpp"
 #include "parser/Parser.hpp"
-#include "InitKeyHandlerFunctionExpressionEvaluator.hpp"
 #include <utility>
 
 namespace arrow {
 
-    InitKeyHandlerFunctionExpressionEvaluator::InitKeyHandlerFunctionExpressionEvaluator(InitKeyHandlerFunctionExpression expression)
+    GraphicsProcessFunctionExpressionEvaluator::GraphicsProcessFunctionExpressionEvaluator(GraphicsProcessFunctionExpression expression)
       : m_expression(std::move(expression))
     {
     }
-    Type InitKeyHandlerFunctionExpressionEvaluator::evaluate(Environment & environment) const
+    Type GraphicsProcessFunctionExpressionEvaluator::evaluate(Environment & environment) const
     {
         // Pull out the name of the function
         auto const callLineNumber = m_expression.getLineNumber();
@@ -23,11 +23,9 @@ namespace arrow {
         auto const col = expression->getEvaluator()->evaluate(environment);
         auto & expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(!expressionCollEval.empty()) {
-            throw LanguageException("No args expected", m_expression.getLineNumber());
-        }  
-
-        // Proceed
-        environment.initializeKeyHandler();
+            throw LanguageException("Expected zero args", callLineNumber);
+        }
+        GraphicsCanvas::process_frame();
         return {TypeDescriptor::Bool, true};
     }
 }

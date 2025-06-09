@@ -23,7 +23,7 @@ namespace arrow {
         // Handle any built-in function here
         if(name == "join_all") {
             ThreadManager::joinAll();
-            return {TypeDescriptor::Nil, false};
+            return {TypeDescriptor::Nothing, false};
         }
 
         auto const callLineNumber = m_expression.getName().lineNumber;
@@ -97,6 +97,6 @@ namespace arrow {
             return newEnvironment.get(funcReturnIdentifier.raw);
         }
 
-        return {TypeDescriptor::Nil, false};
+        return {TypeDescriptor::Nothing, false};
     }
 }

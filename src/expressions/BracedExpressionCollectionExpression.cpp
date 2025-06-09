@@ -30,10 +30,10 @@ namespace arrow {
                 return {arrayType, vecDeduced};
             } else {
                 std::vector<T> vecDeduced;
-                auto remType = TypeDescriptor::Nil;
+                auto remType = TypeDescriptor::Nothing;
                 for(auto const & expression : expressions) {
                     auto evaluated = expression->getEvaluator()->evaluate(environment);
-                    if(remType == TypeDescriptor::Nil) {
+                    if(remType == TypeDescriptor::Nothing) {
                         remType = evaluated.m_descriptor;
                     } 
                     // Incompatible types. All types in a {a, b, c} expression

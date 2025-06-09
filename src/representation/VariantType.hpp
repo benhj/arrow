@@ -12,8 +12,8 @@
 namespace arrow {
 
     /// Represents the set of built-in types
-    class Type;
-    class PodType;
+    struct Type;
+    struct PodType;
     using VariantType = std::variant<int64_t,
                                      real, std::string,
                                      uint8_t, std::vector<Type>,

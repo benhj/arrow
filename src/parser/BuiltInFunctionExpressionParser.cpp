@@ -3,6 +3,7 @@
 #include "BuiltInFunctionExpressionParser.hpp"
 #include "builtin/BuiltInFunctionExpressionBuilder.hpp"
 #include "builtin/ArgExpression.hpp"
+#include "builtin/CosFunctionExpression.hpp"
 #include "builtin/GetKeyPressExpression.hpp"
 #include "builtin/InitKeyHandlerFunctionExpression.hpp"
 #include "builtin/LengthExpression.hpp"
@@ -10,6 +11,7 @@
 #include "builtin/MapKeysFunctionExpression.hpp"
 #include "builtin/RandomFunctionExpression.hpp"
 #include "builtin/RegexFunctionExpression.hpp"
+#include "builtin/SinFunctionExpression.hpp"
 #include "builtin/SqrtFunctionExpression.hpp"
 #include "builtin/StringInputExpression.hpp"
 #include "builtin/SystemCommandExpression.hpp"
@@ -25,6 +27,17 @@
 
 #ifdef WITH_HEAVY
 #include "heavy/HTTPReadExpression.hpp"
+#endif
+
+#ifdef WITH_GRAPHICS
+#include "graphics/InitGraphicsCanvasFunctionExpression.hpp"
+#include "graphics/DrawFunctionExpression.hpp"
+#include "graphics/DrawLineFunctionExpression.hpp"
+#include "graphics/DrawCircleFunctionExpression.hpp"
+#include "graphics/FillCircleFunctionExpression.hpp"
+#include "graphics/DrawRectFunctionExpression.hpp"
+#include "graphics/FillRectFunctionExpression.hpp"
+#include "graphics/GraphicsProcessFunctionExpression.hpp"
 #endif
 
 #include <algorithm>
@@ -43,6 +56,7 @@ namespace arrow {
         auto const ln = m_tm.currentToken().lineNumber;
         if(m_builtins.empty()) {
             m_builtins.emplace_back(std::make_shared<ArgExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<CosFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<GetKeyPressExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<InitKeyHandlerFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<LengthExpressionBuilder>());
@@ -50,6 +64,7 @@ namespace arrow {
             m_builtins.emplace_back(std::make_shared<MapKeysFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<RandomFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<RegexFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<SinFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<SqrtFunctionExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<StringInputExpressionBuilder>());
             m_builtins.emplace_back(std::make_shared<SystemCommandExpressionBuilder>());
@@ -64,6 +79,16 @@ namespace arrow {
             m_builtins.emplace_back(std::make_shared<FileReadBytesFunctionExpressionBuilder>());
 #ifdef WITH_HEAVY
             m_builtins.emplace_back(std::make_shared<HTTPReadExpressionBuilder>());
+#endif
+#ifdef WITH_GRAPHICS
+            m_builtins.emplace_back(std::make_shared<InitGraphicsCanvasFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<DrawFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<DrawLineFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<DrawCircleFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<DrawRectFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<FillCircleFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<FillRectFunctionExpressionBuilder>());
+            m_builtins.emplace_back(std::make_shared<GraphicsProcessFunctionExpressionBuilder>());
 #endif
         }
         auto found = std::find_if(std::begin(m_builtins),

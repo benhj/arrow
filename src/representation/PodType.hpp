@@ -7,7 +7,7 @@
 
 namespace arrow {
 
-    class Type;
+    struct Type;
 
     /// To support rudimentary object orientation, include a
     /// pod (plain old data type). When fully integrated, this

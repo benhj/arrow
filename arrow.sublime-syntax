@@ -9,7 +9,7 @@ variables:
 
 contexts:
   main:
-    - match: \b(if|elseif|else|for|while|matches|in|start|break|return|exit|repeat|pod)\b
+    - match: \b(if|elseif|else|for|while|matches|in|start|break|continue|return|exit|repeat|pod)\b
       scope: keyword.control.flow.arrow
     - match: "^\\s*(fn)\\s*\\b({{identifier}})\\b"
       captures:

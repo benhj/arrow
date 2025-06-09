@@ -1,0 +1,121 @@
+start {
+
+    arg(0) -> canvasWidth_int;  ;;; Capture integer argument for width
+    arg(1) -> canvasHeight_int; ;;; Capture integer argument for height
+
+    ;;; Initialize a graphics canvas with passed arguments
+    init_graphics_canvas(canvasWidth_int, canvasHeight_int, 1, 1);
+
+    ;;; Agent properties
+    250.0 -> agent_x;       ;;; Initial X position (use real for internal calculations)
+    250.0 -> agent_y;       ;;; Initial Y position (use real for internal calculations)
+    12 -> agent_radius;     ;;; Agent size
+    5.0 -> agent_speed;     ;;; Agent movement speed (use real)
+    255 -> agent_r;         ;;; Agent color (red)
+    200 -> agent_g;
+    200 -> agent_b;
+
+    ;;; Antennae properties
+    18 -> antenna_length;    ;;; Length of each antenna
+    0.4 -> antenna_angle_offset; ;;; Angle offset for each antenna from main heading (in radians)
+                                 ;;; Adjust this value to change how wide apart the antennae are.
+    2 -> antenna_tip_radius; ;;; New: Radius of the small circles at the antenna tips
+    100 -> antenna_r;       ;;; Antennae color (greenish)
+    255 -> antenna_g;
+    100 -> antenna_b;
+
+    ;;; Agent heading (in radians)
+    ;;; Assuming 0 degrees is right, and Y increases DOWNWARDS (standard for graphics)
+    ;;; So, 0 radians = right, PI/2 = down, PI = left, 3*PI/2 = up
+    3.14159 -> my_pi;
+    random(1.0) * (2 * my_pi) -> agent_heading; ;;; Start with a random heading
+
+    ;;; Canvas dimensions (convert to real for calculations)
+    canvasWidth_int + 0.0 -> canvas_width;   ;;; Store canvas width for easy reference
+    canvasHeight_int + 0.0 -> canvas_height;  ;;; Store canvas height for easy reference
+
+    ;;; For randomized turning:
+    ;;; This defines the maximum random turn amount in radians per frame.
+    ;;; Adjust this value to control how "twitchy" the agent is.
+    0.2 -> max_turn_magnitude;
+
+    ;;; Simulation loop
+    while 1 = 1 {
+        ;;; Clear the screen (often with a dark background for contrast)
+        fillRect(0, 0, to_int(canvas_width), to_int(canvas_height), 0, 0, 0);
+
+        ;;; Calculate dx and dy based on the current heading
+        cos(agent_heading) -> agent_dx;
+        sin(agent_heading) -> agent_dy;
+
+        ;;; Update agent position (using real numbers for precision)
+        agent_x + (agent_dx * agent_speed) -> agent_x;
+        agent_y + (agent_dy * agent_speed) -> agent_y;
+
+        ;;; >>> TOROIDAL WORLD WRAP-AROUND LOGIC <<<
+        if (agent_x > canvas_width) {
+            agent_x - canvas_width -> agent_x;
+        }
+        if (agent_x < 0.0) {
+            agent_x + canvas_width -> agent_x;
+        }
+        if (agent_y > canvas_height) {
+            agent_y - canvas_height -> agent_y;
+        }
+        if (agent_y < 0.0) {
+            agent_y + canvas_height -> agent_y;
+        }
+        ;;; >>> END TOROIDAL WORLD WRAP-AROUND LOGIC <<<
+
+        ;;; Ensure heading stays within 0 to 2*PI range (optional but good practice)
+        if (agent_heading < 0.0) {
+            agent_heading + (2 * my_pi) -> agent_heading;
+        }
+        if (agent_heading > (2 * my_pi)) {
+            agent_heading - (2 * my_pi) -> agent_heading;
+        }
+
+        ;;; Draw the agent (filled circle)
+        to_int(agent_x) -> draw_x;
+        to_int(agent_y) -> draw_y;
+        fillCircle(draw_x, draw_y, agent_radius, agent_r, agent_g, agent_b);
+
+        ;;; >>> DRAWING ANTENNAE <<<
+        ;;; Calculate heading for the first antenna (offset clockwise/left)
+        agent_heading - antenna_angle_offset -> antenna1_heading;
+        cos(antenna1_heading) -> antenna1_dx;
+        sin(antenna1_heading) -> antenna1_dy;
+
+        ;;; Calculate end point for the first antenna
+        to_int(agent_x + (antenna1_dx * antenna_length)) -> antenna1_end_x;
+        to_int(agent_y + (antenna1_dy * antenna_length)) -> antenna1_end_y;
+
+        ;;; Draw the first antenna line
+        drawLine(draw_x, draw_y, antenna1_end_x, antenna1_end_y, antenna_r, antenna_g, antenna_b);
+        ;;; Draw the first antenna tip circle
+        fillCircle(antenna1_end_x, antenna1_end_y, antenna_tip_radius, antenna_r, antenna_g, antenna_b);
+
+
+        ;;; Calculate heading for the second antenna (offset counter-clockwise/right)
+        agent_heading + antenna_angle_offset -> antenna2_heading;
+        cos(antenna2_heading) -> antenna2_dx;
+        sin(antenna2_heading) -> antenna2_dy;
+
+        ;;; Calculate end point for the second antenna
+        to_int(agent_x + (antenna2_dx * antenna_length)) -> antenna2_end_x;
+        to_int(agent_y + (antenna2_dy * antenna_length)) -> antenna2_end_y;
+
+        ;;; Draw the second antenna line
+        drawLine(draw_x, draw_y, antenna2_end_x, antenna2_end_y, antenna_r, antenna_g, antenna_b);
+        ;;; Draw the second antenna tip circle
+        fillCircle(antenna2_end_x, antenna2_end_y, antenna_tip_radius, antenna_r, antenna_g, antenna_b);
+        ;;; >>> END DRAWING ANTENNAE <<<
+
+        ;;; RANDOMIZE HEADING HERE:
+        random(1.0) * (2 * max_turn_magnitude) - max_turn_magnitude -> random_turn;
+        agent_heading + random_turn -> agent_heading;
+
+        ;;; Update graphics display
+        graphics_process();
+    }
+}

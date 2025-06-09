@@ -1,0 +1,42 @@
+
+start {
+
+    ;;; initialize a graphics canvas of size 500 x 500 (screen pixels)
+    init_graphics_canvas(500, 500, 1, 1);
+
+    ;;; a continuous while loop.
+    while 1 = 1{
+
+        200 -> x1;
+        200 -> y1;
+        200 -> x2;
+        400 -> y2;
+        10 -> rad;
+        255 -> r;
+        255 -> g;
+        255 -> b;
+        ;;; fillCircle(x, y, radius, r, g, b);
+        ;;; draws a filled circle with r,g,b colour values at position x, y
+        fillCircle(x1, y1, rad, r, g, b);
+
+        ;;; drawCircle(x, y, radius, r, g, b)
+        ;;; draws an empty circle with r,g,b colour values at position x, y
+        drawCircle(x2, y2, rad, r, g, b);
+
+        ;;; drawLine(x1, y1, x2, y2, r, g, b)
+        ;;; draw a line between x1,y1 and x2,y2 with colour r,g,b
+        drawLine(x1, y1, x2, y2, r, 0, 0);
+
+        ;;; drawRect(x, y, w, h, r, g, b)
+        ;;; draws an unfilled rectangle at position x,y with width w and height h with colour r,g,b
+        drawRect(20, 20, 20, 20, r, g, b);
+
+        ;;; fillRect(x, y, w, h, r, g, b)
+        ;;; draws a filled rectangle at position x,y with width w and height h with colour r,g,b
+        fillRect(80, 80, 20, 20, r, g, b);
+
+        ;;; Updates the graphics loop
+        graphics_process();
+    }
+
+}
