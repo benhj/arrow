@@ -1,119 +1,151 @@
+;;; --- Function Definitions ---
+
+;;; Function to calculate a new X position based on current state.
+;;; It returns the calculated new X value.
+fn calculate_next_x(current_x, current_heading, speed) -> next_x_val {
+    cos(current_heading) -> dx;
+    current_x + (dx * speed) -> next_x_val;
+}
+
+;;; Function to calculate a new Y position based on current state.
+;;; It returns the calculated new Y value.
+fn calculate_next_y(current_y, current_heading, speed) -> next_y_val {
+    sin(current_heading) -> dy;
+    current_y + (dy * speed) -> next_y_val;
+}
+
+;;; Function to apply toroidal wrap to an X coordinate.
+;;; It returns the wrapped X value.
+fn wrap_x_coordinate(x_pos, canvas_width) -> wrapped_x {
+    x_pos -> wrapped_x; ;;; Initialize with current value
+    if (wrapped_x > canvas_width) {
+        wrapped_x - canvas_width -> wrapped_x;
+    }
+    if (wrapped_x < 0.0) {
+        wrapped_x + canvas_width -> wrapped_x;
+    }
+}
+
+;;; Function to apply toroidal wrap to a Y coordinate.
+;;; It returns the wrapped Y value.
+fn wrap_y_coordinate(y_pos, canvas_height) -> wrapped_y {
+    y_pos -> wrapped_y; ;;; Initialize with current value
+    if (wrapped_y > canvas_height) {
+        wrapped_y - canvas_height -> wrapped_y;
+    }
+    if (wrapped_y < 0.0) {
+        wrapped_y + canvas_height -> wrapped_y;
+    }
+}
+
+;;; Function to normalize a heading angle to be within 0 and 2*PI radians.
+;;; It returns the normalized angle.
+fn normalize_angle(angle, pi_val) -> normalized_angle {
+    angle -> normalized_angle; ;;; Initialize with current value
+    if (normalized_angle < 0.0) {
+        normalized_angle + (2 * pi_val) -> normalized_angle;
+    }
+    if (normalized_angle > (2 * pi_val)) {
+        normalized_angle - (2 * pi_val) -> normalized_angle;
+    }
+}
+
+;;; Function to calculate a random turn amount.
+;;; It returns the random turn value.
+fn calculate_random_turn_amount(max_turn_magnitude) -> turn_amount {
+    random(1.0) * (2 * max_turn_magnitude) - max_turn_magnitude -> turn_amount;
+}
+
+;;; Function to draw the agent and its antennae.
+;;; This function takes ALL drawing-related variables as parameters, as it cannot access globals.
+;;; It does not return a value.
+fn draw_agent(x, y, radius, r, g, b, heading, ant_len, ant_offset_angle, ant_tip_rad, ant_r, ant_g, ant_b) {
+    to_int(x) -> draw_x;
+    to_int(y) -> draw_y;
+
+    ;;; Draw the agent body
+    fillCircle(draw_x, draw_y, radius, r, g, b);
+
+    ;;; Antennae 1
+    heading - ant_offset_angle -> antenna1_heading;
+    cos(antenna1_heading) -> antenna1_dx;
+    sin(antenna1_heading) -> antenna1_dy;
+    to_int(x + (antenna1_dx * ant_len)) -> antenna1_end_x;
+    to_int(y + (antenna1_dy * ant_len)) -> antenna1_end_y;
+    drawLine(draw_x, draw_y, antenna1_end_x, antenna1_end_y, ant_r, ant_g, ant_b);
+    fillCircle(antenna1_end_x, antenna1_end_y, ant_tip_rad, ant_r, ant_g, ant_b);
+
+    ;;; Antennae 2
+    heading + ant_offset_angle -> antenna2_heading;
+    cos(antenna2_heading) -> antenna2_dx;
+    sin(antenna2_heading) -> antenna2_dy;
+    to_int(x + (antenna2_dx * ant_len)) -> antenna2_end_x;
+    to_int(y + (antenna2_dy * ant_len)) -> antenna2_end_y;
+    drawLine(draw_x, draw_y, antenna2_end_x, antenna2_end_y, ant_r, ant_g, ant_b);
+    fillCircle(antenna2_end_x, antenna2_end_y, ant_tip_rad, ant_r, ant_g, ant_b);
+}
+
+;;; --- Main Program Execution Start ---
 start {
+    ;;; Get canvas dimensions from command line arguments
+    arg(0) -> canvasWidth_int;
+    arg(1) -> canvasHeight_int;
 
-    arg(0) -> canvasWidth_int;  ;;; Capture integer argument for width
-    arg(1) -> canvasHeight_int; ;;; Capture integer argument for height
-
-    ;;; Initialize a graphics canvas with passed arguments
+    ;;; Initialize graphics canvas
     init_graphics_canvas(canvasWidth_int, canvasHeight_int, 1, 1);
 
-    ;;; Agent properties
-    250.0 -> agent_x;       ;;; Initial X position (use real for internal calculations)
-    250.0 -> agent_y;       ;;; Initial Y position (use real for internal calculations)
-    12 -> agent_radius;     ;;; Agent size
-    5.0 -> agent_speed;     ;;; Agent movement speed (use real)
-    255 -> agent_r;         ;;; Agent color (red)
+    ;;; --- Agent State Variables (declared and managed locally within the 'start' block) ---
+    ;;; Since globals are not permitted, all simulation state must live here.
+    canvasWidth_int / 2.0 -> agent_x; ;;; Start agent in the center
+    canvasHeight_int / 2.0 -> agent_y;
+    12 -> agent_radius;
+    5.0 -> agent_speed;
+    255 -> agent_r;
     200 -> agent_g;
     200 -> agent_b;
 
-    ;;; Antennae properties
-    18 -> antenna_length;    ;;; Length of each antenna
-    0.4 -> antenna_angle_offset; ;;; Angle offset for each antenna from main heading (in radians)
-                                 ;;; Adjust this value to change how wide apart the antennae are.
-    2 -> antenna_tip_radius; ;;; New: Radius of the small circles at the antenna tips
-    100 -> antenna_r;       ;;; Antennae color (greenish)
+    18 -> antenna_length;
+    0.4 -> antenna_angle_offset;
+    2 -> antenna_tip_radius;
+    100 -> antenna_r;
     255 -> antenna_g;
     100 -> antenna_b;
 
-    ;;; Agent heading (in radians)
-    ;;; Assuming 0 degrees is right, and Y increases DOWNWARDS (standard for graphics)
-    ;;; So, 0 radians = right, PI/2 = down, PI = left, 3*PI/2 = up
-    3.14159 -> my_pi;
-    random(1.0) * (2 * my_pi) -> agent_heading; ;;; Start with a random heading
+    3.14159 -> my_pi; ;;; Define PI here
+    random(1.0) * (2 * my_pi) -> agent_heading; ;;; Initial random heading
 
-    ;;; Canvas dimensions (convert to real for calculations)
-    canvasWidth_int + 0.0 -> canvas_width;   ;;; Store canvas width for easy reference
-    canvasHeight_int + 0.0 -> canvas_height;  ;;; Store canvas height for easy reference
+    canvasWidth_int + 0.0 -> canvas_width_float; ;;; Float version for calculations
+    canvasHeight_int + 0.0 -> canvas_height_float;
 
-    ;;; For randomized turning:
-    ;;; This defines the maximum random turn amount in radians per frame.
-    ;;; Adjust this value to control how "twitchy" the agent is.
     0.2 -> max_turn_magnitude;
+    ;;; --- END Agent State Variables ---
 
     ;;; Simulation loop
     while 1 = 1 {
-        ;;; Clear the screen (often with a dark background for contrast)
-        fillRect(0, 0, to_int(canvas_width), to_int(canvas_height), 0, 0, 0);
+        ;;; Clear the screen for the new frame
+        fillRect(0, 0, to_int(canvas_width_float), to_int(canvas_height_float), 0, 0, 0);
 
-        ;;; Calculate dx and dy based on the current heading
-        cos(agent_heading) -> agent_dx;
-        sin(agent_heading) -> agent_dy;
+        ;;; --- Update Agent State using Functions ---
+        ;;; Each function returns a single value, which is then assigned back to the state variable.
+        calculate_next_x(agent_x, agent_heading, agent_speed) -> agent_x;
+        calculate_next_y(agent_y, agent_heading, agent_speed) -> agent_y;
 
-        ;;; Update agent position (using real numbers for precision)
-        agent_x + (agent_dx * agent_speed) -> agent_x;
-        agent_y + (agent_dy * agent_speed) -> agent_y;
+        ;;; Apply toroidal wrap for X and Y separately
+        wrap_x_coordinate(agent_x, canvas_width_float) -> agent_x;
+        wrap_y_coordinate(agent_y, canvas_height_float) -> agent_y;
 
-        ;;; >>> TOROIDAL WORLD WRAP-AROUND LOGIC <<<
-        if (agent_x > canvas_width) {
-            agent_x - canvas_width -> agent_x;
-        }
-        if (agent_x < 0.0) {
-            agent_x + canvas_width -> agent_x;
-        }
-        if (agent_y > canvas_height) {
-            agent_y - canvas_height -> agent_y;
-        }
-        if (agent_y < 0.0) {
-            agent_y + canvas_height -> agent_y;
-        }
-        ;;; >>> END TOROIDAL WORLD WRAP-AROUND LOGIC <<<
+        ;;; Apply random turn amount
+        calculate_random_turn_amount(max_turn_magnitude) -> turn_amount;
+        agent_heading + turn_amount -> agent_heading; ;;; Apply the turn
 
-        ;;; Ensure heading stays within 0 to 2*PI range (optional but good practice)
-        if (agent_heading < 0.0) {
-            agent_heading + (2 * my_pi) -> agent_heading;
-        }
-        if (agent_heading > (2 * my_pi)) {
-            agent_heading - (2 * my_pi) -> agent_heading;
-        }
+        ;;; Normalize heading after the turn
+        normalize_angle(agent_heading, my_pi) -> agent_heading;
 
-        ;;; Draw the agent (filled circle)
-        to_int(agent_x) -> draw_x;
-        to_int(agent_y) -> draw_y;
-        fillCircle(draw_x, draw_y, agent_radius, agent_r, agent_g, agent_b);
-
-        ;;; >>> DRAWING ANTENNAE <<<
-        ;;; Calculate heading for the first antenna (offset clockwise/left)
-        agent_heading - antenna_angle_offset -> antenna1_heading;
-        cos(antenna1_heading) -> antenna1_dx;
-        sin(antenna1_heading) -> antenna1_dy;
-
-        ;;; Calculate end point for the first antenna
-        to_int(agent_x + (antenna1_dx * antenna_length)) -> antenna1_end_x;
-        to_int(agent_y + (antenna1_dy * antenna_length)) -> antenna1_end_y;
-
-        ;;; Draw the first antenna line
-        drawLine(draw_x, draw_y, antenna1_end_x, antenna1_end_y, antenna_r, antenna_g, antenna_b);
-        ;;; Draw the first antenna tip circle
-        fillCircle(antenna1_end_x, antenna1_end_y, antenna_tip_radius, antenna_r, antenna_g, antenna_b);
-
-
-        ;;; Calculate heading for the second antenna (offset counter-clockwise/right)
-        agent_heading + antenna_angle_offset -> antenna2_heading;
-        cos(antenna2_heading) -> antenna2_dx;
-        sin(antenna2_heading) -> antenna2_dy;
-
-        ;;; Calculate end point for the second antenna
-        to_int(agent_x + (antenna2_dx * antenna_length)) -> antenna2_end_x;
-        to_int(agent_y + (antenna2_dy * antenna_length)) -> antenna2_end_y;
-
-        ;;; Draw the second antenna line
-        drawLine(draw_x, draw_y, antenna2_end_x, antenna2_end_y, antenna_r, antenna_g, antenna_b);
-        ;;; Draw the second antenna tip circle
-        fillCircle(antenna2_end_x, antenna2_end_y, antenna_tip_radius, antenna_r, antenna_g, antenna_b);
-        ;;; >>> END DRAWING ANTENNAE <<<
-
-        ;;; RANDOMIZE HEADING HERE:
-        random(1.0) * (2 * max_turn_magnitude) - max_turn_magnitude -> random_turn;
-        agent_heading + random_turn -> agent_heading;
+        ;;; --- Draw Agent ---
+        ;;; Pass all necessary state variables to the drawing function
+        draw_agent(agent_x, agent_y, agent_radius, agent_r, agent_g, agent_b,
+                   agent_heading, antenna_length, antenna_angle_offset,
+                   antenna_tip_radius, antenna_r, antenna_g, antenna_b);
 
         ;;; Update graphics display
         graphics_process();
