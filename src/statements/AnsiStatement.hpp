@@ -7,7 +7,7 @@
 
 namespace arrow {
     
-    class AnsiStatement : public Statement
+    class AnsiStatement final : public Statement
     {
       public:
         AnsiStatement(long const lineNumber,

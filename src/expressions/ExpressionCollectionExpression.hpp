@@ -10,7 +10,7 @@ namespace arrow {
     
     /// For storing a set of expressions, e.g.
     /// (a, b, c)
-    class ExpressionCollectionExpression : public Expression
+    class ExpressionCollectionExpression final : public Expression
     {
       public:
         ExpressionCollectionExpression(long const lineNumber);

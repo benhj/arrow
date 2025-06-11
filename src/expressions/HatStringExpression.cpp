@@ -15,7 +15,7 @@ namespace arrow {
 
     std::shared_ptr<ExpressionEvaluator> HatStringExpression::getEvaluator() const
     {
-        struct HatStringEvaluator : public ExpressionEvaluator
+        struct HatStringEvaluator final : public ExpressionEvaluator
         {
             explicit HatStringEvaluator(Token tok)
               : m_tok(std::move(tok))

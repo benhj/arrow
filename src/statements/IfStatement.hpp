@@ -15,7 +15,7 @@ namespace arrow {
     /// Note, an IfStatement can contain optional
     /// ElseIfStatement parts an an optional
     /// ElseStatement part
-    class IfStatement : public Statement
+    class IfStatement final : public Statement
     {
       public:
         IfStatement(long const lineNumber);

@@ -10,7 +10,7 @@
 
 namespace arrow {
     
-    class WhileStatement : public Statement
+    class WhileStatement final : public Statement
     {
       public:
         WhileStatement(long const lineNumber);

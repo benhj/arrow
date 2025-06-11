@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class InitGraphicsCanvasFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class InitGraphicsCanvasFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         InitGraphicsCanvasFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class InitGraphicsCanvasFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class InitGraphicsCanvasFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

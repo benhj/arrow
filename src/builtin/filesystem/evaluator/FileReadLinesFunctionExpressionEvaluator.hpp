@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class FileReadLinesFunctionExpressionEvaluator : public ExpressionEvaluator
+    class FileReadLinesFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit FileReadLinesFunctionExpressionEvaluator(FileReadLinesFunctionExpression expression);

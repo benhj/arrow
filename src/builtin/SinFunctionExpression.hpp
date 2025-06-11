@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class SinFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class SinFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         SinFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class SinFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class SinFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

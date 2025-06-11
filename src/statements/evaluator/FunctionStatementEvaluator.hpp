@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class FunctionStatementEvaluator : public StatementEvaluator
+    class FunctionStatementEvaluator final : public StatementEvaluator
     {
       public:
         explicit FunctionStatementEvaluator(FunctionStatement statement);

@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class CosFunctionExpressionEvaluator : public ExpressionEvaluator
+    class CosFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit CosFunctionExpressionEvaluator(CosFunctionExpression expression);

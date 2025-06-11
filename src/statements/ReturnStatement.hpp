@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class ReturnStatement : public Statement
+    class ReturnStatement final : public Statement
     {
       public:
         ReturnStatement(long const lineNumber);

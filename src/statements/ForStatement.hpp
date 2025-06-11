@@ -10,7 +10,7 @@
 
 namespace arrow {
     
-    class ForStatement : public Statement
+    class ForStatement final : public Statement
     {
       public:
         ForStatement(long const lineNumber);

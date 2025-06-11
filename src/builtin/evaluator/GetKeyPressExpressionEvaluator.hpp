@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class GetKeyPressExpressionEvaluator : public ExpressionEvaluator
+    class GetKeyPressExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit GetKeyPressExpressionEvaluator(GetKeyPressExpression expression);

@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class LengthExpression : public Expression, public BuiltInFunctionExpression
+    class LengthExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         LengthExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class LengthExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class LengthExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class PodStatementEvaluator : public StatementEvaluator
+    class PodStatementEvaluator final : public StatementEvaluator
     {
       public:
         explicit PodStatementEvaluator(PodStatement statement);

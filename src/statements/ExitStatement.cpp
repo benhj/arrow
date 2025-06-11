@@ -30,7 +30,7 @@ namespace arrow {
     std::shared_ptr<StatementEvaluator> ExitStatement::getEvaluator() const
     {
 
-        struct ExitStatementEvaluator : public StatementEvaluator
+        struct ExitStatementEvaluator final : public StatementEvaluator
         {
             ExitStatementEvaluator(ExitStatement statement)
               : m_statement(std::move(statement))

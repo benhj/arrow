@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class TokenizeFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class TokenizeFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         TokenizeFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class TokenizeFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class TokenizeFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

@@ -38,7 +38,7 @@ namespace arrow {
     std::shared_ptr<StatementEvaluator> ReleaseStatement::getEvaluator() const
     {
 
-        struct ReleaseStatementEvaluator : public StatementEvaluator
+        struct ReleaseStatementEvaluator final : public StatementEvaluator
         {
             ReleaseStatementEvaluator(ReleaseStatement statement)
               : m_statement(std::move(statement))

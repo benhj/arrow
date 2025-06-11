@@ -19,7 +19,7 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> ReturnStatement::getEvaluator() const
     {
-        struct ReturnStatementEvaluator : public StatementEvaluator
+        struct ReturnStatementEvaluator final : public StatementEvaluator
         {
             StatementResult evaluate(Environment &) const override
             {

@@ -10,7 +10,7 @@
 
 namespace arrow {
     
-    class RepeatStatement : public Statement
+    class RepeatStatement final : public Statement
     {
       public:
         RepeatStatement(long const lineNumber);

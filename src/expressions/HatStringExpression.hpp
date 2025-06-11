@@ -8,7 +8,7 @@
 
 
 namespace arrow {
-    class HatStringExpression : public Expression
+    class HatStringExpression final : public Expression
     {
       public:
         HatStringExpression(long const lineNumber);

@@ -8,7 +8,7 @@
 #include "representation/Type.hpp"
 
 namespace arrow {
-    class FileReceiverEvaluator : public ReceiverEvaluator
+    class FileReceiverEvaluator final : public ReceiverEvaluator
     {
       public:
         explicit FileReceiverEvaluator(FileReceiver receiver);

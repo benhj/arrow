@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class InitKeyHandlerFunctionExpressionEvaluator : public ExpressionEvaluator
+    class InitKeyHandlerFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit InitKeyHandlerFunctionExpressionEvaluator(InitKeyHandlerFunctionExpression expression);

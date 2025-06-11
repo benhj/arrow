@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class WhileStatementEvaluator : public StatementEvaluator
+    class WhileStatementEvaluator final : public StatementEvaluator
     {
       public:
         explicit WhileStatementEvaluator(WhileStatement statement);

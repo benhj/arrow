@@ -12,7 +12,7 @@ namespace arrow {
     
     /// Note, an ElseIfStatement can only be part
     /// of an IfStatement
-    class ElseIfStatement : public Statement
+    class ElseIfStatement final : public Statement
     {
       public:
         ElseIfStatement(long const lineNumber);

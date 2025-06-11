@@ -14,7 +14,7 @@ namespace arrow {
 
     std::shared_ptr<ExpressionEvaluator> ExpressionCollectionExpression::getEvaluator() const
     {
-        struct ExpressionCollectionExpressionEvaluator : 
+        struct ExpressionCollectionExpressionEvaluator final : 
                public ExpressionEvaluator
         {
             ExpressionCollectionExpressionEvaluator(ExpressionCollectionExpression ece)

@@ -61,7 +61,7 @@ namespace arrow {
     std::shared_ptr<ExpressionEvaluator> 
     IndexExpression::getEvaluator() const
     {
-        struct IndexExpressionEvaluator : public ExpressionEvaluator {
+        struct IndexExpressionEvaluator final : public ExpressionEvaluator {
             IndexExpressionEvaluator(Token tok, std::shared_ptr<Expression> expression) 
               : m_tok(std::move(tok))
               , m_expression(std::move(expression))

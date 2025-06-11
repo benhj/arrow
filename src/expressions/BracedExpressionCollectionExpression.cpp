@@ -56,7 +56,7 @@ namespace arrow {
 
     std::shared_ptr<ExpressionEvaluator> BracedExpressionCollectionExpression::getEvaluator() const
     {
-        struct BracedExpressionCollectionExpressionEvaluator : 
+        struct BracedExpressionCollectionExpressionEvaluator final : 
                public ExpressionEvaluator
         {
             BracedExpressionCollectionExpressionEvaluator(BracedExpressionCollectionExpression ece)

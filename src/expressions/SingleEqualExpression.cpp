@@ -14,7 +14,7 @@ namespace arrow {
 
     std::shared_ptr<ExpressionEvaluator> SingleEqualExpression::getEvaluator() const
     {
-        struct SingleEqualEvaluator : public ExpressionEvaluator
+        struct SingleEqualEvaluator final : public ExpressionEvaluator
         {
             Type evaluate(Environment & environment) const override
             {

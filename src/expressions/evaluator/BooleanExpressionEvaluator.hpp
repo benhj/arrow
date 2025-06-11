@@ -8,7 +8,7 @@
 
 namespace arrow {
 
-    class BooleanExpressionEvaluator : public ExpressionEvaluator
+    class BooleanExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         BooleanExpressionEvaluator(BooleanExpression expression);

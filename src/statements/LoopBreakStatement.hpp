@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class LoopBreakStatement : public Statement
+    class LoopBreakStatement final : public Statement
     {
       public:
         LoopBreakStatement(long const lineNumber);

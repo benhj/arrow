@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class SinFunctionExpressionEvaluator : public ExpressionEvaluator
+    class SinFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit SinFunctionExpressionEvaluator(SinFunctionExpression expression);

@@ -10,7 +10,7 @@
 
 namespace arrow {
 
-    class ListExpressionEvaluator : public ExpressionEvaluator
+    class ListExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit ListExpressionEvaluator(ListExpression listExpression);

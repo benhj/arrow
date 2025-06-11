@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class NegativeNumberExpression : public Expression
+    class NegativeNumberExpression final : public Expression
     {
       public:
         NegativeNumberExpression(long const lineNumber);

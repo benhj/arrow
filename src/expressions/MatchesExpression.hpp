@@ -9,7 +9,7 @@
 
 namespace arrow {
     
-    class MatchesExpression : public Expression
+    class MatchesExpression final : public Expression
     {
       public:
         MatchesExpression(long const lineNumber);

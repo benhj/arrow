@@ -9,7 +9,7 @@
 
 namespace arrow {
     
-    class DollarIdentifierReceiver : public Receiver
+    class DollarIdentifierReceiver final : public Receiver
     {
       public:
         DollarIdentifierReceiver(long const lineNumber);

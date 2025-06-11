@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class ToIntFunctionExpressionEvaluator : public ExpressionEvaluator
+    class ToIntFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit ToIntFunctionExpressionEvaluator(ToIntFunctionExpression expression);

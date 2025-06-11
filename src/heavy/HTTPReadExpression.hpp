@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class HTTPReadExpression : public Expression, public BuiltInFunctionExpression
+    class HTTPReadExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         HTTPReadExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class HTTPReadExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class HTTPReadExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

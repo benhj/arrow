@@ -7,7 +7,7 @@
 
 namespace arrow {
     
-    class EchoStatement : public Statement
+    class EchoStatement final : public Statement
     {
       public:
         EchoStatement(long const lineNumber,

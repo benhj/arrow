@@ -11,7 +11,7 @@ namespace arrow {
     class IdentifierExpression;
     class IndexExpression;
 
-    struct DollarIdentifierReceiverEvaluator : public ReceiverEvaluator {
+    struct DollarIdentifierReceiverEvaluator final : public ReceiverEvaluator {
         explicit DollarIdentifierReceiverEvaluator(std::shared_ptr<Expression> expression);
         void evaluate(Type incoming, Environment & environment) const override;
       private:

@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class RegexFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class RegexFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         RegexFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class RegexFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class RegexFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

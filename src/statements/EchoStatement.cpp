@@ -29,7 +29,7 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> EchoStatement::getEvaluator() const
     {
-        struct EchoStatementEvaluator : public StatementEvaluator
+        struct EchoStatementEvaluator final : public StatementEvaluator
         {
             explicit EchoStatementEvaluator(EchoStatement statement)
               : m_statement(std::move(statement))

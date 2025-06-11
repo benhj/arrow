@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class MapContainsFunctionExpressionEvaluator : public ExpressionEvaluator
+    class MapContainsFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit MapContainsFunctionExpressionEvaluator(MapContainsFunctionExpression expression);

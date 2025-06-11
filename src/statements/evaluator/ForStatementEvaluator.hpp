@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class ForStatementEvaluator : public StatementEvaluator
+    class ForStatementEvaluator final : public StatementEvaluator
     {
       public:
         explicit ForStatementEvaluator(ForStatement statement);

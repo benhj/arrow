@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class InitGraphicsCanvasFunctionExpressionEvaluator : public ExpressionEvaluator
+    class InitGraphicsCanvasFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit InitGraphicsCanvasFunctionExpressionEvaluator(InitGraphicsCanvasFunctionExpression expression);

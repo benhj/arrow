@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class ScopedBlockStatementEvaluator : public StatementEvaluator
+    class ScopedBlockStatementEvaluator final : public StatementEvaluator
     {
       public:
         explicit ScopedBlockStatementEvaluator(ScopedBlockStatement statement);

@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class QStringExpression : public Expression
+    class QStringExpression final : public Expression
     {
       public:
         QStringExpression(long const lineNumber);

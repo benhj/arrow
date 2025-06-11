@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class IfStatementEvaluator : public StatementEvaluator
+    class IfStatementEvaluator final : public StatementEvaluator
     {
       public:
         explicit IfStatementEvaluator(IfStatement statement);

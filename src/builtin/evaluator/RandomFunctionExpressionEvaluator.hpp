@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class RandomFunctionExpressionEvaluator : public ExpressionEvaluator
+    class RandomFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit RandomFunctionExpressionEvaluator(RandomFunctionExpression expression);

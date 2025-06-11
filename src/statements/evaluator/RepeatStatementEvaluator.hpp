@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class RepeatStatementEvaluator : public StatementEvaluator
+    class RepeatStatementEvaluator final : public StatementEvaluator
     {
       public:
         explicit RepeatStatementEvaluator(RepeatStatement statement);

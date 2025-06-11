@@ -8,7 +8,7 @@
 
 namespace arrow {
 
-    struct NegativeNumberEvaluator : public ExpressionEvaluator {
+    struct NegativeNumberEvaluator final : public ExpressionEvaluator {
         NegativeNumberEvaluator(std::shared_ptr<ExpressionEvaluator> innerEvaluator,
         						long const lineNumber);
         Type evaluate(Environment & environment) const override;

@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class ListWordExpression : public Expression
+    class ListWordExpression final : public Expression
     {
       public:
         ListWordExpression(long const lineNumber);

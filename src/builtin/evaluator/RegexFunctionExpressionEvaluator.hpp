@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class RegexFunctionExpressionEvaluator : public ExpressionEvaluator
+    class RegexFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit RegexFunctionExpressionEvaluator(RegexFunctionExpression expression);

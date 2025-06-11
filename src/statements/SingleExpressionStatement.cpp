@@ -29,7 +29,7 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> SingleExpressionStatement::getEvaluator() const
     {
-        struct SingleExpressionStatementEvaluator : public StatementEvaluator
+        struct SingleExpressionStatementEvaluator final : public StatementEvaluator
         {
             SingleExpressionStatementEvaluator(SingleExpressionStatement statement)
               : m_statement(std::move(statement))

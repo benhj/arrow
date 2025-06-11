@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class IdentifierExpression : public Expression
+    class IdentifierExpression final : public Expression
     {
       public:
         IdentifierExpression(long const lineNumber);

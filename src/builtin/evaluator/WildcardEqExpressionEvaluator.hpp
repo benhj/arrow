@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class WildcardEqExpressionEvaluator : public ExpressionEvaluator
+    class WildcardEqExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit WildcardEqExpressionEvaluator(WildcardEqExpression expression);

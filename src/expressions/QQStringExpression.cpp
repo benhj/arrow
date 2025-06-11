@@ -25,7 +25,7 @@ namespace arrow {
     std::shared_ptr<ExpressionEvaluator> 
     QQStringExpression::getEvaluator() const
     {
-        struct QQStringExpressionEvaluator : public ExpressionEvaluator
+        struct QQStringExpressionEvaluator final : public ExpressionEvaluator
         {
             QQStringExpressionEvaluator(QQStringExpression expression)
               : m_expression(std::move(expression))

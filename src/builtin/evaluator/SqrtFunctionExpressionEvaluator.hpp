@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class SqrtFunctionExpressionEvaluator : public ExpressionEvaluator
+    class SqrtFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit SqrtFunctionExpressionEvaluator(SqrtFunctionExpression expression);

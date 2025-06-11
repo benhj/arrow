@@ -15,7 +15,7 @@ namespace arrow {
     std::shared_ptr<ExpressionEvaluator> 
     ListWordExpression::getEvaluator() const
     {
-        struct ListWordEvaluator : public ExpressionEvaluator {
+        struct ListWordEvaluator final : public ExpressionEvaluator {
             ListWordEvaluator(Token tok) : m_tok(std::move(tok))
             {
             }

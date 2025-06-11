@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace arrow {
-    class PodStatement : public Statement
+    class PodStatement final : public Statement
     {
       public:
         PodStatement(long const lineNumber);

@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class DrawFunctionExpressionEvaluator : public ExpressionEvaluator
+    class DrawFunctionExpressionEvaluator  final : public ExpressionEvaluator
     {
       public:
         explicit DrawFunctionExpressionEvaluator(DrawFunctionExpression expression);

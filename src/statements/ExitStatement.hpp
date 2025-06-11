@@ -7,7 +7,7 @@
 
 namespace arrow {
     
-    class ExitStatement : public Statement
+    class ExitStatement final : public Statement
     {
       public:
         ExitStatement(long const lineNumber,

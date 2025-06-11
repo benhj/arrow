@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class TypeExpressionEvaluator : public ExpressionEvaluator
+    class TypeExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit TypeExpressionEvaluator(TypeExpression expression);

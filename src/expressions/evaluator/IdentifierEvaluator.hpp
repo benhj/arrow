@@ -8,7 +8,7 @@
 
 namespace arrow {
 
-    struct IdentifierEvaluator : public ExpressionEvaluator {
+    struct IdentifierEvaluator final : public ExpressionEvaluator {
         IdentifierEvaluator(Token tok);
         Type evaluate(Environment & environment) const override;
       private:

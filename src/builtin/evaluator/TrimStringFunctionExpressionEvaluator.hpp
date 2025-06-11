@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class TrimStringFunctionExpressionEvaluator : public ExpressionEvaluator
+    class TrimStringFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit TrimStringFunctionExpressionEvaluator(TrimStringFunctionExpression expression);

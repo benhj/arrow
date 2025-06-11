@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class LengthExpressionEvaluator : public ExpressionEvaluator
+    class LengthExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit LengthExpressionEvaluator(LengthExpression expression);

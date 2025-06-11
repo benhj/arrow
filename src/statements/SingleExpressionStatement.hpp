@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class SingleExpressionStatement : public Statement
+    class SingleExpressionStatement final : public Statement
     {
       public:
         SingleExpressionStatement(long const lineNumber);

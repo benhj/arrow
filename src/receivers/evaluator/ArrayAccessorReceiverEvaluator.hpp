@@ -9,7 +9,7 @@
 
 namespace arrow {
 
-    struct ArrayAccessorReceiverEvaluator : public ReceiverEvaluator {
+    struct ArrayAccessorReceiverEvaluator final : public ReceiverEvaluator {
         ArrayAccessorReceiverEvaluator(Token tok, std::shared_ptr<Expression> expression);
         void evaluate(Type incoming, Environment & environment) const override;
       private:

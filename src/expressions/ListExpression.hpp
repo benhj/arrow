@@ -9,7 +9,7 @@
 
 namespace arrow {
     
-    class ListExpression : public Expression
+    class ListExpression final : public Expression
     {
       public:
         ListExpression(long const lineNumber);

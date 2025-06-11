@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class FileReadBytesFunctionExpressionEvaluator : public ExpressionEvaluator
+    class FileReadBytesFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit FileReadBytesFunctionExpressionEvaluator(FileReadBytesFunctionExpression expression);

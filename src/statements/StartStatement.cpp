@@ -33,7 +33,7 @@ namespace arrow {
     std::shared_ptr<StatementEvaluator> StartStatement::getEvaluator() const
     {
 
-        struct StartStatementEvaluator : public StatementEvaluator
+        struct StartStatementEvaluator final : public StatementEvaluator
         {
             explicit StartStatementEvaluator(StartStatement statement)
               : m_statement(std::move(statement))

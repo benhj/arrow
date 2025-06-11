@@ -47,8 +47,8 @@ namespace arrow {
       , m_functions()
       , m_pods()
       , m_programArguments()
-      , m_exitState(false)
       , m_keyHandler(nullptr)
+      , m_exitState(false)
     {
         pushEnvironmentLayer();
     }

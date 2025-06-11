@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace arrow {
-    class FileReceiver : public Receiver
+    class FileReceiver final : public Receiver
     {
       public:
         FileReceiver(long const lineNumber);

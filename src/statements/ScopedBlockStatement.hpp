@@ -10,7 +10,7 @@
 
 namespace arrow {
     
-    class ScopedBlockStatement : public Statement
+    class ScopedBlockStatement final : public Statement
     {
       public:
         ScopedBlockStatement(long const lineNumber);

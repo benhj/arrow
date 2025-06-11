@@ -24,7 +24,7 @@ namespace arrow {
         auto const col = expression->getEvaluator()->evaluate(environment);
         auto & expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(!expressionCollEval.empty()) {
-            throw LanguageException("No arguments expected", m_expression.getLineNumber());
+            throw LanguageException("No arguments expected", callLineNumber);
         }
 
         auto optionalKeyPress = environment.retrieveKeyPress();

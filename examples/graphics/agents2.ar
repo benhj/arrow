@@ -1,0 +1,791 @@
+;;; Global Pod Declarations (ONLY these are allowed globally)
+pod foodItem(x, y, active, r, g, b);
+;;; REVISED: Pod definition for the Agent WITH NN weights AND fitness_score as members
+;;; This assumes the language *does* support 2D arrays as pod members.
+pod agentPod(x, y, radius, speed, r, g, b, heading,
+             antenna_length, antenna_angle_offset, antenna_tip_radius, antenna_r, antenna_g, antenna_b,
+             flash_timer, flash_duration, flash_r, flash_g, flash_b,
+             weights_input_hidden, ;;; NEW: 2D array for input to hidden layer weights
+             weights_hidden_output, ;;; NEW: 2D array for hidden to output layer weights
+             fitness_score); ;;; NEW: Numeric score for evolutionary fitness
+
+;;; --- Neural Network Helper Functions ---
+
+;;; Function to initialize a 2D array (matrix) with random values
+fn init2DArray(rows, cols) -> new_2d_array {
+    [] -> new_2d_array;
+    0 -> i;
+    repeat rows times {
+        [] -> inner_array;
+        0 -> j;
+        repeat cols times {
+            random(1.0) * 2 - 1 -> rand_val;
+            ;;; Initialize weights between -1.0 and 1.0
+            rand_val -> $inner_array;
+            j + 1 -> j;
+        }
+        inner_array -> $new_2d_array;
+        i + 1 -> i;
+    }
+}
+
+;;; Sigmoid activation function
+fn sigmoid(x) -> result {
+    1.0 + exp(-x) -> denominator;
+    1.0 / denominator -> result;
+}
+
+;;; Calculates the output of a single layer in the neural network
+;;; input_array: activations from the previous layer
+;;; weights_matrix: weights connecting input_array to this layer
+fn calculate_layer_output(input_array, weights_matrix) -> output_activations {
+    [] -> output_activations;
+    length(weights_matrix:0) -> num_neurons_in_layer; ;;; Number of neurons in the current layer (cols of weights_matrix)
+
+    0 -> j;
+    repeat num_neurons_in_layer times {
+        0.0 -> weighted_sum;
+
+        ;;; Add bias input (assumed to be the last row of weights_matrix)
+        weights_matrix:(length(input_array)) -> inner;
+        inner:j -> bias_weight;
+        weighted_sum + bias_weight -> weighted_sum;
+
+        ;;; Sum inputs * weights
+        0 -> i;
+        repeat length(input_array) times {
+            input_array:i -> input_val;
+            weights_matrix:i -> inner;
+            inner:j -> weight_val;
+            weighted_sum + (input_val * weight_val) -> weighted_sum;
+            i + 1 -> i;
+        }
+        sigmoid(weighted_sum) -> neuron_output;
+        neuron_output -> $output_activations;
+        j + 1 -> j;
+    }
+}
+
+;;; Function to get a single antenna's reading (RGB, bearing, distance to closest food)
+fn get_antenna_reading(agent_x, agent_y, current_antenna_heading, food_array, food_count, food_radius, pi_val, canvas_width, canvas_height) -> antenna_output {
+    999999.0 -> closest_dist_sq; ;;; Start with a very large distance
+    0 -> found_food;
+    0 -> closest_food_r;
+    0 -> closest_food_g;
+    0 -> closest_food_b;
+    0.0 -> closest_food_bearing; ;;; Bearing relative to antenna heading
+
+    0 -> i;
+    repeat food_count times {
+        food_array:i -> current_food_item;
+        current_food_item:active -> is_active;
+        if (is_active = 1) {
+            current_food_item:x -> food_x;
+            current_food_item:y -> food_y;
+
+            agent_x - food_x -> dx;
+            agent_y - food_y -> dy;
+            (dx * dx) + (dy * dy) -> dist_sq;
+
+            if (dist_sq < closest_dist_sq) {
+                dist_sq -> closest_dist_sq;
+                1 -> found_food;
+
+                ;;; Get RGB values for the closest food item from its pod members
+                current_food_item:r / 255 -> closest_food_r;
+                current_food_item:g / 255 -> closest_food_g;
+                current_food_item:b / 255 -> closest_food_b;
+
+                ;;; Calculate angle from agent to food relative to world X axis
+                atan2(food_y - agent_y, food_x - agent_x) -> angle_to_food; ;;; Calculate bearing relative to antenna's heading
+                angle_to_food - current_antenna_heading -> relative_bearing; ;;; Normalize bearing to [-pi, pi]
+                while (relative_bearing <= -pi_val) { relative_bearing + (2 * pi_val) -> relative_bearing; }
+                while (relative_bearing > pi_val) { relative_bearing - (2 * pi_val) -> relative_bearing; }
+                relative_bearing -> closest_food_bearing;
+            }
+        }
+        i + 1 -> i;
+    }
+
+    sqrt(closest_dist_sq) -> closest_dist;
+
+    ;;; If no food was found, return default "no detection" values (e.g., black/zero)
+    if (found_food = 0) {
+        0.0 -> closest_food_bearing;
+        0 -> closest_food_r;
+        0 -> closest_food_g;
+        0 -> closest_food_b;
+    }
+    closest_food_bearing / pi_val -> normalizedBearing;
+    [^closest_food_r ^closest_food_g ^closest_food_b ^normalizedBearing] -> antenna_output;
+}
+
+
+;;; UPDATED: The agent's neural network "think" function now accesses weights directly from the pod
+fn agent_think(current_agent_pod, food_array, food_count, food_radius, canvas_width, canvas_height, pi_val) -> nn_outputs {
+    current_agent_pod:x -> agent_x;
+    current_agent_pod:y -> agent_y;
+    current_agent_pod:heading -> agent_heading;
+    current_agent_pod:antenna_angle_offset -> antenna_offset;
+
+    ;;; Get left antenna readings
+    agent_heading - antenna_offset -> left_antenna_heading;
+    get_antenna_reading(agent_x, agent_y, left_antenna_heading, food_array, food_count, food_radius, pi_val, canvas_width, canvas_height) -> left_antenna_inputs;
+
+    ;;; Get right antenna readings
+    agent_heading + antenna_offset -> right_antenna_heading;
+    get_antenna_reading(agent_x, agent_y, right_antenna_heading, food_array, food_count, food_radius, pi_val, canvas_width, canvas_height) -> right_antenna_inputs;
+
+    ;;; Combine all inputs into a single array for the input layer
+    [] -> input_layer_activations;
+    0 -> i;
+    repeat length(left_antenna_inputs) times {
+        left_antenna_inputs:i -> val;
+        val -> $input_layer_activations;
+        ;;;prn val;
+        i + 1 -> i;
+    }
+    0 -> i;
+    repeat length(right_antenna_inputs) times {
+        right_antenna_inputs:i -> val;
+        val -> $input_layer_activations;
+        i + 1 -> i;
+    }
+
+    ;;; Access weights directly from the agent pod
+    current_agent_pod:weights_input_hidden -> agent_weights_ih;
+    current_agent_pod:weights_hidden_output -> agent_weights_ho;
+
+    ;;; Calculate hidden layer activations using weights from the pod
+    calculate_layer_output(input_layer_activations, agent_weights_ih) -> hidden_layer_activations;
+
+    ;;; Calculate output layer activations using weights from the pod
+    calculate_layer_output(hidden_layer_activations, agent_weights_ho) -> output_layer_activations;
+
+    output_layer_activations -> nn_outputs;
+}
+
+;;; Function to apply the neural network's outputs to the agent's state
+;;; Now takes max_turn_nn_magnitude and max_speed_nn as explicit arguments
+fn apply_nn_outputs(current_agent_pod, nn_outputs, max_turn_nn_magnitude, max_speed_nn) -> updated_agent_pod {
+    nn_outputs:0 -> left_turn_output;
+    nn_outputs:1 -> right_turn_output;
+    nn_outputs:2 -> speed_output;
+    ;;;1.0 -> speed_output;
+
+    ;;; Calculate turn amount based on difference in left/right turn outputs
+    right_turn_output - left_turn_output -> turn_difference;
+    turn_difference * max_turn_nn_magnitude -> turn_amount;
+
+    current_agent_pod:heading + turn_amount -> new_heading;
+
+    ;;; Calculate new speed (e.g., speed output maps 0-1 to 0-MAX_SPEED_NN)
+    speed_output * max_speed_nn -> new_speed;
+
+    ;;; Ensure speed is not negative
+    if (new_speed < 0.0) { 0.0 -> new_speed;
+}
+
+    ;;; Create a NEW agentPod, copying all members and updating heading and speed
+    agentPod(current_agent_pod:x, current_agent_pod:y,
+             current_agent_pod:radius, new_speed, ;;; UPDATED: speed
+             current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
+             new_heading, ;;; UPDATED: heading
+             current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset,
+             current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r,
+             current_agent_pod:antenna_g, current_agent_pod:antenna_b,
+             current_agent_pod:flash_timer, current_agent_pod:flash_duration,
+             current_agent_pod:flash_r, current_agent_pod:flash_g, current_agent_pod:flash_b,
+             current_agent_pod:weights_input_hidden,
+             current_agent_pod:weights_hidden_output,
+             current_agent_pod:fitness_score) -> updated_agent_pod; ;;; Pass existing fitness
+}
+
+
+;;; --- Agent/Food Existing Functions (adjusted for strict parameter passing) ---
+
+;;; UPDATED: Function to create and initialize an agentPod instance, including its NN weights and fitness.
+;;; Now takes my_pi and NN constants as explicit arguments.
+fn createAgent(initial_x, initial_y, my_pi,
+               num_nn_inputs_const, num_hidden_neurons_const, num_nn_outputs_const) -> new_agent_pod {
+    ;;; Agent base properties
+    initial_x -> agent_x_val;
+    initial_y -> agent_y_val;
+    12 -> agent_radius_val;
+    5.0 -> agent_speed_val; ;;; Initial speed, will be determined by NN outputs dynamically
+    100 -> agent_r_val;
+    100 -> agent_g_val;
+    200 -> agent_b_val;
+
+    ;;; Agent eating flash effect properties
+    0 -> flash_timer_val;
+    30 -> flash_duration_val;
+    0 -> flash_r_val;
+    255 -> flash_g_val;
+    0 -> flash_b_val;
+
+    ;;; Antennae properties
+    18 -> antenna_length_val;
+    0.4 -> antenna_angle_offset_val;
+    2 -> antenna_tip_radius_val;
+    100 -> antenna_r_val;
+    255 -> antenna_g_val;
+    100 -> antenna_b_val;
+    random(1.0) * (2 * my_pi) -> agent_heading_val;
+
+    ;;; Initialize neural network weights for this agent
+    init2DArray(num_nn_inputs_const + 1, num_hidden_neurons_const) -> weights_ih_val; ;;; +1 for bias row
+    init2DArray(num_hidden_neurons_const + 1, num_nn_outputs_const) -> weights_ho_val; ;;; +1 for bias row
+
+    ;;; Create and return the agent pod instance, now including its NN weights and fitness
+    agentPod(agent_x_val, agent_y_val, agent_radius_val, agent_speed_val, agent_r_val, agent_g_val, agent_b_val,
+             agent_heading_val,
+             antenna_length_val, antenna_angle_offset_val, antenna_tip_radius_val, antenna_r_val, antenna_g_val, antenna_b_val,
+             flash_timer_val, flash_duration_val, flash_r_val, flash_g_val, flash_b_val,
+             weights_ih_val, ;;; Include the newly created weights
+             weights_ho_val, ;;; Include the newly created weights
+             0) -> new_agent_pod; ;;; NEW: Initialize fitness_score to 0
+}
+
+;;; UPDATED: Function to update the agent's position. Returns a NEW agentPod.
+fn update_agent_position(current_agent_pod) -> updated_agent_pod {
+    current_agent_pod:x -> old_x;
+    current_agent_pod:y -> old_y;
+    current_agent_pod:heading -> current_heading;
+    current_agent_pod:speed -> current_speed;
+    cos(current_heading) -> dx_norm; ;;; Renamed for clarity
+    sin(current_heading) -> dy_norm; ;;; Renamed for clarity
+
+    old_x + (dx_norm * current_speed) -> new_x;
+    old_y + (dy_norm * current_speed) -> new_y;
+
+    ;;; Create a NEW agentPod, copying all members and updating x, y
+    agentPod(new_x, new_y, ;;; UPDATED: x, y
+             current_agent_pod:radius, current_agent_pod:speed,
+             current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
+             current_agent_pod:heading,
+             current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset,
+             current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r,
+             current_agent_pod:antenna_g, current_agent_pod:antenna_b,
+             current_agent_pod:flash_timer, current_agent_pod:flash_duration,
+             current_agent_pod:flash_r, current_agent_pod:flash_g, current_agent_pod:flash_b,
+             current_agent_pod:weights_input_hidden,
+             current_agent_pod:weights_hidden_output,
+             current_agent_pod:fitness_score) -> updated_agent_pod; ;;; Pass existing fitness
+}
+
+;;; UPDATED: Function to apply toroidal wrap to the agent's position. Returns a NEW agentPod.
+fn apply_toroidal_wrap(current_agent_pod, canvas_width, canvas_height) -> updated_agent_pod {
+    current_agent_pod:x -> new_x;
+    current_agent_pod:y -> new_y;
+    if (new_x > canvas_width) { new_x - canvas_width -> new_x; }
+    if (new_x < 0.0) { new_x + canvas_width -> new_x; }
+    if (new_y > canvas_height) { new_y - canvas_height -> new_y; }
+    if (new_y < 0.0) { new_y + canvas_height -> new_y; }
+
+    ;;; Create a NEW agentPod, copying all members and updating x, y
+    agentPod(new_x, new_y, ;;; UPDATED: x, y
+             current_agent_pod:radius, current_agent_pod:speed,
+             current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
+             current_agent_pod:heading,
+             current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset,
+             current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r,
+             current_agent_pod:antenna_g, current_agent_pod:antenna_b,
+             current_agent_pod:flash_timer, current_agent_pod:flash_duration,
+             current_agent_pod:flash_r, current_agent_pod:flash_g, current_agent_pod:flash_b,
+             current_agent_pod:weights_input_hidden,
+             current_agent_pod:weights_hidden_output,
+             current_agent_pod:fitness_score) -> updated_agent_pod; ;;; Pass existing fitness
+}
+
+;;; UPDATED: Function to normalize the agent's heading. Returns a NEW agentPod.
+fn normalize_agent_heading(current_agent_pod, pi_val) -> updated_agent_pod {
+    current_agent_pod:heading -> new_heading;
+    if (new_heading < 0.0) { new_heading + (2 * pi_val) -> new_heading; }
+    if (new_heading > (2 * pi_val)) { new_heading - (2 * pi_val) -> new_heading; }
+
+    ;;; Create a NEW agentPod, copying all members and updating heading
+    agentPod(current_agent_pod:x, current_agent_pod:y,
+             current_agent_pod:radius, current_agent_pod:speed,
+             current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
+             new_heading, ;;; UPDATED: heading
+             current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset,
+             current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r,
+             current_agent_pod:antenna_g, current_agent_pod:antenna_b,
+             current_agent_pod:flash_timer, current_agent_pod:flash_duration,
+             current_agent_pod:flash_r, current_agent_pod:flash_g, current_agent_pod:flash_b,
+             current_agent_pod:weights_input_hidden,
+             current_agent_pod:weights_hidden_output,
+             current_agent_pod:fitness_score) -> updated_agent_pod; ;;; Pass existing fitness
+}
+
+;;; Agent drawing function (takes agent_pod by value, does NOT modify it)
+fn draw_agent(agent_pod_ref, current_draw_r, current_draw_g, current_draw_b) {
+    to_int(agent_pod_ref:x) -> draw_x;
+    to_int(agent_pod_ref:y) -> draw_y;
+
+    fillCircle(draw_x, draw_y, agent_pod_ref:radius, current_draw_r, current_draw_g, current_draw_b);
+    drawCircle(draw_x, draw_y, agent_pod_ref:radius, 200, 200, current_draw_b);
+
+    ;;; Antennae 1
+    agent_pod_ref:heading - agent_pod_ref:antenna_angle_offset -> antenna1_heading;
+    cos(antenna1_heading) -> antenna1_dx;
+    sin(antenna1_heading) -> antenna1_dy;
+    to_int(agent_pod_ref:x + (antenna1_dx * agent_pod_ref:antenna_length)) -> antenna1_end_x;
+    to_int(agent_pod_ref:y + (antenna1_dy * agent_pod_ref:antenna_length)) -> antenna1_end_y;
+    drawLine(draw_x, draw_y, antenna1_end_x, antenna1_end_y, agent_pod_ref:antenna_r, agent_pod_ref:antenna_g, agent_pod_ref:antenna_b);
+    fillCircle(antenna1_end_x, antenna1_end_y, agent_pod_ref:antenna_tip_radius, agent_pod_ref:antenna_r, agent_pod_ref:antenna_g, agent_pod_ref:antenna_b);
+
+    ;;; Antennae 2
+    agent_pod_ref:heading + agent_pod_ref:antenna_angle_offset -> antenna2_heading;
+    cos(antenna2_heading) -> antenna2_dx;
+    sin(antenna2_heading) -> antenna2_dy;
+    to_int(agent_pod_ref:x + (antenna2_dx * agent_pod_ref:antenna_length)) -> antenna2_end_x;
+    to_int(agent_pod_ref:y + (antenna2_dy * agent_pod_ref:antenna_length)) -> antenna2_end_y;
+    drawLine(draw_x, draw_y, antenna2_end_x, antenna2_end_y, agent_pod_ref:antenna_r, agent_pod_ref:antenna_g, agent_pod_ref:antenna_b);
+    fillCircle(antenna2_end_x, antenna2_end_y, agent_pod_ref:antenna_tip_radius, agent_pod_ref:antenna_r, agent_pod_ref:antenna_g, agent_pod_ref:antenna_b);
+}
+
+;;; UPDATED: createFoodItems now takes parameters for different food types and colors.
+fn createFoodItems(total_count, num_poison_items, maxX, maxY,
+                   edible_r, edible_g, edible_b,
+                   poison_r, poison_g, poison_b) -> foodItems_array {
+    [] -> foodItems_array;
+    total_count - num_poison_items -> num_edible_items;
+
+    ;;; Create edible items
+    0 -> i_edible;
+    repeat num_edible_items times {
+        random(maxX - 100) + 100 -> x;
+        random(maxY - 100) + 100 -> y;
+        1 -> active_flag;
+        foodItem(x, y, active_flag, edible_r, edible_g, edible_b) -> item; ;;; Pass edible color
+        item -> $foodItems_array;
+        i_edible + 1 -> i_edible;
+    }
+
+    ;;; Create poisonous items
+    0 -> i_poison;
+    repeat num_poison_items times {
+        random(maxX)-> x;
+        random(maxY)-> y;
+        1 -> active_flag;
+        foodItem(x, y, active_flag, poison_r, poison_g, poison_b) -> item; ;;; Pass poisonous color
+        item -> $foodItems_array;
+        i_poison + 1 -> i_poison;
+    }
+}
+
+;;; UPDATED: draw_food_items now reads color from the food item pod itself.
+fn draw_food_items(food_array, count, food_radius) { ;;; Removed food_r, food_g, food_b parameters
+    0 -> i;
+    repeat count times {
+        food_array:i -> current_food_item;
+        current_food_item:active -> is_active;
+        if (is_active = 1) {
+            current_food_item:x -> food_draw_x_float;
+            current_food_item:y -> food_draw_y_float;
+            current_food_item:r -> item_r; ;;; Read color from pod
+            current_food_item:g -> item_g;
+            current_food_item:b -> item_b; ;;; Read color from pod
+            fillCircle(to_int(food_draw_x_float), to_int(food_draw_y_float), food_radius, item_r, item_g, item_b);
+        }
+        i + 1 -> i;
+    }
+}
+
+;;;UPDATED: check_and_consume_food now returns information about food type consumed
+fn check_and_consume_food(current_agent_pod, food_array, count, food_radius, width, height) -> result_tuple {
+    0 -> food_eaten_this_frame_flag;
+    0 -> poisonous_food_eaten_flag; ;;; NEW: Track if poisonous food was eaten
+    current_agent_pod:fitness_score -> current_fitness;
+
+    0 -> i;
+    repeat count times {
+        food_array:i -> current_food_item; ;;; This creates a copy of the food item pod
+        current_food_item:active -> is_active;
+        if (is_active = 1) {
+            current_food_item:x -> food_x;
+            current_food_item:y -> food_y;
+            current_food_item:r -> food_item_r; ;;; Get item's specific color
+            current_food_item:g -> food_item_g;
+            current_food_item:b -> food_item_b;
+
+            ;;; Calculate squared distance between agent and food item centers using current_agent_pod members
+            current_agent_pod:x - food_x -> dx;
+            current_agent_pod:y - food_y -> dy;
+            (dx * dx) + (dy * dy) -> dist_sq;
+
+            ;;; Calculate combined radii squared for collision detection using current_agent_pod member
+            current_agent_pod:radius + food_radius -> combined_radii;
+            combined_radii * combined_radii -> combined_radii_sq;
+
+            if (dist_sq <= combined_radii_sq) {
+                ;;; 0 -> current_food_item:active; ;;; Modify the 'active' flag in the local copy
+                current_food_item -> food_array:i; ;;; <<< CRITICAL FIX: Write the modified copy BACK to the array
+
+                1 -> food_eaten_this_frame_flag; 
+                ;;; Adjust fitness based on food color (Assuming (255,0,0) for poisonous red)
+                if (food_item_r = 255 && food_item_g = 0 && food_item_b = 0) {
+                    1 -> poisonous_food_eaten_flag; ;;; NEW: Mark that poisonous food was eaten
+                    current_fitness - 1 -> current_fitness;
+                } else {
+                    current_fitness + 1 -> current_fitness;
+                }
+
+                ;;; put the food item in a new random position
+                random(width) -> current_food_item:x;
+                random(height) -> current_food_item:y;
+                current_food_item -> food_array:i;
+            }
+        }
+        i + 1 -> i;
+    }
+
+    ;;; Create a NEW agentPod with updated fitness score
+    agentPod(current_agent_pod:x, current_agent_pod:y,
+             current_agent_pod:radius, current_agent_pod:speed,
+             current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
+             current_agent_pod:heading,
+             current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset,
+             current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r,
+             current_agent_pod:antenna_g, current_agent_pod:antenna_b,
+             current_agent_pod:flash_timer, current_agent_pod:flash_duration,
+             current_agent_pod:flash_r, current_agent_pod:flash_g, current_agent_pod:flash_b,
+             current_agent_pod:weights_input_hidden,
+             current_agent_pod:weights_hidden_output,
+             current_fitness) -> updated_agent_pod;
+    [^updated_agent_pod ^food_eaten_this_frame_flag ^poisonous_food_eaten_flag ^food_array] -> result_tuple; ;;; NEW: Include poisonous flag
+}
+
+;;; UPDATED: Function to handle the agent's flash effect with different colors based on food type
+fn handle_agent_flash_effect(current_agent_pod, was_food_eaten_this_frame, was_poisonous_food_eaten) -> updated_agent_pod {
+    current_agent_pod:flash_timer -> new_flash_timer;
+    current_agent_pod:flash_r -> new_flash_r;
+    current_agent_pod:flash_g -> new_flash_g;
+    current_agent_pod:flash_b -> new_flash_b;
+
+    if (was_food_eaten_this_frame = 1) {
+        current_agent_pod:flash_duration -> new_flash_timer; ;;; Reset timer
+        
+        ;;; NEW: Set flash color based on food type
+        if (was_poisonous_food_eaten = 1) {
+            255 -> new_flash_r; ;;; Red flash for poisonous food
+            0 -> new_flash_g;
+            0 -> new_flash_b;
+        } else {
+            0 -> new_flash_r; ;;; Green flash for edible food
+            255 -> new_flash_g;
+            0 -> new_flash_b;
+        }
+    }
+    
+    if (new_flash_timer > 0) {
+        new_flash_timer - 1 -> new_flash_timer; ;;; Decrement timer
+    }
+
+    ;;; Create a NEW agentPod, copying all members and updating flash properties
+    agentPod(current_agent_pod:x, current_agent_pod:y,
+             current_agent_pod:radius, current_agent_pod:speed,
+             current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
+             current_agent_pod:heading,
+             current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset,
+             current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r,
+             current_agent_pod:antenna_g, current_agent_pod:antenna_b,
+             new_flash_timer, ;;; UPDATED: flash_timer
+             current_agent_pod:flash_duration,
+             new_flash_r, new_flash_g, new_flash_b, ;;; UPDATED: flash colors
+             current_agent_pod:weights_input_hidden,
+             current_agent_pod:weights_hidden_output,
+             current_agent_pod:fitness_score) -> updated_agent_pod;
+}
+
+;;; UPDATED: Function to create a specified number of agent instances.
+;;; It creates and populates each agent's pod with its unique weights and initializes fitness.
+fn createAgents(count, maxX, maxY, my_pi_val,
+                num_nn_inputs_const, num_hidden_neurons_const, num_nn_outputs_const) -> agents_array {
+
+    [] -> agents_array; ;;; Initialize an empty array for agent pods
+    
+    0 -> i;
+    repeat count times {
+        maxX / 2 -> initial_x;
+        maxY / 2 -> initial_y;
+
+        ;;; Create the agent pod, which now includes its initialized NN weights and fitness
+        createAgent(initial_x, initial_y, my_pi_val,
+                    num_nn_inputs_const, num_hidden_neurons_const, num_nn_outputs_const) -> new_agent_pod;
+        new_agent_pod -> $agents_array; ;;; Append agent pod (with weights) to agents_array
+        i + 1 -> i;
+    }
+}
+
+;;; Function to mutate weights in a 2D array
+fn mutate_weights(original_weights, mutation_magnitude) -> mutated_weights_result {
+    [] -> mutated_weights_result;
+    0 -> r;
+    repeat length(original_weights) times {
+        original_weights:r -> original_row;
+        [] -> new_row;
+        0 -> c;
+        repeat length(original_row) times {
+            original_row:c -> weight_val; ;;; Generate a random value between -mutation_magnitude and +mutation_magnitude
+            random(1.0) * (2 * mutation_magnitude) - mutation_magnitude -> mutation_amount;
+            ;;; prn mutation_amount;
+            weight_val + mutation_amount -> mutated_val;
+            mutated_val -> $new_row;
+            c + 1 -> c;
+        }
+        new_row -> $mutated_weights_result;
+        r + 1 -> r;
+    }
+}
+
+;;;Function to perform evolutionary selection, reproduction, and mutation
+fn perform_evolution(all_agents_array, num_agents, num_fittest_to_select, mutation_magnitude,
+                     num_nn_inputs_const, num_hidden_neurons_const, num_nn_outputs_const, my_pi_val,
+                     canvas_width_float, canvas_height_float) -> updated_agents_array {
+
+    ;;; 1. Create a temporary array of [fitness, original_index]
+    [] -> fitness_indices;
+    0 -> i;
+    repeat num_agents times {
+        all_agents_array:i -> agent_pod_temp;
+        agent_pod_temp:fitness_score -> fitness_score;
+        [^fitness_score ^i] -> $fitness_indices; ;;; Store [fitness, original_index]
+        i + 1 -> i;
+    }
+
+    ;;; 2. Sort fitness_indices (using simple bubble sort for descending order)
+    num_agents -> n_sort;
+    1 -> swapped; ;;; Flag to indicate if any swaps occurred in a pass
+    while (swapped = 1) {
+        0 -> swapped; ;;; Reset swapped flag for this pass
+        0 -> i_sort;
+        repeat (n_sort - 1) times { ;;; Loop through the array, stopping before the last element
+            fitness_indices:i_sort -> item1;
+            fitness_indices:(i_sort + 1) -> item2;
+
+            item1:0 -> fitness1; ;;; Get fitness of current item
+            item2:0 -> fitness2; ;;; Get fitness of next item
+
+            if (fitness1 < fitness2) { ;;; If current fitness is less than next, swap them (descending order)
+                item2 -> fitness_indices:i_sort;
+                item1 -> fitness_indices:(i_sort + 1);
+                1 -> swapped; ;;; Mark that a swap occurred
+            }
+            i_sort + 1 -> i_sort;
+        }
+        n_sort - 1 -> n_sort; ;;;Reduce the range for the next pass
+    }
+
+    ;;; 3. Prepare the new generation array
+    [] -> next_generation_agents;
+
+    ;;; 4. Populate new generation with fittest agents (clones with fitness reset)
+    0 -> j_fittest;
+
+    0 -> selected;
+    repeat num_fittest_to_select times {
+        fitness_indices:j_fittest -> fittest_agent_tuple;
+        fittest_agent_tuple:1 -> original_idx_of_fittest;
+        all_agents_array:original_idx_of_fittest -> fittest_agent_pod;
+        all_agents_array:selected -> origAgent;
+        origAgent:x -> origX;
+        origAgent:y -> origY;
+        origAgent:heading -> origHeading;
+
+        ;;; Create a NEW pod for the next generation, resetting fitness to 0
+        agentPod(origX, origY,
+                 fittest_agent_pod:radius, fittest_agent_pod:speed,
+                 fittest_agent_pod:r, fittest_agent_pod:g, fittest_agent_pod:b,
+                 origHeading,
+                 fittest_agent_pod:antenna_length, fittest_agent_pod:antenna_angle_offset,
+                 fittest_agent_pod:antenna_tip_radius, fittest_agent_pod:antenna_r,
+                 fittest_agent_pod:antenna_g, fittest_agent_pod:antenna_b,
+                 fittest_agent_pod:flash_timer, fittest_agent_pod:flash_duration,
+                 fittest_agent_pod:flash_r, fittest_agent_pod:flash_g, fittest_agent_pod:flash_b,
+                 fittest_agent_pod:weights_input_hidden, ;;; Keep original weights
+                 fittest_agent_pod:weights_hidden_output, ;;; Keep original weights
+                 0) -> new_fittest_pod; ;;; Reset fitness for new generation
+        new_fittest_pod -> $next_generation_agents;
+        j_fittest + 1 -> j_fittest;
+        selected + 1 -> selected;
+    }
+
+    ;;; 5. Populate the rest of the new generation with mutated children
+    num_fittest_to_select -> j_children;
+    repeat (num_agents - num_fittest_to_select) times {
+        ;;; Choose a random parent from the top 'num_fittest_to_select' agents
+        random(1.0) * num_fittest_to_select -> rand_parent_idx_float;
+        to_int(rand_parent_idx_float) -> rand_parent_idx_int;
+        
+        ;;; Safety check for index, though `to_int` usually truncates correctly
+        if (rand_parent_idx_int >= num_fittest_to_select) { (num_fittest_to_select - 1) -> rand_parent_idx_int; }
+        if (rand_parent_idx_int < 0) { 0 -> rand_parent_idx_int; }
+
+        fitness_indices:rand_parent_idx_int -> selected_fittest_tuple;
+        selected_fittest_tuple:1 -> selected_parent_original_index;
+        all_agents_array:selected_parent_original_index -> parent_pod;
+
+        ;;; Mutate parent's weights
+        mutate_weights(parent_pod:weights_input_hidden, mutation_magnitude) -> new_ih_weights;
+        mutate_weights(parent_pod:weights_hidden_output, mutation_magnitude) -> new_ho_weights;
+
+        ;;; Create a NEW agentPod for the child
+        ;;; Randomize child's initial position and heading for diversity in placement
+        canvas_width_float / 2 -> child_x;
+        canvas_height_float / 2 -> child_y;
+        random(1.0) * (2 * my_pi_val) -> child_heading;
+
+        all_agents_array:selected -> origAgent;
+        origAgent:x -> origX;
+        origAgent:y -> origY;
+        origAgent:heading -> origHeading;
+
+        agentPod(origX, origY, ;;; Maintain position
+                 parent_pod:radius, parent_pod:speed, ;;; Copy other properties from parent, or set defaults
+                 parent_pod:r, parent_pod:g, parent_pod:b,
+                 origHeading, ;;; maintain heading
+                 parent_pod:antenna_length, parent_pod:antenna_angle_offset,
+                 parent_pod:antenna_tip_radius, parent_pod:antenna_r,
+                 parent_pod:antenna_g, parent_pod:antenna_b,
+                 0, ;;; Reset flash timer for new child
+                 parent_pod:flash_duration, parent_pod:flash_r,
+                 parent_pod:flash_g, parent_pod:flash_b,
+                 new_ih_weights, ;;; Mutated weights
+                 new_ho_weights, ;;; Mutated weights
+                 0) -> new_child_pod; ;;; Reset fitness for new generation
+
+        new_child_pod -> $next_generation_agents;
+        j_children + 1 -> j_children;
+        selected + 1 -> selected;
+    }
+
+    ;;; The entire 'all_agents_array' is now replaced with the 'next_generation_agents'
+    next_generation_agents -> updated_agents_array;
+}
+
+;;; --- Main Program Execution Start ---
+start {
+    arg(0) -> canvasWidth_int;
+    arg(1) -> canvasHeight_int;
+    arg(2) -> num_agents_int; ;;; Parameter for number of agents
+
+    init_graphics_canvas(canvasWidth_int, canvasHeight_int, 1, 1);
+
+    ;;; Constants (local to start block, and thus persist for start's execution)
+    3.14159 -> my_pi;
+    canvasWidth_int + 0.0 -> canvas_width_float;
+    canvasHeight_int + 0.0 -> canvas_height_float;
+
+    ;;; Neural Network Constants (declared locally in start)
+    8 -> num_nn_inputs_local;
+    10 -> num_hidden_neurons_local;
+    3 -> num_nn_outputs_local;
+    0.8 -> max_turn_nn_magnitude_local;
+    20.0 -> max_speed_nn_local;
+
+    ;;; Evolution Parameters
+    200 -> evolution_interval_steps; ;;;N: How many steps before a new generation
+    2 -> num_fittest_agents; ;;;F: Number of fittest agents whose NNs are copied
+    0.9 -> mutation_magnitude; ;;;Max deviation for weight mutation
+
+    ;;; --- Food Item Properties ---
+    50 -> total_food_item_count; ;;; Total number of food items
+    25 -> num_poisonous_food_items; ;;; Number of poisonous red items
+    5 -> food_radius;
+    
+    ;;; Colors for edible food (e.g., green)
+    0 -> edible_food_r;
+    255 -> edible_food_g;
+    0 -> edible_food_b;
+
+    ;;; Colors for poisonous food (e.g., red)
+    255 -> poisonous_food_r;
+    0 -> poisonous_food_g;
+    0 -> poisonous_food_b;
+
+    ;;; --- Agent Initialization ---
+    ;;; Create an array of agentPod instances. Each pod will contain its own weights.
+    createAgents(num_agents_int, canvas_width_float, canvas_height_float, my_pi,
+                 num_nn_inputs_local, num_hidden_neurons_local, num_nn_outputs_local) -> all_agents_array;
+    ;;; Create initial food items (now differentiating between edible and poisonous)
+    createFoodItems(total_food_item_count, num_poisonous_food_items, canvas_width_float, canvas_height_float,
+                    edible_food_r, edible_food_g, edible_food_b,
+                    poisonous_food_r, poisonous_food_g, poisonous_food_b) -> food_items_array;
+    ;;; Simulation loop
+    0 -> current_sim_step; ;;; Simulation step counter
+
+    while 1 = 1 {
+        fillRect(0, 0, to_int(canvas_width_float), to_int(canvas_height_float), 0, 0, 0);
+        0 -> i; ;;; Loop counter for iterating through agents
+        0.0 -> average_fitness;
+        repeat num_agents_int times { ;;; Loop through each agent in the array
+            all_agents_array:i -> current_agent_pod; ;;; Get the agent pod from the array (by value)
+
+            current_agent_pod:fitness_score + average_fitness -> average_fitness;
+            ;;; --- Agent Neural Network Control ---
+            ;;; Agent think function now accesses weights directly from the pod
+            agent_think(current_agent_pod,
+                        food_items_array, total_food_item_count, food_radius,
+                        canvas_width_float, canvas_height_float, my_pi) -> nn_output_vals;
+            apply_nn_outputs(current_agent_pod, nn_output_vals,
+                             max_turn_nn_magnitude_local, max_speed_nn_local) -> current_agent_pod;
+            ;;; --- Update Current Agent's State (returning new pod, then reassigning to array slot) ---
+            update_agent_position(current_agent_pod) -> current_agent_pod; ;;; Pass depletion rate
+            apply_toroidal_wrap(current_agent_pod, canvas_width_float, canvas_height_float) -> current_agent_pod;
+            normalize_agent_heading(current_agent_pod, my_pi) -> current_agent_pod;
+
+            ;;; --- Check for Food Consumption and Handle Agent Flash for current agent ---
+            ;;; UPDATED: check_and_consume_food now returns a tuple/array
+            check_and_consume_food(current_agent_pod, food_items_array,
+                total_food_item_count, food_radius, canvasWidth_int, canvasHeight_int) -> check_result;
+            check_result:0 -> current_agent_pod; ;;; Get the updated agent pod from the result
+            check_result:1 -> was_food_eaten_this_frame; ;;; Get the flag from the result
+            check_result:2 -> was_poisonous_food_eaten;
+            check_result:3 -> food_items_array;
+
+            handle_agent_flash_effect(current_agent_pod, was_food_eaten_this_frame, was_poisonous_food_eaten) -> current_agent_pod;
+
+            ;;; After all updates, put the modified pod back into the array slot
+            current_agent_pod -> all_agents_array:i;
+            ;;; --- Determine Current Agent's Drawing Color ---
+            0 -> current_agent_draw_r;
+            0 -> current_agent_draw_g;
+            0 -> current_agent_draw_b;
+
+            if (current_agent_pod:flash_timer > 0) {
+                current_agent_pod:flash_r -> current_agent_draw_r;
+                current_agent_pod:flash_g -> current_agent_draw_g;
+                current_agent_pod:flash_b -> current_agent_draw_b;
+            } else {
+                current_agent_pod:r -> current_agent_draw_r;
+                current_agent_pod:g -> current_agent_draw_g;
+                current_agent_pod:b -> current_agent_draw_b;
+            }
+
+            ;;; --- Draw Current Agent ---
+            draw_agent(current_agent_pod, current_agent_draw_r, current_agent_draw_g, current_agent_draw_b);
+            i + 1 -> i; ;;; Increment agent loop counter
+        }
+
+        ;;; --- Draw Food (outside agent loop, as it's common for all) ---
+        ;;; Pass only the food_array, total_food_item_count, and food_radius
+        draw_food_items(food_items_array, total_food_item_count, food_radius);
+
+        graphics_process();
+        current_sim_step + 1 -> current_sim_step;
+
+        ;;; --- Check for Evolution ---
+        if (current_sim_step >= evolution_interval_steps) {
+            average_fitness / (num_agents_int + 0.0) -> average_fitness;
+            prn average_fitness;
+            perform_evolution(all_agents_array, num_agents_int, num_fittest_agents, mutation_magnitude,
+                              num_nn_inputs_local, num_hidden_neurons_local, num_nn_outputs_local, my_pi,
+                              canvas_width_float, canvas_height_float) -> all_agents_array;
+            ;;; Update the main agents array
+            0 -> current_sim_step;
+        }
+    }
+}

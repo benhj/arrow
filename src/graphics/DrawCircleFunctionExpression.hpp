@@ -11,7 +11,7 @@
 
 namespace arrow {
 
-    class DrawCircleFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class DrawCircleFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         DrawCircleFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class DrawCircleFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class DrawCircleFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

@@ -8,7 +8,7 @@
 
 namespace arrow {
 
-    struct IdentifierReceiverEvaluator : public ReceiverEvaluator {
+    struct IdentifierReceiverEvaluator final : public ReceiverEvaluator {
         IdentifierReceiverEvaluator(Token tok);
         void evaluate(Type incoming, Environment & environment) const override;
       private:

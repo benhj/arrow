@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class FileReadBytesFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class FileReadBytesFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         FileReadBytesFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class FileReadBytesFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class FileReadBytesFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace arrow {
-    class FunctionStatement : public Statement
+    class FunctionStatement final : public Statement
     {
       public:
         FunctionStatement(long const lineNumber);

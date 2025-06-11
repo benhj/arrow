@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class MapKeysFunctionExpressionEvaluator : public ExpressionEvaluator
+    class MapKeysFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit MapKeysFunctionExpressionEvaluator(MapKeysFunctionExpression expression);

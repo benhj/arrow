@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class MapContainsFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class MapContainsFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         MapContainsFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class MapContainsFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class MapContainsFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

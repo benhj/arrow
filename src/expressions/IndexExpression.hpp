@@ -10,7 +10,7 @@ namespace arrow {
     
     /// An expression of the form
     /// identifier:expression, e.g. a:1
-    class IndexExpression : public Expression
+    class IndexExpression final : public Expression
     {
       public:
         IndexExpression(long const lineNumber);

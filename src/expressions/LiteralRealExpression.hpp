@@ -9,7 +9,7 @@
 
 namespace arrow {
     
-    class LiteralRealExpression : public Expression
+    class LiteralRealExpression final : public Expression
     {
       public:
         LiteralRealExpression(long const lineNumber);

@@ -23,6 +23,5 @@ namespace arrow {
         std::vector<Token> m_tokens;
         std::vector<Token>::iterator m_current;
         std::vector<Token>::iterator m_end;
-        int mutable m_called;
     };
 }

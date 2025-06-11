@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class FolderListFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class FolderListFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         FolderListFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class FolderListFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class FolderListFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

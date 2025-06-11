@@ -19,7 +19,7 @@ namespace arrow {
 
     std::shared_ptr<StatementEvaluator> LoopBreakStatement::getEvaluator() const
     {
-        struct LoopBreakStatementEvaluator : public StatementEvaluator
+        struct LoopBreakStatementEvaluator final : public StatementEvaluator
         {
             StatementResult evaluate(Environment &) const override
             {

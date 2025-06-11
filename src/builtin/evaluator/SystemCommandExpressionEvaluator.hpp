@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class SystemCommandExpressionEvaluator : public ExpressionEvaluator
+    class SystemCommandExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit SystemCommandExpressionEvaluator(SystemCommandExpression expression);

@@ -15,7 +15,7 @@ namespace arrow {
 
     std::shared_ptr<ExpressionEvaluator> LiteralIntExpression::getEvaluator() const
     {
-        struct IntEvaluator : public ExpressionEvaluator {
+        struct IntEvaluator final : public ExpressionEvaluator {
             IntEvaluator(Token tok) : m_tok(std::move(tok))
             {
             }

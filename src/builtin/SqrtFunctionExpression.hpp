@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class SqrtFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class SqrtFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         SqrtFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class SqrtFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class SqrtFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

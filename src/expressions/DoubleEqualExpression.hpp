@@ -8,7 +8,7 @@
 
 
 namespace arrow {
-    class DoubleEqualExpression : public Expression
+    class DoubleEqualExpression final : public Expression
     {
       public:
         DoubleEqualExpression(long const lineNumber);

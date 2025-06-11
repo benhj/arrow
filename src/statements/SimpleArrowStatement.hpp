@@ -15,7 +15,7 @@ namespace arrow {
     // expression -> identifier;
     // or
     // expression -> identifier[expression];
-    class SimpleArrowStatement : public Statement
+    class SimpleArrowStatement final : public Statement
     {
       public:
         SimpleArrowStatement(long const lineNumber);

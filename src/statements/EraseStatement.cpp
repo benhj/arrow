@@ -32,7 +32,7 @@ namespace arrow {
     std::shared_ptr<StatementEvaluator> EraseStatement::getEvaluator() const
     {
 
-        struct EraseStatementEvaluator : public StatementEvaluator
+        struct EraseStatementEvaluator final : public StatementEvaluator
         {
             EraseStatementEvaluator(EraseStatement statement)
               : m_statement(std::move(statement))

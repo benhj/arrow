@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class RandomFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class RandomFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         RandomFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class RandomFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class RandomFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

@@ -13,6 +13,7 @@ namespace arrow {
       : m_expression(std::move(expression))
     {
     }
+
     Type ArgExpressionEvaluator::evaluate(Environment & environment) const
     {
         // Pull out the name of the function

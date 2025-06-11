@@ -29,7 +29,7 @@ namespace arrow {
         auto const col = expression->getEvaluator()->evaluate(environment);
         auto const expressionCollEval = std::get<std::vector<Type>>(col.m_variantType);
         if(expressionCollEval.empty()) {
-            throw LanguageException("Expected argument", m_expression.getLineNumber());
+            throw LanguageException("Expected argument", callLineNumber);
         }
         auto const t = expressionCollEval[0];
         environment.getOutputStream()<<t.toString();

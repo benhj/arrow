@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class FolderListRecursiveFunctionExpressionEvaluator : public ExpressionEvaluator
+    class FolderListRecursiveFunctionExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit FolderListRecursiveFunctionExpressionEvaluator(FolderListRecursiveFunctionExpression expression);

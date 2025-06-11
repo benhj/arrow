@@ -9,7 +9,7 @@
 
 namespace arrow {
     
-    class ArrowlessStatement : public Statement
+    class ArrowlessStatement final : public Statement
     {
       public:
         ArrowlessStatement(long const lineNumber);

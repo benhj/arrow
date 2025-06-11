@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class InitKeyHandlerFunctionExpression : public Expression, public BuiltInFunctionExpression
+    class InitKeyHandlerFunctionExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         InitKeyHandlerFunctionExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class InitKeyHandlerFunctionExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class InitKeyHandlerFunctionExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

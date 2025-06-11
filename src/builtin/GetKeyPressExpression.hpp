@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace arrow {
-    class GetKeyPressExpression : public Expression, public BuiltInFunctionExpression
+    class GetKeyPressExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         GetKeyPressExpression(long const lineNumber);
@@ -22,7 +22,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class GetKeyPressExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class GetKeyPressExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

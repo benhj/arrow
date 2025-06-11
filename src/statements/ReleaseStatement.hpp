@@ -7,7 +7,7 @@
 
 namespace arrow {
     
-    class ReleaseStatement : public Statement
+    class ReleaseStatement final : public Statement
     {
       public:
         ReleaseStatement(long const lineNumber);

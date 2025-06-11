@@ -31,7 +31,7 @@ namespace arrow {
     std::shared_ptr<StatementEvaluator> AnsiStatement::getEvaluator() const
     {
 
-        struct AnsiStatementEvaluator : public StatementEvaluator
+        struct AnsiStatementEvaluator final : public StatementEvaluator
         {
             explicit AnsiStatementEvaluator(AnsiStatement statement)
               : m_statement(std::move(statement))

@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class LoopContinueStatement : public Statement
+    class LoopContinueStatement final : public Statement
     {
       public:
         LoopContinueStatement(long const lineNumber);

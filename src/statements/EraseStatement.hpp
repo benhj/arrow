@@ -7,7 +7,7 @@
 
 namespace arrow {
     
-    class EraseStatement : public Statement
+    class EraseStatement final : public Statement
     {
       public:
         EraseStatement(long const lineNumber,

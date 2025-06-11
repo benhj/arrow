@@ -34,7 +34,7 @@ namespace arrow {
     std::shared_ptr<StatementEvaluator> AsyncStatement::getEvaluator() const
     {
 
-        struct AsyncStatementEvaluator : public StatementEvaluator
+        struct AsyncStatementEvaluator final : public StatementEvaluator
         {
             explicit AsyncStatementEvaluator(AsyncStatement statement)
               : m_statement(std::move(statement))

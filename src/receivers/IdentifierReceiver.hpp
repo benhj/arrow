@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class IdentifierReceiver : public Receiver
+    class IdentifierReceiver final : public Receiver
     {
       public:
         IdentifierReceiver(long const lineNumber);

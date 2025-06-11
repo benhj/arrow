@@ -9,7 +9,7 @@
 #include <utility>
 
 namespace arrow {
-    class AsyncStatement : public Statement
+    class AsyncStatement final : public Statement
     {
       public:
         AsyncStatement(long const lineNumber);

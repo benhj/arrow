@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace arrow {
-    class SimpleArrowStatementEvaluator : public StatementEvaluator
+    class SimpleArrowStatementEvaluator final : public StatementEvaluator
     {
       public:
         SimpleArrowStatementEvaluator(SimpleArrowStatement statement);

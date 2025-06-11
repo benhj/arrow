@@ -9,7 +9,7 @@
 namespace arrow {
 
 
-    class BooleanExpression : public Expression
+    class BooleanExpression final : public Expression
     {
       public:
         BooleanExpression(long const lineNumber);

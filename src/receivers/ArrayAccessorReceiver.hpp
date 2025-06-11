@@ -9,7 +9,7 @@
 
 namespace arrow {
     
-    class ArrayAccessorReceiver : public Receiver
+    class ArrayAccessorReceiver final : public Receiver
     {
       public:
         ArrayAccessorReceiver(long const lineNumber);

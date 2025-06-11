@@ -7,7 +7,7 @@
 #include "representation/Environment.hpp"
 
 namespace arrow {
-    class HTTPReadExpressionEvaluator : public ExpressionEvaluator
+    class HTTPReadExpressionEvaluator final : public ExpressionEvaluator
     {
       public:
         explicit HTTPReadExpressionEvaluator(HTTPReadExpression expression);

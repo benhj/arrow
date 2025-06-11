@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class GroupedExpression : public Expression
+    class GroupedExpression final : public Expression
     {
       public:
         GroupedExpression(long const lineNumber);

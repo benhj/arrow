@@ -11,7 +11,7 @@
 
 namespace arrow {
     
-    class WildcardEqExpression : public Expression, public BuiltInFunctionExpression
+    class WildcardEqExpression final : public Expression, public BuiltInFunctionExpression
     {
       public:
         WildcardEqExpression(long const lineNumber);
@@ -23,7 +23,7 @@ namespace arrow {
         std::shared_ptr<Expression> m_expression;
     };
 
-    class WildcardEqExpressionBuilder : public BuiltInFunctionExpressionBuilder
+    class WildcardEqExpressionBuilder final : public BuiltInFunctionExpressionBuilder
     {
       public:
         std::string getName() const override {

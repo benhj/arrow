@@ -8,7 +8,7 @@
 
 namespace arrow {
     
-    class LiteralStringExpression : public Expression
+    class LiteralStringExpression final : public Expression
     {
       public:
         LiteralStringExpression(long const lineNumber);
