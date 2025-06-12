@@ -1096,7 +1096,7 @@ start {
     2 -> num_fittest_agents; ;;; F: Number of fittest agents whose NNs are copied
     0.9 -> mutation_magnitude; ;;; Max deviation for weight mutation
     ;;; --- Food Item Properties ---
-    20 -> total_food_item_count; ;;; Total number of food items
+    40 -> total_food_item_count; ;;; Total number of food items
     0 -> num_poisonous_food_items; ;;; Number of poisonous red items
     5 -> food_radius;
     0 -> edible_food_r;
