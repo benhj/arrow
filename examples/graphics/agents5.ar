@@ -17,7 +17,6 @@ pod agentPod(x, y, radius, speed, momentum_x, momentum_y, r, g, b, heading,
              tail_positions); ;;; NEW: Array to store (x, y) positions of tail segments
 
 
-
 fn checkOccupied(food_item, agents_array) -> occupied {
 
     false -> occupied;
@@ -217,7 +216,8 @@ fn get_agent_antenna_reading(current_agent_x, current_agent_y, current_antenna_h
             other_agent_pod:flash_g -> other_flash_g;
             other_agent_pod:flash_b -> other_flash_b;
 
-            if (other_flash_timer > 0 && other_flash_r = 255 && other_flash_g = 0 && other_flash_b = 0) {
+            ;;;if (other_flash_timer > 0 && other_flash_r = 255 && other_flash_g = 0 && other_flash_b = 0)
+            ;;;{
                 ;;; Calculate distance from antenna tip to other agent
                 antenna_tip_x - other_agent_pod:x -> dx;
                 antenna_tip_y - other_agent_pod:y -> dy;
@@ -247,7 +247,7 @@ fn get_agent_antenna_reading(current_agent_x, current_agent_y, current_antenna_h
                     ;;; Break loop as we've found the closest/first infected agent in range
                     break;
                 }
-            }
+            ;;;}
         }
         i + 1 -> i;
     }
@@ -255,12 +255,16 @@ fn get_agent_antenna_reading(current_agent_x, current_agent_y, current_antenna_h
     detected_r / 255.0 -> detected_r;
     detected_g / 255.0 -> detected_g;
     detected_b / 255.0 -> detected_b;
-    if (distance > 10) {
-        0 -> detected_r;
-        0 -> detected_g;
-        0 -> detected_b;
-        0 -> relative_bearing;
-    }
+
+
+
+
+    ;;;if (distance > 10) {
+    ;;;    0 -> detected_r;
+    ;;;    0 -> detected_g;
+    ;;;    0 -> detected_b;
+    ;;;    0 -> relative_bearing;
+    ;;;}
     [^detected_r ^detected_g ^detected_b ^relative_bearing] -> antenna_output_for_agents;
 }
 
@@ -294,10 +298,14 @@ fn agent_think(all_agents_array, current_agent_pod, food_array, food_count, food
                               pi_val, canvas_width, canvas_height) -> right_agent_inputs;
     ;;; Combine all inputs into a single array for the input layer
     [] -> input_layer_activations;
+
+
+
     0 -> i;
     repeat length(left_food_inputs) times {
         left_food_inputs:i -> val;
         val -> $input_layer_activations;
+        ;;;prn input_layer_activations;
         i + 1 -> i;
     }
     0 -> i;
@@ -306,7 +314,6 @@ fn agent_think(all_agents_array, current_agent_pod, food_array, food_count, food
         val -> $input_layer_activations;
         i + 1 -> i;
     }
-
     0 -> i;
     repeat length(right_food_inputs) times {
         right_food_inputs:i -> val;
@@ -319,7 +326,7 @@ fn agent_think(all_agents_array, current_agent_pod, food_array, food_count, food
         val -> $input_layer_activations;
         i + 1 -> i;
     }
-
+    ;;;prn input_layer_activations;
 
     ;;; Access weights directly from the agent pod
     current_agent_pod:weights_input_hidden -> agent_weights_ih;
@@ -331,7 +338,7 @@ fn agent_think(all_agents_array, current_agent_pod, food_array, food_count, food
     ;;; Calculate output layer activations using weights from the pod
     calculate_layer_output(hidden_layer_activations, agent_weights_ho) -> output_layer_activations;
 
-    output_layer_activations -> nn_outputs;
+    hidden_layer_activations -> nn_outputs;
 }
 
 ;;; Function to apply the neural network's outputs to the agent's state
@@ -342,11 +349,41 @@ fn apply_nn_outputs(current_agent_pod, nn_outputs, max_turn_nn_magnitude, max_sp
     nn_outputs:2 -> speed_output;
     ;;;1.0 -> speed_output;
 
-    ;;; Calculate turn amount based on difference in left/right turn outputs
+    ;;; Calculate raw turn amount based on difference in left/right turn outputs
     right_turn_output - left_turn_output -> turn_difference;
-    turn_difference * max_turn_nn_magnitude -> turn_amount;
+    turn_difference * max_turn_nn_magnitude -> raw_turn_amount; ;;; Store the raw turn amount
 
-    current_agent_pod:heading + turn_amount -> new_heading;
+    ;;; --- NEW: Apply a maximum turn angle constraint ---
+    ;;; Define a constant for the maximum allowed turn angle per step (e.g., in radians)
+    ;;; You will need to tune this value based on your simulation's scale and desired behavior.
+    ;;; For example, 0.1 radians is roughly 5.7 degrees. A smaller value makes turns more gradual.
+    0.1 -> MAX_ALLOWED_TURN_ANGLE_PER_STEP; ;;; You might want to define this as a global constant or pass it as a parameter
+
+    0 -> turn_amount;
+    if raw_turn_amount > MAX_ALLOWED_TURN_ANGLE_PER_STEP {
+        MAX_ALLOWED_TURN_ANGLE_PER_STEP -> turn_amount;
+    } elseif raw_turn_amount < -MAX_ALLOWED_TURN_ANGLE_PER_STEP {
+        -MAX_ALLOWED_TURN_ANGLE_PER_STEP -> turn_amount;
+    } else {
+        raw_turn_amount -> turn_amount;
+    }
+
+    current_agent_pod:heading -> old_heading;
+    old_heading + turn_amount -> new_heading_unnormalized;
+
+    ;;; --- NEW: Normalize heading to keep it within [0, 2*PI) ---
+    ;;; Assuming 'my_pi' is defined globally (e.g., 3.1415926535)
+    3.1415926535 -> my_pi;
+    my_pi * 2.0 -> two_pi;
+    0 -> new_heading;
+    if new_heading_unnormalized < 0.0 {
+        new_heading_unnormalized + two_pi -> new_heading;
+    } elseif new_heading_unnormalized >= two_pi {
+        new_heading_unnormalized - two_pi -> new_heading;
+    } else {
+        new_heading_unnormalized -> new_heading;
+    }
+
 
     ;;; Calculate new speed (e.g., speed output maps 0-1 to 0-MAX_SPEED_NN)
     speed_output * max_speed_nn -> new_speed;
@@ -415,7 +452,7 @@ fn createAgent(initial_x, initial_y, my_pi,
     init2DArray(num_hidden_neurons_const + 1, num_nn_outputs_const) -> weights_ho_val; ;;; +1 for bias row
 
     ;;; Tail properties
-    5 -> tail_segment_count_val; ;;; Number of segments in the tail
+    8 -> tail_segment_count_val; ;;; Number of segments in the tail
     0.8 -> tail_segment_scale_factor_val; ;;; Each segment is 80% size of the previous
     10.0 -> tail_segment_spacing_val; ;;; NEW: Distance between tail segments
 
@@ -448,8 +485,37 @@ fn createAgent(initial_x, initial_y, my_pi,
              tail_segment_spacing_val, ;;; NEW
              initial_tail_positions) -> new_agent_pod; ;;; NEW
 }
+;;; Helper functions to calculate shortest toroidal distance components
+fn toroidal_dx(x1, x2, width) -> dx {
+    x1 - x2 -> dx_direct;
+    width / 2.0 -> half_width;
+    0 -> dx;
+    if dx_direct > half_width {
+        dx_direct - width -> dx;
+    } elseif dx_direct < -half_width {
+        dx_direct + width -> dx;
+    } else {
+        dx_direct -> dx;
+    }
+    dx -> dx;
+}
 
-fn update_agent_position(all_agents, current_agent_pod) -> all_agents {
+fn toroidal_dy(y1, y2, height) -> dy {
+    y1 - y2 -> dy_direct;
+    height / 2.0 -> half_height;
+    0 -> dy;
+    if dy_direct > half_height {
+        dy_direct - height -> dy;
+    } elseif dy_direct < -half_height {
+        dy_direct + height -> dy;
+    } else {
+        dy_direct -> dy;
+    }
+    dy -> dy;
+}
+
+;;; The updated update_agent_position function
+fn update_agent_position(all_agents, current_agent_pod, window_width, window_height) -> all_agents {
     current_agent_pod:x -> old_x;
     current_agent_pod:y -> old_y;
     current_agent_pod:heading -> current_heading;
@@ -461,9 +527,9 @@ fn update_agent_position(all_agents, current_agent_pod) -> all_agents {
     current_agent_pod:momentum_x -> prev_momentum_x;
     current_agent_pod:momentum_y -> prev_momentum_y;
 
-    ;;; Apply decay to the previous momentum (e.g., 80% retained, adjust as needed)
-    prev_momentum_x * 0.7 -> decayed_momentum_x;
-    prev_momentum_y * 0.7 -> decayed_momentum_y;
+    ;;; Apply decay to the previous momentum (e.g., 70% retained, adjust as needed)
+    prev_momentum_x * 0.1 -> decayed_momentum_x;
+    prev_momentum_y * 0.1 -> decayed_momentum_y;
 
     ;;; Calculate the movement from the current speed and heading
     (dx_norm * current_speed) -> current_move_x;
@@ -501,12 +567,13 @@ fn update_agent_position(all_agents, current_agent_pod) -> all_agents {
                 ;;; Reverse and/or reduce its momentum to simulate a bounce.
                 ;;; The degree of bounce depends on the elasticity.
                 ;;; A simple reversal might be:
-                momentum_x_for_next_frame * -0.7 -> momentum_x_for_next_frame; ;;; Bounce back with half momentum
-                momentum_y_for_next_frame * -0.7 -> momentum_y_for_next_frame;
-                (current_move_x + decayed_momentum_x) * 0.7 -> agent:momentum_x;
-                (current_move_y + decayed_momentum_y) * 0.7 -> agent:momentum_y;
+                momentum_x_for_next_frame * -0.1 -> momentum_x_for_next_frame; ;;; Bounce back with reduced momentum
+                momentum_y_for_next_frame * -0.1 -> momentum_y_for_next_frame;
+                ;;; Optionally, apply a reciprocal momentum to the collided agent
+                (current_move_x + decayed_momentum_x) * 0.1 -> agent:momentum_x;
+                (current_move_y + decayed_momentum_y) * 0.1 -> agent:momentum_y;
 
-                agent -> all_agents:i;
+                agent -> all_agents:i; ;;; Update the agent in the all_agents array
 
                 break; ;;; Exit loop on first collision for simplicity
             }
@@ -518,17 +585,50 @@ fn update_agent_position(all_agents, current_agent_pod) -> all_agents {
     momentum_x_for_next_frame -> final_momentum_x;
     momentum_y_for_next_frame -> final_momentum_y;
 
+    ;;; --- Apply toroidal wrapping to the head and calculate offset for tail ---
+    new_x -> pre_wrap_new_x;
+    new_y -> pre_wrap_new_y;
+
+    0.0 -> x_offset_from_wrap;
+    0.0 -> y_offset_from_wrap;
+
+    if new_x < 0.0 {
+        window_width + new_x -> new_x;
+        x_offset_from_wrap = new_x - pre_wrap_new_x;
+    }
+    if new_x > window_width {
+        new_x - window_width -> new_x;
+        x_offset_from_wrap = new_x - pre_wrap_new_x;
+    }
+    if new_y < 0.0 {
+        window_height + new_y -> new_y;
+        y_offset_from_wrap = new_y - pre_wrap_new_y;
+    }
+    if new_y > window_height {
+        new_y - window_height -> new_y;
+        y_offset_from_wrap = new_y - pre_wrap_new_y;
+    }
+
     ;;; Update tail positions - Flexible Trailing for 'free but held together' movement
     current_agent_pod:tail_segment_count -> max_tail_len;
     current_agent_pod:tail_segment_spacing -> spacing;
     current_agent_pod:tail_positions -> current_tail_positions_old;
+    current_agent_pod:heading -> agent_heading_for_tail_calc;
 
     [] -> new_tail_positions;
 
-    ;;; The first point the tail follows is the agent's *new* head position (new_x, new_y)
-    ;;; This sets the primary anchor for the tail.
-    [^new_x ^new_y] -> previous_segment_pos_new; ;;; This will be the reference for the first tail segment
+    ;;; Apply the wrap offset to existing tail positions *before* recalculating their relative positions
+    0 -> k_apply_offset;
+    while k_apply_offset < length(current_tail_positions_old) {
+        current_tail_positions_old:k_apply_offset -> kao;
+        kao:0 + x_offset_from_wrap -> kao:0;
+        kao:1 + y_offset_from_wrap -> kao:1;
+        kao -> current_tail_positions_old:k_apply_offset;
+        k_apply_offset + 1 -> k_apply_offset;
+    }
 
+    ;;; The agent's *wrapped* new head position is the leader for the first tail segment
+    [^new_x ^new_y] -> previous_segment_pos_new;
 
     0 -> k;
     repeat max_tail_len times {
@@ -537,34 +637,49 @@ fn update_agent_position(all_agents, current_agent_pod) -> all_agents {
             current_tail_positions_old:k -> current_tail_segment_pos;
         } else {
             ;;; If this is a new segment being added to an incomplete tail,
-            ;;; initialize it behind the previous segment
-            previous_segment_pos_new:0 - (cos(current_heading) * spacing) -> valX;
-            previous_segment_pos_new:1 - (sin(current_heading) * spacing) -> valY;
+            ;;; initialize it directly behind the previous segment or agent's head
+            previous_segment_pos_new:0 - (cos(agent_heading_for_tail_calc) * spacing) -> valX;
+            previous_segment_pos_new:1 - (sin(agent_heading_for_tail_calc) * spacing) -> valY;
             [^valX ^valY] -> current_tail_segment_pos;
         }
 
         ;;; Calculate vector from the leader (previous_segment_pos_new) to the current tail segment
-        previous_segment_pos_new:0 - current_tail_segment_pos:0 -> dx;
-        previous_segment_pos_new:1 - current_tail_segment_pos:1 -> dy;
-        (dx * dx) + (dy * dy) -> dist_sq;
-        sqrt(dist_sq) -> dist;
+        ;;; IMPORTANT: Use toroidal distance functions here!
+        toroidal_dx(previous_segment_pos_new:0, current_tail_segment_pos:0, window_width) -> dx_to_leader;
+        toroidal_dy(previous_segment_pos_new:1, current_tail_segment_pos:1, window_height) -> dy_to_leader;
+
+        (dx_to_leader * dx_to_leader) + (dy_to_leader * dy_to_leader) -> dist_sq_to_leader;
+        sqrt(dist_sq_to_leader) -> dist_to_leader;
 
         ;;; If the distance is greater than the desired spacing, pull the current segment
-        ;;; to be exactly 'spacing' units away from its leader.
-        ;;; This ensures segments don't spread too far.
-        if dist > spacing {
-            (dx / dist) -> nx; ;;; Normalized x component of vector from leader to current segment
-            (dy / dist) -> ny; ;;; Normalized y component
+        ;;; to be exactly 'spacing' units away from its leader along the shortest toroidal path.
+        if dist_to_leader > spacing {
+            (dx_to_leader / dist_to_leader) -> nx_to_leader; ;;; Normalized x component of vector from leader to current segment
+            (dy_to_leader / dist_to_leader) -> ny_to_leader; ;;; Normalized y component
 
-            ;;; Move current segment to be 'spacing' units away from leader, along the line from leader to current segment
-            (previous_segment_pos_new:0 - (nx * spacing)) -> current_tail_segment_pos:0;
-            (previous_segment_pos_new:1 - (ny * spacing)) -> current_tail_segment_pos:1;
+            ;;; Move current segment to be 'spacing' units away from leader, along the shortest toroidal path
+            (previous_segment_pos_new:0 - (nx_to_leader * spacing)) -> current_tail_segment_pos:0;
+            (previous_segment_pos_new:1 - (ny_to_leader * spacing)) -> current_tail_segment_pos:1;
+        }
+
+        ;;; Apply toroidal wrapping to the current tail segment after its position is determined
+        if current_tail_segment_pos:0 < 0.0 {
+            window_width + current_tail_segment_pos:0 -> current_tail_segment_pos:0;
+        }
+        if current_tail_segment_pos:0 > window_width {
+            current_tail_segment_pos:0 - window_width -> current_tail_segment_pos:0;
+        }
+        if current_tail_segment_pos:1 < 0.0 {
+            window_height + current_tail_segment_pos:1 -> current_tail_segment_pos:1;
+        }
+        if current_tail_segment_pos:1 > window_height {
+            current_tail_segment_pos:1 - window_height -> current_tail_segment_pos:1;
         }
 
         ;;; Add the updated segment position to the new list
         current_tail_segment_pos -> $new_tail_positions;
-        
-        ;;; This updated segment now becomes the leader for the *next* segment in the chain
+
+        ;;; This updated (and now wrapped) segment now becomes the leader for the *next* segment in the chain
         current_tail_segment_pos -> previous_segment_pos_new;
         k + 1 -> k;
     }
@@ -572,7 +687,7 @@ fn update_agent_position(all_agents, current_agent_pod) -> all_agents {
 
 
     ;;; Create a NEW agentPod, copying all members and updating x, y, momentum, and tail_positions
-    agentPod(new_x, new_y, ;;; UPDATED: x, y
+    agentPod(new_x, new_y, ;;; UPDATED: x, y (now wrapped)
              current_agent_pod:radius, current_agent_pod:speed,
              final_momentum_x, final_momentum_y, ;;; UPDATED: momentum_x, momentum_y
              current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
@@ -586,46 +701,12 @@ fn update_agent_position(all_agents, current_agent_pod) -> all_agents {
              current_agent_pod:weights_hidden_output,
              current_agent_pod:fitness_score,
              current_agent_pod:id,
-             current_agent_pod:tail_segment_count, ;;; NEW
-             current_agent_pod:tail_segment_scale_factor, ;;; NEW
-             current_agent_pod:tail_segment_spacing, ;;; NEW
-             current_tail_positions) -> updated_agent_pod; ;;; NEW
-
+             current_agent_pod:tail_segment_count,
+             current_agent_pod:tail_segment_scale_factor,
+             current_agent_pod:tail_segment_spacing,
+             current_tail_positions) -> updated_agent_pod;
     [^all_agents ^updated_agent_pod] -> all_agents;
 }
-
-;;; UPDATED: Function to apply toroidal wrap to the agent's position. Returns a NEW agentPod.
-fn apply_toroidal_wrap(current_agent_pod, canvas_width, canvas_height) -> updated_agent_pod {
-    current_agent_pod:x -> new_x;
-    current_agent_pod:y -> new_y;
-    if (new_x > canvas_width) { new_x - canvas_width -> new_x; }
-    if (new_x < 0.0) { new_x + canvas_width -> new_x; }
-    if (new_y > canvas_height) { new_y - canvas_height -> new_y; }
-    if (new_y < 0.0) { new_y + canvas_height -> new_y; }
-
-    ;;; Create a NEW agentPod, copying all members and updating x, y, and tail_positions if needed
-    ;;; Note: toroidal wrap for tail segments is not explicitly handled here,
-    ;;; they will follow the agent's head. If a segment crosses a boundary,
-    ;;; it will "pop" to the other side with its parent.
-    agentPod(new_x, new_y, ;;; UPDATED: x, y
-             current_agent_pod:radius, current_agent_pod:speed,
-             current_agent_pod:momentum_x, current_agent_pod:momentum_y,
-             current_agent_pod:r, current_agent_pod:g, current_agent_pod:b,
-             current_agent_pod:heading,
-             current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset,
-             current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r,
-             current_agent_pod:antenna_g, current_agent_pod:antenna_b,
-             current_agent_pod:flash_timer, current_agent_pod:flash_duration,
-             current_agent_pod:flash_r, current_agent_pod:flash_g, current_agent_pod:flash_b,
-             current_agent_pod:weights_input_hidden,
-             current_agent_pod:weights_hidden_output,
-             current_agent_pod:fitness_score, current_agent_pod:id, ;;; Pass existing fitness
-             current_agent_pod:tail_segment_count, ;;; NEW
-             current_agent_pod:tail_segment_scale_factor, ;;; NEW
-             current_agent_pod:tail_segment_spacing, ;;; NEW
-             current_agent_pod:tail_positions) -> updated_agent_pod; ;;; NEW
-}
-
 ;;; UPDATED: Function to normalize the agent's heading. Returns a NEW agentPod.
 fn normalize_agent_heading(current_agent_pod, pi_val) -> updated_agent_pod {
     current_agent_pod:heading -> new_heading;
@@ -922,7 +1003,8 @@ fn handle_agent_flash_effect(current_agent_pod, was_food_eaten_this_frame, was_p
     }
 
     ;;; Create a NEW agentPod with updated flash properties
-    agentPod(current_agent_pod:x, current_agent_pod:y, current_agent_pod:radius, current_agent_pod:speed, current_agent_pod:momentum_x, current_agent_pod:momentum_y, current_agent_pod:r, current_agent_pod:g, current_agent_pod:b, current_agent_pod:heading, current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset, current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r, current_agent_pod:antenna_g, current_agent_pod:antenna_b, new_flash_timer, current_agent_pod:flash_duration, new_flash_r, new_flash_g, new_flash_b, current_agent_pod:weights_input_hidden, current_agent_pod:weights_hidden_output, current_agent_pod:fitness_score, current_agent_pod:id, current_agent_pod:tail_segment_count, current_agent_pod:tail_segment_scale_factor, current_agent_pod:tail_segment_spacing, current_agent_pod:tail_positions) -> updated_agent_pod;
+    agentPod(current_agent_pod:x, current_agent_pod:y, current_agent_pod:radius, current_agent_pod:speed, current_agent_pod:momentum_x, current_agent_pod:momentum_y, current_agent_pod:r, current_agent_pod:g, current_agent_pod:b, current_agent_pod:heading, current_agent_pod:antenna_length, current_agent_pod:antenna_angle_offset, current_agent_pod:antenna_tip_radius, current_agent_pod:antenna_r, current_agent_pod:antenna_g, current_agent_pod:antenna_b, new_flash_timer, current_agent_pod:flash_duration, new_flash_r, new_flash_g, new_flash_b, current_agent_pod:weights_input_hidden, current_agent_pod:weights_hidden_output, current_agent_pod:fitness_score, current_agent_pod:id,
+     current_agent_pod:tail_segment_count, current_agent_pod:tail_segment_scale_factor, current_agent_pod:tail_segment_spacing, current_agent_pod:tail_positions) -> updated_agent_pod;
 
 }
 
@@ -1011,38 +1093,49 @@ fn perform_evolution(all_agents_array, num_agents, num_fittest_to_select,
         origAgent:heading -> origHeading;
         origAgent:momentum_x -> momentum_x;
         origAgent:momentum_y -> momentum_y;
+        origAgent:tail_segment_count -> origSegmentCount;
+        origAgent:tail_segment_scale_factor -> origSegmentScaleFactor;
+        origAgent:tail_segment_spacing -> origTailSegmentSpacing;
+        origAgent:tail_positions -> origTailPositions;
+
+
         ;;; Create a NEW pod for the next generation, resetting fitness to 0
         agentPod(origX, origY, fittest_agent_pod:radius, fittest_agent_pod:speed, momentum_x, momentum_y, fittest_agent_pod:r, fittest_agent_pod:g, fittest_agent_pod:b, origHeading, fittest_agent_pod:antenna_length, fittest_agent_pod:antenna_angle_offset, fittest_agent_pod:antenna_tip_radius, fittest_agent_pod:antenna_r, fittest_agent_pod:antenna_g, fittest_agent_pod:antenna_b, fittest_agent_pod:flash_timer, fittest_agent_pod:flash_duration, fittest_agent_pod:flash_r, fittest_agent_pod:flash_g, fittest_agent_pod:flash_b, fittest_agent_pod:weights_input_hidden, ;;; Keep original weights
                  fittest_agent_pod:weights_hidden_output, ;;; Keep original weights
                  0, selected, ;;; Reset fitness for new generation
-                 fittest_agent_pod:tail_segment_count, ;;; Pass tail properties
-                 fittest_agent_pod:tail_segment_scale_factor,
-                 fittest_agent_pod:tail_segment_spacing,
-                 fittest_agent_pod:tail_positions) -> new_fittest_pod; ;;; Pass tail positions
+                 origSegmentCount, ;;; Pass tail properties
+                 origSegmentScaleFactor,
+                 origTailSegmentSpacing,
+                 origTailPositions) -> new_fittest_pod; ;;; Pass tail positions
         new_fittest_pod -> $next_generation_agents;
         j_fittest + 1 -> j_fittest;
         selected + 1 -> selected;
-    } ;;; Always include a randomly initialized agent for force better
+    }
+    ;;; Always include a randomly initialized agent for force better
     ;;; exploration of the solution space
-    ;;; init2DArray(num_nn_inputs_const + 1, num_hidden_neurons_const) -> weights_ih_val; ;;; +1 for bias row
-    ;;; init2DArray(num_hidden_neurons_const + 1, num_nn_outputs_const) -> weights_ho_val; ;;; +1 for bias row
-    ;;; all_agents_array:selected -> ag;
-    ;;; agentPod(ag:x, ag:y, ag:radius, ag:speed,
-    ;;;          ag:momentum_x, ag:momentum_y,
-    ;;;          ag:r, ag:g, ag:b, ag:heading,
-    ;;;          ag:antenna_length, ag:antenna_angle_offset,
-    ;;;          ag:antenna_tip_radius, ag:antenna_r,
-    ;;;          ag:antenna_g, ag:antenna_b,
-    ;;;          ag:flash_timer, ag:flash_duration,
-    ;;;          ag:flash_r, ag:flash_g, ag:flash_b,
-    ;;;          weights_ih_val, ;;; Keep original weights
-    ;;;          weights_ho_val, ;;; Keep original weights
-    ;;;          0, ;;;
-    ;;; selected) -> $next_generation_agents;
-    ;;;selected + 1 -> selected;
+    init2DArray(num_nn_inputs_const + 1, num_hidden_neurons_const) -> weights_ih_val; ;;; +1 for bias row
+    init2DArray(num_hidden_neurons_const + 1, num_nn_outputs_const) -> weights_ho_val; ;;; +1 for bias row
+    all_agents_array:selected -> ag;
+    agentPod(ag:x, ag:y, ag:radius, ag:speed,
+              ag:momentum_x, ag:momentum_y,
+              ag:r, ag:g, ag:b, ag:heading,
+              ag:antenna_length, ag:antenna_angle_offset,
+              ag:antenna_tip_radius, ag:antenna_r,
+              ag:antenna_g, ag:antenna_b,
+              ag:flash_timer, ag:flash_duration,
+              ag:flash_r, ag:flash_g, ag:flash_b,
+              weights_ih_val, ;;; Keep original weights
+              weights_ho_val, ;;; Keep original weights
+              0,
+              selected
+              ag:tail_segment_count, ;;; Pass tail properties
+              ag:tail_segment_scale_factor,
+              ag:tail_segment_spacing,
+              ag:tail_positions) -> $next_generation_agents;
+    selected + 1 -> selected;
     ;;; 4. Fill the rest of the generation with mutated copies of the fittest agents
     0 -> j_children;
-    repeat (num_agents - num_fittest_to_select) times { ;;; Make (num_agents - num_fittest_to_select) children
+    repeat (num_agents - num_fittest_to_select - 1) times { ;;; Make (num_agents - num_fittest_to_select) children
         j_children % num_fittest_to_select -> parent_index_in_fittest;
         fitness_indices:parent_index_in_fittest -> parent_pair;
         parent_pair:1 -> original_idx_of_parent;
@@ -1059,15 +1152,19 @@ fn perform_evolution(all_agents_array, num_agents, num_fittest_to_select,
         origAgent:heading -> origHeading;
         origAgent:momentum_x -> momentum_x;
         origAgent:momentum_y -> momentum_y;
+        origAgent:tail_segment_count -> origSegmentCount;
+        origAgent:tail_segment_scale_factor -> origSegmentScaleFactor;
+        origAgent:tail_segment_spacing -> origTailSegmentSpacing;
+        origAgent:tail_positions -> origTailPositions;
 
         agentPod(origX, origY, parent_pod:radius, parent_pod:speed, momentum_x, momentum_y, parent_pod:r, parent_pod:g, parent_pod:b, origHeading, parent_pod:antenna_length, parent_pod:antenna_angle_offset, parent_pod:antenna_tip_radius, parent_pod:antenna_r, parent_pod:antenna_g, parent_pod:antenna_b, 0, ;;; Reset flash timer for new child
                  parent_pod:flash_duration, parent_pod:flash_r, parent_pod:flash_g, parent_pod:flash_b, new_ih_weights, ;;; Mutated weights
                  new_ho_weights, ;;; Mutated weights
                  0, selected, ;;; Reset fitness for new generation
-                 parent_pod:tail_segment_count, ;;; Pass tail properties
-                 parent_pod:tail_segment_scale_factor,
-                 parent_pod:tail_segment_spacing,
-                 parent_pod:tail_positions) -> new_child_pod; ;;; Pass tail positions
+                 origSegmentCount, ;;; Pass tail properties
+                 origSegmentScaleFactor,
+                 origTailSegmentSpacing,
+                 origTailPositions) -> new_child_pod; ;;; Pass tail positions
         new_child_pod -> $next_generation_agents;
         j_children + 1 -> j_children;
         selected + 1 -> selected;
@@ -1085,16 +1182,16 @@ start {
     canvasHeight_int + 0.0 -> canvas_height_float;
     ;;; Neural Network Constants (declared locally in start)
     16 -> num_nn_inputs_local;
-    16 -> num_hidden_neurons_local;
+    3 -> num_hidden_neurons_local;
     3 -> num_nn_outputs_local;
-    0.4 -> max_turn_nn_magnitude_local;
-    15.0 -> max_speed_nn_local;
+    0.8 -> max_turn_nn_magnitude_local;
+    30.0 -> max_speed_nn_local;
 
 
     ;;; Evolution Parameters
-    100 -> evolution_interval_steps; ;;; N: How many steps before a new generation
-    2 -> num_fittest_agents; ;;; F: Number of fittest agents whose NNs are copied
-    0.9 -> mutation_magnitude; ;;; Max deviation for weight mutation
+    400 -> evolution_interval_steps; ;;; N: How many steps before a new generation
+    1 -> num_fittest_agents; ;;; F: Number of fittest agents whose NNs are copied
+    0.1 -> mutation_magnitude; ;;; Max deviation for weight mutation
     ;;; --- Food Item Properties ---
     40 -> total_food_item_count; ;;; Total number of food items
     0 -> num_poisonous_food_items; ;;; Number of poisonous red items
@@ -1127,11 +1224,11 @@ start {
 
             ;;; DEBUG: Print speed of the first agent to check movement
             ;;; --- Update Current Agent's State (returning new pod, then reassigning to array slot) ---
-            update_agent_position(all_agents_array, current_agent_pod) -> updated;
+            update_agent_position(all_agents_array, current_agent_pod, canvasWidth_int, canvasHeight_int) -> updated;
 
             updated:1 -> current_agent_pod;
             updated:0 -> all_agents_array;
-            apply_toroidal_wrap(current_agent_pod, canvas_width_float, canvas_height_float) -> current_agent_pod;
+            ;;; apply_toroidal_wrap(current_agent_pod, canvas_width_float, canvas_height_float) -> current_agent_pod;
             normalize_agent_heading(current_agent_pod, my_pi) -> current_agent_pod;
 
             ;;; --- Check for Food Consumption and Handle Agent Flash for current agent ---
